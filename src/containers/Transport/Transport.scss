@@ -1,0 +1,16 @@
+.transport {
+    height: 50%;
+    border: 1px black solid;
+    margin: 0 auto;
+    width: 200px;
+    display: flex;
+    flex-direction: row;
+
+    .start,
+    .stop {
+        font-size: 8px;
+        margin: auto;
+        width: 10%;
+        height: 3%;
+    }
+}

@@ -1,0 +1,14 @@
+@import 'values';
+
+.topWrapper {
+    // border: 1px solid black;
+    height: $topSize;
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+  }
+  
+  .bottomWrapper {
+    border: 1px solid black;
+    margin-top: 10px;
+  }

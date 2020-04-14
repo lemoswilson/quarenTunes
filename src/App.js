@@ -1,26 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import ToneContext from '../src/context/toneContext'
+import AppContext from '../src/context/appContext'
+import TrackContext from '../src/context/trackContext'
+import * as Tone from 'tone';
+import Layout from './components/Layout/Layout';
+import forceRender from './context/forceRender';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+class App extends Component {
+  constructor(props){
+    super(props);
+    this.appRef = React.createRef();
+    this.getTrack = (Ref, trackNumber, forceRenderCallback) => {
+      this.setState(state => ({
+        [trackNumber]: Ref,
+      }));
+    }
+
+    this.deleteTrackRef = (trackNumber) => {
+      this.setState(state => ({
+        [trackNumber]: undefined,
+      }))
+    }
+
+    this.state = {
+      0: null,
+      getTrackRef: this.getTrack,
+      deleteTrackRef: this.deleteTrackRef
+    }
+
+  }
+
+
+  render() {
+
+    return (
+      <div className="App" ref={this.appRef}>
+      <ToneContext.Provider value={Tone}>
+      <AppContext.Provider value={this.appRef}>
+      <TrackContext.Provider value={this.state}>
+        <Layout></Layout>
+      </TrackContext.Provider>
+      </AppContext.Provider>
+      </ToneContext.Provider>
+      {this.state[0] ? this.state[0].harmonicity.value : null }
+      </div>
+    );
+
+}}
 
 export default App;
