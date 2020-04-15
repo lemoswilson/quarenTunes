@@ -53,6 +53,7 @@ const FMSynth = (props) => {
         // passing the new harmonicity value to the components subscribed to the TrackContext
         useEffect(() => {
             selfRef.current.harmonicity.value = state.harmonicity;
+            TrackContext.getTrackRef(selfRef.current, props.trackIndex);
         }, [state.harmonicity])
 
         useEffect(() => {

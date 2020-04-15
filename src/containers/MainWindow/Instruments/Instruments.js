@@ -8,10 +8,6 @@ class Instruments extends Component {
         super(props);
     }
 
-    componentDidUpdate() {
-        console.log('[Instruments.js]: ComponentDidUpdate, instrumentList:', this.props.instrumentList);
-    }
-
     selected = (index) => {
         return index === this.props.selectedInstrument ? true : false; 
     }
@@ -20,7 +16,7 @@ class Instruments extends Component {
         return(
             <div className="instruments">
                 {this.props.instrumentList.map((instrument, index) => {
-                    return <Instrument key={`${index}Track`} trackIndex={index} InstrumentType={instrument} display={() => this.selected(index)}/>
+                    return <Instrument key={instrument.id} trackIndex={index} InstrumentType={instrument.instrument} display={() => this.selected(index)}/>
                 })}
             </div>
         )

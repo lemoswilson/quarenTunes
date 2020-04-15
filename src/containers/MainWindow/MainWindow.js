@@ -10,10 +10,11 @@ class MainWindow extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            instruments: ['FMSynth'],
+            instruments: [{instrument:'FMSynth', id:0}],
             fx: [[], [], [], []],
             selectedInstrument: 0,
             trackCount: 1,
+            counter: 0,
         }
     }
 
@@ -22,7 +23,7 @@ class MainWindow extends Component {
     changeInstrument = (instrument, index) => {
         this.setState((state) => {
             let inst = state.instruments;
-            inst[index] = instrument;
+            inst[index].instrument = instrument;
             return {
                 ...state,
                 instruments: inst,
@@ -33,16 +34,18 @@ class MainWindow extends Component {
     addInstrument = () => {
         this.setState((state) => {
             let inst = state.instruments;
-            inst.push('FMSynth');
+            inst.push({instrument: 'FMSynth', id: state.counter + 1});
             return {
                 ...state,
                 instruments: inst,
                 trackCount: state.trackCount + 1,
+                counter: state.counter + 1,
             }
         })
     }
 
     removeInstrument = (index) => {
+        this.context.deleteTrackRef(index, this.state.trackCount - 1);
         this.setState((state) => {
             let inst = state.instruments;
             inst.splice(index, 1);
@@ -52,7 +55,7 @@ class MainWindow extends Component {
                 trackCount: state.trackCount - 1,
             }
         })
-        // this.context.deleteTrackRef(index);
+        console.log('[MainWindow.js]: should be deliting track ref');
         // this.forceInstrumentRender();
     }
 
@@ -66,9 +69,6 @@ class MainWindow extends Component {
         })
     }
 
-    componentDidUpdate(){
-        console.log('[MainWindow.js]: ComponentDidUpdate, InstrumentList', this.state.instruments)
-    }
 
     render() {
         return(
@@ -77,7 +77,7 @@ class MainWindow extends Component {
                     <div className="trackControl">
                         <div className='addInstrument' onClick={this.addInstrument}>+</div>
                         { this.state.instruments.map((instrument, index) => {
-                            return <InstrumentSelector key={index} trackIndex={index} instrument={instrument} setInstrument={this.changeInstrument} removeInstrument={this.removeInstrument} showInstrument={this.showInstrument}></InstrumentSelector>
+                            return <InstrumentSelector key={instrument.id} unique={instrument.id} trackIndex={index} instrument={instrument.instrument} setInstrument={this.changeInstrument} removeInstrument={this.removeInstrument} showInstrument={this.showInstrument}></InstrumentSelector>
                         }) } 
                         </div>
                     <Instruments instrumentList={this.state.instruments} selectedInstrument={this.state.selectedInstrument}></Instruments>

@@ -36,7 +36,7 @@ const InstrumentSelector = (props) => {
     return (
         <div className="instrumentRow" style={style(props.trackIndex)} onClick={showInstrument}>
             <label htmlFor={`IS${props.trackIndex}`}>{`Track ${props.trackIndex + 1}:`}</label>
-            <select onChange={setInstrument} value={props.instrument} id={`IS${props.key}`} className="instrumentSelector">
+            <select onChange={setInstrument} value={props.instrument} id={props.unique} className="instrumentSelector">
                 <option value="FMSynth"  >FMSynth</option>
                 <option value="Sampler"  >Sampler</option>
                 <option value="drumSynth" >drumSynth</option>

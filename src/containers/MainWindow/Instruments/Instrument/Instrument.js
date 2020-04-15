@@ -5,9 +5,6 @@ import { useRef } from 'react';
 
 const Instrument = (props) => {
 
-    useEffect(() => {
-        console.log('[Instrument.js]: trackIndex change');
-    }, [props.trackIndex])
 
     const instrumentStyle = props.display() ? null : {display: 'none'};
 

@@ -17,9 +17,11 @@ class App extends Component {
       }));
     }
 
-    this.deleteTrackRef = (trackNumber) => {
+    this.deleteTrackRef = (trackNumber, trackCounter) => {
+      console.log('[App.js]: trackNumber deleteTrackRef', trackNumber);
       this.setState(state => ({
         [trackNumber]: undefined,
+        [trackCounter]: undefined, 
       }))
     }
 
