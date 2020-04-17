@@ -67,6 +67,7 @@ class MainWindow extends Component {
         this.setState({
             selectedInstrument: index,
         })
+        this.context.getSelectedTrack(index);
     }
 
 

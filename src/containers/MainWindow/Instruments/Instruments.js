@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './Instruments.scss';
 import Instrument from './Instrument/Instrument';
-// import './AnalogStyle/AnalogStyle';
 
 class Instruments extends Component {
     constructor(props) {

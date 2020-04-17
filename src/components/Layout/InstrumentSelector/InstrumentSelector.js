@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useContext } from 'react';
+import sequencerContext from '../../../context/sequencerContext';
 import './InstrumentSelector.scss'
-import { useEffect, useContext } from 'react';
-import forceRender from '../../../context/forceRender'
 
 const InstrumentSelector = (props) => {
+    let SequencerContext = useContext(sequencerContext);
 
     const setInstrument = (e) => {
         props.setInstrument(e.target.value, props.trackIndex);
@@ -29,9 +29,9 @@ const InstrumentSelector = (props) => {
         }
     }
 
-    const selected = (instrumentRef) => {
-        return instrumentRef.current.value === props.instrument ? true : false;
-    }
+    // const selected = (instrumentRef) => {
+    //     return instrumentRef.current.value === props.instrument ? true : false;
+    // }
 
     return (
         <div className="instrumentRow" style={style(props.trackIndex)} onClick={showInstrument}>

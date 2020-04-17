@@ -11,18 +11,28 @@ let transportState = {
 }
 
 // Sequencer Reducer state
+
+const blabla = (props) => {
+    return <Steps PatternName={state.patterns[state.activePattern].name} trackTriggs={state.patterns[state.activePattern].tracks}></Steps>
+}
 let sequencerState = {
+    activePattern: new Number(),
     patterns: {
-        'name': {
-            triggState: new Object(), // object containing the triggerStates of the sequence,
+        0: {
+            name: new String(),
+            tracks: {
+                0: {
+                    length: new Number(),
+                    triggState: new Object(), // object containing the triggerStates of the sequence,
+                },
             loop: new Boolean(),// vai variar de acordo com transportState mode
             loopEnd: new String(), // size of the part in 16n.BarsBeatsSixteenths
             start: new Tone.Time(), // if loop mode equal to chain or to song -- this will be dinamycally set
-        }, 
-        'name': new Object(), // ...
+            }, 
+
+        }
     }
 }
-
 // Main window reducer
 let mainWinow = {
     track1: {

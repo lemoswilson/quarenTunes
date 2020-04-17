@@ -1,4 +1,5 @@
 @import 'values';
+@import '../../containers/MainWindow/MainWindow.scss';
 
 .topWrapper {
     // border: 1px solid black;
@@ -9,6 +10,9 @@
   }
   
   .bottomWrapper {
-    border: 1px solid black;
-    margin-top: 10px;
+    // border: 1px solid black;
+    margin-top: $bottomWrapper-marginTop;
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
   }

@@ -1,0 +1,9 @@
+@import '../MainWindow/variables';
+@import '../../components/Layout/values';
+
+.chat {
+    width: 20%;
+    border: 1px solid black;
+    // position: absolute;
+    height: 220px;
+}

@@ -1,6 +1,7 @@
-import React, { Component, useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import ToneContext from '../../../../context/toneContext';
 import trackContext from '../../../../context/trackContext';
+import sequencerContext from '../../../../context/sequencerContext';
 import Knob from '../../../../components/Knob/Knob';
 
 const FMSynth = (props) => {
@@ -28,33 +29,19 @@ const FMSynth = (props) => {
             }
         }) 
 
-        const [,force] = useState();
-
-        const forceUpdate = () => {
-            force({});
-        }
-        
-
-        const mounted = useRef();
-        useEffect(() => {
-            if (!mounted.current) {
-                mounted.current = true;
-            } else {
-                console.log('[FMSynth]: componentDidUpdate', props.trackIndex)
-                // TrackContext.getTrackRef(selfRef.current, props.trackIndex);
-            }
-        }, [])
         
         let Tone = useContext(ToneContext);
-        let selfRef = useRef(new Tone.FMSynth(state));
+        let selfRef = useRef(new Tone.FMSynth(state).toMaster());
         let TrackContext = useContext(trackContext)
+        let SequencerContext = useContext(sequencerContext)
     
 
         // passing the new harmonicity value to the components subscribed to the TrackContext
         useEffect(() => {
             selfRef.current.harmonicity.value = state.harmonicity;
             TrackContext.getTrackRef(selfRef.current, props.trackIndex);
-        }, [state.harmonicity])
+            TrackContext.getTrackState(state, props.trackIndex);
+        }, [state.harmonicity, props.trackIndex])
 
         useEffect(() => {
             TrackContext.getTrackRef(selfRef.current, props.trackIndex);

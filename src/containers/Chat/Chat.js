@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
+import './Chat.scss'
 
 class Chat extends Component {
     render() {
         return(
-            <React.Fragment>
-            </React.Fragment>
+            <div className="chat">
+
+            </div>
         )
     }
 }

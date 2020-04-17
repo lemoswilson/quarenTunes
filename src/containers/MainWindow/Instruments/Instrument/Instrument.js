@@ -1,7 +1,5 @@
 import React from 'react';
 import FMSynth from '../FMSynth/FMSynth'
-import { useEffect } from 'react';
-import { useRef } from 'react';
 
 const Instrument = (props) => {
 

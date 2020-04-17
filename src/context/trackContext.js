@@ -1,9 +1,11 @@
 import React from 'react';
 
 let trackContext = React.createContext({
+      getSelectedTrack: () => {},
       getTrackRef: () => {},
       deleteTrackRef: () => {},
-      forceRender: () => {},
+      selectedTrack: 0,
+      getTrackState: () => {},
     }
 );
 
