@@ -3,9 +3,6 @@ import './Instruments.scss';
 import Instrument from './Instrument/Instrument';
 
 class Instruments extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     selected = (index) => {
         return index === this.props.selectedInstrument ? true : false; 

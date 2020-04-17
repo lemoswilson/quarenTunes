@@ -33,7 +33,7 @@ const FMSynth = (props) => {
         let Tone = useContext(ToneContext);
         let selfRef = useRef(new Tone.FMSynth(state).toMaster());
         let TrackContext = useContext(trackContext)
-        let SequencerContext = useContext(sequencerContext)
+        // let SequencerContext = useContext(sequencerContext)
     
 
         // passing the new harmonicity value to the components subscribed to the TrackContext
@@ -41,7 +41,7 @@ const FMSynth = (props) => {
             selfRef.current.harmonicity.value = state.harmonicity;
             TrackContext.getTrackRef(selfRef.current, props.trackIndex);
             TrackContext.getTrackState(state, props.trackIndex);
-        }, [state.harmonicity, props.trackIndex])
+        }, [state.harmonicity, props.trackIndex, state])
 
         useEffect(() => {
             TrackContext.getTrackRef(selfRef.current, props.trackIndex);

@@ -50,7 +50,7 @@ class App extends Component {
       })
     }
 
-    this.updateSequencerState = (patternNumber, pattern) => {
+    this.updateSequencerContext = (patternNumber, pattern) => {
       this.setState(state => {
         let copyState = state;
         copyState = {
@@ -63,7 +63,39 @@ class App extends Component {
         return copyState
         // copyState['sequncer'][patternNumber] = pattern;
       })
-      console.log('[App.js]: updateSequencerState', pattern);
+    }
+
+    this.addTrackToSequencer = (trackNumber, pattern) => {
+      this.setState((state) => {
+        let newState = {
+          ...state,
+          sequencer: {
+            ...state.sequencer,
+            [this.state.sequencer.activePattern]: {
+              ...state.sequencer[this.state.sequencer.activePattern],
+              tracks: {
+                ...state.sequencer[this.state.sequencer.activePattern]['tracks'],
+                [trackNumber]: pattern,
+              }
+            }
+          }
+        }
+        // console.log(state.sequencer.updateSequencerState);
+        state.sequencer.updateSequencerState(newState.sequencer);
+        return newState;
+      })
+    }
+
+    this.createCallback = (name, callback) => {
+      this.setState((state) => {
+        return {
+          ...state,
+          sequencer: {
+            ...state.sequencer,
+            [name]: callback,
+          }
+        }
+      })
     }
 
     this.state = {
@@ -84,13 +116,14 @@ class App extends Component {
         selectedTrack: 0,
       },
       sequencer: {
-        updateSequencerState: this.updateSequencerState,
+        updateSequencerContext: this.updateSequencerContext,
+        addTrackToSequencer: this.addTrackToSequencer,
+        activePattern: 0,
+        createCallback: this.createCallback
       },
     }
   }
   
-
-
 
   render() {
     return (

@@ -1,9 +1,7 @@
-import React, { useContext } from 'react';
-import sequencerContext from '../../../context/sequencerContext';
+import React from 'react';
 import './InstrumentSelector.scss'
 
 const InstrumentSelector = (props) => {
-    let SequencerContext = useContext(sequencerContext);
 
     const setInstrument = (e) => {
         props.setInstrument(e.target.value, props.trackIndex);
