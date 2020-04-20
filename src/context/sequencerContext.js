@@ -16,6 +16,7 @@ let sequencerContext = React.createContext({
         addTrackToSequencer: () => {},
         createCallback: () => {},
         updateAll: () => {},
+        updateSequencerState: () => {},
         });
 
 export default sequencerContext;

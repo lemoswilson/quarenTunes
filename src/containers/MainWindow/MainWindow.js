@@ -6,7 +6,6 @@ import InstrumentSelector from './../../components/Layout/InstrumentSelector/Ins
 import trackContext from '../../context/trackContext';
 import sequencerContext from '../../context/sequencerContext';
 import toneContext from '../../context/toneContext';
-import { returnPartArray } from '../Sequencer/Sequencer';
 
 
 function range(start, end) {
@@ -53,11 +52,7 @@ const MainWindow = (props) => {
     };
 
     const addInstrument = () => {
-        SequencerContext.addTrackToSequencer(state.trackCount, {
-            length: SequencerContext[SequencerContext.activePattern]['patternLength'],
-            triggState: new Tone.Part(() => {}, returnPartArray(SequencerContext[SequencerContext.activePattern]['patternLength'])),
-        });
-        // SequencerContext.addTrackToSequencer(state.trackCount);
+        SequencerContext.addTrackToSequencer(state.trackCount);
         
         setState((state) => {
             let inst = state.instruments;
@@ -86,17 +81,25 @@ const MainWindow = (props) => {
         });
 
         let copySeq = Object.assign({}, SequencerContext);
-        copySeq[SequencerContext.activePattern]['tracks'][index] = undefined;
-        range(index, state.trackCount).map(index => {
-            if (copySeq[SequencerContext.activePattern]['tracks'][index + 1]) {
-                copySeq[SequencerContext.activePattern]['tracks'][index] = copySeq[SequencerContext.activePattern]['tracks'][index + 1]; 
-            } else {
-                return null;
+
+        Object.keys(SequencerContext).map(key => {
+            if (parseInt(key) >= 0) {
+                copySeq[key]['tracks'][index] = undefined;
+                range(index, state.trackCount).map(index => {
+                    if (copySeq[key]['tracks'][index + 1]) {
+                        copySeq[key]['tracks'][index] = copySeq[key]['tracks'][index + 1]
+                    }
+                    return null;
+                })
             }
-            return null;
         })
-        copySeq[SequencerContext.activePattern]['tracks'][state.trackCount - 1] = undefined;
-        SequencerContext.updateSequencerState(SequencerContext.activePattern, copySeq[SequencerContext.activePattern]);
+        Object.keys(SequencerContext).map(key => {
+            if (parseInt(key) >= 0){
+                copySeq[key]['tracks'][state.trackCount - 1] = undefined;
+            }
+            return 0;
+        })
+        SequencerContext.updateAll(copySeq);
         SequencerContext.updateSequencerState(copySeq);
     };
 

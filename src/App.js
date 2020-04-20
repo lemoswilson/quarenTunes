@@ -6,7 +6,12 @@ import TrackContext from '../src/context/trackContext'
 import * as Tone from 'tone';
 import Layout from './components/Layout/Layout';
 import SequencerContext from './context/sequencerContext';
-import returnPartArray from './containers/Sequencer/Sequencer';
+
+const returnPartArray = (length) => {
+  return [...Array(length).keys()].map(i => {
+      return {time: `0:0:${i}`, velocity: 127}
+  })
+}
 
 class App extends Component {
   constructor(props){
@@ -68,45 +73,24 @@ class App extends Component {
       });
     };
 
-    // this.addTrackToSequencer = (trackNumber) => {
-    this.addTrackToSequencer = (trackNumber, pattern) => {
-      this.setState((state) => {
-        let newState = {
-          ...state,
-          sequencer: {
-            ...state.sequencer,
-            [this.state.sequencer.activePattern]: {
-              ...state.sequencer[this.state.sequencer.activePattern],
-              tracks: {
-                ...state.sequencer[this.state.sequencer.activePattern]['tracks'],
-                [trackNumber]: pattern,
-              }
+    this.addTrackToSequencer = (trackNumber) => {
+      this.setState(state => {
+        let newState = {...state};
+        newState.sequencer = {
+          ...state.sequencer,
+        };
+        Object.keys(state.sequencer).map(key => {
+          if (parseInt(key) >= 0) {
+            newState.sequencer[key]['tracks'][trackNumber] = {
+              length: state.sequencer[key]['patternLength'],
+              triggState: new Tone.Part(() => {}, returnPartArray(state.sequencer[key]['patternLength']))
             }
           }
-        };
+          return 0;
+        })
         state.sequencer.updateSequencerState(newState.sequencer);
         return newState;
-      });
-
-      // console.log('[App.js]: AddTrackToSequencer', trackNumber);
-
-      // this.setState(state => {
-      //   let newState = {...state};
-      //   newState.sequencer = {
-      //     ...state.sequencer,
-      //   };
-      //   Object.keys(state.sequencer).map(key => {
-      //     if (parseInt(key) >= 0) {
-      //       newState.sequencer[key][trackNumber] = {
-      //         length: state.sequencer[key]['patternLength'],
-      //         triggState: new Tone.Part(() => {}, returnPartArray(16))
-      //       }
-      //     }
-      //     return 0;
-      //   })
-      //   state.sequencer.updateSequencerState(newState.sequencer);
-      //   return newState;
-      // })
+      })
     };
 
     this.createCallback = (name, callback) => {
@@ -170,6 +154,7 @@ class App extends Component {
         activePattern: 0,
         createCallback: this.createCallback,
         updateAll: this.updateAll,
+        counter: 1,
       },
     };
   };

@@ -32,6 +32,7 @@ const Sequencer = (props) => {
                 }
             },
         activePattern: 0,
+        counter: 1,
         },
     );
 
@@ -48,29 +49,48 @@ const Sequencer = (props) => {
 
     useEffect(() => {
         SequencerContext.updateAll(sequencerState);
-}, [sequencerState])
+}, [sequencerState]);
 
-    const addPattern = () => {
-        let lastNumber;
-        Object.keys(sequencerState).map(keys => {
-            if (parseInt(keys) >= 0 && sequencerState[keys]) {
-                lastNumber = parseInt(keys);
-            };
-            return;
-        });
+    const removePattern = () => {
         setSequencer(state => {
             let copyState = {...state};
-            copyState[lastNumber + 1] = {
-                name: `Pattern ${lastNumber + 2}`,
+            copyState[state.activePattern] = {...state[state.activePattern]};
+            delete copyState[state.activePattern];
+            if (copyState[copyState.activePattern - 1]) {
+                copyState.activePattern = state.activePattern - 1
+            } else {
+                let lastNumber;
+                Object.keys(state).map(key => {
+                    if (parseInt(key) >= 0) {
+                        lastNumber = parseInt(key);
+                        return 0
+                    }
+                    return 0;
+                });
+                if (lastNumber) {
+                    copyState.activePattern = lastNumber;
+                }
+            }
+            return copyState;
+        });
+    };
+
+    const addPattern = () => {
+        setSequencer(state => {
+            let copyState = {...state};
+            copyState[state.counter] = {
+                name: `Pattern ${state.counter + 1}`,
                 patternLength: 16,
                 tracks: {},
             };
             [...Array(TrackContext.trackCount).keys()].map(i => {
-                copyState[lastNumber + 1]['tracks'][i] = {
+                copyState[state.counter]['tracks'][i] = {
                     length: 16,
-                    triggState: new Tone.Part(() => {}, returnPartArray(16))
+                    triggState: new Tone.Part(() => {}, returnPartArray(16)),
                 }
-            });
+                return 0;
+            })
+            copyState['counter'] = state.counter + 1;
             return copyState;
         })
     }
@@ -95,20 +115,32 @@ const Sequencer = (props) => {
 
     const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? <Steps pattern={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['triggState']['_events']} 
                             patternName={sequencerState[sequencerState.activePattern]['name']} 
-                            patternLength={sequencerState[sequencerState.activePattern]['length']} 
+                            patternLength={sequencerState[sequencerState.activePattern]['length']}
+                            activePattern = {sequencerState.activePattern} 
                             setNote={setNote}></Steps> : null ;
 
     const StepsToRender = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? StepsComponent : <div className="steps"></div>;
 
-    const selectPattern = (patternIndex) => {
-
+    const selectPattern = (e) => {
+        let valor = e.target.value
+        setSequencer(state => {
+            let newState = {
+                ...state,
+                activePattern: parseInt(valor),
+            }
+            return newState;
+        })
     };
 
     const changePatternName = (name) => {
-        setSequencer((state) => {
+        setSequencer(state => {
             let copyState = {...state};
+            copyState[state.activePattern] = {...state[state.activePattern]};
             copyState[state.activePattern]['name'] = name;
-            return copyState;
+            return {
+                ...state,
+                ...copyState,
+            };
         })
     };
 
@@ -120,7 +152,9 @@ const Sequencer = (props) => {
                         changeLength={changeLength} 
                         addPattern={addPattern}
                         selectPattern={selectPattern}
-                        changePatternName={changePatternName}></StepsEdit>
+                        changePatternName={changePatternName}
+                        activePattern={sequencerState.activePattern}
+                        removePattern={removePattern}></StepsEdit>
             </div>
         )
 }

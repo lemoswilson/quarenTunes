@@ -3,13 +3,13 @@ import Step from './Step/Step';
 import './Steps.scss';
 import trackContext from '../../../context/trackContext';
 
-const Steps = (props) => {
+const Steps = (props) => { 
     let TrackContext = useContext(trackContext)
 
     return(
         <div className="steps">
             { props.pattern.map((e, index) => {
-                return <Step value={e.value} key={`Track${TrackContext[TrackContext.selectedTrack][2]} ${index}`}></Step>
+                return <Step value={e.value} key={`Seq${props.activePattern} Track${TrackContext[TrackContext.selectedTrack][2]} ${index}`}></Step>
             })}
         </div>
     )
