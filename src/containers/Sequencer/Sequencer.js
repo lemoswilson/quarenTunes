@@ -14,12 +14,11 @@ export const returnPartArray = (length) => {
 }
 
 const Sequencer = (props) => {
-    let TrackContext = useContext(trackContext);
-    let Tone = useContext(toneContext);
-    let SequencerContext = useContext(sequencerContext)
-    const newPart = new Tone.Part(() => {}, returnPartArray(16));
+    let TrackContext = useContext(trackContext), 
+        Tone = useContext(toneContext), 
+        SequencerContext = useContext(sequencerContext);
 
-
+    const initPart = new Tone.Part(() => {}, returnPartArray(16));
 
     const [sequencerState, setSequencer] = useState({
         0: {
@@ -28,7 +27,7 @@ const Sequencer = (props) => {
             tracks: {
                 0: {
                     length: 16,
-                    triggState: newPart,
+                    triggState: initPart,
                     }
                 }
             },
@@ -38,58 +37,44 @@ const Sequencer = (props) => {
 
     const updateSequencer = (newState) => {
         setSequencer(newState);
-    }
-
-    // const updateSequencerState = useCallback(() => {
-    //     SequencerContext.updateSequencerState(patterns.activePattern, patterns[patterns.activePattern]);
-    // }, [patterns, TrackContext]);
-
-    // useEffect(() => {
-    //     SequencerContext.updateSequencerState(patterns.activePattern, patterns[patterns.activePattern]);
-    // }, [patterns]);
+    };
 
     useEffect(() => {
         SequencerContext.createCallback('updateSequencerState', updateSequencer);
         if (sequencerState !== sequencerContext){
-            SequencerContext.updateSequencerContext(sequencerState.activePattern, sequencerState[sequencerState.activePattern]);
+            SequencerContext.updateAll(sequencerState);
         }
     }, []);
 
+    useEffect(() => {
+        SequencerContext.updateAll(sequencerState);
+}, [sequencerState])
+
     const addPattern = () => {
+        let lastNumber;
+        Object.keys(sequencerState).map(keys => {
+            if (parseInt(keys) >= 0 && sequencerState[keys]) {
+                lastNumber = parseInt(keys);
+            };
+            return;
+        });
         setSequencer(state => {
-            let copyState = state;
-            let keyNumbers = Object.keys(state);
-            let lastNumber;
-            for (const key in keyNumbers) {
-                if (state[key] || keyNumbers !== 'activePattern'){
-                    lastNumber = key;
-                    continue
-                } else if (!state[key]) {
-                    copyState[key] = {
-                        name: `Pattern ${key}`,
-                        patternLength: 16,
-                        tracks: {
-                            0: {
-                                length: 16,
-                                triggState: new Tone.Part()
-                                }
-                            }
-                        }
-                    return copyState
-                }
-            }
+            let copyState = {...state};
             copyState[lastNumber + 1] = {
-                name: `Pattern ${lastNumber + 1}`,
+                name: `Pattern ${lastNumber + 2}`,
                 patternLength: 16,
-                tracks: {
-                    0: {
-                        length: 16,
-                        triggState: new Tone.Part(),
-                        }
-                    }
+                tracks: {},
+            };
+            [...Array(TrackContext.trackCount).keys()].map(i => {
+                copyState[lastNumber + 1]['tracks'][i] = {
+                    length: 16,
+                    triggState: new Tone.Part(() => {}, returnPartArray(16))
                 }
+            });
+            return copyState;
         })
     }
+    
 
     const setNote = (note, time) => {
         setSequencer(state => {
@@ -98,8 +83,6 @@ const Sequencer = (props) => {
         });
     };
 
-
-
     const changeLength = (newLength) => {
         setSequencer(state => {
             let stateCopy = state
@@ -107,17 +90,37 @@ const Sequencer = (props) => {
             return {
                 ...stateCopy,
             }
+        });
+    };
+
+    const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? <Steps pattern={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['triggState']['_events']} 
+                            patternName={sequencerState[sequencerState.activePattern]['name']} 
+                            patternLength={sequencerState[sequencerState.activePattern]['length']} 
+                            setNote={setNote}></Steps> : null ;
+
+    const StepsToRender = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? StepsComponent : <div className="steps"></div>;
+
+    const selectPattern = (patternIndex) => {
+
+    };
+
+    const changePatternName = (name) => {
+        setSequencer((state) => {
+            let copyState = {...state};
+            copyState[state.activePattern]['name'] = name;
+            return copyState;
         })
-    }
-
-    const StepsToRender = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]? <Steps pattern={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['triggState']['_events']} patternName={sequencerState[sequencerState.activePattern]['name']} patternLength={sequencerState[sequencerState.activePattern]['length']} setNote={setNote}></Steps> : <div className="steps"></div>
-
-    // const StepsToRender = SequencerContext[SequencerContext.activePattern]['tracks'][TrackContext.selectedTrack]? <Steps pattern={SequencerContext[SequencerContext.activePattern]['tracks'][TrackContext.selectedTrack]['triggState']['_events']} patternName={SequencerContext[SequencerContext.activePattern]['name']} patternLength={SequencerContext[SequencerContext.activePattern]['length']} setNote={setNote}></Steps> : <div className="steps"></div>
+    };
 
         return(
             <div className="sequencer">
                 { StepsToRender }
-                <StepsEdit length={sequencerState[sequencerState.activePattern]['patternLength']} changeLength={changeLength} addPattern={addPattern}></StepsEdit>
+                <StepsEdit sequencerState={sequencerState} 
+                        length={sequencerState[sequencerState.activePattern]['patternLength']} 
+                        changeLength={changeLength} 
+                        addPattern={addPattern}
+                        selectPattern={selectPattern}
+                        changePatternName={changePatternName}></StepsEdit>
             </div>
         )
 }

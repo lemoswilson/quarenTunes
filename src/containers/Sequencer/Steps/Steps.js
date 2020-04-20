@@ -6,11 +6,10 @@ import trackContext from '../../../context/trackContext';
 const Steps = (props) => {
     let TrackContext = useContext(trackContext)
 
-
     return(
         <div className="steps">
             { props.pattern.map((e, index) => {
-                return <Step value={e.value} key={`Track${TrackContext.selectedTrack} ${index}`}></Step>
+                return <Step value={e.value} key={`Track${TrackContext[TrackContext.selectedTrack][2]} ${index}`}></Step>
             })}
         </div>
     )

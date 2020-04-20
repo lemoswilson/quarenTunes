@@ -6,7 +6,7 @@ const Step = (props) => {
     return(
         <React.Fragment>
             <div className="step">
-                { props.value.time }
+                { `${parseInt(props.value.time.split(":")[2], 10) + 1}` }
             </div>
         </React.Fragment>
     )

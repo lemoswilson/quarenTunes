@@ -41,10 +41,11 @@ const FMSynth = (props) => {
             selfRef.current.harmonicity.value = state.harmonicity;
             TrackContext.getTrackRef(selfRef.current, props.trackIndex);
             TrackContext.getTrackState(state, props.trackIndex);
-        }, [state.harmonicity, props.trackIndex, state])
+        }, [state.harmonicity])
 
         useEffect(() => {
             TrackContext.getTrackRef(selfRef.current, props.trackIndex);
+            TrackContext.getTrackState(state, props.trackIndex);
         }, [props.trackIndex])
     
     const calcHarmonicity = (e) => {

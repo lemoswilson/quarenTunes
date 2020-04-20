@@ -6,6 +6,8 @@ let trackContext = React.createContext({
       deleteTrackRef: () => {},
       selectedTrack: 0,
       getTrackState: () => {},
+      getInstrumentId: () => {},
+      trackCount: 1,
     }
 );
 

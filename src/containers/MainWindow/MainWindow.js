@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import './MainWindow.scss';
 import Instruments from './Instruments/Instruments';
 import Effects from './Effects/Effects'
@@ -14,18 +14,32 @@ function range(start, end) {
   }
 
 const MainWindow = (props) => {
-        const [state, setState] = useState({
-            instruments: [{instrument:'FMSynth', id:0}],
-            fx: [[], [], [], []],
-            selectedInstrument: 0,
-            trackCount: 1,
-            counter: 0,
-        })
-    
+    let TrackContext = useContext(trackContext), 
+        SequencerContext = useContext(sequencerContext), 
+        Tone = useContext(toneContext);
 
-    let TrackContext = useContext(trackContext);
-    let SequencerContext = useContext(sequencerContext);
-    let Tone = useContext(toneContext)
+    const [state, setState] = useState({
+        instruments: [{instrument:'FMSynth', id:0}],
+        fx: [[], [], [], []],
+        selectedInstrument: 0,
+        trackCount: 1,
+        counter: 0,
+    });
+
+    const passInstrumentId = (id, index) => {
+        TrackContext.getInstrumentId(id, index);
+    };
+
+    useEffect(() => {
+        state.instruments.map((instrumentObject, index) => {
+            passInstrumentId(instrumentObject.id, index);
+            return 0;
+        });
+    }, [state]);
+
+    useEffect(() => {
+        TrackContext.getTrackCount(state.trackCount);
+    }, [state.trackCount])
 
     const changeInstrument = (instrument, index) => {
         setState((state) => {
@@ -36,13 +50,15 @@ const MainWindow = (props) => {
                 instruments: inst,
             }
         })
-    }
+    };
 
     const addInstrument = () => {
         SequencerContext.addTrackToSequencer(state.trackCount, {
             length: SequencerContext[SequencerContext.activePattern]['patternLength'],
             triggState: new Tone.Part(() => {}, returnPartArray(SequencerContext[SequencerContext.activePattern]['patternLength'])),
-        })
+        });
+        // SequencerContext.addTrackToSequencer(state.trackCount);
+        
         setState((state) => {
             let inst = state.instruments;
             inst.push({instrument: 'FMSynth', id: state.counter + 1});
@@ -52,8 +68,8 @@ const MainWindow = (props) => {
                 trackCount: state.trackCount + 1,
                 counter: state.counter + 1,
             }
-        })
-    }
+        });
+    };
 
     const removeInstrument = (index) => {
         TrackContext.deleteTrackRef(index, state.trackCount - 1);
@@ -67,7 +83,7 @@ const MainWindow = (props) => {
                 trackCount: state.trackCount - 1,
                 selectedInstrument: selectedInstrument,
             }
-        })
+        });
 
         let copySeq = Object.assign({}, SequencerContext);
         copySeq[SequencerContext.activePattern]['tracks'][index] = undefined;
@@ -81,10 +97,8 @@ const MainWindow = (props) => {
         })
         copySeq[SequencerContext.activePattern]['tracks'][state.trackCount - 1] = undefined;
         SequencerContext.updateSequencerState(SequencerContext.activePattern, copySeq[SequencerContext.activePattern]);
-        SequencerContext.updateSequencerState(copySeq)
-        console.log('[MainWindow.js]: should be deliting track ref');
-    }
-
+        SequencerContext.updateSequencerState(copySeq);
+    };
 
     const showInstrument = (index) => {
         setState(state => ({
