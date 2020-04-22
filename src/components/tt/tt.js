@@ -2,39 +2,6 @@ import React, { Component, useContext } from 'react';
 import ToneContext from '../../context/toneContext';
 
 
-// class ttest extends Component {
-//     state = {
-//         bassSynth: new Tone.MembraneSynth().toMaster()
-//     }
-//     loopBeat = new Tone.Loop((time) => {
-//         this.state.bassSynth.triggerAttackRelease('c1', '8n', time);
-//         console.log(time);
-//     }, '4n') ;
-
-//     transportHandler = () => {
-//         console.log(this.state.bassSynth);
-//         console.log(this.loopBeat);
-//         // console.log(this.song)
-//         Tone.Transport.start();
-//         this.loopBeat.start(0);
-//     }
-
-//     stopHandler = () => {
-//         this.loopBeat.stop()
-//     }
-
-
-//     render() {
-//         return (
-//             <React.Fragment>
-//                 <button onClick={this.transportHandler}>start</button>
-//                 <button onClick={this.stopHandler}>stop</button>
-//             </React.Fragment>
-//         )
-//     }
-    
-
-// }
 
 const Ttest = (props) => {
 

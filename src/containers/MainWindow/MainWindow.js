@@ -8,11 +8,13 @@ import sequencerContext from '../../context/sequencerContext';
 import toneContext from '../../context/toneContext';
 
 
-function range(start, end) {
+export function range(start, end) {
     return Array(end - start + 1).fill().map((_, idx) => start + idx)
-  }
+}
 
 const MainWindow = (props) => {
+    // Initialize context and states - - - - - - - - - - - - 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     let TrackContext = useContext(trackContext), 
         SequencerContext = useContext(sequencerContext), 
         Tone = useContext(toneContext);
@@ -25,10 +27,13 @@ const MainWindow = (props) => {
         counter: 0,
     });
 
+    // Pass instrument unique id to TrackContext - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     const passInstrumentId = (id, index) => {
         TrackContext.getInstrumentId(id, index);
     };
 
+    // Subscribing TrackContext ids to any change in the State
     useEffect(() => {
         state.instruments.map((instrumentObject, index) => {
             passInstrumentId(instrumentObject.id, index);
@@ -36,10 +41,14 @@ const MainWindow = (props) => {
         });
     }, [state]);
 
+    // Subscribing TrackContext trackCount to any change in state trackCount
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     useEffect(() => {
         TrackContext.getTrackCount(state.trackCount);
     }, [state.trackCount])
 
+    // State handling methods that will be passed to InstrumentSelector component
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const changeInstrument = (instrument, index) => {
         setState((state) => {
             let inst = state.instruments;
@@ -67,6 +76,7 @@ const MainWindow = (props) => {
     };
 
     const removeInstrument = (index) => {
+        console.log('[MainWindow.js]: deleting track', index);
         TrackContext.deleteTrackRef(index, state.trackCount - 1);
         setState((state) => {
             let inst = state.instruments;
@@ -81,24 +91,34 @@ const MainWindow = (props) => {
         });
 
         let copySeq = Object.assign({}, SequencerContext);
-
         Object.keys(SequencerContext).map(key => {
             if (parseInt(key) >= 0) {
+                copySeq[key] = {
+                    ...SequencerContext[key],
+                    'tracks': {
+                        ...SequencerContext[key]['tracks'],
+                        [index]: {
+                            ...SequencerContext[key]['tracks'][index],
+                        }
+                    },
+                }
                 copySeq[key]['tracks'][index] = undefined;
                 range(index, state.trackCount).map(index => {
                     if (copySeq[key]['tracks'][index + 1]) {
+                        copySeq[key]['tracks'][index + 1] = {...SequencerContext[key]['tracks'][index+1]};
+                        copySeq[key]['tracks'][index] = {...SequencerContext[key]['tracks'][index]}
                         copySeq[key]['tracks'][index] = copySeq[key]['tracks'][index + 1]
                     }
                     return null;
-                })
+                });
             }
-        })
+        });
         Object.keys(SequencerContext).map(key => {
             if (parseInt(key) >= 0){
                 copySeq[key]['tracks'][state.trackCount - 1] = undefined;
             }
             return 0;
-        })
+        });
         SequencerContext.updateAll(copySeq);
         SequencerContext.updateSequencerState(copySeq);
     };

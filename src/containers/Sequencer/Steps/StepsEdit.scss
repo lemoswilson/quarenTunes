@@ -3,6 +3,45 @@
     height: 100%;
     width: 20%;
 
+    .note-options {
+      border: 1px solid black;
+      height: 27%;
+      width: 100%;
+
+      .notes, .velocity {
+        border-bottom: 1px solid black;
+        height: 26%;
+        display: flex;
+        flex-direction: row;
+        font-size: 12px;
+        
+        input {
+          width: 50%;
+          margin: 0 auto;
+          height: 50%;
+        }
+      }
+    }
+
+    .pages {
+
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+
+      .page {
+        border-radius: 50%;
+        width: 5px;
+        height: 5px;
+        border: 1px solid black;
+        margin: 1px 5px;
+
+        .selected {
+          background-color: red;
+        }
+      }
+    }
+
     .patternNameLabel {
         font-size: 12px;
     }
@@ -15,6 +54,7 @@
         width: 80%;
     }
 
+    .track-length, 
     .pattern-length {
         form {
             // width: 150px;
@@ -61,7 +101,8 @@
             padding: 0px;
           }
           
-          input#number {
+          input#numberTrack,
+          input#numberPattern {
             text-align: center;
             border: none;
             border-top: 1px solid #ddd;
@@ -77,7 +118,7 @@
               margin: 0;
           }form {
             // width: 150px;
-            margin: 10px auto;
+            margin: 0px auto;
             text-align: center;
             // padding-top: 50px;
           }
@@ -120,7 +161,8 @@
             padding: 0px;
           }
           
-          input#number {
+          input#numberTrack,
+          input#numberPattern {
             text-align: center;
             border: none;
             border-top: 1px solid #ddd;

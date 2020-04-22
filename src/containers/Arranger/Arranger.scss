@@ -2,4 +2,24 @@
     width: 30%;
     height: 100%;
     border: 1px black solid;
+
+    .modes {
+        height: 8%;
+        border-bottom: 1px solid black;
+        display: flex;
+        flex-direction: row;
+
+        .pattern,
+        .chain {
+            border-right: 1px solid black;
+        }
+
+        .pattern,
+        .chain,
+        .song {
+            width: 33.3%;
+            height: 100%;
+        }
+
+    }
 }

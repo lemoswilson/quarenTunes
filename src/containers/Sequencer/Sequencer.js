@@ -14,11 +14,12 @@ export const returnPartArray = (length) => {
 }
 
 const Sequencer = (props) => {
+    // Initializing contexts and state - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     let TrackContext = useContext(trackContext), 
         Tone = useContext(toneContext), 
-        SequencerContext = useContext(sequencerContext);
-
-    const initPart = new Tone.Part(() => {}, returnPartArray(16));
+        SequencerContext = useContext(sequencerContext),
+        initPart = new Tone.Part();
 
     const [sequencerState, setSequencer] = useState({
         0: {
@@ -28,18 +29,26 @@ const Sequencer = (props) => {
                 0: {
                     length: 16,
                     triggState: initPart,
+                    events: Array(16).fill({}),
+                    page: 0,
+                    selected: [],
                     }
                 }
             },
         activePattern: 0,
         counter: 1,
+        copyed: null,
         },
     );
 
+    // Callback to update de sequencer context from within the Sequencer Container 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const updateSequencer = (newState) => {
         setSequencer(newState);
     };
 
+    // Updating SequencerContext as Sequence component did mount
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
         SequencerContext.createCallback('updateSequencerState', updateSequencer);
         if (sequencerState !== sequencerContext){
@@ -47,10 +56,15 @@ const Sequencer = (props) => {
         }
     }, []);
 
+    // Subscribing SequencerContext to any change in the Sequenecer Context
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
+        console.log('[Sequencer.js]: Sequence Update');
         SequencerContext.updateAll(sequencerState);
-}, [sequencerState]);
+    }, [sequencerState]);
 
+    // State editing methods that will be passed to STEPS EDIT
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const removePattern = () => {
         setSequencer(state => {
             let copyState = {...state};
@@ -82,11 +96,15 @@ const Sequencer = (props) => {
                 name: `Pattern ${state.counter + 1}`,
                 patternLength: 16,
                 tracks: {},
+                events: Array(16).fill({}),
             };
             [...Array(TrackContext.trackCount).keys()].map(i => {
                 copyState[state.counter]['tracks'][i] = {
                     length: 16,
-                    triggState: new Tone.Part(() => {}, returnPartArray(16)),
+                    triggState: new Tone.Part(),
+                    events: Array(16).fill({}),
+                    page: 0,
+                    selected: [],
                 }
                 return 0;
             })
@@ -95,31 +113,47 @@ const Sequencer = (props) => {
         })
     }
     
-
-    const setNote = (note, time) => {
-        setSequencer(state => {
-            let copyState = state;
-            copyState[state.activePattern][TrackContext.selectedTrack]['triggState']['  '][time].note = note;
-        });
+    const changeTrackLength = (newLength, Ref) => {
+        if (newLength <= 64 && newLength >= 1) {
+            setSequencer(state => {
+                let eventArray = [...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events']];
+                if (eventArray.length < newLength) {
+                    let toAdd = Array(newLength - eventArray.length).fill({});
+                    eventArray = eventArray.concat(toAdd);
+                }
+                let copyState = {
+                    ...state,
+                    [state.activePattern]: {
+                        ...state[state.activePattern],
+                        tracks: {
+                            ...state[state.activePattern]['tracks'],
+                            [TrackContext.selectedTrack]: {
+                                ...state[state.activePattern]['tracks'][TrackContext.selectedTrack],
+                                length: parseInt(newLength),
+                                events: eventArray,
+                            },
+                        }
+                    }
+                };
+                Ref.current.reset()
+                return copyState;
+            });
+        }
     };
 
-    const changeLength = (newLength) => {
-        setSequencer(state => {
-            let stateCopy = state
-            state[state.activePattern][TrackContext.selectedTrack]['length'] = newLength;
-            return {
-                ...stateCopy,
-            }
-        });
+    const changePatternLength = (newLength, Ref) => {
+        if (newLength <= 64 && newLength >= 1){
+            setSequencer(state => {
+                let copyState = {...state};
+                copyState[state.activePattern] = {
+                    ...state[state.activePattern]
+                };
+                copyState[state.activePattern]['patternLength'] = parseInt(newLength);
+                Ref.current.reset();
+                return copyState;
+            })
+        }
     };
-
-    const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? <Steps pattern={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['triggState']['_events']} 
-                            patternName={sequencerState[sequencerState.activePattern]['name']} 
-                            patternLength={sequencerState[sequencerState.activePattern]['length']}
-                            activePattern = {sequencerState.activePattern} 
-                            setNote={setNote}></Steps> : null ;
-
-    const StepsToRender = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? StepsComponent : <div className="steps"></div>;
 
     const selectPattern = (e) => {
         let valor = e.target.value
@@ -144,17 +178,142 @@ const Sequencer = (props) => {
         })
     };
 
+    const changePage = (pageIndex) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state,
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrackContext.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrackContext.selectedTrack],
+                            page: parseInt(pageIndex),
+                        }
+                    }
+                }
+            }
+            return copyState;
+        })
+    };
+
+    const setNote = (note) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrackContext.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrackContext.selectedTrack],
+                            'events': [...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events']]
+                        }
+                    }
+                }
+            }
+            state[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected'].map(e => {
+                copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e] = {
+                    ...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e],
+                    note: note,
+                };
+                // copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e] = note;
+            })
+            return copyState
+        })
+    }
+
+    const setVelocity = (velocity) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrackContext.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrackContext.selectedTrack],
+                            'events': [...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events']]
+                        }
+                    }
+                }
+            }
+            state[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected'].map(e => {
+                copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e] = {
+                    ...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e],
+                    velocity: velocity,
+                };
+                // copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e] = note;
+            })
+            return copyState
+        })
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // State editing methods that will be passed to STEPS - - - 
+    const selectStep = (index) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state,
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrackContext.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrackContext.selectedTrack],
+                            selected: [...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected']],
+                        }
+                    }
+                }
+            };
+            if (!copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected'].includes(index)) {
+                copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected'].push(index); 
+            } else {
+                const newSelected = copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected'].filter((element) => {
+                    return element === index ? false : true;
+                });
+                copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['selected'] = newSelected;
+            }
+            return copyState;
+        });
+    };
+
+    // Conditional components logic - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? 
+        <Steps length={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['length']} 
+            events={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['events']} 
+            patternName={sequencerState[sequencerState.activePattern]['name']} 
+            patternLength={sequencerState[sequencerState.activePattern]['patternLength']}
+            activePattern = {sequencerState.activePattern} 
+            selectStep={selectStep}
+            selected={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['selected']}
+            page={sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['page']}></Steps> : 
+        null ;
+
+    const StepsToRender = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? StepsComponent : <div className="steps"></div>;
+
+    const TrackLength = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? parseInt(sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['length']) : null
+
+    const page = sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack] ? sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack][['page']] : null;
+
         return(
             <div className="sequencer">
                 { StepsToRender }
                 <StepsEdit sequencerState={sequencerState} 
-                        length={sequencerState[sequencerState.activePattern]['patternLength']} 
-                        changeLength={changeLength} 
+                        PatternLength={sequencerState[sequencerState.activePattern]['patternLength']}
+                        TrackLength={TrackLength} 
+                        changeTrackLength={changeTrackLength}
+                        changePatternLength={changePatternLength} 
                         addPattern={addPattern}
                         selectPattern={selectPattern}
                         changePatternName={changePatternName}
                         activePattern={sequencerState.activePattern}
-                        removePattern={removePattern}></StepsEdit>
+                        removePattern={removePattern}
+                        page={page}
+                        setNote={setNote}
+                        changePage={changePage}
+                        setVelocity={setVelocity}></StepsEdit>
             </div>
         )
 }

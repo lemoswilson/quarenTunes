@@ -11,7 +11,7 @@ const Transport = (props) => {
         bpm: 120,
         loopStart: 0,
         loopEnd: '4m',
-        mode: 'pattern' // three modes, pattern, song, 
+        // mode: 'pattern' // three modes, pattern, song, 
     })
     let Tone = useContext(ToneContext);
 
@@ -26,24 +26,28 @@ const Transport = (props) => {
 
     const start = () => {
         if (!transportState.isPlaying){
-            setTransportState({
+            setTransportState(state => ({
+                ...state,
                 isPlaying: true,
-            })
-            Tone.Transport.start();
+            }))
         }
         // se ja tiver tocando voltar para o indicador position
     }
 
-    const stopTransport = () => {
+    const stop = () => {
         if (transportState.isPlaying) {
-        Tone.Transport.stop();
+            setTransportState(state => ({
+                ...state,
+                isPlaying: false,
+            }))
+        // Tone.Transport.stop();
         }
     }
 
         return(
             <div className="transport">
                 <div className="start" onClick={start}>Start</div>
-                <div className="stop" onClick={stopTransport}>Stop</div>
+                <div className="stop" onClick={stop}>Stop</div>
             </div>
         )
 }

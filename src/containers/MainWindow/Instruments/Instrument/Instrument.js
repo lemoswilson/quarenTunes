@@ -3,7 +3,8 @@ import FMSynth from '../FMSynth/FMSynth'
 
 const Instrument = (props) => {
 
-
+    // If instrument is selected (props.display) show it
+    // - - - - - - - - - - - -  - - - - - - - - - - - - - - 
     const instrumentStyle = props.display() ? null : {display: 'none'};
 
     const loadInstrument = (type) => {
@@ -15,9 +16,9 @@ const Instrument = (props) => {
             </div>
             )
         } 
-    }
+    };
     
     return loadInstrument(props.InstrumentType);
-}
+};
 
 export default Instrument;

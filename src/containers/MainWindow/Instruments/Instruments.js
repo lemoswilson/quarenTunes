@@ -4,6 +4,7 @@ import Instrument from './Instrument/Instrument';
 
 class Instruments extends Component {
 
+    // Show or hide logic
     selected = (index) => {
         return index === this.props.selectedInstrument ? true : false; 
     }

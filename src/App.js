@@ -6,6 +6,7 @@ import TrackContext from '../src/context/trackContext'
 import * as Tone from 'tone';
 import Layout from './components/Layout/Layout';
 import SequencerContext from './context/sequencerContext';
+import ArrangerContext from './context/arrangerContext';
 
 const returnPartArray = (length) => {
   return [...Array(length).keys()].map(i => {
@@ -25,14 +26,32 @@ class App extends Component {
       });
     }
   
+    // ArrangerContext methods - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
+    this.updateArrCtx = (newContext) => {
+      this.setState(state => {
+        let copyState = {
+          ...state,
+          arranger: {
+            ...state.arranger,
+            ...newContext,
+          }
+        };
+        return copyState;
+      });
+    }
 
-    this.deleteTrackRef = (trackNumber, trackCounter) => {
+    // TrackContext methods - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
+    this.deleteTrackRef = (trackNumber, trackCounterIndex) => {
+      console.log('[App.js]: deleting track ref, trackNumber:', trackNumber, ';', 'TrackCounter', trackCounterIndex);
       this.setState(state => { 
         let copyState = {...state};
         copyState['track'][trackNumber] = [];
-        copyState['track'][trackCounter] = [];
+        copyState['track'][trackCounterIndex] = [];
         return copyState;
       })
+      console.log('[App.js]: shouldve update the trackContext');
     }
 
     this.getSelectedTrackIndex = (trackIndex) => {
@@ -59,6 +78,20 @@ class App extends Component {
       });
     };
 
+    this.getTrackCount = (trackCount) => {
+      this.setState((state) => {
+        return {
+          ...state,
+          track:{
+            ...state.track,
+            trackCount: trackCount,
+          }
+        }
+      })
+    }
+
+    // SequencerContext methods - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     this.updateSequencerContext = (patternNumber, pattern) => {
       this.setState(state => {
         let copyState = state;
@@ -83,7 +116,10 @@ class App extends Component {
           if (parseInt(key) >= 0) {
             newState.sequencer[key]['tracks'][trackNumber] = {
               length: state.sequencer[key]['patternLength'],
-              triggState: new Tone.Part(() => {}, returnPartArray(state.sequencer[key]['patternLength']))
+              triggState: new Tone.Part(),
+              events: Array(state.sequencer[key]['patternLength']).fill({}),
+              page: 0,
+              selected: [],
             }
           }
           return 0;
@@ -105,17 +141,6 @@ class App extends Component {
       });
     };
 
-    this.getTrackCount = (trackCount) => {
-      this.setState((state) => {
-        return {
-          ...state,
-          track:{
-            ...state.track,
-            trackCount: trackCount,
-          }
-        }
-      })
-    }
 
     this.updateAll = (newState) => {
       this.setState((state => {
@@ -128,6 +153,8 @@ class App extends Component {
       }));
     };
 
+    // App State - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
     this.state = {
       track: {
         0: [],
@@ -155,7 +182,13 @@ class App extends Component {
         createCallback: this.createCallback,
         updateAll: this.updateAll,
         counter: 1,
+        copyed: null,
       },
+      arranger: {
+        mode: 'pattern',
+        following: false,
+        updateArrCtx: this.updateArrCtx,
+      }
     };
   };
   
@@ -167,7 +200,9 @@ class App extends Component {
       <AppContext.Provider value={this.appRef}>
       <TrackContext.Provider value={this.state.track}>
       <SequencerContext.Provider value={this.state.sequencer}>
+      <ArrangerContext.Provider value={this.state.arranger}>
         <Layout></Layout>
+      </ArrangerContext.Provider>
       </SequencerContext.Provider>
       </TrackContext.Provider>
       </AppContext.Provider>

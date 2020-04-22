@@ -5,49 +5,57 @@ import sequencerContext from '../../../../context/sequencerContext';
 import Knob from '../../../../components/Knob/Knob';
 
 const FMSynth = (props) => {
-        const [state, setState] = useState({
-            harmonicity: 3,
-            modulationIndex: 10,
-            detune: 0,
-            oscillator: {
-                type: 'sine'
-            }, 
-            envelope: {
-                attack: 0.01,
-                decay: 0.01,
-                sustain: 1,
-                release: 0.5
-            }, 
-            modulation: {
-                type: 'square',
-            },
-            modulationEnvelope: {
-                attack: 0.5,
-                decay: 0,
-                sustain: 1,
-                release: 0.5
-            }
-        }) 
+    const [state, setState] = useState({
+        harmonicity: 3,
+        modulationIndex: 10,
+        detune: 0,
+        oscillator: {
+            type: 'sine'
+        }, 
+        envelope: {
+            attack: 0.01,
+            decay: 0.01,
+            sustain: 1,
+            release: 0.5
+        }, 
+        modulation: {
+            type: 'square',
+        },
+        modulationEnvelope: {
+            attack: 0.5,
+            decay: 0,
+            sustain: 1,
+            release: 0.5
+        }
+    }) 
 
-        
-        let Tone = useContext(ToneContext);
-        let selfRef = useRef(new Tone.FMSynth(state).toMaster());
-        let TrackContext = useContext(trackContext)
-        // let SequencerContext = useContext(sequencerContext)
+    
+    // Initializing context and setting Refs to be passed - - - -
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
+    let Tone = useContext(ToneContext);
+    let selfRef = useRef(new Tone.FMSynth(state).toMaster());
+    let TrackContext = useContext(trackContext)
+    // let SequencerContext = useContext(sequencerContext)
+
+
+    // passing the new harmonicity value to the components subscribed to the TrackContext
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
+    useEffect(() => {
+        selfRef.current.harmonicity.value = state.harmonicity;
+        TrackContext.getTrackRef(selfRef.current, props.trackIndex);
+        TrackContext.getTrackState(state, props.trackIndex);
+    }, [state.harmonicity])
+
+    // Atualizing refs after a track got deleted
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
+    useEffect(() => {
+        TrackContext.getTrackRef(selfRef.current, props.trackIndex);
+        TrackContext.getTrackState(state, props.trackIndex);
+    }, [props.trackIndex])
     
 
-        // passing the new harmonicity value to the components subscribed to the TrackContext
-        useEffect(() => {
-            selfRef.current.harmonicity.value = state.harmonicity;
-            TrackContext.getTrackRef(selfRef.current, props.trackIndex);
-            TrackContext.getTrackState(state, props.trackIndex);
-        }, [state.harmonicity])
-
-        useEffect(() => {
-            TrackContext.getTrackRef(selfRef.current, props.trackIndex);
-            TrackContext.getTrackState(state, props.trackIndex);
-        }, [props.trackIndex])
-    
+    // Harmonicity calc
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     const calcHarmonicity = (e) => {
         if (e.movementY < 0 && state.harmonicity < 100) {
             setState((state) => ({
@@ -65,13 +73,11 @@ const FMSynth = (props) => {
         return 0.01
     }
 
-
         return (
             <div className="FMSynth">
                 <Knob size={55} calcValue={calcHarmonicity} colorInner='blue' colorOuter='red' value={state.harmonicity} min={0} max={100} radius={17} curveFunction={harmonicityCurve} label='harmonicity'></Knob> 
             </div>
         )
-}
-
+};
 
 export default FMSynth;

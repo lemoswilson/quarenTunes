@@ -4,6 +4,8 @@ import './Fader.scss'
 import appContext from '../../context/appContext';
 
 const Fader = (props) => {
+    // Initializing contexts, state and variables that control conditional state
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const [isMovingFader, setMovementFader] = useState(false);
     const [isMovingPan, setMovementPan] = useState(false);
     let shouldRemoveFader = false;
@@ -12,7 +14,9 @@ const Fader = (props) => {
     let soloRef = useRef();
     let muteRef = useRef();
 
-   useEffect(() => {
+    // Set event event listeners in the appRef if the Fader started being dragged
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
+    useEffect(() => {
        let main = appRef.current;
        if (isMovingFader && !shouldRemoveFader) {
            main.onmousemove = mouseMoveFader;
@@ -26,6 +30,8 @@ const Fader = (props) => {
        }
    }, [isMovingFader]);
 
+   // Same thing for the Pan
+   // - - - - - - - - - - - -
    useEffect(() => {
        let main = appRef.current;
        if (isMovingPan && !shouldRemovePan) {
@@ -40,15 +46,8 @@ const Fader = (props) => {
        }
    }, [isMovingPan])
 
-
-   const stopDrag = (e) => {
-       document.exitPointerLock()
-       shouldRemoveFader = true;
-       shouldRemovePan = true;
-       setMovementFader(false);
-       setMovementPan(false);
-   }
-
+    // Handlers that call back parent functions as props, and deal with its state.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    const mouseMoveFader = (e) => {
     //    if (e.movementY < 0 && props.volume < props.max) {
     //        props.volume - e.movementY * 0.1 < props.max ? props.volumeChange('add', -e.movementY) : props.volumeChange('max')
@@ -64,14 +63,34 @@ const Fader = (props) => {
        props.panChange(e);
    }
 
-   const captureStartFader = (e) => {
+   const muteHandle = (e) => {
+    if ([...muteRef.current.classList].includes('grey')) {
+        muteRef.current.classList.remove('grey');
+    } else {
+        muteRef.current.classList.add('grey');
+    }
+    props.toggleMute();
+}
+
+const soloHandle = (e) => {
+    if ([...soloRef.current.classList].includes('blue')) {
+        soloRef.current.classList.remove('blue');
+    } else {
+        soloRef.current.classList.add('blue');
+    }
+    props.toggleSolo();
+}
+
+    // Handlers for the beggining and end of the mouse dragging (set and remove 
+    // PointerLock) - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    const captureStartFader = (e) => {
         if (e.target.classList.contains('indicator')) {
             setMovementFader(true);
             appRef.current.requestPointerLock = appRef.current.requestPointerLock || appRef.current.mozRequestPointerLock;
             appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
             appRef.current.requestPointerLock();
         }
-   }
+    }
 
    const captureStartPan = (e) => {
        if (e.target.classList.contains('indicator')) {
@@ -82,6 +101,16 @@ const Fader = (props) => {
        }
    }
 
+   const stopDrag = (e) => {
+       document.exitPointerLock()
+       shouldRemoveFader = true;
+       shouldRemovePan = true;
+       setMovementFader(false);
+       setMovementPan(false);
+   }
+
+   // Logic for indicator position - - - - - - - - - - - - -
+   // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    const getIndicatorTop = (volume) =>  {
        if (volume >= 0 && volume <= 6) {
         return `${(-3/2)*volume + 7.2}%`;
@@ -92,23 +121,7 @@ const Fader = (props) => {
        }
    }
 
-   const muteHandle = (e) => {
-        if ([...muteRef.current.classList].includes('grey')) {
-            muteRef.current.classList.remove('grey');
-        } else {
-            muteRef.current.classList.add('grey');
-        }
-        props.toggleMute();
-   }
 
-   const soloHandle = (e) => {
-        if ([...soloRef.current.classList].includes('blue')) {
-            soloRef.current.classList.remove('blue');
-        } else {
-            soloRef.current.classList.add('blue');
-        }
-        props.toggleSolo();
-   }
    
     return(
         <div className='fader-wrapper'>

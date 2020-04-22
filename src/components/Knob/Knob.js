@@ -12,8 +12,6 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
 }
   
 function describeArc(x, y, radius, startAngle, endAngle){
-
-
     var start = polarToCartesian(x, y, radius, endAngle);
     var end = polarToCartesian(x, y, radius, startAngle);
 
@@ -32,10 +30,14 @@ const radProps = (value, min, max) => {
 }
 
 const Knob = (props) => {
+    // Initialize State, refs and variables that control conditional measures
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const [isMoving, setMovement] = useState(false);
     let shouldRemove = false;
     let appRef = useContext(AppContext);
 
+    // Set event event listeners in the appRef if the Knob is started being dragged
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     useEffect(() => {
         let main = appRef.current
         if (isMoving && !shouldRemove) {
@@ -50,13 +52,23 @@ const Knob = (props) => {
         }
     }, [isMoving])
 
+    // Handlers for the beggining and end of the mouse dragging (set and remove 
+    // PointerLock) - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const stopDrag = (e) => {
         document.exitPointerLock();
         setMovement(false);
         shouldRemove = true;
-    }
+    };
 
-    
+    const captureStart = (e) => {
+        setMovement(true);
+        appRef.current.requestPointerLock = appRef.current.requestPointerLock || appRef.current.mozRequestPointerLock;
+        appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
+        appRef.current.requestPointerLock();
+    };
+
+    // Handlers that call back parent functions as props, and deal with its state.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const mouseMove = (e) => {
         props.calcValue(e);
     }
@@ -77,14 +89,6 @@ const Knob = (props) => {
         }
     }
 
-    const captureStart = (e) => {
-        // console.log(e.target.classList);
-            setMovement(true);
-            appRef.current.requestPointerLock = appRef.current.requestPointerLock || appRef.current.mozRequestPointerLock;
-            appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
-            appRef.current.requestPointerLock();
-    }
-
     const keyHandle = (e) => {
         if (e.keyCode === 40) {
             props.calcValue('sub', props.curveFunction(props.value))
@@ -94,6 +98,7 @@ const Knob = (props) => {
         }
     }
 
+    // Components styles - - - - - - - - - - - - - - - - 
     const divStyle = {
         width: '50px',
         heigth: '50px',
