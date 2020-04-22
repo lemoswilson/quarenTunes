@@ -59,9 +59,9 @@ const Sequencer = (props) => {
     // Subscribing SequencerContext to any change in the Sequenecer Context
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
-        console.log('[Sequencer.js]: Sequence Update');
         SequencerContext.updateAll(sequencerState);
     }, [sequencerState]);
+
 
     // State editing methods that will be passed to STEPS EDIT
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -198,6 +198,13 @@ const Sequencer = (props) => {
     };
 
     const setNote = (note) => {
+        sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['selected'].map(index => {
+            let time = `0:0:${index}`;
+            let event = { ...sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['triggState'].at(time) };
+            event['note'] = note;
+            sequencerState[sequencerState.activePattern]['tracks'][TrackContext.selectedTrack]['triggState'].at(time, event);
+        })
+
         setSequencer(state => {
             let copyState = {
                 ...state, 
@@ -217,6 +224,7 @@ const Sequencer = (props) => {
                     ...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e],
                     note: note,
                 };
+                return '';
                 // copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e] = note;
             })
             return copyState
@@ -243,6 +251,7 @@ const Sequencer = (props) => {
                     ...state[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e],
                     velocity: velocity,
                 };
+                return '';
                 // copyState[state.activePattern]['tracks'][TrackContext.selectedTrack]['events'][e] = note;
             })
             return copyState

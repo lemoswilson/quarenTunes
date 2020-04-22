@@ -2,6 +2,9 @@ import React, { useContext, useEffect } from 'react';
 import ToneContext from '../../context/toneContext';
 import './Transport.scss';
 import { useState } from 'react';
+import trackContext from '../../context/trackContext';
+import sequencerContext from '../../context/sequencerContext';
+import arrangerContext from '../../context/arrangerContext';
 
 
 const Transport = (props) => {
@@ -13,7 +16,10 @@ const Transport = (props) => {
         loopEnd: '4m',
         // mode: 'pattern' // three modes, pattern, song, 
     })
-    let Tone = useContext(ToneContext);
+    let Tone = useContext(ToneContext),
+        TrkCtx = useContext(trackContext),
+        SeqCtx = useContext(sequencerContext),
+        ArrCtx = useContext(arrangerContext);
 
 
     useEffect(() => {
@@ -31,7 +37,11 @@ const Transport = (props) => {
                 isPlaying: true,
             }))
         }
-        // se ja tiver tocando voltar para o indicador position
+        Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(ix => {
+            SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].start();
+            return '';
+        });
+        console.log('[Transport.js]: Should be playing, callback = ', SeqCtx[SeqCtx.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].callback)
     }
 
     const stop = () => {

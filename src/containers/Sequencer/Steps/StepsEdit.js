@@ -85,7 +85,7 @@ const StepsEdit = (props) => {
     const TrkLengthPlaceHolder = props.sequencerState[props.sequencerState['activePattern']]['tracks'][TrkCtx.selectedTrack] ? props.sequencerState[props.sequencerState['activePattern']]['tracks'][TrkCtx.selectedTrack]['length'] : null;
 
     const notePlaceHolder = () => {
-        const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'];
+        const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] : null;
         if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
             selected.length > 1) {
                 return '*';
@@ -100,7 +100,7 @@ const StepsEdit = (props) => {
     }
 
     const velocityPlaceholder = () => {
-        const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'];
+        const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] : null;
         if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
             selected.length > 1) {
                 return '*';
