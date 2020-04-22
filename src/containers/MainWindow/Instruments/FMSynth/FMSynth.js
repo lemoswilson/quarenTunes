@@ -38,6 +38,10 @@ const FMSynth = (props) => {
         SeqCtx = useContext(sequencerContext);
 
 
+    useEffect(() => {
+        console.log('[FMSynth]: Seq', SeqCtx, 'Trk', TrkCtx);
+    }, [])
+
     // passing the new harmonicity value to the components subscribed to the TrackContext
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
@@ -51,6 +55,8 @@ const FMSynth = (props) => {
     useEffect(() => {
         TrkCtx.getTrackRef(selfRef.current, props.trackIndex);
         TrkCtx.getTrackState(state, props.trackIndex);
+        TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
+        // SeqCtx[SeqCtx.activePattern]['tracks'][TrkCtx.selectedTrack]
     }, [props.trackIndex])
 
     // useEffect(() => {
@@ -81,7 +87,8 @@ const FMSynth = (props) => {
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
-        console.log('[FMSynth]: callback')
+        console.log('[FMSynth]: callback');
+        console.log('[FMSynth]: harmonicity', selfRef.current.harmonicity.value)
         let bb, velocity;
         velocity = value.velocity ? value.velocity : 127;
         bb = value.note ? value.note : null;

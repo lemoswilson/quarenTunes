@@ -7,7 +7,8 @@ import { range } from '../../MainWindow/MainWindow';
 const Steps = (props) => { 
     // Initializing Context - - - - - - - - - - - - - - - - - - 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    let TrackContext = useContext(trackContext)
+    let TrackContext = useContext(trackContext);
+        
 
     // Calculate the last step to show in the sequencer, dependening on which page is selected.
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

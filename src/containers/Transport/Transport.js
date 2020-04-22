@@ -31,13 +31,24 @@ const Transport = (props) => {
     }, [Tone, transportState.isPlaying]) ;
 
     const start = () => {
+        if (Tone.context.state !== 'running') {
+            Tone.context.resume();
+        }
         if (!transportState.isPlaying){
             setTransportState(state => ({
                 ...state,
                 isPlaying: true,
             }))
         }
+            
         Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(ix => {
+            console.log('[Transport.js]: Callback', TrkCtx[ix][3])
+            SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].callback = TrkCtx[ix][3];
+            if (ArrCtx.mode === 'pattern') {
+                SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].loop = true;
+                SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].loopStart = 0;
+                SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].loopEnd = `0:0:${SeqCtx[SeqCtx.activePattern]['tracks'][ix].length}`;
+            }
             SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].start();
             return '';
         });

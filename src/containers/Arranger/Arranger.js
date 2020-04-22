@@ -21,6 +21,7 @@ const Arranger = (props) => {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
         ArrCtx.updateArrCtx(arrangerState);
+
     }, [arrangerState]);
 
     // State changing methods - - - - - - - - - - - - - - - - - 

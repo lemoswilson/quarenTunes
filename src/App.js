@@ -44,14 +44,12 @@ class App extends Component {
     // TrackContext methods - - - - - - - - - - - - - - - - - - -
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     this.deleteTrackRef = (trackNumber, trackCounterIndex) => {
-      console.log('[App.js]: deleting track ref, trackNumber:', trackNumber, ';', 'TrackCounter', trackCounterIndex);
       this.setState(state => { 
         let copyState = {...state};
         copyState['track'][trackNumber] = [];
         copyState['track'][trackCounterIndex] = [];
         return copyState;
       })
-      console.log('[App.js]: shouldve update the trackContext');
     }
 
     this.getSelectedTrackIndex = (trackIndex) => {
@@ -72,7 +70,13 @@ class App extends Component {
 
     this.getInstrumentId = (id, trackIndex) => {
       this.setState(state => {
-        let copyState = {...state};
+        let copyState = {
+          ...state,
+          track: {
+            ...state.track,
+            [trackIndex]: [...state.track[trackIndex]]
+          }
+        };
         copyState['track'][trackIndex][2] = id;
         return copyState;
       });
@@ -88,6 +92,20 @@ class App extends Component {
           }
         }
       })
+    };
+
+    this.getTrackCallback = (callback, trackIndex) => {
+      this.setState(state => {
+        let copyState = {
+          ...state,
+          track: {
+            ...state.track,
+          }
+        } ;
+        copyState['track'][trackIndex] = [...state.track[trackIndex]];
+        copyState['track'][trackIndex][3] = callback;
+        return copyState;
+      });
     }
 
     // SequencerContext methods - - - - - - - - - - - - - - - - - - -
@@ -173,6 +191,7 @@ class App extends Component {
         getTrackState: this.getTrackState,
         getInstrumentId: this.getInstrumentId,
         getTrackCount: this.getTrackCount,
+        getTrackCallback: this.getTrackCallback,
         selectedTrack: 0,
       },
       sequencer: {
