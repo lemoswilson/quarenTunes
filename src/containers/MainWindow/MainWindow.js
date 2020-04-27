@@ -33,10 +33,6 @@ const MainWindow = (props) => {
         TrkCtx.getInstrumentId(id, index);
     };
 
-    useEffect(() => {
-        console.log('[MainWindow.js]: sequencer', SeqCtx, 'track', TrkCtx);
-    }, [])
-
     // Subscribing TrackContext ids to any change in the State
     useEffect(() => {
         state.instruments.map((instrumentObject, index) => {

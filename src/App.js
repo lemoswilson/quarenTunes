@@ -7,12 +7,8 @@ import * as Tone from 'tone';
 import Layout from './components/Layout/Layout';
 import SequencerContext from './context/sequencerContext';
 import ArrangerContext from './context/arrangerContext';
+import TransportContext from './context/transportContext';
 
-const returnPartArray = (length) => {
-  return [...Array(length).keys()].map(i => {
-      return {time: `0:0:${i}`, velocity: 127}
-  })
-}
 
 class App extends Component {
   constructor(props){
@@ -34,6 +30,21 @@ class App extends Component {
           ...state,
           arranger: {
             ...state.arranger,
+            ...newContext,
+          }
+        };
+        return copyState;
+      });
+    }
+
+    // TransportContext methods - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
+    this.updateTrsCtx = (newContext) => {
+      this.setState(state => {
+        let copyState = {
+          ...state,
+          transport: {
+            ...state.transport,
             ...newContext,
           }
         };
@@ -106,7 +117,7 @@ class App extends Component {
         copyState['track'][trackIndex][3] = callback;
         return copyState;
       });
-    }
+    };
 
     // SequencerContext methods - - - - - - - - - - - - - - - - - - -
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
@@ -206,7 +217,16 @@ class App extends Component {
       arranger: {
         mode: 'pattern',
         following: false,
+        directChange: false,
         updateArrCtx: this.updateArrCtx,
+      }, 
+      transport: {
+        isPlaying: false,
+        indicatorPosition: '0:0:0',
+        bpm: 120,
+        loopStart: 0,
+        loopEnd: '4m',
+        updateTrsCtx: this.updateTrsCtx,
       }
     };
   };
@@ -220,7 +240,9 @@ class App extends Component {
       <TrackContext.Provider value={this.state.track}>
       <SequencerContext.Provider value={this.state.sequencer}>
       <ArrangerContext.Provider value={this.state.arranger}>
-        <Layout></Layout>
+        <TransportContext.Provider value={this.state.transport}>
+          <Layout></Layout>
+        </TransportContext.Provider>
       </ArrangerContext.Provider>
       </SequencerContext.Provider>
       </TrackContext.Provider>

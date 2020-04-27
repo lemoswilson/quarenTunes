@@ -5,6 +5,7 @@ import sequencerContext from '../../context/sequencerContext';
 import './Sequencer.scss'
 import Steps from './Steps/Steps.js'
 import StepsEdit from './Steps/StepsEdit'
+import arrangerContext from '../../context/arrangerContext';
 // import { useCallback } from 'react';
 
 export const returnPartArray = (length) => {
@@ -17,14 +18,16 @@ const Sequencer = (props) => {
     // Initializing contexts and state - - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     let TrkCtx = useContext(trackContext), 
-        Tone = useContext(toneContext), 
         SeqCtx = useContext(sequencerContext),
+        ArrCtx = useContext(arrangerContext),
+        Tone = useContext(toneContext), 
         initPart = new Tone.Part();
 
     const [sequencerState, setSequencer] = useState({
         0: {
             name: 'Pattern 1',
             patternLength: 16,
+            chainAfter: null,
             tracks: {
                 0: {
                     length: 16,
@@ -50,12 +53,15 @@ const Sequencer = (props) => {
     // Updating SequencerContext as Sequence component did mount
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
-        SeqCtx.createCallback('updateSequencerState', updateSequencer);
+        if (!SeqCtx.updateSequencerState) {
+            SeqCtx.createCallback('updateSequencerState', updateSequencer);
+        }
         if (sequencerState !== sequencerContext){
             SeqCtx.updateAll(sequencerState);
         }
-        console.log('[Sequencer.js]: Sequencer', sequencerState, 'track', TrkCtx);
+
     }, []);
+
 
     // Subscribing SequencerContext to any change in the Sequenecer Context
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,6 +122,9 @@ const Sequencer = (props) => {
     
     const changeTrackLength = (newLength, Ref) => {
         if (newLength <= 64 && newLength >= 1) {
+            // Setting the new length in the Tone.Part object
+            sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].loopEnd = `0:0:${newLength}`;
+            // Setting the State
             setSequencer(state => {
                 let eventArray = [...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events']];
                 if (eventArray.length < newLength) {
@@ -143,7 +152,13 @@ const Sequencer = (props) => {
     };
 
     const changePatternLength = (newLength, Ref) => {
-        if (newLength <= 64 && newLength >= 1){
+        if (newLength >= 1){
+        // if (newLength <= 64 && newLength >= 1){
+
+            // Setting the pattern loop if the current playing mode = pattern
+            if (ArrCtx.mode === 'pattern') {
+                Tone.Transport.loopEnd = `0:0:${newLength}`;
+            }
             setSequencer(state => {
                 let copyState = {...state};
                 copyState[state.activePattern] = {
@@ -156,15 +171,64 @@ const Sequencer = (props) => {
         }
     };
 
+    
+    
     const selectPattern = (e) => {
-        let valor = e.target.value
-        setSequencer(state => {
-            let newState = {
-                ...state,
-                activePattern: parseInt(valor),
-            }
-            return newState;
-        })
+        e.preventDefault();
+        let nextPattern = e.target.value,
+            now = Tone.Transport.position,
+            chainAfter = sequencerState[sequencerState.activePattern]['chainAfter'],
+            loopStart = parseInt(sequencerState[sequencerState.activePattern]['patternLength']),
+            loopEnd = loopStart + parseInt(sequencerState[nextPattern]['patternLength']);
+
+        if (Tone.Transport.state === 'started'){
+            Tone.Transport.loopStart = `0:0:${loopStart}`;
+            Tone.Transport.loopEnd = `0:0:${loopEnd}`;
+            Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
+                if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+                    Tone.Transport.scheduleOnce(() => {
+                    sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
+                    sequencerState[sequencerState.activePattern]['tracks'][track].triggState.mute = true;
+                    }, `0:0:${loopStart}`)
+                    // sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop(`0:0:${loopStart}`);
+                }
+                return '';
+            });
+            Object.keys(sequencerState[nextPattern]['tracks']).map(track => {
+                if (sequencerState[nextPattern]['tracks'][track]) {
+                    sequencerState[nextPattern]['tracks'][track].triggState.start(`0:0:${loopStart}`);
+                    sequencerState[nextPattern]['tracks'][track].triggState.mute = false;
+                }
+                return '';
+            });
+            Tone.Transport.scheduleOnce((time) => {
+
+                Tone.Draw.schedule(() => {
+                setSequencer(state => {
+                    let newState = {
+                        ...state,
+                        activePattern: parseInt(nextPattern),
+                    }
+                    return newState;
+                });
+                }, time);
+
+            }, `0:0:${loopStart}`)
+        } else {
+            Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
+                if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+                    sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
+                }
+                return '';
+            });
+            setSequencer(state => {
+                let newState = {
+                    ...state,
+                    activePattern: parseInt(nextPattern),
+                }
+                return newState;
+            });
+        }
     };
 
     const changePatternName = (name) => {
@@ -202,8 +266,12 @@ const Sequencer = (props) => {
         sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(index => {
             let time = `0:0:${index}`;
             let event = { ...sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time) };
-            event['note'] = note;
-            sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event);
+            if (note) {
+                event['note'] = note;
+                sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event);
+            } else {
+                sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].remove(time);
+            }
         })
 
         setSequencer(state => {
@@ -286,6 +354,32 @@ const Sequencer = (props) => {
             return copyState;
         });
     };
+
+    // Transport scheduler handlers
+    // - - - - - - - - - - - - - - - - -
+    const scheduleNextPattern = (nextPattern) => {
+        console.log('[Sequencer.js]: scheduleNextPattern');
+        Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
+            if(sequencerState[sequencerState.activePattern]['tracks'][track]) {
+                sequencerState[sequencerState.activePattern]['tracks'][track]['triggState'].stop(); 
+                return ''
+            }
+        })
+        Object.keys(sequencerState[nextPattern]['tracks']).map(track => {
+            if(sequencerState[nextPattern]['tracks'][track]) {
+                console.log('[Sequencer.js]: triggStates',sequencerState[nextPattern]['tracks'][track]['triggState']);
+                sequencerState[nextPattern]['tracks'][track]['triggState'].start(); 
+                return ''
+            }
+        })
+        setSequencer(state => {
+            let newState = {
+                ...state,
+                activePattern: parseInt(nextPattern),
+            }
+            return newState;
+        }); 
+    }
 
     // Conditional components logic - - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

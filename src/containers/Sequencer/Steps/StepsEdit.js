@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useEffect } from 'react';
+import React, { useRef, useContext } from 'react';
 import './StepsEdit.scss';
 import trackContext from '../../../context/trackContext';
 
@@ -44,6 +44,7 @@ const StepsEdit = (props) => {
             let value = noteInRef.current.value;
             value = value.split(',');
             let newValue = value.map(e => e.trim());
+            newValue = newValue[0] === '' ? [] : newValue;
             props.setNote(newValue)
         }
         e.target.reset();
@@ -71,7 +72,7 @@ const StepsEdit = (props) => {
             if (parseInt(key) >= 0){
                 patternAmount = patternAmount + 1;
             }
-            return
+            return ''
         })
         return patternAmount 
     };

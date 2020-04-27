@@ -7,6 +7,8 @@ let trackContext = React.createContext({
       selectedTrack: 0,
       getTrackState: () => {},
       getInstrumentId: () => {},
+      getTrackCallback: () => {},
+      forceReRender: () => {},
       trackCount: 1,
     }
 );

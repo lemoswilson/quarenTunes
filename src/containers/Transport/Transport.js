@@ -5,6 +5,7 @@ import { useState } from 'react';
 import trackContext from '../../context/trackContext';
 import sequencerContext from '../../context/sequencerContext';
 import arrangerContext from '../../context/arrangerContext';
+import transportContext from '../../context/transportContext';
 
 
 const Transport = (props) => {
@@ -14,21 +15,23 @@ const Transport = (props) => {
         bpm: 120,
         loopStart: 0,
         loopEnd: '4m',
+        masterVolume: -3,
         // mode: 'pattern' // three modes, pattern, song, 
     })
     let Tone = useContext(ToneContext),
         TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
+        TrsCtx = useContext(transportContext),
         ArrCtx = useContext(arrangerContext);
 
-
     useEffect(() => {
-        if(transportState.isPlaying){
-            Tone.Transport.start();
-        } else {
-            Tone.Transport.stop();
-        }
-    }, [Tone, transportState.isPlaying]) ;
+        Tone.Master.volume.value = transportState.masterVolume;
+    }, [transportState.masterVolume])
+
+    // Subscribing transportContext to any change in transportState
+    useEffect(() => {
+        TrsCtx.updateTrsCtx(transportState);
+    }, [transportState]);
 
     const start = () => {
         if (Tone.context.state !== 'running') {
@@ -40,28 +43,24 @@ const Transport = (props) => {
                 isPlaying: true,
             }))
         }
-            
-        Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(ix => {
-            console.log('[Transport.js]: Callback', TrkCtx[ix][3])
-            SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].callback = TrkCtx[ix][3];
-            if (ArrCtx.mode === 'pattern') {
-                SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].loop = true;
-                SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].loopStart = 0;
-                SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].loopEnd = `0:0:${SeqCtx[SeqCtx.activePattern]['tracks'][ix].length}`;
+        Tone.Transport.start();
+    }
+
+    const stopCallback = () => {
+        Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(track => {
+            if (SeqCtx[SeqCtx.activePattern]['tracks'][track]) {
+                SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
             }
-            SeqCtx[SeqCtx.activePattern]['tracks'][ix]['triggState'].start();
-            return '';
         });
-        console.log('[Transport.js]: Should be playing, callback = ', SeqCtx[SeqCtx.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].callback)
     }
 
     const stop = () => {
+        Tone.Transport.stop();
         if (transportState.isPlaying) {
             setTransportState(state => ({
                 ...state,
                 isPlaying: false,
             }))
-        // Tone.Transport.stop();
         }
     }
 

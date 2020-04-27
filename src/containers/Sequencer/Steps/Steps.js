@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState} from 'react';
+import React, { useContext } from 'react';
 import Step from './Step/Step';
 import './Steps.scss';
 import trackContext from '../../../context/trackContext';
