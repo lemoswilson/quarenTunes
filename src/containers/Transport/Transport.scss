@@ -5,6 +5,7 @@
     width: 200px;
     display: flex;
     flex-direction: row;
+    position: relative;
 
     .start,
     .stop {
@@ -12,5 +13,9 @@
         margin: auto;
         width: 10%;
         height: 3%;
+    }
+
+    .position {
+        position: absolute;
     }
 }

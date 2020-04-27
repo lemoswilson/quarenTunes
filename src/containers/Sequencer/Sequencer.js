@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import trackContext from '../../context/trackContext';
 import toneContext from '../../context/toneContext';
 import sequencerContext from '../../context/sequencerContext';
@@ -6,6 +6,7 @@ import './Sequencer.scss'
 import Steps from './Steps/Steps.js'
 import StepsEdit from './Steps/StepsEdit'
 import arrangerContext from '../../context/arrangerContext';
+import useCustomRef from '../../hooks/useCustomRef';
 // import { useCallback } from 'react';
 
 export const returnPartArray = (length) => {
@@ -176,28 +177,21 @@ const Sequencer = (props) => {
     const selectPattern = (e) => {
         e.preventDefault();
         let nextPattern = e.target.value,
-            now = Tone.Transport.position,
             chainAfter = sequencerState[sequencerState.activePattern]['chainAfter'],
-            loopStart = parseInt(sequencerState[sequencerState.activePattern]['patternLength']),
-            loopEnd = loopStart + parseInt(sequencerState[nextPattern]['patternLength']);
-
+            loopStart = 0,
+            loopEnd = parseInt(sequencerState[nextPattern]['patternLength']);
         if (Tone.Transport.state === 'started'){
-            Tone.Transport.loopStart = `0:0:${loopStart}`;
-            Tone.Transport.loopEnd = `0:0:${loopEnd}`;
             Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
                 if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+                    console.log('[Sequencer.js]: stoping tracks part,', sequencerState.activePattern);
+                    sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop(0);
+                    console.log('[Sequencer.js]: starting tracks part,', nextPattern);
+                    sequencerState[nextPattern]['tracks'][track].triggState.start(0);
                     Tone.Transport.scheduleOnce(() => {
-                    sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
-                    sequencerState[sequencerState.activePattern]['tracks'][track].triggState.mute = true;
-                    }, `0:0:${loopStart}`)
-                    // sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop(`0:0:${loopStart}`);
-                }
-                return '';
-            });
-            Object.keys(sequencerState[nextPattern]['tracks']).map(track => {
-                if (sequencerState[nextPattern]['tracks'][track]) {
-                    sequencerState[nextPattern]['tracks'][track].triggState.start(`0:0:${loopStart}`);
-                    sequencerState[nextPattern]['tracks'][track].triggState.mute = false;
+                        Tone.Transport.loopEnd = `0:0:${loopEnd}`
+                        sequencerState[sequencerState.activePattern]['tracks'][track].triggState.mute = true;
+                        sequencerState[nextPattern]['tracks'][track].triggState.mute = false;
+                    }, `0:0:0`)
                 }
                 return '';
             });
@@ -213,10 +207,11 @@ const Sequencer = (props) => {
                 });
                 }, time);
 
-            }, `0:0:${loopStart}`)
+            }, '0:0:0')
         } else {
             Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
                 if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+                    console.log('[Sequencer.js]: stopping part of track', track, 'pattern', sequencerState.activePattern);
                     sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
                 }
                 return '';
@@ -230,6 +225,63 @@ const Sequencer = (props) => {
             });
         }
     };
+    // const selectPattern = (e) => {
+    //     e.preventDefault();
+    //     let nextPattern = e.target.value,
+    //         now = Tone.Transport.position,
+    //         chainAfter = sequencerState[sequencerState.activePattern]['chainAfter'],
+    //         loopStart = parseInt(sequencerState[sequencerState.activePattern]['patternLength']),
+    //         loopEnd = loopStart + parseInt(sequencerState[nextPattern]['patternLength']);
+
+    //     if (Tone.Transport.state === 'started'){
+    //         Tone.Transport.loopStart = `0:0:${loopStart}`;
+    //         Tone.Transport.loopEnd = `0:0:${loopEnd}`;
+    //         Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
+    //             if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+    //                 Tone.Transport.scheduleOnce(() => {
+    //                 sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
+    //                 sequencerState[sequencerState.activePattern]['tracks'][track].triggState.mute = true;
+    //                 }, `0:0:${loopStart}`)
+    //                 // sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop(`0:0:${loopStart}`);
+    //             }
+    //             return '';
+    //         });
+    //         Object.keys(sequencerState[nextPattern]['tracks']).map(track => {
+    //             if (sequencerState[nextPattern]['tracks'][track]) {
+    //                 sequencerState[nextPattern]['tracks'][track].triggState.start(`0:0:${loopStart}`);
+    //                 sequencerState[nextPattern]['tracks'][track].triggState.mute = false;
+    //             }
+    //             return '';
+    //         });
+    //         Tone.Transport.scheduleOnce((time) => {
+
+    //             Tone.Draw.schedule(() => {
+    //             setSequencer(state => {
+    //                 let newState = {
+    //                     ...state,
+    //                     activePattern: parseInt(nextPattern),
+    //                 }
+    //                 return newState;
+    //             });
+    //             }, time);
+
+    //         }, `0:0:${loopStart}`)
+    //     } else {
+    //         Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
+    //             if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+    //                 sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
+    //             }
+    //             return '';
+    //         });
+    //         setSequencer(state => {
+    //             let newState = {
+    //                 ...state,
+    //                 activePattern: parseInt(nextPattern),
+    //             }
+    //             return newState;
+    //         });
+    //     }
+    // };
 
     const changePatternName = (name) => {
         setSequencer(state => {
@@ -417,6 +469,7 @@ const Sequencer = (props) => {
                         setNote={setNote}
                         changePage={changePage}
                         setVelocity={setVelocity}></StepsEdit>
+                <p> {`${sequencerState[sequencerState.activePattern]['name']}`} </p>
             </div>
         )
 }

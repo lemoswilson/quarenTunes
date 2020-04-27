@@ -38,7 +38,9 @@ const FMSynth = (props) => {
         selfRef = useRef(new Tone.FMSynth(state)),
         TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
-        filterRef = useRef(new Tone.Filter(30, 'lowpass').toMaster());
+        filterRef = useRef(new Tone.Filter(30, 'lowpass').toMaster()),
+        seqCounter = SeqCtx.counter,
+        getTrackCallback = TrkCtx.getTrackCallback;
 
     // const updateTrkRef = () => {
     //     TrkCtx.getTrackRef(selfRef.current, props.trackIndex);
@@ -88,6 +90,7 @@ const FMSynth = (props) => {
     });
 
 
+
     // SHOULD I SET A TIMEOUT FOR SETTING UP THE CALLBACK TO THE PART?
     // useEffect(() => {
     //     if (SeqCtx[SeqCtx.activePattern]){
@@ -132,14 +135,29 @@ const FMSynth = (props) => {
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
-        console.log(Tone.Transport.loopStart, Tone.Transport.loopEnd);
+        console.log('[FMSynth.js]: loopStart', Tone.Transport.loopStart, 'loopEnd', Tone.Transport.loopEnd);
+        console.log('[FMSynth.js]: TransportPosition', Tone.Transport.position);
+        console.log('[FMSynth.js]: selfRef', selfRef);
+        Object.keys(SeqCtx).map(SeqKeys => {
+            if (parseInt(SeqKeys) >= 0){
+                Object.keys(SeqCtx[SeqKeys]['tracks']).map(track => {
+                    console.log('[FMSynth.js]: Sequencia', SeqKeys, 'Track', track, 'state', SeqCtx[SeqKeys]['tracks'][track].triggState.state);
+                    return '';
+                });
+            }
+            return '';
+        });
         let bb, velocity;
-        velocity = value.velocity ? value.velocity : 127;
+        velocity = value.velocity ? value.velocity : 60;
         bb = value.note ? value.note : null;
         bb.map(note => {
         selfRef.current.triggerAttackRelease(note, '8n', time, velocity)
         })
     }
+
+    useEffect(() => {
+        getTrackCallback(FMSynthPlayer, props.trackIndex);
+    }, [props.trackIndex, seqCounter]);
 
         return (
             <div className="FMSynth">

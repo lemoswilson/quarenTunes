@@ -15,6 +15,7 @@ const Transport = (props) => {
         bpm: 120,
         loopStart: 0,
         loopEnd: '4m',
+        loop: true,
         masterVolume: -3,
         // mode: 'pattern' // three modes, pattern, song, 
     })
@@ -27,6 +28,21 @@ const Transport = (props) => {
     useEffect(() => {
         Tone.Master.volume.value = transportState.masterVolume;
     }, [transportState.masterVolume])
+
+    // useEffect(() => {
+    //     setTransportState(state => ({
+    //         ...state,
+    //         indicatorPosition: Tone.Transport.position,
+    //     }))
+    // }, [Tone.Transport.position])
+
+    useEffect(() => {
+        if(transportState.isPlaying) {
+            Tone.Transport.start();
+        } else {
+            Tone.Transport.stop();
+        }
+    }, [transportState.isPlaying])
 
     // Subscribing transportContext to any change in transportState
     useEffect(() => {
@@ -43,7 +59,7 @@ const Transport = (props) => {
                 isPlaying: true,
             }))
         }
-        Tone.Transport.start();
+        // Tone.Transport.start();
     }
 
     const stopCallback = () => {
@@ -55,7 +71,11 @@ const Transport = (props) => {
     }
 
     const stop = () => {
-        Tone.Transport.stop();
+        if (ArrCtx.mode === 'pattern') {
+            console.log('[Transport.js]: cancelling callbacks');
+            stopCallback();
+        }
+        // Tone.Transport.stop();
         if (transportState.isPlaying) {
             setTransportState(state => ({
                 ...state,
@@ -66,8 +86,9 @@ const Transport = (props) => {
 
         return(
             <div className="transport">
-                <div className="start" onClick={start}>Start</div>
-                <div className="stop" onClick={stop}>Stop</div>
+                    <div className="start" onClick={start}>Start</div>
+                    <div className="stop" onClick={stop}>Stop</div>
+            <p className="position">{ transportState.indicatorPosition }</p>
             </div>
         )
 }
