@@ -76,6 +76,12 @@ const MainWindow = (props) => {
     };
 
     const removeInstrument = (index) => {
+        // Pausando todas as parts dessa track
+        Object.keys(SeqCtx).map(key => {
+            if (parseInt(key) >= 0){
+                SeqCtx[key]['tracks'][index]['triggState'].stop();
+            }
+        });
         TrkCtx.deleteTrackRef(index, state.trackCount - 1);
         setState((state) => {
             let inst = state.instruments;

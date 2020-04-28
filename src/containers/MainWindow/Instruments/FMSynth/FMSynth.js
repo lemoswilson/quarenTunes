@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import ToneContext from '../../../../context/toneContext';
 import trackContext from '../../../../context/trackContext';
 import sequencerContext from '../../../../context/sequencerContext';
+import transportContext from '../../../../context/transportContext';
 import Knob from '../../../../components/Knob/Knob';
 
 const FMSynth = (props) => {
@@ -36,6 +37,7 @@ const FMSynth = (props) => {
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     let Tone = useContext(ToneContext),
         selfRef = useRef(new Tone.FMSynth(state)),
+        TrsCtx = useContext(transportContext),
         TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
         filterRef = useRef(new Tone.Filter(30, 'lowpass').toMaster()),
@@ -85,6 +87,11 @@ const FMSynth = (props) => {
     useEffect(() => {
         if (renderState === 1) {
             TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
+            if (TrsCtx.isPlaying){
+                console.log('[FMSynth.js]: adding callback and starting Part');
+                SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.callback = FMSynthPlayer;
+                SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.start(0);
+            }
             setRender(2);
         }
     });
@@ -137,7 +144,7 @@ const FMSynth = (props) => {
     const FMSynthPlayer = (time, value) => {
         console.log('[FMSynth.js]: loopStart', Tone.Transport.loopStart, 'loopEnd', Tone.Transport.loopEnd);
         console.log('[FMSynth.js]: TransportPosition', Tone.Transport.position);
-        console.log('[FMSynth.js]: selfRef', selfRef);
+        console.log('[FMSynth.js]: selfRef', selfRef, 'trackNumber', props.trackIndex);
         Object.keys(SeqCtx).map(SeqKeys => {
             if (parseInt(SeqKeys) >= 0){
                 Object.keys(SeqCtx[SeqKeys]['tracks']).map(track => {

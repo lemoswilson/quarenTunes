@@ -5,7 +5,6 @@ import sequencerContext from '../../context/sequencerContext';
 import arrangerContext from '../../context/arrangerContext';
 import transportContext from '../../context/transportContext';
 import toneContext from '../../context/toneContext';
-import usePrevious from '../../hooks/usePrevious';
 
 const Arranger = (props) => {
     // Initializing contexts and state and necessary variables- - - - - - - - - - - - -
@@ -58,6 +57,7 @@ const Arranger = (props) => {
 
                             if (activePattern['tracks'][ix]['triggState'].callback !== TrkCtx[ix][3]){
                             console.log('[Arranger.js]: addingCallback, track', ix, 'pattern', activePatternNumber);
+                            console.log('[Arranger.js]: addingCallback,activepatter', activePattern );
                             activePattern['tracks'][ix]['triggState'].callback = TrkCtx[ix][3];
                             console.log('[Arranger.js]: addingCallback, callback in the object',
                                              activePattern['tracks'][ix]['triggState'].callback === TrkCtx[ix][3]);

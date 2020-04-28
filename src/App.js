@@ -136,7 +136,6 @@ class App extends Component {
     };
 
     this.addTrackToSequencer = (trackNumber) => {
-      let pat = React.createRef(new Tone.Part());
       this.setState(state => {
         let newState = {...state};
         newState.sequencer = {
@@ -147,7 +146,7 @@ class App extends Component {
             newState.sequencer[key]['tracks'][trackNumber] = {
               length: state.sequencer[key]['patternLength'],
               // triggState: new Tone.Part(),
-              triggState: pat,
+              triggState: new Tone.Part(),
               events: Array(state.sequencer[key]['patternLength']).fill({}),
               page: 0,
               selected: [],

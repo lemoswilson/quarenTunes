@@ -1,27 +1,16 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useRef, useContext, useState } from 'react';
 import trackContext from '../../context/trackContext';
 import toneContext from '../../context/toneContext';
 import sequencerContext from '../../context/sequencerContext';
-import './Sequencer.scss'
-import Steps from './Steps/Steps.js'
-import StepsEdit from './Steps/StepsEdit'
 import arrangerContext from '../../context/arrangerContext';
-// import { useCallback } from 'react';
 
-export const returnPartArray = (length) => {
-    return [...Array(length).keys()].map(i => {
-        return {time: `0:0:${i}`, velocity: 127}
-    })
-}
-
-const Sequencer = (props) => {
-    // Initializing contexts and state - - - - - - - - - - - - -
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    let TrkCtx = useContext(trackContext), 
-        SeqCtx = useContext(sequencerContext),
-        ArrCtx = useContext(arrangerContext),
-        Tone = useContext(toneContext), 
-        initPart = new Tone.Part();
+const useSequencer = () => {
+    let Tone = useContext(Tone),
+    TrkCtx = useContext(trackContext), 
+    SeqCtx = useContext(sequencerContext),
+    ArrCtx = useContext(arrangerContext),
+    initPart = useRef(new Tone.Part());
+    initPart = initPart.current
 
     const [sequencerState, setSequencer] = useState({
         0: {
@@ -44,34 +33,6 @@ const Sequencer = (props) => {
         },
     );
 
-    // Callback to update de sequencer context from within the Sequencer Container 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    const updateSequencer = (newState) => {
-        setSequencer(newState);
-    };
-
-    // Updating SequencerContext as Sequence component did mount
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    useEffect(() => {
-        if (!SeqCtx.updateSequencerState) {
-            SeqCtx.createCallback('updateSequencerState', updateSequencer);
-        }
-        if (sequencerState !== sequencerContext){
-            SeqCtx.updateAll(sequencerState);
-        }
-
-    }, []);
-
-
-    // Subscribing SequencerContext to any change in the Sequenecer Context
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    useEffect(() => {
-        SeqCtx.updateAll(sequencerState);
-    }, [sequencerState]);
-
-
-    // State editing methods that will be passed to STEPS EDIT
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const removePattern = () => {
         setSequencer(state => {
             let copyState = {...state};
@@ -97,6 +58,8 @@ const Sequencer = (props) => {
     };
 
     const addPattern = () => {
+        let pat = useRef(new Tone.Part());
+        pat = pat.current
         setSequencer(state => {
             let copyState = {...state};
             copyState[state.counter] = {
@@ -108,7 +71,7 @@ const Sequencer = (props) => {
             [...Array(TrkCtx.trackCount).keys()].map(i => {
                 copyState[state.counter]['tracks'][i] = {
                     length: 16,
-                    triggState: new Tone.Part(),
+                    triggState: pat,
                     events: Array(16).fill({}),
                     page: 0,
                     selected: [],
@@ -118,8 +81,8 @@ const Sequencer = (props) => {
             copyState['counter'] = state.counter + 1;
             return copyState;
         })
-    }
-    
+    };
+
     const changeTrackLength = (newLength, Ref) => {
         if (newLength <= 64 && newLength >= 1) {
             // Setting the new length in the Tone.Part object
@@ -171,25 +134,20 @@ const Sequencer = (props) => {
         }
     };
 
-    
-    
     const selectPattern = (e) => {
         e.preventDefault();
         let nextPattern = e.target.value,
             loopEnd = parseInt(sequencerState[nextPattern]['patternLength']);
 
-        // Sheduling pattern change if the transport is running
-        // - - - - - - - - - - - - - - - - - - - -  - - - - - - 
         if (Tone.Transport.state === 'started'){
             Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
                 if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
-                // Stopping the current playing pattern, and scheduling the next to start at 0;
+                    console.log('[Sequencer.js]: stoping tracks part,', sequencerState.activePattern);
                     sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop(0);
+                    console.log('[Sequencer.js]: starting tracks part,', nextPattern);
                     sequencerState[nextPattern]['tracks'][track].triggState.start(0);
                     Tone.Transport.scheduleOnce(() => {
-                        // scheduling the new loop size (acordingly to the new length)
                         Tone.Transport.loopEnd = `0:0:${loopEnd}`
-                        // muting the previous pattern, and unmuting the current one
                         sequencerState[sequencerState.activePattern]['tracks'][track].triggState.mute = true;
                         sequencerState[nextPattern]['tracks'][track].triggState.mute = false;
                     }, `0:0:0`)
@@ -197,19 +155,22 @@ const Sequencer = (props) => {
                 return '';
             });
             Tone.Transport.scheduleOnce((time) => {
+
                 Tone.Draw.schedule(() => {
-                    setSequencer(state => {
-                        let newState = {
-                            ...state,
-                            activePattern: parseInt(nextPattern),
-                        }
-                        return newState;
-                    });
+                setSequencer(state => {
+                    let newState = {
+                        ...state,
+                        activePattern: parseInt(nextPattern),
+                    }
+                    return newState;
+                });
                 }, time);
+
             }, '0:0:0')
         } else {
             Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
                 if (sequencerState[sequencerState.activePattern]['tracks'][track]) {
+                    console.log('[Sequencer.js]: stopping part of track', track, 'pattern', sequencerState.activePattern);
                     sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop();
                 }
                 return '';
@@ -265,7 +226,6 @@ const Sequencer = (props) => {
             } else {
                 sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].remove(time);
             }
-            return '';
         })
 
         setSequencer(state => {
@@ -375,45 +335,8 @@ const Sequencer = (props) => {
         }); 
     }
 
-    // Conditional components logic - - - - - - - - - - - - -
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? 
-        <Steps length={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['length']} 
-            events={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events']} 
-            patternName={sequencerState[sequencerState.activePattern]['name']} 
-            patternLength={sequencerState[sequencerState.activePattern]['patternLength']}
-            activePattern = {sequencerState.activePattern} 
-            selectStep={selectStep}
-            selected={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected']}
-            page={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['page']}></Steps> : 
-        null ;
+    return [sequencerState, setSequencer, removePattern, addPattern, changeTrackLength, changePatternLength, selectPattern, changePatternName, changePage, setNote, setVelocity, selectStep, scheduleNextPattern]
 
-    const StepsToRender = sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? StepsComponent : <div className="steps"></div>;
+};
 
-    const TrackLength = sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? parseInt(sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['length']) : null
-
-    const page = sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack][['page']] : null;
-
-        return(
-            <div className="sequencer">
-                { StepsToRender }
-                <StepsEdit sequencerState={sequencerState} 
-                        PatternLength={sequencerState[sequencerState.activePattern]['patternLength']}
-                        TrackLength={TrackLength} 
-                        changeTrackLength={changeTrackLength}
-                        changePatternLength={changePatternLength} 
-                        addPattern={addPattern}
-                        selectPattern={selectPattern}
-                        changePatternName={changePatternName}
-                        activePattern={sequencerState.activePattern}
-                        removePattern={removePattern}
-                        page={page}
-                        setNote={setNote}
-                        changePage={changePage}
-                        setVelocity={setVelocity}></StepsEdit>
-                <p> {`${sequencerState[sequencerState.activePattern]['name']}`} </p>
-            </div>
-        )
-}
-
-export default Sequencer;
+export default useSequencer;

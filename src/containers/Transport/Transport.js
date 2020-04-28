@@ -65,6 +65,7 @@ const Transport = (props) => {
     const stopCallback = () => {
         Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(track => {
             if (SeqCtx[SeqCtx.activePattern]['tracks'][track]) {
+                console.log('[Transport.js]: cancelling callbacks, track', track);
                 SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
             }
         });
@@ -72,8 +73,9 @@ const Transport = (props) => {
 
     const stop = () => {
         if (ArrCtx.mode === 'pattern') {
-            console.log('[Transport.js]: cancelling callbacks');
-            stopCallback();
+            if(transportState.isPlaying){
+                stopCallback();
+            }
         }
         // Tone.Transport.stop();
         if (transportState.isPlaying) {
