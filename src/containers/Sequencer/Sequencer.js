@@ -40,6 +40,7 @@ const Sequencer = (props) => {
             },
         activePattern: 0,
         counter: 1,
+        counter2: 1,
         copyed: null,
         },
     );
@@ -67,6 +68,7 @@ const Sequencer = (props) => {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
         SeqCtx.updateAll(sequencerState);
+        console.log('[Sequencer.js]: updating sequencer context, state', sequencerState);
     }, [sequencerState]);
 
 
@@ -92,18 +94,20 @@ const Sequencer = (props) => {
                     copyState.activePattern = lastNumber;
                 }
             }
+            copyState.counter2 = state.counter2 + 1;
             return copyState;
         });
+        
     };
 
     const addPattern = () => {
         setSequencer(state => {
             let copyState = {...state};
             copyState[state.counter] = {
+                chainAfter: null,
                 name: `Pattern ${state.counter + 1}`,
                 patternLength: 16,
                 tracks: {},
-                events: Array(16).fill({}),
             };
             [...Array(TrkCtx.trackCount).keys()].map(i => {
                 copyState[state.counter]['tracks'][i] = {
@@ -116,6 +120,7 @@ const Sequencer = (props) => {
                 return 0;
             })
             copyState['counter'] = state.counter + 1;
+            copyState['counter2'] = state.counter2 + 1;
             return copyState;
         })
     }
@@ -377,7 +382,8 @@ const Sequencer = (props) => {
 
     // Conditional components logic - - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? 
+    // const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? 
+    const StepsComponent =  sequencerState[sequencerState.activePattern] ? 
         <Steps length={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['length']} 
             events={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events']} 
             patternName={sequencerState[sequencerState.activePattern]['name']} 

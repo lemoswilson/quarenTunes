@@ -174,11 +174,20 @@ class App extends Component {
 
     this.updateAll = (newState) => {
       this.setState((state => {
-        let novo = {...state};
+        let novo = {
+          ...state
+        };
         novo.sequencer = {
           ...state.sequencer,
           ...newState,
         };
+        Object.keys(novo.sequencer).map(key => {
+          if (!newState[key] && parseInt(key) >= 0){
+            delete novo.sequencer[key]
+          }
+          return '';
+        })
+        
         return novo;
       }));
     };
