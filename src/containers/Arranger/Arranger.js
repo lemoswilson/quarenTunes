@@ -62,6 +62,11 @@ const Arranger = (props) => {
 
     // Set scheduler, if SeqCtx[SeqCtx.activePattern] not available yet, 
     // setTimeout a forceRender until its available - - - - - - - - - - 
+    // If in pattern mode, adding pattern to the cue, setting the loop size
+    // accordingly to the selected pattern size
+    // Adding callbacks to the part, if not added already
+    // If in song mode cue the first song and schedule a callback 
+    // to check the state of the arranger? 
     useEffect(() => {
         if (Tone.Transport.state !== 'started'){
             if(arrangerState.mode === 'pattern'){
@@ -94,16 +99,44 @@ const Arranger = (props) => {
                     }, 500)
                 }
             } else if ( arrangerState.mode === 'song') {
-                if(previousSong !== currentSong){
-                    // stop and mute all the scheduled patterns of the last selected sng
-                }
-               if(Tone.Transport.loop) {
+                if(previousMode === 'pattern'){
+                    // stop and mute all the scheduled patterns of the last selected pattern
+                    // turn of looop in the transport - - - - - - - - - - - - - - - - - - - - 
+                    console.log('[Arranger.js]: making Tone.Transport.loop false');
                     Tone.Transport.loop = false;
-                    // scheduling the parts selected on the songs;
-                    arrangerState.song[arrangerState.selectedSong]['events'].forEach((value, index, array) => {
-                        
+                    Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(track => {
+                        if (SeqCtx[SeqCtx.activePattern]['tracks'][track]) {
+                            console.log('[Arranger.js]: stoping track,', track, 'seq', SeqCtx.activePattern);
+                            SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
+                            SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.mute = true;
+                        }
                     })
-               } 
+                    console.log('[Transport.js]: Modo song, previous song:', previousSong, 'currentSong', currentSong);
+                    // if there are shceduled parts in the active song
+                    if (arrangerState.songs[arrangerState.selectedSong]['events']) {
+                        let timeCounter = Number();
+                        arrangerState.songs[arrangerState.selectedSong]['events'].forEach((value, index, array) => {
+                            let repeat = value.repeat ? value.repeat : 1;
+                            if (index === '0' && value.pattern) {
+                                Object.keys(SeqCtx[value.pattern].tracks).map(track => {
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.start(`0:0:${value.start}`);
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.mute = false;
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopStart = `0:0:${value.start}`;
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = `0:0:${value.end}`;
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.loop = value.repeat >= 1 ? value.repeat : false;
+                                })
+                                if (array[index + 1]) {
+                                    // Tone.Transport.scheduleOnce(() => {
+                                    //     Object.keys(SeqCtx[array[index + 1].pattern]['tracks']).map(track => {
+                                    //         SeqCtx[array[index + 1].pattern]['tracks'][track].triggState
+                                    //     })
+                                    // }, `${timeCounter + (value.end - value.start)*repeat}`)
+                                }
+                            }
+                            console.log('[Arranger.js]: current song,', arrangerState.selectedSong, 'currentEvent', value);
+                        })
+                    }
+                }
             } 
         } else {
             // rearranging song after deleting song row
