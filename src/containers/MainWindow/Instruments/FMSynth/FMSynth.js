@@ -87,11 +87,11 @@ const FMSynth = (props) => {
     useEffect(() => {
         if (renderState === 1) {
             TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
-            if (TrsCtx.isPlaying){
+            // if (TrsCtx.isPlaying){
                 console.log('[FMSynth.js]: adding callback and starting Part');
                 SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.callback = FMSynthPlayer;
                 SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.start(0);
-            }
+            // }
             setRender(2);
         }
     });
