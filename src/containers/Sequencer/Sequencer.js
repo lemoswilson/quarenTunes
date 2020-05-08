@@ -6,7 +6,6 @@ import './Sequencer.scss'
 import Steps from './Steps/Steps.js'
 import StepsEdit from './Steps/StepsEdit'
 import arrangerContext from '../../context/arrangerContext';
-// import { useCallback } from 'react';
 
 export const returnPartArray = (length) => {
     return [...Array(length).keys()].map(i => {

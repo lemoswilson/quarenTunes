@@ -36,13 +36,13 @@ const Transport = (props) => {
     //     }))
     // }, [Tone.Transport.position])
 
-    useEffect(() => {
-        if(transportState.isPlaying) {
-            Tone.Transport.start();
-        } else {
-            Tone.Transport.stop();
-        }
-    }, [transportState.isPlaying])
+    // useEffect(() => {
+    //     if(transportState.isPlaying) {
+    //         Tone.Transport.start('+0.05');
+    //     } else {
+    //         Tone.Transport.stop();
+    //     }
+    // }, [transportState.isPlaying])
 
     // Subscribing transportContext to any change in transportState
     useEffect(() => {
@@ -52,14 +52,16 @@ const Transport = (props) => {
     const start = () => {
         if (Tone.context.state !== 'running') {
             Tone.context.resume();
+            Tone.context.latencyHint = 'playback';
+            Tone.context.lookAhead = 0.2;
         }
-        if (!transportState.isPlaying){
+        if (!transportState.isPlaying || Tone.Transport.state === 'started'){
             setTransportState(state => ({
                 ...state,
                 isPlaying: true,
             }))
         }
-        // Tone.Transport.start();
+        Tone.Transport.start();
     }
 
     const stopCallback = () => {
@@ -70,22 +72,41 @@ const Transport = (props) => {
                     SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
                 }
             });
+        } else {
+            // ArrCtx.songs[ArrCtx.selectedSong]['events'].forEach((value, index, array) => {
+            //     if(value.pattern >= 0){
+            //         if (index === 0) {
+            //             Object.keys(SeqCtx[value.pattern].tracks).map(track => {
+            //                 SeqCtx[value.pattern]['tracks'][track].triggState.stop();
+            //             });
+            //         } else {
+            //             if (array[index -1].pattern === value.pattern){
+            //                 return;
+            //             } else {
+            //                 Object.keys(SeqCtx[value.pattern].tracks).map(track => {
+            //                     SeqCtx[value.pattern]['tracks'][track].triggState.stop();
+            //                     SeqCtx[value.pattern]['tracks'][track].triggState.mute = true;
+            //                 }); 
+            //             }
+            //         }
+            //     }
+            // })
         }
-    }
+        Tone.Transport.cancel();
+    };
 
     const stop = () => {
-        if (ArrCtx.mode === 'pattern') {
-            if(transportState.isPlaying){
-                stopCallback();
-            }
+        if (Tone.Transport.state === 'started'){
+            stopCallback();
         }
-        // Tone.Transport.stop();
         if (transportState.isPlaying) {
+            // Tone.Transport.stop()
             setTransportState(state => ({
                 ...state,
                 isPlaying: false,
             }))
         }
+        Tone.Transport.stop();
     }
 
         return(

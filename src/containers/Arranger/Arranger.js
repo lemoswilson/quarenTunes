@@ -7,6 +7,23 @@ import transportContext from '../../context/transportContext';
 import toneContext from '../../context/toneContext';
 import usePrevious from '../../hooks/usePrevious';
 
+const subtractBBS = (time) => {
+    let timeArray = time.split(':');
+    if (parseInt(timeArray[2]) > 0) {
+        timeArray[2] = parseInt(timeArray[2]) - 1;
+    } else {
+        if (parseInt(timeArray[1]) > 0) {
+            timeArray[1] = parseInt(timeArray[1]) - 1;
+            timeArray[2] = 3;
+        } else {
+            timeArray[0] = parseInt(timeArray[0]) - 1;
+            timeArray[1] = 3;
+            timeArray[2] = 3;
+        }
+    }
+    let newTime = timeArray.join(':');
+    return newTime;
+}
 
 const Arranger = (props) => {
     // Initializing contexts and state and necessary variables- - - - - - - - - - - - -
@@ -44,7 +61,7 @@ const Arranger = (props) => {
                 }],
                 counter: 1,
             },
-        }
+        }, 
     }),
         modes = ['pattern', 'chain', 'song'],
         [, updateState] = React.useState(),
@@ -52,7 +69,8 @@ const Arranger = (props) => {
         currentSong = arrangerState['selectedSong'],
         previousSong = usePrevious(currentSong),
         arrangerMode = arrangerState['mode'],
-        previousMode = usePrevious(arrangerMode);
+        previousMode = usePrevious(arrangerMode),
+        previousPlaying = usePrevious(isPlaying);
 
     // Subscribing Arranger Context to any changes in the arranger
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -101,11 +119,12 @@ const Arranger = (props) => {
     // to check the state of the arranger? 
     useEffect(() => {
         if (Tone.Transport.state !== 'started'){
-            if(arrangerState.mode === 'pattern' && previousMode === 'pattern'){
+            if(arrangerMode === 'pattern' && previousMode === 'pattern'){
                 setupPatternMode();
-            } else if (arrangerState.mode === 'pattern' && previousMode === 'song') {
+            } else if (arrangerMode === 'pattern' && previousMode === 'song') {
                 // cancel playback and then setup pattern mode
                 Tone.Transport.cancel(0);
+                   
                 setupPatternMode();
             } else if ( arrangerState.mode === 'song') {
                 if(previousMode === 'pattern'){
@@ -121,8 +140,10 @@ const Arranger = (props) => {
                         return '';
                     })
                     // if there are shceduled parts in the active song
-                    scheduleFromIndex(0);
                 }
+                Tone.Transport.cancel(0);
+                stopSongCallback();
+                scheduleFromIndex(0);
             } 
         } else {
             // The transport is playing, so any change in the transport scheduling
@@ -132,7 +153,7 @@ const Arranger = (props) => {
                 // do I need to do anything if its a 
             }
         }
-    }, [activePattern, isPlaying, arrangerState.mode, trackCount, arrangerMode])
+    }, [activePattern, isPlaying, trackCount, arrangerMode, currentSong]);
 
     //  Deleting unexisting pattern after contex update
     //  - - - - - - - - - - - - - - - - - - - - -  - - - -
@@ -162,41 +183,104 @@ const Arranger = (props) => {
         }));
     };
 
+    const stopSongCallback = () => {
+        arrangerState.songs[arrangerState.selectedSong]['events'].forEach((value, index, array) => {
+            if(value.pattern >= 0){
+                if (index === 0) {
+                    Object.keys(SeqCtx[value.pattern].tracks).map(track => {
+                        SeqCtx[value.pattern]['tracks'][track].triggState.stop();
+                    });
+                } else {
+                    if (array[index -1].pattern === value.pattern){
+                        return;
+                    } else {
+                        Object.keys(SeqCtx[value.pattern].tracks).map(track => {
+                            SeqCtx[value.pattern]['tracks'][track].triggState.stop();
+                            SeqCtx[value.pattern]['tracks'][track].triggState.mute = true;
+                        }); 
+                    }
+                }
+            }
+        })
+    }
+
     const scheduleFromIndex = (...args) => {
+        let events = arrangerState.songs[arrangerState.selectedSong]['events'];
+        if (Tone.Transport.loop){
+            Tone.Transport.loop = false;
+        }
         if (!args[1]){
-            if (arrangerState.songs[arrangerState.selectedSong]['events']) {
-                let timeCounter = 0;
-                arrangerState.songs[arrangerState.selectedSong]['events'].forEach((value, index, array) => {
+            if (events) {
+                let timeCounter = 0,
+                eventsLength = events.length -1;
+                events.forEach((value, index, array) => {
                     let repeat = value.repeat + 1,
                         patternOffsetTime = `0:0:${value.start}`,
+                        offSetNotation = Tone.Time(patternOffsetTime).toNotation() ,
                         patternEnd = parseInt(value.end),
-                        rowEnd = `0:0:${(patternEnd - parseInt(value.start))*parseInt(repeat)}`;
-                    if (value.pattern >= 0 &&  index >= parseInt(args[0])) {
-                        if(index === 0) {
-                            Tone.Transport.scheduleOnce((time) => {
-                                Object.keys(SeqCtx[value.pattern].tracks).map(track => {
+                        rowEnd = `0:0:${(patternEnd - parseInt(value.start))*parseInt(repeat)}`,
+                        delayedTime = timeCounter > 0 ? subtractBBS(Tone.Time(timeCounter, 's').toBarsBeatsSixteenths()) : 0,
+                        timeSch = timeCounter > 0 ? Tone.Time(timeCounter, 's').toBarsBeatsSixteenths() : 0;
+                    if (parseInt(value.pattern) >= 0){
+
+
+                        if (index === 0){
+                            console.log('[Arranger.js]: scheduling index 0, offSetNotaiton', offSetNotation, 'loop should be true');
+                            Tone.Transport.schedule(time => {
+                                Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
                                     SeqCtx[value.pattern]['tracks'][track].triggState.mute = false;
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.loop = true;
                                     SeqCtx[value.pattern]['tracks'][track].triggState.loopStart = patternOffsetTime;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = patternEnd;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.loop = value.repeat;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.start();
-                                });
-                            }, 0); 
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = `0:0:${patternEnd}`;
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.start('+0', offSetNotation);
+                                })
+                            }, 0);
                         } else {
-                            Tone.Transport.scheduleOnce((time) => {
-                                Object.keys(SeqCtx[value.pattern].tracks).map(track => {
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.mute = false;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopStart = patternOffsetTime;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = patternEnd;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.loop = value.repeat;
-                                    SeqCtx[value.pattern]['tracks'][track].triggState.start();
-                                });
-                            // }, timeCounter); 
-                            }, Tone.Time(timeCounter)); 
+                            if (array[index - 1].pattern === value.pattern){
+                                Tone.Transport.schedule(time => {
+                                    Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.loopStart = patternOffsetTime;
+                                    })
+                                }, delayedTime);
+                            }
+                            Tone.Transport.schedule(time => {
+                                if (array[index -1].pattern === value.pattern){
+                                    Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = `0:0:${patternEnd}`;
+                                    })
+                                } else {
+                                    Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
+                                        SeqCtx[array[index -1].pattern]['tracks'][track].triggState.loop = false;
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.loop = true;
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.loopStart = patternOffsetTime;
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = `0:0:${patternEnd}`;
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.mute = false;
+                                        SeqCtx[value.pattern]['tracks'][track].triggState.start('+0', offSetNotation);
+                                        SeqCtx[array[index -1].pattern]['tracks'][track].triggState.stop();
+                                        SeqCtx[array[index -1].pattern]['tracks'][track].triggState.mute = true;
+                                    });
+                                }
+                            }, timeCounter);
                         }
-                        timeCounter = timeCounter + Tone.Time(rowEnd).toSeconds();
-                    }  
+                    } else {
+                        if(index > 0 && array[index -1].pattern){
+                            Tone.Transport.schedule(time => {
+                                Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
+                                    SeqCtx[array[index -1].pattern]['tracks'][track].triggState.stop();
+                                    SeqCtx[array[index -1].pattern]['tracks'][track].triggState.mute = true; 
+                                }, timeCounter);
+                            });
+                        }
+                    }
+                timeCounter = timeCounter + Tone.Time(rowEnd).toSeconds();
                 });
+                console.log('[Arranger.js]: Stopping last pattern at time', timeCounter);
+                Tone.Transport.schedule(time => {
+                    Object.keys(SeqCtx[events[eventsLength].pattern]['tracks']).map(track => {
+                        SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.stop();
+                        SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.mute = true;
+                    });
+                }, timeCounter);
             }
         } else {
             let timeCounter = 0;
@@ -206,22 +290,16 @@ const Arranger = (props) => {
                 patternEnd = `0:0:${value.end}`,
                 rowEnd = `0:0:${(parseInt(value.end) - parseInt(value.start))*parseInt(repeat)}`;
             if (value.pattern && args[0] <= index) {
-                console.log('[Arranger.js]: scheduling pattern', value.pattern, 'args[0]', args[0], value.pattern && args[0] <= index, 'event index', index);
-                Object.keys(SeqCtx[value.pattern].tracks).map(track => {
-                    Tone.Transport.schedule((time) => {
+                Tone.Transport.schedule((time) => {
+                    Object.keys(SeqCtx[value.pattern].tracks).map(track => {
                         SeqCtx[value.pattern]['tracks'][track].triggState.mute = false;
                         SeqCtx[value.pattern]['tracks'][track].triggState.loopStart = patternOffsetTime;
                         SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = patternEnd;
-                        SeqCtx[value.pattern]['tracks'][track].triggState.loop = value.repeat;
-                        SeqCtx[value.pattern]['tracks'][track].triggState.start(time, patternOffsetTime);
-                    }, timeCounter); 
-                });
+                        SeqCtx[value.pattern]['tracks'][track].triggState.loop = true;
+                        SeqCtx[value.pattern]['tracks'][track].triggState.start('+0', patternOffsetTime);
+                    });
+                }, timeCounter); 
             }  
-            // let rowEndSeconds = Tone.Time(rowEnd).toSeconds();
-            // console.log('[Arranger.js]: rowEndSeconds', rowEndSeconds, 'timeCounter before addition and turn to BarsBeatsSixteenths', timeCounter);
-            // timeCounter = Tone.Time(timeCounter).toSeconds() + Tone.Time(rowEnd).toSeconds();
-            // timeCounter = Tone.Time(timeCounter, 'seconds').toBarsBeatsSixteenths();
-            // console.log('[Arranger.js]: timeCounter after addition and convertion to BarsBeatsSixteenths', timeCounter);
             timeCounter = timeCounter + Tone.Time(rowEnd).toSeconds();
             });
         }
@@ -299,7 +377,6 @@ const Arranger = (props) => {
     }
 
     const addRow = (index) => {
-        console.log('[Arranger.js]: should be adding a new row')
         setArranger(state => {
             let copyState = {
                 ...state,
@@ -328,6 +405,12 @@ const Arranger = (props) => {
 
     const selectSong = (e) => {
         let songIndex = e.target.value;
+        if (arrangerMode === 'song'){
+            Tone.Transport.cancel(0);
+        }
+        if (isPlaying){
+            scheduleFromIndex(0, arrangerState.songs[songIndex]['events']);
+        }
         setArranger(state => {
             let copyState = {
                 ...state,
