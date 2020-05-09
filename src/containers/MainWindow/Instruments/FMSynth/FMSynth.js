@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import ToneContext from '../../../../context/toneContext';
 import trackContext from '../../../../context/trackContext';
 import sequencerContext from '../../../../context/sequencerContext';
-import transportContext from '../../../../context/transportContext';
 import Knob from '../../../../components/Knob/Knob';
 
 const FMSynth = (props) => {
@@ -37,7 +36,6 @@ const FMSynth = (props) => {
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     let Tone = useContext(ToneContext),
         selfRef = useRef(new Tone.FMSynth(state)),
-        TrsCtx = useContext(transportContext),
         TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
         filterRef = useRef(new Tone.Filter(30, 'lowpass').toMaster()),
@@ -66,8 +64,6 @@ const FMSynth = (props) => {
         TrkCtx.getTrackRef(selfRef.current, props.trackIndex);
         TrkCtx.getTrackState(state, props.trackIndex);
         TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
-        // SeqCtx[SeqCtx.activePattern]['tracks'][TrkCtx.selectedTrack]
-    // }, [props.trackIndex])
     }, [props.trackIndex]);
 
     // Chaining instrument to FX and forcing Rerender to get updated 
@@ -87,24 +83,15 @@ const FMSynth = (props) => {
     useEffect(() => {
         if (renderState === 1) {
             TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
-            // if (TrsCtx.isPlaying){
-                console.log('[FMSynth.js]: adding callback and starting Part');
-                SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.callback = FMSynthPlayer;
-                SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.start(0);
-            // }
+            console.log('[FMSynth.js]: adding callback and starting Part');
+            SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.callback = FMSynthPlayer;
+            SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.start(0);
             setRender(2);
         }
     });
 
 
 
-    // SHOULD I SET A TIMEOUT FOR SETTING UP THE CALLBACK TO THE PART?
-    // useEffect(() => {
-    //     if (SeqCtx[SeqCtx.activePattern]){
-    //         console.log('[FMSynth]: should`ve added callback');
-    //         SeqCtx[SeqCtx.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].callback(FMSynthPlayer);
-    //     }
-    // }, [])
 
     // Harmonicity calc
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
@@ -158,7 +145,8 @@ const FMSynth = (props) => {
         velocity = value.velocity ? value.velocity : 60;
         bb = value.note ? value.note : null;
         bb.map(note => {
-        selfRef.current.triggerAttackRelease(note, '8n', time, velocity)
+            selfRef.current.triggerAttackRelease(note, '8n', time, velocity)
+            return '';
         })
     }
 

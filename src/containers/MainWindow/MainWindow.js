@@ -5,7 +5,6 @@ import Effects from './Effects/Effects'
 import InstrumentSelector from './../../components/Layout/InstrumentSelector/InstrumentSelector'
 import trackContext from '../../context/trackContext';
 import sequencerContext from '../../context/sequencerContext';
-import toneContext from '../../context/toneContext';
 
 
 export function range(start, end) {
@@ -16,8 +15,7 @@ const MainWindow = (props) => {
     // Initialize context and states - - - - - - - - - - - - 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     let TrkCtx = useContext(trackContext), 
-        SeqCtx = useContext(sequencerContext), 
-        Tone = useContext(toneContext);
+        SeqCtx = useContext(sequencerContext);
 
     const [state, setState] = useState({
         instruments: [{instrument:'FMSynth', id:0}],
@@ -81,6 +79,7 @@ const MainWindow = (props) => {
             if (parseInt(key) >= 0){
                 SeqCtx[key]['tracks'][index]['triggState'].stop();
             }
+            return '';
         });
         TrkCtx.deleteTrackRef(index, state.trackCount - 1);
         setState((state) => {
@@ -117,6 +116,7 @@ const MainWindow = (props) => {
                     return null;
                 });
             }
+            return '';
         });
         Object.keys(SeqCtx).map(key => {
             if (parseInt(key) >= 0){

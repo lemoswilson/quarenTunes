@@ -353,31 +353,6 @@ const Sequencer = (props) => {
         });
     };
 
-    // Transport scheduler handlers
-    // - - - - - - - - - - - - - - - - -
-    const scheduleNextPattern = (nextPattern) => {
-        console.log('[Sequencer.js]: scheduleNextPattern');
-        Object.keys(sequencerState[sequencerState.activePattern]['tracks']).map(track => {
-            if(sequencerState[sequencerState.activePattern]['tracks'][track]) {
-                sequencerState[sequencerState.activePattern]['tracks'][track]['triggState'].stop(); 
-                return ''
-            }
-        })
-        Object.keys(sequencerState[nextPattern]['tracks']).map(track => {
-            if(sequencerState[nextPattern]['tracks'][track]) {
-                console.log('[Sequencer.js]: triggStates',sequencerState[nextPattern]['tracks'][track]['triggState']);
-                sequencerState[nextPattern]['tracks'][track]['triggState'].start(); 
-                return ''
-            }
-        })
-        setSequencer(state => {
-            let newState = {
-                ...state,
-                activePattern: parseInt(nextPattern),
-            }
-            return newState;
-        }); 
-    }
 
     // Conditional components logic - - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

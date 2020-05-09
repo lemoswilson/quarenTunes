@@ -1,13 +1,7 @@
 import React from 'react';
 import './Step.scss'
-import sequencerContext from '../../../../context/sequencerContext';
-import trackContext from '../../../../context/trackContext';
 
 const Step = (props) => {
-    // Initializing Context - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    let SeqCtx = React.useContext(sequencerContext),
-        TrkCtx = React.useContext(trackContext);
 
     const selectStep = () => {
         props.selectStep(props.stepIndex);

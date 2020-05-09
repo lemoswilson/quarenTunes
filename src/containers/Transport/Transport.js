@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react';
 import ToneContext from '../../context/toneContext';
 import './Transport.scss';
 import { useState } from 'react';
-import trackContext from '../../context/trackContext';
 import sequencerContext from '../../context/sequencerContext';
 import arrangerContext from '../../context/arrangerContext';
 import transportContext from '../../context/transportContext';
@@ -20,7 +19,6 @@ const Transport = (props) => {
         // mode: 'pattern' // three modes, pattern, song, 
     })
     let Tone = useContext(ToneContext),
-        TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
         TrsCtx = useContext(transportContext),
         ArrCtx = useContext(arrangerContext);
@@ -29,20 +27,6 @@ const Transport = (props) => {
         Tone.Master.volume.value = transportState.masterVolume;
     }, [transportState.masterVolume])
 
-    // useEffect(() => {
-    //     setTransportState(state => ({
-    //         ...state,
-    //         indicatorPosition: Tone.Transport.position,
-    //     }))
-    // }, [Tone.Transport.position])
-
-    // useEffect(() => {
-    //     if(transportState.isPlaying) {
-    //         Tone.Transport.start('+0.05');
-    //     } else {
-    //         Tone.Transport.stop();
-    //     }
-    // }, [transportState.isPlaying])
 
     // Subscribing transportContext to any change in transportState
     useEffect(() => {
@@ -71,6 +55,7 @@ const Transport = (props) => {
                     console.log('[Transport.js]: cancelling callbacks, track', track);
                     SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
                 }
+                return '';
             });
         } else {
             // ArrCtx.songs[ArrCtx.selectedSong]['events'].forEach((value, index, array) => {
