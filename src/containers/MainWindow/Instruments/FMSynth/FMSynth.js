@@ -83,7 +83,7 @@ const FMSynth = (props) => {
     useEffect(() => {
         if (renderState === 1) {
             TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
-            console.log('[FMSynth.js]: adding callback and starting Part');
+            // console.log('[FMSynth.js]: adding callback and starting Part');
             SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.callback = FMSynthPlayer;
             SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.start(0);
             setRender(2);
@@ -129,13 +129,13 @@ const FMSynth = (props) => {
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
+        // console.log('[FMSynth.js]: TransportPosition', Tone.Transport.position);
+        // console.log('[FMSynth.js]: selfRef', selfRef, 'trackNumber', props.trackIndex);
         console.log('[FMSynth.js]: loopStart', Tone.Transport.loopStart, 'loopEnd', Tone.Transport.loopEnd, 'transportLoop', Tone.Transport.loop);
-        console.log('[FMSynth.js]: TransportPosition', Tone.Transport.position);
-        console.log('[FMSynth.js]: selfRef', selfRef, 'trackNumber', props.trackIndex);
         Object.keys(SeqCtx).map(SeqKeys => {
             if (parseInt(SeqKeys) >= 0){
                 Object.keys(SeqCtx[SeqKeys]['tracks']).map(track => {
-                    console.log('[FMSynth.js]: Sequencia', SeqKeys, 'Track', track, 'state', SeqCtx[SeqKeys]['tracks'][track].triggState.state, 'progress', SeqCtx[SeqKeys]['tracks'][track].triggState.progress, 'loop', SeqCtx[SeqKeys]['tracks'][track].triggState.loop);
+                    // console.log('[FMSynth.js]: Sequencia', SeqKeys, 'Track', track, 'state', SeqCtx[SeqKeys]['tracks'][track].triggState.state, 'progress', SeqCtx[SeqKeys]['tracks'][track].triggState.progress, 'loop', SeqCtx[SeqKeys]['tracks'][track].triggState.loop);
                     return '';
                 });
             }

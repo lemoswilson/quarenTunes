@@ -1,12 +1,14 @@
 import React, { useRef, useContext } from 'react';
 import './StepsEdit.scss';
 import trackContext from '../../../context/trackContext';
+import arrangerContext from '../../../context/arrangerContext';
 
 const StepsEdit = (props) => {
     // Initializing refs and context - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     let patternNameInput = useRef(),
         TrkCtx = useContext(trackContext),
+        ArrCtx = useContext(arrangerContext),
         tlRef = useRef(),
         tlInputRef = useRef(),
         plRef = useRef(),
@@ -127,7 +129,7 @@ const StepsEdit = (props) => {
                 </div>
 
                 <div className="active-pattern">
-                    <select onChange={props.selectPattern} defaultValue={props.activePattern}>
+                    <select onChange={props.selectPattern} defaultValue={props.activePattern} disabled={ArrCtx.following && ArrCtx.mode === 'song'}>
                         { Object.keys(props.sequencerState).map(key => {
                             // if (key && key !== 'activePattern' && typeof props.sequencerState[key] === 'object'){
                             if (parseInt(key) >= 0){

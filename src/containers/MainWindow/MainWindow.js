@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import './MainWindow.scss';
 import Instruments from './Instruments/Instruments';
 import Effects from './Effects/Effects'
@@ -15,6 +15,7 @@ const MainWindow = (props) => {
     // Initialize context and states - - - - - - - - - - - - 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     let TrkCtx = useContext(trackContext), 
+        selectedTrackRef = useRef(0),
         SeqCtx = useContext(sequencerContext);
 
     const [state, setState] = useState({
@@ -23,7 +24,14 @@ const MainWindow = (props) => {
         selectedInstrument: 0,
         trackCount: 1,
         counter: 0,
+        selectedTrackRef: selectedTrackRef,
     });
+
+    useEffect(() => {
+        if (!TrkCtx.selectedTrackRef){
+            TrkCtx.getSelectedTrackRef(selectedTrackRef);
+        }
+    }, [])
 
     // Pass instrument unique id to TrackContext - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -85,7 +93,9 @@ const MainWindow = (props) => {
         setState((state) => {
             let inst = state.instruments;
             inst.splice(index, 1);
-            let selectedInstrument = index === state.selectedInstrument ? state.selectedInstrument - 1 : state.selectedInstrument ;
+            let selectedInstrument = index === state.selectedInstrument && SeqCtx[SeqCtx.activePattern]['tracks'][state.selectedInstrument -1] ? state.selectedInstrument - 1 : null ;
+            TrkCtx.getSelectedTrack(selectedInstrument);
+            selectedTrackRef.current = selectedInstrument;
             return {
                 ...state,
                 instruments: inst,
@@ -134,6 +144,7 @@ const MainWindow = (props) => {
             selectedInstrument: index,
         })
         )
+        selectedTrackRef.current = index;
         TrkCtx.getSelectedTrack(index);
     }
 

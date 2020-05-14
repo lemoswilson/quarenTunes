@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import trackContext from '../../context/trackContext';
 import toneContext from '../../context/toneContext';
 import sequencerContext from '../../context/sequencerContext';
@@ -6,11 +6,28 @@ import './Sequencer.scss'
 import Steps from './Steps/Steps.js'
 import StepsEdit from './Steps/StepsEdit'
 import arrangerContext from '../../context/arrangerContext';
+import transportContext from '../../context/transportContext';
+import usePrevious from '../../hooks/usePrevious';
 
 export const returnPartArray = (length) => {
     return [...Array(length).keys()].map(i => {
         return {time: `0:0:${i}`, velocity: 127}
     })
+}
+
+const to16 = (time) => {
+    let result = Number(),
+    timeArray = time.split(':');
+    timeArray.forEach((value, index, array) => {
+        if (index === 0) {
+            result = result + parseInt(value)*16
+        } else if (index === 1) {
+            result = result + parseInt(value)*4
+        } else {
+            result = result + parseInt(value)
+        }
+    });
+    return result;
 }
 
 const Sequencer = (props) => {
@@ -19,18 +36,23 @@ const Sequencer = (props) => {
     let TrkCtx = useContext(trackContext), 
         SeqCtx = useContext(sequencerContext),
         ArrCtx = useContext(arrangerContext),
-        Tone = useContext(toneContext), 
-        initPart = new Tone.Part();
+        Tone = useContext(toneContext),
+        TrsCtx = useContext(transportContext),
+        isPlaying = TrsCtx.isPlaying,
+        previousPlaying = usePrevious(isPlaying),
+        arrangerMode = ArrCtx.mode,
+        patternTracker = ArrCtx.patternTracker,
+        isFollowing = ArrCtx.following;
+        
 
     const [sequencerState, setSequencer] = useState({
         0: {
             name: 'Pattern 1',
             patternLength: 16,
-            chainAfter: null,
             tracks: {
                 0: {
                     length: 16,
-                    triggState: initPart,
+                    triggState: new Tone.Part(),
                     events: Array(16).fill({}),
                     page: 0,
                     selected: [],
@@ -38,12 +60,47 @@ const Sequencer = (props) => {
                 }
             },
         activePattern: 0,
+        followSchedulerID: null,
         counter: 1,
         counter2: 1,
         copyed: null,
-        },
+        }
     );
+    let activePatternRef = useRef(sequencerState.activePattern),
+        selectedTrackRef = TrkCtx.selectedTrackRef,
+        activePageRef = useRef(0),
+        schedulerID = sequencerState.followSchedulerID;
 
+    // Set following scheduler
+    // - - - - - - - - - - - - - - - 
+    useEffect(() => {
+        let newSchedulerId,
+            schedulerPart;
+        if (isFollowing && !schedulerID && arrangerMode === 'song'){
+            // newSchedulerId = Tone.Transport.scheduleRepeat(() => {
+            //     goToActive();
+            //     console.log('[Arranger.js]: scheduling repeat patternTracker', patternTracker);
+            // }, "16n", "0");
+            schedulerPart = new Tone.Part(() => {
+                goToActive();
+                // console.log('[Sequencer.js]: scheduling repeat patternTracker', patternTracker.current);
+            }, [0]);
+            schedulerPart.start(0);
+            schedulerPart.loop = true;
+            schedulerPart.loopEnd = '16n';
+            newSchedulerId = 1;
+            setSequencer(state => ({
+                ...state,
+                followSchedulerID: newSchedulerId,
+            }))
+        } else if ((!isFollowing && schedulerID) || !isPlaying && previousPlaying) {
+            // Tone.Transport.clear(schedulerID);
+            setSequencer(state => ({
+                ...state,
+                followSchedulerID: null,
+            }))
+        }
+    }, [isFollowing, schedulerID, isPlaying, previousPlaying, arrangerMode]);
     // Callback to update de sequencer context from within the Sequencer Container 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const updateSequencer = (newState) => {
@@ -97,6 +154,69 @@ const Sequencer = (props) => {
             return copyState;
         });
         
+    };
+
+
+
+    const goToActive = () => {
+        let nowTime = Tone.Transport.position.split('.')[0];
+        let pageToGo = null,
+        patternToUse = patternTracker.current[0] ? patternTracker.current[0] : ArrCtx['songs'][ArrCtx.selectedSong]['events'][0]['pattern'] ,
+        timeb = patternTracker.current[1] ? patternTracker.current[1] : 0,
+        patternToGo = patternToUse;
+        let timeBBS = Tone.Time(timeb, 's').toBarsBeatsSixteenths(),
+            step = to16(nowTime) - to16(timeBBS),
+            patternLocation = step % parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']),
+            trackStep = sequencerState[patternToUse]['tracks'][TrkCtx.selectedTrack]['length'] < parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']) ? patternLocation % sequencerState[ArrCtx.patternTracker.current[0]]['tracks'][TrkCtx.selectedTrack]['length'] : patternLocation ;
+            pageToGo = Math.floor(trackStep/16);
+            console.log('[Sequencer.js]: nowTime', nowTime, 
+                        'timeb', timeb, 
+                        'timeBBS', timeBBS, 
+                        'step', step, 
+                        'patternTracker', patternTracker,
+                        'patternLocation', patternLocation,
+                        'trackStep', trackStep,
+                        'pageToGo', pageToGo,
+                        'patternToGo', patternToGo,
+                        'activePattern', activePatternRef.current,
+                        'activePage', activePageRef.current,
+                        'selectedTrack', selectedTrackRef.current);
+        if (activePatternRef.current !== patternToGo 
+        && activePageRef.current !== pageToGo) {
+            console.log('[Sequencer.js]: setting new page and patter');
+            activePatternRef.current = patternToGo;
+            activePageRef.current = pageToGo;
+            setSequencer(state => {
+                let copyState = {
+                    ...state,
+                    activePattern: patternToGo,
+                    [patternToGo]: {
+                        ...state[patternToGo],
+                        tracks: {
+                            ...state[patternToGo]['tracks'],
+                            [TrkCtx.selectedTrack]: {
+                                ...state[patternToGo]['tracks'][TrkCtx.selectedTrack],
+                                page: pageToGo,
+                            }
+                        }
+                    }
+                }
+                return copyState;
+            })
+        } else if(activePatternRef.current === patternToGo 
+        &&  activePageRef.current !== pageToGo) {
+            console.log('[Sequencer.js]: setting new page');
+            changePage(pageToGo);
+        } else if (activePatternRef.current !== patternToGo && pageToGo === activePageRef.current) {
+            activePatternRef.current = patternToGo;
+            setSequencer(state => {
+                let copyState = {
+                    ...state,
+                    activePattern: patternToGo,
+                }
+                return copyState;
+            });
+        }
     };
 
     const addPattern = () => {
@@ -191,6 +311,8 @@ const Sequencer = (props) => {
                     sequencerState[sequencerState.activePattern]['tracks'][track].triggState.stop(0);
                     sequencerState[nextPattern]['tracks'][track].triggState.start(0);
                     Tone.Transport.scheduleOnce(() => {
+                        activePatternRef.current = parseInt(nextPattern);
+                        activePageRef.current = parseInt(sequencerState[nextPattern]['tracks'][selectedTrackRef.current]['page'])
                         // scheduling the new loop size (acordingly to the new length)
                         Tone.Transport.loopEnd = `0:0:${loopEnd}`
                         // muting the previous pattern, and unmuting the current one
@@ -201,6 +323,8 @@ const Sequencer = (props) => {
                 return '';
             });
             Tone.Transport.scheduleOnce((time) => {
+                activePatternRef.current = parseInt(nextPattern);
+                activePageRef.current = parseInt(sequencerState[nextPattern]['tracks'][selectedTrackRef.current]['page']);
                 Tone.Draw.schedule(() => {
                     setSequencer(state => {
                         let newState = {
@@ -218,6 +342,8 @@ const Sequencer = (props) => {
                 }
                 return '';
             });
+            activePatternRef.current = parseInt(nextPattern);
+            activePageRef.current = parseInt(sequencerState[nextPattern]['tracks'][selectedTrackRef.current]['page']);
             setSequencer(state => {
                 let newState = {
                     ...state,
@@ -241,6 +367,7 @@ const Sequencer = (props) => {
     };
 
     const changePage = (pageIndex) => {
+        activePageRef.current = pageIndex;
         setSequencer(state => {
             let copyState = {
                 ...state,
@@ -357,7 +484,7 @@ const Sequencer = (props) => {
     // Conditional components logic - - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // const StepsComponent =  sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? 
-    const StepsComponent =  sequencerState[sequencerState.activePattern] ? 
+    const StepsComponent =  sequencerState[sequencerState.activePattern] && sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]? 
         <Steps length={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['length']} 
             events={sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events']} 
             patternName={sequencerState[sequencerState.activePattern]['name']} 
