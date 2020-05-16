@@ -81,10 +81,18 @@ class App extends Component {
 
     this.getSelectedTrackRef = (ref) => {
       this.setState(state => {
-        let copyState = state;
+        let copyState = {...state};
         copyState['track']['selectedTrackRef'] = ref;
         return copyState;
       })
+    }
+
+    this.getTrackEventRef = (index, eventArrayRef) => {
+      this.setState(state => {
+        let copyState = {...state};
+        copyState['track'][index][4] = eventArrayRef;
+        return copyState;
+      });
     }
 
     this.getInstrumentId = (id, trackIndex) => {
@@ -222,6 +230,7 @@ class App extends Component {
         getTrackCount: this.getTrackCount,
         getTrackCallback: this.getTrackCallback,
         getSelectedTrackRef: this.getSelectedTrackRef,
+        getTrackEventRef: this.getTrackEventRef,
         selectedTrackRef: null,
         selectedTrack: 0,
       },

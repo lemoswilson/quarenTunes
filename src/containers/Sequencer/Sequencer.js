@@ -42,6 +42,7 @@ const Sequencer = (props) => {
         previousPlaying = usePrevious(isPlaying),
         arrangerMode = ArrCtx.mode,
         patternTracker = ArrCtx.patternTracker,
+        eventRefs = useRef(),
         isFollowing = ArrCtx.following;
         
 
@@ -69,6 +70,11 @@ const Sequencer = (props) => {
     let activePatternRef = useRef(sequencerState.activePattern),
         selectedTrackRef = TrkCtx.selectedTrackRef,
         activePageRef = useRef(0),
+        sequencerEvents = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
+            if (track){
+                return sequencerState[activePatternRef.current]['tracks'][track]['events'];
+            }
+        }),
         schedulerID = sequencerState.followSchedulerID;
 
     // Set following scheduler
@@ -93,7 +99,7 @@ const Sequencer = (props) => {
                 ...state,
                 followSchedulerID: newSchedulerId,
             }))
-        } else if ((!isFollowing && schedulerID) || !isPlaying && previousPlaying) {
+        } else if ((!isFollowing && schedulerID) || (!isPlaying && previousPlaying)) {
             // Tone.Transport.clear(schedulerID);
             setSequencer(state => ({
                 ...state,
@@ -112,6 +118,7 @@ const Sequencer = (props) => {
     useEffect(() => {
         if (!SeqCtx.updateSequencerState) {
             SeqCtx.createCallback('updateSequencerState', updateSequencer);
+            SeqCtx.createCallback('parameterLock', parameterLock);
         }
         if (sequencerState !== sequencerContext){
             SeqCtx.updateAll(sequencerState);
@@ -127,6 +134,15 @@ const Sequencer = (props) => {
         console.log('[Sequencer.js]: updating sequencer context, state', sequencerState);
     }, [sequencerState]);
 
+    // Subscribing event Refs to any change in its events
+    // - - - - - - -  - - - - - - - - - - - - - - - -  -
+    useEffect(() => {
+        sequencerEvents.forEach((v,i,a) => {
+            if (TrkCtx[i][4] != v){
+            TrkCtx.getTrackEventRef(i, v);
+            }
+        })
+    }, [sequencerEvents])
 
     // State editing methods that will be passed to STEPS EDIT
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -450,6 +466,33 @@ const Sequencer = (props) => {
             return copyState
         })
     }
+
+    const parameterLock = (trackIndex, parameterObject) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [trackIndex]: {
+                            ...state[state.activePattern]['tracks'][trackIndex],
+                            'events': [...state[state.activePattern]['tracks'][trackIndex]['events']]
+                        }
+                    }
+                }
+            }
+            state[state.activePattern]['tracks'][trackIndex]['selected'].map(e => {
+                copyState[state.activePattern]['tracks'][trackIndex]['events'][e] = {
+                    ...state[state.activePattern]['tracks'][trackIndex]['events'][e],
+                    ...parameterObject,
+                };
+                return '';
+            })
+            console.log('[Sequencer.js]: setting new state after parameter locking');
+            return copyState
+        }) 
+    };
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // State editing methods that will be passed to STEPS - - - 
