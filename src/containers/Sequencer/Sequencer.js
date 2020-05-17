@@ -419,13 +419,11 @@ const Sequencer = (props) => {
     const setNote = (note) => {
         sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(index => {
             let time = `0:0:${index}`;
-            let event = { ...sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time) };
-            if (note) {
-                event['note'] = note;
-                sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event);
-            } else {
-                sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].remove(time);
-            }
+            let event = { 
+                ...sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index],
+            };
+            event['note'] = note ? note : null;
+            sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event);
             return '';
         })
 

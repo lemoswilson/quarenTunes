@@ -41,7 +41,30 @@ const FMSynth = (props) => {
         SeqCtx = useContext(sequencerContext),
         filterRef = useRef(new Tone.Filter(30, 'lowpass').toMaster()),
         seqCounter = SeqCtx.counter,
-        currentStateRef = useRef({
+        stateIsRef = useRef({
+            harmonicity: 3,
+            modulationIndex: 10,
+            detune: 0,
+            oscillator: {
+                type: 'sine'
+            }, 
+            envelope: {
+                attack: 0.01,
+                decay: 0.01,
+                sustain: 1,
+                release: 0.5
+            }, 
+            modulation: {
+                type: 'square',
+            },
+            modulationEnvelope: {
+                attack: 0.5,
+                decay: 0,
+                sustain: 1,
+                release: 0.5
+            }
+        }),
+        stateShouldBeRef = useRef({
             harmonicity: 3,
             modulationIndex: 10,
             detune: 0,
@@ -124,38 +147,53 @@ const FMSynth = (props) => {
 
     // reseting state to default, after playback stoped;
     useEffect(() => {
-        if (!isPlaying && currentStateRef.current !== state) {
-            setState(state => ({
-                ...currentStateRef.current,
-                envelope: {
-                    ...currentStateRef.current.envelope,
-                }, 
-                oscillator: {
-                    ...currentStateRef.current.oscillator,
-                },
-                modulation: {
-                    ...currentStateRef.current.modulation,
-                },
-                modulationEnvelope: {
-                    ...currentStateRef.current.modulationEnvelope,
-                },
-            }))
+        if (!isPlaying && stateShouldBeRef.current !== state) {
+            setState(state => {
+                let copyState = {
+                    ...stateShouldBeRef.current,
+                    envelope: {
+                        ...stateShouldBeRef.current.envelope,
+                    }, 
+                    oscillator: {
+                        ...stateShouldBeRef.current.oscillator,
+                    },
+                    modulation: {
+                        ...stateShouldBeRef.current.modulation,
+                    },
+                    modulationEnvelope: {
+                        ...stateShouldBeRef.current.modulationEnvelope,
+                    },
+                }
+                stateIsRef.current = {...copyState}
+                return copyState;
+            })
         }
     }, [isPlaying])
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
-        console.log('[FMSynth]: value', value, 'harmonicity', value.harmonicity);
-        if (value.harmonicity && value.harmonicity !== state.harmonicity) {
-            setState(state => ({
+        let harmonicity = parseInt(value.harmonicity) >= 0 ? value.harmonicity : null;
+        console.log('[FMSynth]: value', value, 'harmonicity', value.harmonicity, 'stateShouldBeRef', stateShouldBeRef.current, 'stateIsRef', stateIsRef.current);
+        if (harmonicity && harmonicity !== state.harmonicity) {
+            console.log('[FMSynth]: parameter locking harmonicity')
+            setState(state => {
+                let copyState = {
                 ...state,
-                harmonicity: value.harmonicity
-            }));
-        } else if (!value.harmonicity && state.harmonicity !== currentStateRef.current.harmonicity) {
-            setState(state => ({
-                ...state,
-                harmonicity: currentStateRef.current.harmonicity,
-            }));
+                harmonicity: harmonicity
+                }
+                stateIsRef.current = {...copyState};
+                return copyState;
+            });
+        } else if (!harmonicity && stateIsRef.current.harmonicity !== stateShouldBeRef.current.harmonicity) {
+            console.log('[FMSynth]: reverting harmonicity back to what state should be, harmonicity', stateShouldBeRef.current.harmonicity);
+            setState(state => {
+                let copyState ={
+                    ...state,
+                    harmonicity: stateShouldBeRef.current.harmonicity,
+                }
+                stateIsRef.current = {...copyState};
+                return copyState;
+            });
         }
         let bb, velocity;
         velocity = value.velocity ? value.velocity : 60;
@@ -206,15 +244,15 @@ const FMSynth = (props) => {
                     h = g();
                     console.log('[FMSynth]: h', h, 'i', i);
                     if (h){
-                        console.log('parameterLock')
+                        console.log('parameterLock');
                         if (e.movementY < 0 && h < 100) {
                             SeqCtx.parameterLock(props.trackIndex, {
                                 harmonicity: h - e.movementY < 100 ? h - e.movementY : 100,
                             });
-                        } else if (e.movement > 0 && h > 0){
+                        } else if (e.movementY > 0 && h > 0){
                             SeqCtx.parameterLock(props.trackIndex, {
                                 harmonicity: h - e.movementY > 0 ? h - e.movementY : 0,
-                            })
+                            });
                         } 
                     } else {
                     console.log('[FMSynth.js]: harmony unselected, no h');
@@ -230,14 +268,22 @@ const FMSynth = (props) => {
 
     const harmUnselected = (e) => {
         if (e.movementY < 0 && state.harmonicity < 100) {
-            setState((state) => ({
-                ...state,
-                harmonicity: state.harmonicity - e.movementY < 100 ? state.harmonicity - e.movementY : 100
-            })) } else if (e.movementY > 0 && state.harmonicity > 0) {
-            setState((state) => ({
-                ...state,
-                harmonicity: state.harmonicity - e.movementY > 0 ? state.harmonicity - e.movementY : 0,
-            }))
+            setState(state => {
+                let copyState = {
+                    ...state,
+                    harmonicity: state.harmonicity - e.movementY < 100 ? state.harmonicity - e.movementY : 100
+                }
+                stateIsRef.current = {...copyState};
+                return copyState;
+            }) } else if (e.movementY > 0 && state.harmonicity > 0) {
+            setState(state => {
+                let copyState = {
+                    ...state,
+                    harmonicity: state.harmonicity - e.movementY > 0 ? state.harmonicity - e.movementY : 0,
+                }
+                stateIsRef.current = {...copyState};
+                return copyState;
+            })
         } 
     }
 
@@ -249,15 +295,23 @@ const FMSynth = (props) => {
     // - - - - - - - - - - - - - - - - - - - - - 
     const calcCutoff = (e) => {
         if (e.movementY < 0 && state.harmonicity < 100) {
-            setState((state) => ({
-                ...state,
-                harmonicity: state.harmonicity - e.movementY < 100 ? state.harmonicity - e.movementY : 100
-            })) } else if (e.movementY > 0 && state.harmonicity > 0) {
-            setState((state) => ({
-                ...state,
-                harmonicity: state.harmonicity - e.movementY > 0 ? state.harmonicity - e.movementY : 0,
-            }))
-        }
+            setState(state => {
+                let copyState = {
+                    ...state,
+                    harmonicity: state.harmonicity - e.movementY < 100 ? state.harmonicity - e.movementY : 100
+                }
+                stateIsRef.current = {...copyState};
+                return copyState;
+            }) } else if (e.movementY > 0 && state.harmonicity > 0) {
+            setState(state => {
+                let copyState = {
+                    ...state,
+                    harmonicity: state.harmonicity - e.movementY > 0 ? state.harmonicity - e.movementY : 0,
+                }
+                stateIsRef.current = {...copyState};
+                return copyState;
+            })
+        } 
     }
 
 
@@ -270,7 +324,7 @@ const FMSynth = (props) => {
                 console.log('[FMSynth]: selecting harm, called selected length > 1, selected', selected);   
                 for (let i = 0; i < selected.length; i++){
                     console.log('[FMSynth]: item in selected', selected[i], TrkCtx[props.trackIndex][4][selected[i]]);
-                    if (TrkCtx[props.trackIndex][4][selected[i]].harmonicity){
+                    if (parseInt(TrkCtx[props.trackIndex][4][selected[i]].harmonicity) >= 0){
                         newHarm = parseInt(SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex]['events'][selected[i]].harmonicity);
                         return newHarm;
                     }
