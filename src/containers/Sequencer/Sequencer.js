@@ -42,7 +42,6 @@ const Sequencer = (props) => {
         previousPlaying = usePrevious(isPlaying),
         arrangerMode = ArrCtx.mode,
         patternTracker = ArrCtx.patternTracker,
-        eventRefs = useRef(),
         isFollowing = ArrCtx.following;
         
 
@@ -67,16 +66,31 @@ const Sequencer = (props) => {
         copyed: null,
         }
     );
-    let activePatternRef = useRef(sequencerState.activePattern),
-        selectedTrackRef = TrkCtx.selectedTrackRef,
-        activePageRef = useRef(0),
-        sequencerEvents = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
+    let activePatternRef = useRef(sequencerState.activePattern);
+    let selectedTrack = TrkCtx.selectedTrack;
+    let selectedTrackRef = TrkCtx.selectedTrackRef;
+    let activePageRef = useRef(0);
+    let sequencerEvents = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
             if (track){
                 return sequencerState[activePatternRef.current]['tracks'][track]['events'];
             }
-        }),
-        schedulerID = sequencerState.followSchedulerID;
+        });
+    let eventsRef = useRef(sequencerEvents);
+    let selected = selectedTrackRef && selectedTrackRef.current ? sequencerState[sequencerState.activePattern]['tracks'][selectedTrackRef.current]['selected']: sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] ; 
+    let selectedRef = useRef(selected);
+    let schedulerID = sequencerState.followSchedulerID;
 
+    // setting subscription of the events ref to the sequencerEvents;
+    useEffect(() => {
+
+    }, [selectedTrack])
+
+    // setting subscripition of the seleted ref to the sequencerEvents
+    useEffect(() => {
+        if (selectedRef.current !== selected) {
+            selectedRef.current = [...selected];
+        }
+    }, [selected])
     // Set following scheduler
     // - - - - - - - - - - - - - - - 
     useEffect(() => {
@@ -430,6 +444,10 @@ const Sequencer = (props) => {
                 }
             }
             state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+                eventsRef.current[TrkCtx.selectedTrack][e] = {
+                    ...eventsRef.current[TrkCtx.selectedTrack][e],
+                    note: note,
+                }
                 copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e] = {
                     ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
                     note: note,
@@ -456,6 +474,10 @@ const Sequencer = (props) => {
                 }
             }
             state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+                eventsRef.current[TrkCtx.selectedTrack][e] = {
+                    ...eventsRef.current[TrkCtx.selectedTrack][e],
+                    velocity: velocity,
+                }
                 copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e] = {
                     ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
                     velocity: velocity,
@@ -468,6 +490,17 @@ const Sequencer = (props) => {
     }
 
     const parameterLock = (trackIndex, parameterObject) => {
+        console.log('[Sequencer.js]: locking parameter, event state now', parameterObject);
+        selectedRef.current.map(index => {
+            let time = `0:0:${index}`;
+            let event = { 
+                ...sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['events'][index], 
+                ...parameterObject,
+            };
+            // console.log('[Sequencer.js] updating triggState at time', time, 'event', event);
+            // sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['triggState'].at(time, event);
+            sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['triggState'].at(time, event);
+        });
         setSequencer(state => {
             let copyState = {
                 ...state, 
@@ -483,6 +516,10 @@ const Sequencer = (props) => {
                 }
             }
             state[state.activePattern]['tracks'][trackIndex]['selected'].map(e => {
+                eventsRef.current[TrkCtx.selectedTrack][e] = {
+                    ...eventsRef.current[TrkCtx.selectedTrack][e],
+                    ...parameterObject,
+                } 
                 copyState[state.activePattern]['tracks'][trackIndex]['events'][e] = {
                     ...state[state.activePattern]['tracks'][trackIndex]['events'][e],
                     ...parameterObject,

@@ -3,6 +3,7 @@ import ToneContext from '../../../../context/toneContext';
 import trackContext from '../../../../context/trackContext';
 import sequencerContext from '../../../../context/sequencerContext';
 import Knob from '../../../../components/Knob/Knob';
+import transportContext from '../../../../context/transportContext';
 
 const FMSynth = (props) => {
     const [state, setState] = useState({
@@ -64,6 +65,8 @@ const FMSynth = (props) => {
             }
         }),
         selectedTrackRef = TrkCtx.selectedTrackRef,
+        TrsCtx = useContext(transportContext),
+        isPlaying = TrsCtx.isPlaying,
         getTrackCallback = TrkCtx.getTrackCallback;
 
     // const updateTrkRef = () => {
@@ -113,13 +116,36 @@ const FMSynth = (props) => {
             TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
             console.log('[FMSynth.js]: adding callback and starting Part');
             SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.callback = FMSynthPlayer;
+            SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.loop = true
             SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex].triggState.start(0);
             setRender(2);
         }
     });
 
+    // reseting state to default, after playback stoped;
+    useEffect(() => {
+        if (!isPlaying && currentStateRef.current !== state) {
+            setState(state => ({
+                ...currentStateRef.current,
+                envelope: {
+                    ...currentStateRef.current.envelope,
+                }, 
+                oscillator: {
+                    ...currentStateRef.current.oscillator,
+                },
+                modulation: {
+                    ...currentStateRef.current.modulation,
+                },
+                modulationEnvelope: {
+                    ...currentStateRef.current.modulationEnvelope,
+                },
+            }))
+        }
+    }, [isPlaying])
+
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
+        console.log('[FMSynth]: value', value, 'harmonicity', value.harmonicity);
         if (value.harmonicity && value.harmonicity !== state.harmonicity) {
             setState(state => ({
                 ...state,
@@ -134,12 +160,14 @@ const FMSynth = (props) => {
         let bb, velocity;
         velocity = value.velocity ? value.velocity : 60;
         bb = value.note ? value.note : null;
-        bb.map(note => {
-            if (note) {
-                selfRef.current.triggerAttackRelease(note, '8n', time, velocity);
-            }
-            return '';
-        })
+        if (bb) {
+            bb.map(note => {
+                if (note) {
+                    selfRef.current.triggerAttackRelease(note, '8n', time, velocity);
+                }
+                return '';
+            })
+        }
     }
 
     useEffect(() => {
@@ -160,13 +188,13 @@ const FMSynth = (props) => {
             if (length >= 1) {
                 console.log('[FMSynth]: selected positivo');
                 let h;
-                for (let i = 0; i < selected.length; i ++) {
+                for (let i = 0; i < length; i ++) {
                     let h;
-                    console.log('[FMSynth]: harmonicity context', TrkCtx[props.trackIndex][4][i].harmonicity)
+                    console.log('[FMSynth]: harmonicity context', TrkCtx[props.trackIndex][4][selected[i]].harmonicity)
                     function g(){
                         let f;
-                        if (TrkCtx[props.trackIndex][4][i].harmonicity) {
-                            f = TrkCtx[props.trackIndex][4][i].harmonicity;
+                        if (TrkCtx[props.trackIndex][4][selected[i]].harmonicity) {
+                            f = TrkCtx[props.trackIndex][4][selected[i]].harmonicity;
                             console.log('[FMSynth]: h has harmonicity');
                         } else {
                             f = state.harmonicity;
@@ -238,15 +266,14 @@ const FMSynth = (props) => {
     let displayHarm = () => {
         let newHarm,
             selected = SeqCtx[SeqCtx.activePattern] ? SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex]['selected'] : null;
-            console.log('[FMSynth]: selecting harm, selected', SeqCtx[SeqCtx.activePattern], 'length', selected);   
-        if(selected && selected.length > 0) {
-            console.log('[FMSynth]: selecting harm, called selected length > 1');   
-            for (let i in selected){
-                console.log('[FMSynth]: item in selected', i, TrkCtx[props.trackIndex][4]);
-                if (TrkCtx[props.trackIndex][4][i].harmonicity){
-                    newHarm = parseInt(SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex]['events'][i].harmonicity);
-                    return newHarm;
-                }
+            if(selected && selected.length > 0) {
+                console.log('[FMSynth]: selecting harm, called selected length > 1, selected', selected);   
+                for (let i = 0; i < selected.length; i++){
+                    console.log('[FMSynth]: item in selected', selected[i], TrkCtx[props.trackIndex][4][selected[i]]);
+                    if (TrkCtx[props.trackIndex][4][selected[i]].harmonicity){
+                        newHarm = parseInt(SeqCtx[SeqCtx.activePattern]['tracks'][props.trackIndex]['events'][selected[i]].harmonicity);
+                        return newHarm;
+                    }
             }
             console.log('[FMSynth]: absolutely no selected harmonicity spoted');
             return state.harmonicity
