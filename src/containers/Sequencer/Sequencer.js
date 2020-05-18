@@ -76,6 +76,12 @@ const Sequencer = (props) => {
             }
         });
     let eventsRef = useRef(sequencerEvents);
+    let triggStates = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
+        if (track) {
+            return sequencerState[activePatternRef.current]['tracks'][track]['triggState'];
+        }
+    });
+    let triggStatesRef = useRef(triggStates); 
     let selected = selectedTrackRef && selectedTrackRef.current ? sequencerState[sequencerState.activePattern]['tracks'][selectedTrackRef.current]['selected']: sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] ; 
     let selectedRef = useRef(selected);
     let schedulerID = sequencerState.followSchedulerID;
@@ -133,6 +139,7 @@ const Sequencer = (props) => {
         if (!SeqCtx.updateSequencerState) {
             SeqCtx.createCallback('updateSequencerState', updateSequencer);
             SeqCtx.createCallback('parameterLock', parameterLock);
+            SeqCtx.createCallback('updateTriggStateRef', updateTriggStateRef);
         }
         if (sequencerState !== sequencerContext){
             SeqCtx.updateAll(sequencerState);
@@ -140,6 +147,12 @@ const Sequencer = (props) => {
 
     }, []);
 
+
+    // Update the triggState ref (mostly because when you add a track 
+    // you have to callback a function to update the triggState ref) 
+    const updateTriggStateRef = (newRef) => {
+        triggStatesRef.current = [...newRef];
+    };
 
     // Subscribing SequencerContext to any change in the Sequenecer Context
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -231,6 +244,10 @@ const Sequencer = (props) => {
                         }
                     }
                 }
+                let triggStateNow = Object.keys(state[patternToGo]['tracks']).map(track => {
+                    return state[patternToGo]['tracks'][track]['triggState'];
+                });
+                updateTriggStateRef(triggStateNow);
                 return copyState;
             })
         } else if(activePatternRef.current === patternToGo 
@@ -361,6 +378,10 @@ const Sequencer = (props) => {
                             ...state,
                             activePattern: parseInt(nextPattern),
                         }
+                        let triggStateNow = Object.keys(state[nextPattern]['tracks']).map(track => {
+                            return state[nextPattern]['tracks'][track]['triggState'];
+                        });
+                        updateTriggStateRef(triggStateNow);
                         return newState;
                     });
                 }, time);
@@ -379,6 +400,10 @@ const Sequencer = (props) => {
                     ...state,
                     activePattern: parseInt(nextPattern),
                 }
+                let triggStateNow = Object.keys(state[nextPattern]['tracks']).map(track => {
+                    return state[nextPattern]['tracks'][track]['triggState'];
+                });
+                updateTriggStateRef(triggStateNow);
                 return newState;
             });
         }
@@ -488,16 +513,16 @@ const Sequencer = (props) => {
     }
 
     const parameterLock = (trackIndex, parameterObject) => {
-        console.log('[Sequencer.js]: locking parameter, event state now', parameterObject);
+        console.log('[Sequencer.js]: locking parameter, event state now', parameterObject, 'activePatternRef', activePatternRef.current, 'state', sequencerState, 'triggStateRef', triggStatesRef.current);
         selectedRef.current.map(index => {
             let time = `0:0:${index}`;
             let event = { 
-                ...sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['events'][index], 
+                // ...sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['events'][index], 
+                ...eventsRef.current[trackIndex][index], 
                 ...parameterObject,
             };
-            // console.log('[Sequencer.js] updating triggState at time', time, 'event', event);
             // sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['triggState'].at(time, event);
-            sequencerState[sequencerState.activePattern]['tracks'][trackIndex]['triggState'].at(time, event);
+            triggStatesRef.current[trackIndex].at(time, event);
         });
         setSequencer(state => {
             let copyState = {

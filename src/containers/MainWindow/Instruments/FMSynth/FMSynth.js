@@ -103,9 +103,9 @@ const FMSynth = (props) => {
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
         console.log('[FMSynth]: updating harmonicity');
-        selfRef.current.harmonicity.value = state.harmonicity;
+        selfRef.current.harmonicity.value = stateIsRef.current.harmonicity;
         TrkCtx.getTrackRef(selfRef.current, props.trackIndex);
-        TrkCtx.getTrackState(state, props.trackIndex);
+        TrkCtx.getTrackState(stateIsRef.current, props.trackIndex);
     }, [state.harmonicity]);
 
     
@@ -147,7 +147,7 @@ const FMSynth = (props) => {
 
     // reseting state to default, after playback stoped;
     useEffect(() => {
-        if (!isPlaying && stateShouldBeRef.current !== state) {
+        if (!isPlaying && stateShouldBeRef.current !== stateIsRef.current) {
             setState(state => {
                 let copyState = {
                     ...stateShouldBeRef.current,
@@ -172,6 +172,13 @@ const FMSynth = (props) => {
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
+        Object.keys(SeqCtx).map(key => {
+            if (parseInt(key) >= 0 && SeqCtx[key]){
+                Object.keys(SeqCtx[key]['tracks']).map(track => {
+                    console.log('[FMSynth]: inside playback callback, track', track, 'seq', key, 'triggState', SeqCtx[key]['tracks'][track]['triggState'].state);
+                })
+            }
+        })
         let harmonicity = parseInt(value.harmonicity) >= 0 ? value.harmonicity : null;
         console.log('[FMSynth]: value', value, 'harmonicity', value.harmonicity, 'stateShouldBeRef', stateShouldBeRef.current, 'stateIsRef', stateIsRef.current);
         if (harmonicity && harmonicity !== state.harmonicity) {

@@ -170,6 +170,11 @@ class App extends Component {
           }
           return 0;
         })
+        // updating the triggState ref
+        let triggState = Object.keys(newState.sequencer[newState.sequencer.activePattern]['tracks']).map(track => {
+          return newState.sequencer[newState.sequencer.activePattern]['tracks'][track]['triggState'];
+        })
+        state.sequencer.updateTriggStateRef = triggState;
         state.sequencer.updateSequencerState(newState.sequencer);
         return newState;
       })
