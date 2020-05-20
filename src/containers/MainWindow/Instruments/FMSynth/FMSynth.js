@@ -172,15 +172,16 @@ const FMSynth = (props) => {
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
-        Object.keys(SeqCtx).map(key => {
-            if (parseInt(key) >= 0 && SeqCtx[key]){
-                Object.keys(SeqCtx[key]['tracks']).map(track => {
-                    console.log('[FMSynth]: inside playback callback, track', track, 'seq', key, 'triggState', SeqCtx[key]['tracks'][track]['triggState'].state);
-                })
-            }
-        })
+        console.log('[FMSynthPlayer]: Tone.Transport.position', Tone.Transport.position);
+        // Object.keys(SeqCtx).map(key => {
+        //     if (parseInt(key) >= 0 && SeqCtx[key]){
+        //         Object.keys(SeqCtx[key]['tracks']).map(track => {
+        //             console.log('[FMSynth]: inside playback callback, track', track, 'seq', key, 'triggState', SeqCtx[key]['tracks'][track]['triggState'].state);
+        //         })
+        //     }
+        // })
         let harmonicity = parseInt(value.harmonicity) >= 0 ? value.harmonicity : null;
-        console.log('[FMSynth]: value', value, 'harmonicity', value.harmonicity, 'stateShouldBeRef', stateShouldBeRef.current, 'stateIsRef', stateIsRef.current);
+        // console.log('[FMSynth]: value', value, 'harmonicity', value.harmonicity, 'stateShouldBeRef', stateShouldBeRef.current, 'stateIsRef', stateIsRef.current);
         if (harmonicity && harmonicity !== state.harmonicity) {
             console.log('[FMSynth]: parameter locking harmonicity')
             setState(state => {

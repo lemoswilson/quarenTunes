@@ -112,6 +112,9 @@ const Arranger = (props) => {
             });
         } else {
             console.log('[Arranger.js]: forcou update');
+            // Setting the Tone.Transport to loop in the initial state;
+            Tone.Transport.loop = true;
+            Tone.Transport.loopEnd = '1m';
             setTimeout(() => {
                 forceUpdate();
             }, 500)
@@ -122,8 +125,10 @@ const Arranger = (props) => {
     // If in song mode cue the first song and schedule a callback 
     // to check the state of the arranger? 
     useEffect(() => {
+        console.log('[Arranger.js]: SETTING PLAYBACK', 'arrangerMode', arrangerMode, 'previousArrangerMode', previousMode);
         if (Tone.Transport.state !== 'started'){
-            if(arrangerMode === 'pattern' && previousMode === 'pattern'){
+            if(arrangerMode === 'pattern' && previousMode === 'pattern' || !previousMode){
+                console.log('[Arranger.js]: SETTING PATTERNMODE');
                 setupPatternMode();
             } else if (arrangerMode === 'pattern' && previousMode === 'song') {
                 // cancel playback and then setup pattern mode
@@ -198,7 +203,7 @@ const Arranger = (props) => {
                         return '';
                     });
                 } else {
-                    if (array[index -1].pattern === value.pattern){
+                    if (array[index-1] && array[index -1].pattern === value.pattern){
                         return;
                     } else {
                         if (SeqCtx[value.pattern]){
@@ -226,7 +231,7 @@ const Arranger = (props) => {
             events.forEach((value, index, array) => {
                 let repeat = value.repeat + 1,
                     secondaryTime = timeCounter,
-                    rowEnd = value ? `0:0:${SeqCtx[value.pattern]['patternLength']*parseInt(repeat)}` : 0;
+                    rowEnd = value && SeqCtx[value.pattern] ? `0:0:${SeqCtx[value.pattern]['patternLength']*parseInt(repeat)}` : 0;
                     // timeSch = timeCounter > 0 ? Tone.Time(timeCounter, 's').toBarsBeatsSixteenths() : 0;
                 if (parseInt(value.pattern) >= 0){
                     if (index === 0){
