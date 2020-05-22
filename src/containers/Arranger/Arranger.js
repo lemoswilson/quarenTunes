@@ -299,18 +299,20 @@ const Arranger = (props) => {
             timeCounter = timeCounter + Tone.Time(rowEnd).toSeconds();
             });
             console.log('[Arranger.js]: Stopping last pattern at time', timeCounter);
-            Tone.Transport.schedule(time => {
-                // setArranger(state => ({
-                //     ...state,
-                //     patternTracker: [],
-                // }));  
-                arrangerState.patternTracker.current = [0];
-                Object.keys(SeqCtx[events[eventsLength].pattern]['tracks']).map(track => {
-                    SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.stop();
-                    SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.mute = true;
-                    // return '';
-                });
-            }, timeCounter);
+            if (SeqCtx[events[eventsLength]] && SeqCtx[events[eventsLength]].pattern){
+                Tone.Transport.schedule(time => {
+                    // setArranger(state => ({
+                    //     ...state,
+                    //     patternTracker: [],
+                    // }));  
+                    arrangerState.patternTracker.current = [0];
+                    Object.keys(SeqCtx[events[eventsLength].pattern]['tracks']).map(track => {
+                        SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.stop();
+                        SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.mute = true;
+                        // return '';
+                    });
+                }, timeCounter);
+            }
         }
     }
 

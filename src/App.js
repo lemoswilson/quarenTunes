@@ -8,6 +8,8 @@ import Layout from './components/Layout/Layout';
 import SequencerContext from './context/sequencerContext';
 import ArrangerContext from './context/arrangerContext';
 import TransportContext from './context/transportContext';
+import webMidiContext from './context/webMidiContext';
+import WebMidi from 'webmidi';
 
 
 class App extends Component {
@@ -21,6 +23,7 @@ class App extends Component {
         return copyState
       });
     }
+    
   
     // ArrangerContext methods - - - - - - - - - - - - - - - - -
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
@@ -261,15 +264,35 @@ class App extends Component {
         loopStart: 0,
         loopEnd: '4m',
         updateTrsCtx: this.updateTrsCtx,
-      }
+      },
+      webMidi: null,
     };
   };
-  
+
+  componentDidMount() {
+    if (!this.state.webMidi) {
+      let result;
+      WebMidi.enable(function (err) {
+        if (err) {
+          console.log("WebMidi could not be enabled.", err);
+          result = true;
+        } else {
+          console.log("WebMidi enabled!");
+          result = 'error';
+        }    
+      });
+      this.setState(state => ({
+        ...state,
+        webMidi: result,
+      }))
+    }
+  }  
 
   render() {
     return (
       <div className="App" ref={this.appRef}>
       <ToneContext.Provider value={Tone}>
+        <webMidiContext.Provider value={WebMidi}>
       <AppContext.Provider value={this.appRef}>
       <TrackContext.Provider value={this.state.track}>
       <SequencerContext.Provider value={this.state.sequencer}>
@@ -281,6 +304,7 @@ class App extends Component {
       </SequencerContext.Provider>
       </TrackContext.Provider>
       </AppContext.Provider>
+      </webMidiContext.Provider>
       </ToneContext.Provider>
       </div>
     );

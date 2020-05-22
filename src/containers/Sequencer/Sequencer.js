@@ -287,9 +287,11 @@ const Sequencer = (props) => {
             timeb = patternTracker.current[1] ? patternTracker.current[1] : 0,
             patternToGo = patternToUse;
             let timeBBS = Tone.Time(timeb, 's').toBarsBeatsSixteenths(),
-            step = to16(nowTime) - to16(timeBBS),
-            patternLocation = step % parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']),
-            trackStep = sequencerState[patternToUse]['tracks'][TrkCtx.selectedTrack]['length'] < parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']) ? patternLocation % sequencerState[ArrCtx.patternTracker.current[0]]['tracks'][TrkCtx.selectedTrack]['length'] : patternLocation,
+            step = to16(nowTime) - to16(timeBBS);
+            let patternLocation = sequencerState[ArrCtx.patternTracker.current[0]] ? step % parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']) : null;
+            if (!patternLocation)
+                return false;
+            let trackStep = sequencerState[patternToUse]['tracks'][TrkCtx.selectedTrack]['length'] < parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']) ? patternLocation % sequencerState[ArrCtx.patternTracker.current[0]]['tracks'][TrkCtx.selectedTrack]['length'] : patternLocation,
             result = trackStep;
             console.log('[Sequencer.js]: song mode, nowTime', nowTime, 
                         'patternToUse', patternToUse, 
