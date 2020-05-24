@@ -3,6 +3,7 @@ import './MainWindow.scss';
 import Instruments from './Instruments/Instruments';
 import Effects from './Effects/Effects'
 import InstrumentSelector from './../../components/Layout/InstrumentSelector/InstrumentSelector'
+import webMidiContext from '../../context/webMidiContext';
 import trackContext from '../../context/trackContext';
 import sequencerContext from '../../context/sequencerContext';
 
@@ -19,7 +20,7 @@ const MainWindow = (props) => {
         SeqCtx = useContext(sequencerContext);
 
     const [state, setState] = useState({
-        instruments: [{instrument:'FMSynth', id:0}],
+        instruments: [{instrument:'FMSynth', id:0, midi: false}],
         fx: [[], [], [], []],
         selectedInstrument: 0,
         trackCount: 1,
@@ -33,16 +34,26 @@ const MainWindow = (props) => {
         }
     }, [])
 
+    useEffect(() => {
+        
+    }, []);
+
     // Pass instrument unique id to TrackContext - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     const passInstrumentId = (id, index) => {
         TrkCtx.getInstrumentId(id, index);
     };
 
+    // Pass midi controllers to TrackContext --
+    const passMidiControllers = (index, midi) => {
+        TrkCtx.getTrackMIDIControllers(index, midi);
+    };
+
     // Subscribing TrackContext ids to any change in the State
     useEffect(() => {
         state.instruments.map((instrumentObject, index) => {
             passInstrumentId(instrumentObject.id, index);
+            passMidiControllers(index, instrumentObject.midi);
             return 0;
         });
     }, [state]);
@@ -71,7 +82,7 @@ const MainWindow = (props) => {
         
         setState((state) => {
             let inst = state.instruments;
-            inst.push({instrument: 'FMSynth', id: state.counter + 1});
+            inst.push({instrument: 'FMSynth', id: state.counter + 1, midi: false});
             return {
                 ...state,
                 instruments: inst,
@@ -148,6 +159,18 @@ const MainWindow = (props) => {
         TrkCtx.getSelectedTrack(index);
     }
 
+    const selectMidiInstrument = (trackIndex, midi) => {
+        setState(state => {
+            let copyState = {
+                ...state,
+                instruments: [...state.instruments],
+            }
+            copyState.instruments[trackIndex]['midi'] = midi;
+            return copyState;
+        })
+        TrkCtx.getTrackMIDIControllers(trackIndex, midi);
+    }
+
 
     return(
         <div className="mainWindow">
@@ -155,7 +178,15 @@ const MainWindow = (props) => {
                 <div className="trackControl">
                     <div className='addInstrument' onClick={addInstrument}>+</div>
                     { state.instruments.map((instrument, index) => {
-                        return <InstrumentSelector key={instrument.id} unique={instrument.id} trackIndex={index} instrument={instrument.instrument} setInstrument={changeInstrument} removeInstrument={removeInstrument} showInstrument={showInstrument}></InstrumentSelector>
+                        return <InstrumentSelector key={instrument.id} 
+                                unique={instrument.id} 
+                                trackIndex={index} 
+                                instrument={instrument.instrument} 
+                                midi={instrument.midi}
+                                setMidi={selectMidiInstrument}
+                                setInstrument={changeInstrument} 
+                                removeInstrument={removeInstrument} 
+                                showInstrument={showInstrument}></InstrumentSelector>
                     }) } 
                     </div>
                 <Instruments instrumentList={state.instruments} selectedInstrument={state.selectedInstrument}></Instruments>

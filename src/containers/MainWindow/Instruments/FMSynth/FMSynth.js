@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import ToneContext from '../../../../context/toneContext';
 import trackContext from '../../../../context/trackContext';
+import webMidiContext from '../../../../context/webMidiContext';
 import sequencerContext from '../../../../context/sequencerContext';
 import Knob from '../../../../components/Knob/Knob';
 import transportContext from '../../../../context/transportContext';
+import usePrevious from '../../../../hooks/usePrevious';
 
 const FMSynth = (props) => {
     const [state, setState] = useState({
@@ -36,10 +38,12 @@ const FMSynth = (props) => {
     // Initializing context and setting Refs to be passed - - - -
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     let Tone = useContext(ToneContext),
-        selfRef = useRef(new Tone.FMSynth(state)),
+        WebMidi = useContext(webMidiContext),
+        selfRef = useRef(new Tone.PolySynth(8, Tone.FMSynth, state)),
         TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
-        filterRef = useRef(new Tone.Filter(30, 'lowpass').toMaster()),
+        filterRef = useRef(new Tone.Filter(20000, 'lowpass').toMaster()),
+        gainRef = useRef(new Tone.Gain(0.1)),
         seqCounter = SeqCtx.counter,
         stateIsRef = useRef({
             harmonicity: 3,
@@ -90,24 +94,55 @@ const FMSynth = (props) => {
         selectedTrackRef = TrkCtx.selectedTrackRef,
         TrsCtx = useContext(transportContext),
         isPlaying = TrsCtx.isPlaying,
+        midiInput = TrkCtx[props.trackIndex][5],
+        previousMidi = usePrevious(midiInput),
+        inputRef = useRef(),
         getTrackCallback = TrkCtx.getTrackCallback;
-
-    // const updateTrkRef = () => {
-    //     TrkCtx.getTrackRef(selfRef.current, props.trackIndex);
-    //     TrkCtx.getTrackState(state, props.trackIndex);
-    //     TrkCtx.getTrackCallback(FMSynthPlayer, props.trackIndex);
-    // };
-
+        const noteInput = useRef((e) => {
+            console.log('[FMSynth]: note on message', e.note.name, e.note.octave, 'velocity', e.velocity*127);
+            selfRef.current.triggerAttack(`${e.note.name}${e.note.octave}`, Tone.Time("+0"),e.velocity*127);
+        });
+    
+        const noteOff = useRef((e) => {
+            console.log('[FMSynth]: note off message', e.note.name, e.note.octave);
+            selfRef.current.triggerRelease(`${e.note.name}${e.note.octave}`);
+        });
 
     // passing the new harmonicity value to the components subscribed to the TrackContext
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
         console.log('[FMSynth]: updating harmonicity');
-        selfRef.current.harmonicity.value = stateIsRef.current.harmonicity;
+        // selfRef.current.harmonicity.value = stateIsRef.current.harmonicity;
+        selfRef.current.set({
+            harmonicity: stateIsRef.current.harmonicity,
+        })
         TrkCtx.getTrackRef(selfRef.current, props.trackIndex);
         TrkCtx.getTrackState(stateIsRef.current, props.trackIndex);
     }, [state.harmonicity]);
 
+    useEffect(() => {
+        if (midiInput) {
+            inputRef.current = WebMidi.getInputByName(midiInput);
+            console.log('[FMSynth]: enabling midi', midiInput, 'inputRef', inputRef.current);
+            if (midiInput !== previousMidi) {
+                let inputPrev = WebMidi.getInputByName(previousMidi);
+                console.log('[FMSynth]: previous midiInput != current, previous =', previousMidi, 'current=', midiInput, 'inputPrev', inputPrev);
+                if (inputPrev) {
+                    inputPrev.removeListener('noteon', 'all', noteInput.current);
+                    inputPrev.removeListener('noteoff', 'all', noteOff.current);
+                }
+            }
+            if (!inputRef.current.hasListener('noteon', 'all', noteInput.current)) {
+                inputRef.current.addListener('noteon', 'all', noteInput.current);
+                inputRef.current.addListener('noteoff', 'all', noteOff.current);
+            }
+            // WebMidi.enable(function(err){
+            //     if (err) {
+            //         console.log('[FMSynth]: erro WebMidi', err);
+            //     }
+            // });
+        }
+    }, [midiInput])
     
 
     // Atualizing refs after a track got deleted
@@ -122,7 +157,8 @@ const FMSynth = (props) => {
     // Chaining instrument to FX and forcing Rerender to get updated 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     useEffect(() => {
-        selfRef.current.chain(filterRef.current);
+        selfRef.current.chain(gainRef.current);
+        gainRef.current.chain(filterRef.current);
         if (renderState === 0) {
             setTimeout(() => {
                 console.log('[FMSynth.js]: forcing update');
@@ -273,6 +309,8 @@ const FMSynth = (props) => {
             }
         }
     }
+
+
 
     const harmUnselected = (e) => {
         if (e.movementY < 0 && state.harmonicity < 100) {

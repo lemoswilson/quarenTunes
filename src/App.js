@@ -98,6 +98,16 @@ class App extends Component {
       });
     }
 
+    this.getTrackMIDIControllers = (index, controllers) => {
+      this.setState(state => {
+        let copyState = {...state};
+        copyState['track'][index][5] = controllers;
+        return copyState;
+      });
+    }
+
+
+
     this.getInstrumentId = (id, trackIndex) => {
       this.setState(state => {
         let copyState = {
@@ -239,6 +249,7 @@ class App extends Component {
         getTrackCallback: this.getTrackCallback,
         getSelectedTrackRef: this.getSelectedTrackRef,
         getTrackEventRef: this.getTrackEventRef,
+        getTrackMIDIControllers: this.getTrackMIDIControllers,
         selectedTrackRef: null,
         selectedTrack: 0,
       },
