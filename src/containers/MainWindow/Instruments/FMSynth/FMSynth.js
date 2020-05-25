@@ -30,7 +30,30 @@ const FMSynth = (props) => {
             sustain: 1,
             release: 0.5
         }
-    }) 
+    });
+    const midiLearnRefs = useRef({
+        harmonicity: null,
+        modulationIndex: null,
+        detune: null,
+        oscillator: {
+            type: null,
+        }, 
+        envelope: {
+            attack: null,
+            decay: null,
+            sustain: null,
+            release: null
+        }, 
+        modulation: {
+            type: null,
+        },
+        modulationEnvelope: {
+            attack: null,
+            decay: null,
+            sustain: null,
+            release: null
+        }
+    }) ;
     const [renderState, setRender] = useState(0),
         [, updateState] = React.useState(),
         forceUpdate = React.useCallback(() => updateState({}), []);
@@ -95,8 +118,9 @@ const FMSynth = (props) => {
         TrsCtx = useContext(transportContext),
         isPlaying = TrsCtx.isPlaying,
         midiInput = TrkCtx[props.trackIndex][5],
-        previousMidi = usePrevious(midiInput),
+        previousMidi = useRef({...midiInput}),
         inputRef = useRef(),
+        listenCCRef = useRef(),
         getTrackCallback = TrkCtx.getTrackCallback;
         const noteInput = useRef((e) => {
             console.log('[FMSynth]: note on message', e.note.name, e.note.octave, 'velocity', e.velocity*127);
@@ -120,22 +144,29 @@ const FMSynth = (props) => {
         TrkCtx.getTrackState(stateIsRef.current, props.trackIndex);
     }, [state.harmonicity]);
 
+    // Initializing midi input if midi device selected
     useEffect(() => {
-        if (midiInput) {
-            inputRef.current = WebMidi.getInputByName(midiInput);
-            console.log('[FMSynth]: enabling midi', midiInput, 'inputRef', inputRef.current);
-            if (midiInput !== previousMidi) {
-                let inputPrev = WebMidi.getInputByName(previousMidi);
-                console.log('[FMSynth]: previous midiInput != current, previous =', previousMidi, 'current=', midiInput, 'inputPrev', inputPrev);
-                if (inputPrev) {
-                    inputPrev.removeListener('noteon', 'all', noteInput.current);
-                    inputPrev.removeListener('noteoff', 'all', noteOff.current);
+        console.log('[FMSynth]: midiInput has changed');
+        if (midiInput && midiInput.device && midiInput.channel) {
+            inputRef.current = WebMidi.getInputByName(midiInput.device);
+            console.log('[FMSynth]: enabling midi', midiInput, 'inputRef', inputRef.current, 'previousMidi', previousMidi);
+            if (midiInput !== previousMidi.current) {
+                let inputPrev = previousMidi.current ? WebMidi.getInputByName(previousMidi.current.device) : false;
+                let prevDevice = previousMidi.current && previousMidi.current.device ? previousMidi.current.device : false;
+                let prevChann = previousMidi.current && previousMidi.current.channel ? previousMidi.current.channel : false;
+                console.log('[FMSynth]: previous midiInput != current, previous device =', prevDevice, 'previousChannel', prevChann, 'currentDevice=', midiInput.device, 'currentchannel', midiInput.channel, 'inputPrev', inputPrev);
+                if (inputPrev && previousMidi.current.device && previousMidi.current.channel) {
+                    console.log('[FMSynth]: removing midi input', previousMidi.current.device, previousMidi.current.channel);
+                    inputPrev.removeListener('noteon', previousMidi.current.channel, noteInput.current);
+                    inputPrev.removeListener('noteoff', previousMidi.current.channel, noteOff.current);
                 }
             }
-            if (!inputRef.current.hasListener('noteon', 'all', noteInput.current)) {
-                inputRef.current.addListener('noteon', 'all', noteInput.current);
-                inputRef.current.addListener('noteoff', 'all', noteOff.current);
+            if (!inputRef.current.hasListener('noteon', midiInput.channel, noteInput.current)) {
+                console.log('[FMSynth]: adding midi inputs', midiInput.device, midiInput.channel);
+                inputRef.current.addListener('noteon', midiInput.channel, noteInput.current);
+                inputRef.current.addListener('noteoff', midiInput.channel, noteOff.current);
             }
+            previousMidi.current = {...midiInput}
             // WebMidi.enable(function(err){
             //     if (err) {
             //         console.log('[FMSynth]: erro WebMidi', err);
@@ -289,15 +320,21 @@ const FMSynth = (props) => {
                     console.log('[FMSynth]: h', h, 'i', i);
                     if (h){
                         console.log('parameterLock');
-                        if (e.movementY < 0 && h < 100) {
+                        if (e.controller.number){
                             SeqCtx.parameterLock(props.trackIndex, {
-                                harmonicity: h - e.movementY < 100 ? h - e.movementY : 100,
-                            });
-                        } else if (e.movementY > 0 && h > 0){
-                            SeqCtx.parameterLock(props.trackIndex, {
-                                harmonicity: h - e.movementY > 0 ? h - e.movementY : 0,
-                            });
-                        } 
+                                harmonicity: (e.value * 127)*(100/127),
+                            })
+                        } else {
+                            if (e.movementY < 0 && h < 100) {
+                                SeqCtx.parameterLock(props.trackIndex, {
+                                    harmonicity: h - e.movementY < 100 ? h - e.movementY : 100,
+                                });
+                            } else if (e.movementY > 0 && h > 0){
+                                SeqCtx.parameterLock(props.trackIndex, {
+                                    harmonicity: h - e.movementY > 0 ? h - e.movementY : 0,
+                                });
+                            } 
+                        }
                     } else {
                     console.log('[FMSynth.js]: harmony unselected, no h');
                     harmUnselected(e);
@@ -313,24 +350,36 @@ const FMSynth = (props) => {
 
 
     const harmUnselected = (e) => {
-        if (e.movementY < 0 && state.harmonicity < 100) {
+        if (e.controller.number) {
+            console.log('[FMSynth]: updating via CC', 'value', e.value, 'newHarm', (e.value * 127)*(100/127));
             setState(state => {
                 let copyState = {
                     ...state,
-                    harmonicity: state.harmonicity - e.movementY < 100 ? state.harmonicity - e.movementY : 100
-                }
-                stateIsRef.current = {...copyState};
-                return copyState;
-            }) } else if (e.movementY > 0 && state.harmonicity > 0) {
-            setState(state => {
-                let copyState = {
-                    ...state,
-                    harmonicity: state.harmonicity - e.movementY > 0 ? state.harmonicity - e.movementY : 0,
-                }
+                    harmonicity: e.value*(100/127.00),
+                };
                 stateIsRef.current = {...copyState};
                 return copyState;
             })
-        } 
+        } else {
+            if (e.movementY < 0 && state.harmonicity < 100) {
+                setState(state => {
+                    let copyState = {
+                        ...state,
+                        harmonicity: state.harmonicity - e.movementY < 100 ? state.harmonicity - e.movementY : 100
+                    }
+                    stateIsRef.current = {...copyState};
+                    return copyState;
+                }) } else if (e.movementY > 0 && state.harmonicity > 0) {
+                setState(state => {
+                    let copyState = {
+                        ...state,
+                        harmonicity: state.harmonicity - e.movementY > 0 ? state.harmonicity - e.movementY : 0,
+                    }
+                    stateIsRef.current = {...copyState};
+                    return copyState;
+                })
+            } 
+        }
     }
 
     const harmonicityCurve = (input) => {
@@ -384,6 +433,99 @@ const FMSynth = (props) => {
     }
     let harm = displayHarm();
 
+    const wrapBind = (funct, cc) => {
+        const functRet = (e) => {
+            if (e.controller.number === cc) {
+                funct(e);
+            }
+        }
+        return functRet;
+    }
+
+    const bindCCtoParameter = (deviceName, channel, cc, parameter) => {
+
+        let deviceInput = WebMidi.getInputByName(deviceName);
+        switch (parameter) {
+            case 'harmonicity':
+                let harmFunc = wrapBind(calcHarmonicity, cc);
+                midiLearnRefs.current.harmonicity = {
+                    func: harmFunc,
+                    device: deviceName,
+                    channel: channel,
+                    cc: cc,
+                }
+                deviceInput.addListener('controlchange', channel, harmFunc);
+                break;
+            case 'modulationIndex':
+                //code block
+                break;
+            case 'detune':
+                //code block
+                break;
+            case 'oscillatorType':
+                //code block
+                break;
+            case 'attack':
+                //code block
+                break;
+            case 'decay':
+                //code block
+                break;
+            case 'sustain':
+                //code block
+                break;
+            case 'release':
+                //code block
+                break;
+            case 'modulationAttack':
+                //code block
+                break;
+            case 'modulationDecay':
+                //code block
+                break;
+            case 'modulationSustain':
+                //code block
+                break;
+            case 'modulationRelease':
+                //code block
+                break;
+            default:
+                //code block
+                break;
+        }
+        WebMidi.inputs.map(input => {
+            input.removeListener('controlchange', 'all', listenCCRef.current);
+        });
+    }
+
+    const midiLearn = (contextEvent, parameter) => {
+        contextEvent.preventDefault();
+        let locked = false;
+        switch (parameter) {
+            case 'harmonicity':
+                if (midiLearnRefs.current.harmonicity) {
+                    locked = true;
+                    let deviceInput = WebMidi.getInputByName(midiLearnRefs.current.harmonicity.device);
+                    deviceInput.removeListener('controlchange', midiLearnRefs.current.harmonicity.channel, midiLearnRefs.current.harmonicity.func);
+                    midiLearnRefs.current.harmonicity = null;
+                }
+                break;
+            default:
+                // code block
+                break;
+        }
+        if (!locked) {
+            console.log('[FMSynth]: context menu should be open');
+            listenCCRef.current = (e) => {
+                console.log("listening to controlChange", e.target.name, 'channel', e.channel, 'cc', e.controller.number, 'value', e.value);
+                return bindCCtoParameter(e.target.name, e.channel, e.controller.number, parameter);
+            }
+            WebMidi.inputs.map(input => {
+                input.addListener('controlchange', 'all', listenCCRef.current);
+            })
+        }
+    }
+
     return (
         <div className="FMSynth">
             <Knob size={55} 
@@ -395,7 +537,8 @@ const FMSynth = (props) => {
             max={100} 
             radius={17} 
             curveFunction={harmonicityCurve} 
-            label='harmonicity'></Knob> 
+            label='harmonicity'
+            midiLearn={midiLearn}></Knob> 
         </div>
     )
 };

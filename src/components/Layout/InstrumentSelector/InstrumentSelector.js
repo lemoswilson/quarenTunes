@@ -37,8 +37,12 @@ const InstrumentSelector = (props) => {
         props.showInstrument(props.trackIndex);
     }
 
-    const setMidi = (e) => {
-        props.setMidi(props.trackIndex, e.target.value);
+    const selectMidiDevice = (e) => {
+        props.selectMidiDevice(props.trackIndex, e.target.value);
+    }
+
+    const selectMidiChannel = (e) => {
+        props.selectMidiChannel(props.trackIndex, parseInt(e.target.value));
     }
 
     // I don't know why, but if I try to directly render this div in the return call I get a weird error.
@@ -58,6 +62,10 @@ const InstrumentSelector = (props) => {
         return <option key={`${props.unique}+${value}`} value={value}>{value}</option>;
     });
 
+    const device = props.midi && props.midi.device ? props.midi.device : false;
+    
+    const channel = props.midi && props.midi.channel ? props.midi.channel : false;
+
     return (
         <div className="instrumentRow" style={style(props.trackIndex)} onClick={showInstrument}>
             <label htmlFor={`IS${props.trackIndex}`}>{`Track ${props.trackIndex + 1}:`}</label>
@@ -67,9 +75,16 @@ const InstrumentSelector = (props) => {
                 <option value="drumSynth">drumSynth</option>
                 <option value="polySynth">polySynth</option>
             </select>
-            <select onChange={setMidi} value={props.midi} className="midiSelector" id={`midi${props.unique}`}>
+            <select onChange={selectMidiDevice} value={device} className="midiSelector" id={`midi${props.unique}`}>
                 <option value={false}> - - - - - -</option>
                 {midiInputs}
+            </select>
+            <select onChange={selectMidiChannel} value={channel} className="channelSelector" id={`channel${props.unique}`}>
+                <option value={false}>- - - - -</option>
+                <option value="all">All Channels</option>
+                { [...Array(16).keys()].map(c => {
+                    return <option value={c + 1} key={`${props.unique}${device}${c}`}>{`Channel ${c + 1}`}</option>
+                })}
             </select>
             { removeDiv }
         </div>

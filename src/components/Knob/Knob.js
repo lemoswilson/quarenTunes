@@ -26,7 +26,7 @@ function describeArc(x, y, radius, startAngle, endAngle){
 }
 
 const radProps = (value, min, max) => {
-    return (320 / (min-max))*(-value+min) - 160
+    return (320.00 / (min-max))*(-value+min) - 160
 }
 
 const Knob = (props) => {
@@ -61,10 +61,13 @@ const Knob = (props) => {
     };
 
     const captureStart = (e) => {
-        setMovement(true);
-        appRef.current.requestPointerLock = appRef.current.requestPointerLock || appRef.current.mozRequestPointerLock;
-        appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
-        appRef.current.requestPointerLock();
+        console.log('Knob', e.button);
+        if (e.button === 0) {
+            setMovement(true);
+            appRef.current.requestPointerLock = appRef.current.requestPointerLock || appRef.current.mozRequestPointerLock;
+            appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
+            appRef.current.requestPointerLock();
+        }
     };
 
     // Handlers that call back parent functions as props, and deal with its state.
@@ -109,7 +112,7 @@ const Knob = (props) => {
 
 
     return (
-        <div tabIndex={0} onKeyDown={keyHandle} style={divStyle} onWheel={wheelMove}>
+        <div tabIndex={0} onKeyDown={keyHandle} style={divStyle} onWheel={wheelMove} onContextMenu={(e) => props.midiLearn(e, props.label)}>
             <svg onPointerDown={captureStart} style={{height: `${props.size}px`, alignSelf: "center", width: `${props.size}px`}}>
             <path id="arc1" fill="none" stroke={props.colorOuter} strokeWidth="5" d={describeArc(props.size/2, props.size/2, props.radius, -160, 160)}/>
             <path id="arc2" fill="none" stroke={props.colorInner} strokeWidth="5" d={describeArc(props.size/2, props.size/2, props.radius, radProps(props.value, props.min, props.max), 160)}/>

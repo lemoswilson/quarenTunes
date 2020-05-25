@@ -159,16 +159,38 @@ const MainWindow = (props) => {
         TrkCtx.getSelectedTrack(index);
     }
 
-    const selectMidiInstrument = (trackIndex, midi) => {
+    const selectMidiDevice = (trackIndex, midi) => {
+        let newSet;
         setState(state => {
             let copyState = {
                 ...state,
                 instruments: [...state.instruments],
             }
-            copyState.instruments[trackIndex]['midi'] = midi;
+            copyState.instruments[parseInt(trackIndex)]['midi'] = {
+                ...state.instruments[trackIndex]['midi'],
+                device: midi,
+            };
+            newSet = copyState.instruments[trackIndex]['midi'];
             return copyState;
         })
-        TrkCtx.getTrackMIDIControllers(trackIndex, midi);
+        TrkCtx.getTrackMIDIControllers(trackIndex, newSet);
+    }
+
+    const selectMidiChannel = (trackIndex, channel) => {
+        let newSet;
+        setState(state => {
+            let copyState = {
+                ...state,
+                instruments: [...state.instruments],
+            }
+            copyState.instruments[trackIndex]['midi'] = {
+                ...state.instruments[trackIndex]['midi'],
+                channel: channel,
+            };
+            newSet = copyState.instruments[trackIndex]['midi'];
+            return copyState;
+        })
+        TrkCtx.getTrackMIDIControllers(trackIndex, newSet);
     }
 
 
@@ -183,7 +205,8 @@ const MainWindow = (props) => {
                                 trackIndex={index} 
                                 instrument={instrument.instrument} 
                                 midi={instrument.midi}
-                                setMidi={selectMidiInstrument}
+                                selectMidiDevice={selectMidiDevice}
+                                selectMidiChannel={selectMidiChannel}
                                 setInstrument={changeInstrument} 
                                 removeInstrument={removeInstrument} 
                                 showInstrument={showInstrument}></InstrumentSelector>
