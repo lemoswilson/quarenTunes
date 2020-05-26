@@ -65,6 +65,7 @@ const FMSynth = (props) => {
         selfRef = useRef(new Tone.PolySynth(8, Tone.FMSynth, state)),
         TrkCtx = useContext(trackContext),
         SeqCtx = useContext(sequencerContext),
+        seqfake = {...SeqCtx},
         filterRef = useRef(new Tone.Filter(20000, 'lowpass').toMaster()),
         gainRef = useRef(new Tone.Gain(0.1)),
         seqCounter = SeqCtx.counter,
@@ -119,18 +120,36 @@ const FMSynth = (props) => {
         isPlaying = TrsCtx.isPlaying,
         midiInput = TrkCtx[props.trackIndex][5],
         previousMidi = useRef({...midiInput}),
+        activePatternObject = SeqCtx[SeqCtx.activePattern],
+        setMidiRef = useRef(),
+        activePatternObjectRef = useRef(activePatternObject),
         inputRef = useRef(),
         listenCCRef = useRef(),
         getTrackCallback = TrkCtx.getTrackCallback;
-        const noteInput = useRef((e) => {
-            console.log('[FMSynth]: note on message', e.note.name, e.note.octave, 'velocity', e.velocity*127);
-            selfRef.current.triggerAttack(`${e.note.name}${e.note.octave}`, Tone.Time("+0"),e.velocity*127);
-        });
+        // const noteInput = useRef((e) => {
+        //     console.log('[FMSynth]: note on message', e.note.name, e.note.octave, 'velocity', e.velocity*127);
+        //     let isSelected = activePatternObjectRef.current['tracks'][props.trackIndex]['selected'].length > 0 ? true : false ;
+        //     console.log('[FMSynth]: selected true or false', isSelected);
+        //     if (isSelected && !TrsCtx.recording){
+        //         console.log('[FMSynth]: selected steps', activePatternObjectRef.current['tracks'][props.trackIndex]['selected']);
+        //         console.log('[FMSynth]: SeqCtx:', SeqCtx);
+        //         SeqCtx.setNoteMIDI.current(props.trackIndex, e.note.name+e.note.octave);
+        //         // parameterLock Logic
+        //     } else if (TrsCtx.recording && isPlaying) {
+        //         // recording playback logic
+        //         console.log('[FMSynth]: recording playback')
+        //     } else {
+        //         console.log('[FMSynth]: should be triggering playback');
+        //         selfRef.current.triggerAttack(`${e.note.name}${e.note.octave}`, Tone.Time("+0"),e.velocity*127);
+        //     }
+        // });
     
-        const noteOff = useRef((e) => {
-            console.log('[FMSynth]: note off message', e.note.name, e.note.octave);
-            selfRef.current.triggerRelease(`${e.note.name}${e.note.octave}`);
-        });
+        // const noteOff = useRef((e) => {
+        //     console.log('[FMSynth]: note off message', e.note.name, e.note.octave);
+        //     selfRef.current.triggerRelease(`${e.note.name}${e.note.octave}`);
+        // });
+        const noteInput = useRef();
+        const noteOff = useRef();
 
     // passing the new harmonicity value to the components subscribed to the TrackContext
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
@@ -197,6 +216,28 @@ const FMSynth = (props) => {
             }, 1000);
             setRender(1);
         }
+        noteInput.current = (e) => {
+            console.log('[FMSynth]: note on message', e.note.name, e.note.octave, 'velocity', e.velocity*127);
+            let isSelected = activePatternObjectRef.current['tracks'][props.trackIndex]['selected'].length > 0 ? true : false ;
+            console.log('[FMSynth]: selected true or false', isSelected);
+            if (isSelected && !TrsCtx.recording){
+                console.log('[FMSynth]: selected steps', activePatternObjectRef.current['tracks'][props.trackIndex]['selected']);
+                console.log('[FMSynth]: SeqCtx:', SeqCtx, 'midiRef', setMidiRef.current);
+                setMidiRef.current.current(props.trackIndex, e.note.name+e.note.octave);
+                // parameterLock Logic
+            } else if (TrsCtx.recording && isPlaying) {
+                // recording playback logic
+                console.log('[FMSynth]: recording playback')
+            } else {
+                console.log('[FMSynth]: should be triggering playback');
+                selfRef.current.triggerAttack(`${e.note.name}${e.note.octave}`, Tone.Time("+0"),e.velocity*127);
+            }
+        } 
+
+        noteOff.current = (e) => {
+            console.log('[FMSynth]: note off message', e.note.name, e.note.octave);
+            selfRef.current.triggerRelease(`${e.note.name}${e.note.octave}`);
+        } 
     }, [])
 
     // Sending updated callback after forced rerender
@@ -235,7 +276,14 @@ const FMSynth = (props) => {
                 return copyState;
             })
         }
-    }, [isPlaying])
+    }, [isPlaying]);
+
+    useEffect(() => {
+        activePatternObjectRef.current = activePatternObject; 
+        setMidiRef.current = SeqCtx.setNoteMIDI;
+    }, [activePatternObject]);
+
+
 
     // Instrument callback to be added to the triggState;
     const FMSynthPlayer = (time, value) => {
@@ -320,9 +368,9 @@ const FMSynth = (props) => {
                     console.log('[FMSynth]: h', h, 'i', i);
                     if (h){
                         console.log('parameterLock');
-                        if (e.controller.number){
+                        if (e.controller && e.controller.number){
                             SeqCtx.parameterLock(props.trackIndex, {
-                                harmonicity: (e.value * 127)*(100/127),
+                                harmonicity: e.value*(100/127),
                             })
                         } else {
                             if (e.movementY < 0 && h < 100) {
@@ -350,7 +398,7 @@ const FMSynth = (props) => {
 
 
     const harmUnselected = (e) => {
-        if (e.controller.number) {
+        if (e.controller && e.controller.number) {
             console.log('[FMSynth]: updating via CC', 'value', e.value, 'newHarm', (e.value * 127)*(100/127));
             setState(state => {
                 let copyState = {

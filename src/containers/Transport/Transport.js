@@ -10,6 +10,7 @@ import transportContext from '../../context/transportContext';
 const Transport = (props) => {
     const [transportState, setTransportState] = useState({
         isPlaying: false,
+        recording: false,
         indicatorPosition: '0:0:0',
         bpm: 120,
         loopStart: 0,
@@ -94,10 +95,18 @@ const Transport = (props) => {
         Tone.Transport.stop();
     }
 
+    const record = () => {
+        setTransportState(state => ({
+            ...state,
+            recording: !state.record
+        }))
+    }
+
         return(
             <div className="transport">
                     <div className="start" onClick={start}>Start</div>
                     <div className="stop" onClick={stop}>Stop</div>
+                    <div className="record" onClick={record}>Record</div>
             <p className="position">{ transportState.indicatorPosition }</p>
             </div>
         )

@@ -8,6 +8,7 @@ import StepsEdit from './Steps/StepsEdit'
 import arrangerContext from '../../context/arrangerContext';
 import transportContext from '../../context/transportContext';
 import usePrevious from '../../hooks/usePrevious';
+import useEventListener from '../../hooks/useEventListener';
 
 export const returnPartArray = (length) => {
     return [...Array(length).keys()].map(i => {
@@ -42,6 +43,7 @@ const Sequencer = (props) => {
         previousPlaying = usePrevious(isPlaying),
         arrangerMode = ArrCtx.mode,
         patternTracker = ArrCtx.patternTracker,
+        setNoteMIDIRef = useRef(),
         isFollowing = ArrCtx.following;
         
 
@@ -60,6 +62,7 @@ const Sequencer = (props) => {
                 }
             },
         activePattern: 0,
+        setNoteMIDI: setNoteMIDIRef,
         step: null,
         followSchedulerID: null,
         stepFollowerID: null,
@@ -136,12 +139,17 @@ const Sequencer = (props) => {
             SeqCtx.createCallback('updateSequencerState', updateSequencer);
             SeqCtx.createCallback('parameterLock', parameterLock);
             SeqCtx.createCallback('updateTriggStateRef', updateTriggStateRef);
+            // SeqCtx.createCallback('setNoteMIDI', setNoteMIDI);
         }
         if (sequencerState !== sequencerContext){
             SeqCtx.updateAll(sequencerState);
         }
-
+        setNoteMIDIRef.current = setNoteMIDI;
+        document.onkeydown = keydown;
+        document.onkeyup = keydown;
     }, []);
+
+    // Updating setNoteMIDI callback e
 
     // Setting the step tracker as soon as the transport starts
     useEffect(() => {
@@ -168,6 +176,7 @@ const Sequencer = (props) => {
             }));
         }
     });
+
 
     // Update the triggState ref (mostly because when you add a track 
     // you have to callback a function to update the triggState ref) 
@@ -517,7 +526,64 @@ const Sequencer = (props) => {
             })
             return copyState
         })
-    }
+    };
+
+    const setNoteMIDI = (trackIndex, note) => {
+        selectedRef.current.map(index => {
+            let time = `0:0:${index}`;
+            let event = { 
+                ...eventsRef.current[trackIndex][index],
+            };
+            console.log('[FMSynth]: event', event);
+            let notes = event && event.note ? [...event['note']] : [];
+            if (notes.includes(note)){
+                notes = notes.filter(n => n !== note);
+            } else {
+                notes.push(note)
+            }
+            event['note'] = notes ? notes : null;
+            triggStatesRef.current[trackIndex].at(time, event);
+            return '';
+        }) 
+
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrkCtx.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack],
+                            'events': [...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events']]
+                        }
+                    }
+                }
+            }
+            state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(index => {
+                let event = { 
+                    ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index],
+                };
+                let notes = event && event.note ? [...event['note']] : [];
+                if (notes.includes(note)){
+                    notes = notes.filter(n => n !== note);
+                } else {
+                    notes.push(note)
+                }
+                event['note'] = notes ? notes : null;
+                eventsRef.current[TrkCtx.selectedTrack][index] = {
+                    ...eventsRef.current[TrkCtx.selectedTrack][index],
+                    note: notes ? notes : null,
+                }
+                copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index] = {
+                    ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index],
+                    note: notes ? notes : null,
+                };
+                return '';
+            })
+            return copyState
+        })
+    };
 
     const setVelocity = (velocity) => {
         setSequencer(state => {
@@ -616,6 +682,38 @@ const Sequencer = (props) => {
             return copyState;
         });
     };
+
+    // Keyboard commands
+    const keyDict = {
+        a: 0,
+        s: 1,
+        d: 2,
+        f: 3,
+        g: 4,
+        h: 5, 
+        j: 6,
+        k: 7,
+        l: 8,
+        z: 9,
+        x: 10,
+        c: 11,
+        v: 12,
+        b: 13,
+        n: 14,
+        m: 15
+    };
+
+    function keydown(e) {
+        if (e.repeat) { return }
+        let char = String.fromCharCode(e.keyCode).toLowerCase();
+        if (Object.keys(keyDict).includes(char)) {
+            let index = (activePageRef.current + 1) * keyDict[char];
+            if (index <= sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length']) {
+                selectStep(index);
+            }
+        }
+    };
+
 
 
 
