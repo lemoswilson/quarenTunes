@@ -5,7 +5,6 @@ import webMidiContext from '../../../../context/webMidiContext';
 import sequencerContext from '../../../../context/sequencerContext';
 import Knob from '../../../../components/Knob/Knob';
 import transportContext from '../../../../context/transportContext';
-import usePrevious from '../../../../hooks/usePrevious';
 
 const FMSynth = (props) => {
     const [state, setState] = useState({
@@ -69,6 +68,7 @@ const FMSynth = (props) => {
         filterRef = useRef(new Tone.Filter(20000, 'lowpass').toMaster()),
         gainRef = useRef(new Tone.Gain(0.1)),
         seqCounter = SeqCtx.counter,
+        selectedStepsRef = useRef(),
         stateIsRef = useRef({
             harmonicity: 3,
             modulationIndex: 10,
@@ -281,6 +281,7 @@ const FMSynth = (props) => {
     useEffect(() => {
         activePatternObjectRef.current = activePatternObject; 
         setMidiRef.current = SeqCtx.setNoteMIDI;
+        selectedStepsRef.current = activePatternObject && activePatternObject.tracks ? [...activePatternObject['tracks'][props.trackIndex]['selected']] : null;
     }, [activePatternObject]);
 
 
@@ -340,7 +341,7 @@ const FMSynth = (props) => {
     // Harmonicity calc
     // - - - - - - - - - -  - - - - - - - - - - - - - - - - - - -
     const calcHarmonicity = (e) => {
-        let act = SeqCtx[SeqCtx.activePattern]
+        let act = activePatternObjectRef.current
         if (act){
             console.log('[FMSynth]: selected', act['tracks'][props.trackIndex]['selected'][0])
             let selected = act['tracks'][props.trackIndex]['selected'].length >= 0 ? act['tracks'][props.trackIndex]['selected'] : null,
