@@ -125,7 +125,7 @@ const Arranger = (props) => {
     // If in song mode cue the first song and schedule a callback 
     // to check the state of the arranger? 
     useEffect(() => {
-        console.log('[Arranger.js]: SETTING PLAYBACK', 'arrangerMode', arrangerMode, 'previousArrangerMode', previousMode);
+        // console.log('[Arranger.js]: SETTING PLAYBACK', 'arrangerMode', arrangerMode, 'previousArrangerMode', previousMode);
         if (Tone.Transport.state !== 'started'){
             if(arrangerMode === 'pattern' && previousMode === 'pattern' || !previousMode){
                 console.log('[Arranger.js]: SETTING PATTERNMODE');
@@ -135,10 +135,10 @@ const Arranger = (props) => {
                 Tone.Transport.cancel(0);
                 setupPatternMode();
             } else if ( arrangerState.mode === 'song') {
+                Tone.Transport.loop = false;
                 if(previousMode === 'pattern'){
                     // stop and mute all the scheduled patterns of the last selected pattern
                     // turn of looop in the transport - - - - - - - - - - - - - - - - - - - - 
-                    Tone.Transport.loop = false;
                     Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(track => {
                         if (SeqCtx[SeqCtx.activePattern]['tracks'][track]) {
                             console.log('[Arranger.js]: stoping track,', track, 'seq', SeqCtx.activePattern);
@@ -233,8 +233,11 @@ const Arranger = (props) => {
                     secondaryTime = timeCounter,
                     rowEnd = value && SeqCtx[value.pattern] ? `0:0:${SeqCtx[value.pattern]['patternLength']*parseInt(repeat)}` : 0;
                     // timeSch = timeCounter > 0 ? Tone.Time(timeCounter, 's').toBarsBeatsSixteenths() : 0;
+                    console.log('[Arranger.js]: timeCounter', timeCounter, 'endRow', Tone.Time(rowEnd).toSeconds());
                 if (parseInt(value.pattern) >= 0){
+                    console.log('[Arranger.js]: theres a pattern at index', index, 'and it is', value.pattern, 'timeCounter', timeCounter, 'endRow', Tone.Time(rowEnd).toSeconds());
                     if (index === 0){
+                        console.log('[Arranger.js]: scheduling index', index);
                         Tone.Transport.schedule(time => {
                             console.log('[Arranger.js]: should be setting patternTracker', 0);
                             // setArranger(state => ({
@@ -268,44 +271,55 @@ const Arranger = (props) => {
                                 })
                             } else {
                                 Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
-                                    SeqCtx[array[index -1].pattern]['tracks'][track].triggState.loop = false;
+                                    let trackLength = SeqCtx[value.pattern]['tracks'][track]['length'];
+                                    if (parseInt(array[index-1].pattern) >= 0) {
+                                        SeqCtx[array[index -1].pattern]['tracks'][track].triggState.stop();
+                                        SeqCtx[array[index -1].pattern]['tracks'][track].triggState.mute = true;
+                                        SeqCtx[array[index -1].pattern]['tracks'][track].triggState.loop = false;
+                                    }
                                     SeqCtx[value.pattern]['tracks'][track].triggState.loop = true;
+                                    SeqCtx[value.pattern]['tracks'][track].triggState.loopEnd = `0:0:${trackLength}`;
                                     SeqCtx[value.pattern]['tracks'][track].triggState.mute = false;
                                     SeqCtx[value.pattern]['tracks'][track].triggState.start('+0');
-                                    SeqCtx[array[index -1].pattern]['tracks'][track].triggState.stop();
-                                    SeqCtx[array[index -1].pattern]['tracks'][track].triggState.mute = true;
                                     // return '';
                                 });
                             }
                         }, timeCounter);
                     }
                 } else {
-                    if(index > 0 && array[index -1].pattern){
+                    console.log('[Arranger.js]: theres not a pattern at index', index, 'pattern', value.pattern)
+                    if(index > 0 && parseInt(array[index -1].pattern) >= 0){
+                        console.log('[Arranger.js]: scheduling pattern stop behind an empty song row at', timeCounter);
                         Tone.Transport.schedule(time => {
-                            console.log('[Arranger.js]: should be setting patternTracker');
+                            console.log('[Arranger.js]: should be setting patternTracker, and stoping pattern vefore which is', array[index-1].pattern);
                             // setArranger(state => ({
                             //     ...state,
                             //     patternTracker: [null, secondaryTime],
                             // })); 
-                            arrangerState.patternTracker.current = [null, secondaryTime];
-                            Object.keys(SeqCtx[value.pattern]['tracks']).map(track => {
+                            // arrangerState.patternTracker.current = [null, secondaryTime];
+                            Object.keys(SeqCtx[array[index-1].pattern]['tracks']).map(track => {
                                 SeqCtx[array[index -1].pattern]['tracks'][track].triggState.stop();
                                 SeqCtx[array[index -1].pattern]['tracks'][track].triggState.mute = true; 
                                 // return '';
-                            }, timeCounter);
-                        });
+                            // }, timeCounter);
+                            });
+                        }, timeCounter);
                     }
                 }
+            console.log('[Arranger.js] should be summing rowEnd', rowEnd, 'timeCounter', timeCounter);
             timeCounter = timeCounter + Tone.Time(rowEnd).toSeconds();
             });
-            console.log('[Arranger.js]: Stopping last pattern at time', timeCounter);
-            if (SeqCtx[events[eventsLength]] && SeqCtx[events[eventsLength]].pattern){
+            // if (SeqCtx[events[eventsLength]] && SeqCtx[events[eventsLength]].pattern){
+            if (SeqCtx[events[eventsLength].pattern]){
+                console.log('[Arranger.js]: Stopping last pattern at time', timeCounter, 'events', events, 'eventsLength', eventsLength, 'CTX', SeqCtx, 'naa', SeqCtx[events[eventsLength].pattern]);
                 Tone.Transport.schedule(time => {
+                    console.log('[Arranger.js]: should be stopping fucking pattern');
                     // setArranger(state => ({
                     //     ...state,
                     //     patternTracker: [],
                     // }));  
-                    arrangerState.patternTracker.current = [0];
+                    arrangerState.patternTracker.current = [];
+                    // arrangerState.patternTracker.current = [0];
                     Object.keys(SeqCtx[events[eventsLength].pattern]['tracks']).map(track => {
                         SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.stop();
                         SeqCtx[events[eventsLength].pattern]['tracks'][track].triggState.mute = true;

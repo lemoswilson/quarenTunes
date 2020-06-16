@@ -14,6 +14,7 @@ const StepsEdit = (props) => {
         plRef = useRef(),
         plInputRef = useRef(),
         noteInRef = useRef(),
+        noteLengthRef = useRef(),
         velocityRef = useRef();
 
     
@@ -66,6 +67,19 @@ const StepsEdit = (props) => {
         e.target.reset();
     }
 
+    const noteLengthForm = (e) => {
+        e.preventDefault();
+        const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'];
+        let value = noteLengthRef.current.value;
+        value = value.trim();
+        if (selected.length < 1) {
+            // alert('noStepSelected');
+            props.setPatternNoteLength(value);
+        } else {
+            props.setNoteLength(value);
+        }
+    };
+
     // Setting conditional elements logic - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const patternAmount = () => {
@@ -105,17 +119,33 @@ const StepsEdit = (props) => {
     const velocityPlaceholder = () => {
         const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] : null;
         if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
-            selected.length > 1) {
-                return '*';
-            } else if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
-            selected.length === 1) {
-                return props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['velocity'] ?
-                props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['velocity'].join(',') :
-                '*'
-            } else {
-                return '';
-            }
-    }
+        selected.length > 1) {
+            return '*';
+        } else if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
+        selected.length === 1) {
+            return props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['velocity'] ?
+            // props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['velocity'].join(',') :
+            props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['velocity'] :
+            '*'
+        } else {
+            return '';
+        }
+    };
+
+    const noteLengthPlaceholder = () => {
+        const selected = props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] ? props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] : null;
+        if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
+        selected.length > 1) {
+            return '*';
+        } else if (selected && props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] &&
+        selected.length === 1) {
+            return props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['length'] ?
+            props.sequencerState[props.sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][selected[0]]['length'] :
+            '*'
+        } else {
+            return props.patternNoteLength;
+        }
+    };
 
 
     return(
@@ -190,14 +220,20 @@ const StepsEdit = (props) => {
                 </div>
                 <div className="velocity">
                     <form  onSubmit={inputVelocityForm}>
-                        <label htmlFor="velocityInput">Velocity</label>
+                        <label htmlFor="velocityInput">Velo</label>
                         <input type="text" ref={velocityRef} id='velocity' placeholder={velocityPlaceholder()}/>
                     </form>
                 </div>
-                <div className="swing">
-
+                <div className="length">
+                    <form onSubmit={noteLengthForm}>
+                        <label htmlFor="LengthForm">Len</label>
+                        <input type="text" id="noteLength" ref={noteLengthRef} placeholder={noteLengthPlaceholder()}/>
+                    </form>
                 </div>
                 <div className="micrposition">
+
+                </div>
+                <div className="swing">
 
                 </div>
             </div>

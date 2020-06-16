@@ -7,7 +7,6 @@ const Step = (props) => {
         props.selectStep(props.stepIndex);
     };
 
-
     const selected = () => {
         if ((props.selected && props.selected.includes(props.stepIndex)) 
         ||  (props.selected && props.selected === props.stepIndex)){
@@ -20,6 +19,8 @@ const Step = (props) => {
     return(
         <div className={`step${selected()}`} onClick={selectStep}>
             { props.tempo }
+            <br/>
+            { props.event.offset ? props.event.offset : 0 }
         </div>
     )
 }

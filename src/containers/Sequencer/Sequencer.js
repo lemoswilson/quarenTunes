@@ -2,9 +2,9 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import trackContext from '../../context/trackContext';
 import toneContext from '../../context/toneContext';
 import sequencerContext from '../../context/sequencerContext';
-import './Sequencer.scss'
-import Steps from './Steps/Steps.js'
-import StepsEdit from './Steps/StepsEdit'
+import './Sequencer.scss';
+import Steps from './Steps/Steps.js';
+import StepsEdit from './Steps/StepsEdit';
 import arrangerContext from '../../context/arrangerContext';
 import transportContext from '../../context/transportContext';
 import usePrevious from '../../hooks/usePrevious';
@@ -16,7 +16,7 @@ export const returnPartArray = (length) => {
     })
 }
 
-const to16 = (time) => {
+export const to16 = (time) => {
     let result = Number(),
     timeArray = time.split(':');
     timeArray.forEach((value, index, array) => {
@@ -44,6 +44,10 @@ const Sequencer = (props) => {
         arrangerMode = ArrCtx.mode,
         patternTracker = ArrCtx.patternTracker,
         setNoteMIDIRef = useRef(),
+        setPlaybackInputRef = useRef(),
+        setNoteLengthPlaybackRef = useRef(),
+        override = useRef(true),
+        quantizeRecording = useRef(false),
         isFollowing = ArrCtx.following;
         
 
@@ -54,6 +58,7 @@ const Sequencer = (props) => {
             tracks: {
                 0: {
                     length: 16,
+                    noteLength: '16n',
                     triggState: new Tone.Part(),
                     events: Array(16).fill({}),
                     page: 0,
@@ -63,12 +68,16 @@ const Sequencer = (props) => {
             },
         activePattern: 0,
         setNoteMIDI: setNoteMIDIRef,
+        setPlaybackInput: setPlaybackInputRef,
+        setNoteLengthPlayback: setNoteLengthPlaybackRef,
         step: null,
         followSchedulerID: null,
         stepFollowerID: null,
         counter: 1,
         counter2: 1,
         copyed: null,
+        override: true,
+        quantizeRecording: false,
         }
     );
     let activePatternRef = useRef(sequencerState.activePattern);
@@ -91,6 +100,8 @@ const Sequencer = (props) => {
     let selectedRef = useRef(selected);
     let schedulerID = sequencerState.followSchedulerID;
     let stepFollowerID = sequencerState.stepFollowerID;
+    let selLen = sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length'];
+    let selLenRef = useRef(selLen);
 
     // setting subscripition of the seleted ref to the sequencerEvents
     useEffect(() => {
@@ -98,6 +109,10 @@ const Sequencer = (props) => {
             selectedRef.current = [...selected];
         }
     }, [selected])
+
+    useEffect(() => {
+        selLenRef.current = selLen;
+    }, [selLen]);
 
 
     // Set following scheduler
@@ -145,8 +160,10 @@ const Sequencer = (props) => {
             SeqCtx.updateAll(sequencerState);
         }
         setNoteMIDIRef.current = setNoteMIDI;
+        setPlaybackInputRef.current = setPlaybackInput;
+        setNoteLengthPlaybackRef.current = setNoteLengthPlayback;
         document.onkeydown = keydown;
-        document.onkeyup = keydown;
+        document.onkeyup = keyup;
     }, []);
 
     // Updating setNoteMIDI callback e
@@ -157,7 +174,7 @@ const Sequencer = (props) => {
         if (isPlaying && !previousPlaying && !stepFollowerID) {
             newStepID = Tone.Transport.scheduleRepeat(() => {
                 let newStep = returnStep();
-                console.log('[Sequencer.js]: gettin current step', newStep);
+                // console.log('[Sequencer.js]: gettin current step', newStep);
                 setSequencer(state => ({
                     ...state, 
                     step: newStep,
@@ -197,7 +214,9 @@ const Sequencer = (props) => {
             if (TrkCtx[i][4] != v){
             TrkCtx.getTrackEventRef(i, v);
             }
-        })
+        });
+        eventsRef.current = sequencerEvents;
+
     }, [sequencerEvents])
 
     // State editing methods that will be passed to STEPS EDIT
@@ -228,7 +247,112 @@ const Sequencer = (props) => {
         
     };
 
+    const setNoteLengthPlayback = (note, pattern, track, step, length, pastEvent) => {
+        setSequencer(state => {
+            console.log('[Sequencer.js]: setingLength and note of previously pressed note.', note, 'pattern', pattern, 'track', track, 'step', step, 'length', length, 'pastEvent', pastEvent);
+            let copyState = {
+                ...state, 
+                [state[pattern]]: {
+                    ...state[pattern],
+                    'tracks': {
+                        ...state[pattern]['tracks'],
+                        [track]: {
+                            ...state[pattern]['tracks'][track],
+                            'events': [...state[pattern]['tracks'][track]['events']]
+                        }
+                    }
+                }
+            }
+            let event = { 
+                ...pastEvent,
+                length: length,
+            };
+            let time = {
+                '16n': step,
+                '128n': event.offset ? event.offset : 0,
+            };
+            // if (sequencerState.override){
+            if (override.current){
+                console.log('[Sequencer.js]: overriding');
+                event.note = [note];
+            // } else if (!sequencerState.override && !event.note.includes(note)) {
+            } else if (!override.current && !event.note.includes(note)) {
+                console.log('[Sequencer.js]: NOT overriding');
+                event.note.push(note);
+            }
+            state[pattern]['tracks'][track]['triggState'].at(time, event);
+            eventsRef.current[track][step] = {
+                ...eventsRef.current[track][step],
+                length: length,
+            }
+            copyState[state[pattern]]['tracks'][track]['events'][step] = {
+                // ...state[pattern]['tracks'][track]['events'][step],
+                // length: length, 
+                ...event,
+            };
+            console.log('[Sequencer.js]: the new event is', event);
+            return copyState
+        });
+    }
 
+    // const setPlaybackInput = (pattern, track, step, offset, note, velocity, length) => {
+    const setPlaybackInput = (pattern, track, step, offset, note, velocity) => {
+        setSequencer(state => {
+            console.log('[Sequencer.js]: state is', state, state[pattern]);
+            let copyState = {
+                ...state, 
+                [pattern]: {
+                    ...state[pattern],
+                    'tracks': {
+                        ...state[pattern]['tracks'],
+                        [track]: {
+                            ...state[pattern]['tracks'][track],
+                            'events': [...state[pattern]['tracks'][track]['events']]
+                        }
+                    }
+                }
+            }
+            let event = { 
+                ...state[pattern]['tracks'][track]['events'][step],
+                note: [],
+            };
+            let newTime = {
+                '16n': step,
+                '128n': offset,
+            };
+            let pastTime = {
+                '16n': step,
+                '128n': event.offset ? event.offset : 0,
+            };
+            event.offset = offset;
+            event.velocity = velocity;
+            // event.length = length;
+            if (sequencerState.override){
+                event.note = [note];
+            } else if (!sequencerState.override && !event.note.includes(note)) {
+                event.note.push(note);
+            }
+            state[pattern]['tracks'][track]['triggState'].remove(pastTime);
+            // state[pattern]['tracks'][track]['triggState'].remove(pastTime);
+            // state[pattern]['tracks'][track]['triggState'].at(newTime, event);
+            // sequencerState[pattern]['tracks'][track]['triggState'].add(newTime, event);
+            eventsRef.current[track][step] = {
+                ...eventsRef.current[track][step],
+                note: event.note,
+                offset: event.offset,
+                velocity: event.velocity,
+                // length: event.length,
+            }
+            copyState[pattern]['tracks'][track]['events'][step] = {
+                ...state[pattern]['tracks'][track]['events'][step],
+                note: event.note,
+                velocity: event.velocity,
+                offset: event.offset,
+                // length: event.length,
+            };
+        return copyState
+        });
+    }
 
     const goToActive = () => {
         let nowTime = Tone.Transport.position.split('.')[0];
@@ -281,17 +405,32 @@ const Sequencer = (props) => {
         }
     };
 
+    const toggleOverride = () => {
+        override.current = !override.current;
+        setSequencer(state => ({
+            ...state,
+            override: !state.override
+        }));
+    }
+
+    const toggleRecordingQuantization = () => {
+        quantizeRecording.current = !quantizeRecording.current;
+        setSequencer(state => ({
+            ...state,
+            quantizeRecording: !state.quantizeRecording,
+        }));
+    }
+
     const returnStep = () => {
         let result;
+        let nowTime = Tone.Transport.position.split('.')[0]; 
         if (ArrCtx.mode === 'pattern') {
-            let nowTime = Tone.Transport.position.split('.')[0]; 
-            console.log('[Sequencer.js]: nowTime', nowTime);
+            // console.log('[Sequencer.js]: nowTime', nowTime);
             let trackSteps = sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['length'];
             let patternLength = sequencerState[sequencerState.activePattern]['patternLength'];
             result = trackSteps >= patternLength ? to16(nowTime) : to16(nowTime) % trackSteps;
             return result
-        } else if (ArrCtx.mode === 'song' && !ArrCtx.following) {
-            let nowTime = Tone.Transport.position.split('.')[0];
+        } else if (ArrCtx.mode === 'song') {
             let patternToUse = patternTracker.current[0] ? patternTracker.current[0] : ArrCtx['songs'][ArrCtx.selectedSong]['events'][0]['pattern'],
             timeb = patternTracker.current[1] ? patternTracker.current[1] : 0,
             patternToGo = patternToUse;
@@ -302,13 +441,13 @@ const Sequencer = (props) => {
                 return false;
             let trackStep = sequencerState[patternToUse]['tracks'][TrkCtx.selectedTrack]['length'] < parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']) ? patternLocation % sequencerState[ArrCtx.patternTracker.current[0]]['tracks'][TrkCtx.selectedTrack]['length'] : patternLocation,
             result = trackStep;
-            console.log('[Sequencer.js]: song mode, nowTime', nowTime, 
-                        'patternToUse', patternToUse, 
-                        'timeb', timeb, 
-                        'timeBBS', timeBBS, 
-                        'step', step,
-                        'patternLocation', patternLocation,
-                        'trackStep', trackStep);
+            // console.log('[Sequencer.js]: song mode, nowTime', nowTime, 
+            //             'patternToUse', patternToUse, 
+            //             'timeb', timeb, 
+            //             'timeBBS', timeBBS, 
+            //             'step', step,
+            //             'patternLocation', patternLocation,
+            //             'trackStep', trackStep);
             return result;
         }
     };
@@ -325,6 +464,7 @@ const Sequencer = (props) => {
             [...Array(TrkCtx.trackCount).keys()].map(i => {
                 copyState[state.counter]['tracks'][i] = {
                     length: 16,
+                    noteLength: '16n', 
                     triggState: new Tone.Part(),
                     events: Array(16).fill({}),
                     page: 0,
@@ -485,20 +625,10 @@ const Sequencer = (props) => {
                 }
             }
             return copyState;
-        })
+        });
     };
 
-    const setNote = (note) => {
-        sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(index => {
-            let time = `0:0:${index}`;
-            let event = { 
-                ...sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index],
-            };
-            event['note'] = note ? note : null;
-            sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event);
-            return '';
-        })
-
+    const setOffset = (direction) => {
         setSequencer(state => {
             let copyState = {
                 ...state, 
@@ -514,6 +644,106 @@ const Sequencer = (props) => {
                 }
             }
             state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+                let event = {
+                    ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+                }
+                let currOffset = event.offset ? event.offset : 0; 
+                let pastEventTime = {
+                    '16n': e,
+                    '128n': currOffset,
+                };
+                if ((direction > 0 && currOffset + direction <= 128)
+                ||  (direction < 0 && currOffset + direction >= -128)) {
+                    let offset = currOffset + direction;
+                    // let newEventTime = offset > 0 ? `0:0:${e}.${offset}` : `0:0:${e-1}.${1000-offset}`;
+                    let newEventTime = {
+                        '16n': e,
+                        '128n': offset,
+                    }
+                    copyState[copyState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].remove(pastEventTime);
+                    copyState[copyState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(newEventTime, event);
+                    eventsRef.current[TrkCtx.selectedTrack][e] = {
+                        ...eventsRef.current[TrkCtx.selectedTrack][e],
+                        offset: offset,
+                    }
+                    copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e] = {
+                        ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+                        offset: offset,
+                    };
+                    return '';
+                } 
+            })
+            return copyState
+        });
+    };
+
+    // vou deixar comentado de fora a versao do setnote em que o setter da Part
+    // esta fora do setSequencer call
+    // const setNote = (note) => {
+    //     sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(index => {
+    //         let event = { 
+    //             ...sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index],
+    //         };
+    //         let time = `0:0:${index}`;
+    //         event['note'] = note ? note : null;
+    //         sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event);
+    //         return '';
+    //     })
+
+    //     setSequencer(state => {
+    //         let copyState = {
+    //             ...state, 
+    //             [state.activePattern]: {
+    //                 ...state[state.activePattern],
+    //                 'tracks': {
+    //                     ...state[state.activePattern]['tracks'],
+    //                     [TrkCtx.selectedTrack]: {
+    //                         ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack],
+    //                         'events': [...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events']]
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+    //             eventsRef.current[TrkCtx.selectedTrack][e] = {
+    //                 ...eventsRef.current[TrkCtx.selectedTrack][e],
+    //                 note: note,
+    //             }
+    //             copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e] = {
+    //                 ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+    //                 note: note,
+    //             };
+    //             return '';
+    //         })
+    //         return copyState
+    //     });
+    // };
+
+    const setNote = (note) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrkCtx.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack],
+                            'events': [...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events']]
+                        }
+                    }
+                }
+            }
+            state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+                let event = { 
+                    ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+                };
+                let time = {
+                    '16n': e,
+                    '128n': event.offset
+                };
+                event['note'] = note ? note : null;
+                state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event); 
                 eventsRef.current[TrkCtx.selectedTrack][e] = {
                     ...eventsRef.current[TrkCtx.selectedTrack][e],
                     note: note,
@@ -525,16 +755,111 @@ const Sequencer = (props) => {
                 return '';
             })
             return copyState
-        })
+        });
     };
 
-    const setNoteMIDI = (trackIndex, note) => {
+    const setPatternNoteLength = (length) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    'tracks':{
+                        ...state[state.activePattern]['tracks'],
+                        [TrkCtx.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack],
+                            'noteLength': length,
+                        }
+                    }
+                }
+            };
+            return copyState
+        })
+    }
+
+    const setNoteLength = (length) => {
+        setSequencer(state => {
+            let copyState = {
+                ...state, 
+                [state.activePattern]: {
+                    ...state[state.activePattern],
+                    'tracks': {
+                        ...state[state.activePattern]['tracks'],
+                        [TrkCtx.selectedTrack]: {
+                            ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack],
+                            'events': [...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events']]
+                        }
+                    }
+                }
+            }
+            state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+                let event = { 
+                    ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+                };
+                let time = {
+                    '16n': e,
+                    '128n': event.offset
+                };
+                event['length'] = length ? length : null;
+                state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].at(time, event); 
+                eventsRef.current[TrkCtx.selectedTrack][e] = {
+                    ...eventsRef.current[TrkCtx.selectedTrack][e],
+                    length: length,
+                }
+                copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e] = {
+                    ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+                    length: length,
+                };
+                return '';
+            })
+            return copyState
+        }); 
+    } ;
+
+    const deleteEvents = () => {
+        if (selectedRef.current.length >= 1) {
+            console.log('[Sequencer.js]: deleting events');
+            setSequencer(state => {
+                let copyState = {
+                    ...state, 
+                    [state.activePattern]: {
+                        ...state[state.activePattern],
+                        'tracks': {
+                            ...state[state.activePattern]['tracks'],
+                            [TrkCtx.selectedTrack]: {
+                                ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack],
+                                'events': [...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events']]
+                            }
+                        }
+                    }
+                }
+                state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'].map(e => {
+                    let event = { 
+                        ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e],
+                    };
+                    let time = {
+                        '16n': e,
+                        '128n': event.offset
+                    };
+                    state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['triggState'].remove(time); 
+                    eventsRef.current[TrkCtx.selectedTrack][e] = {};
+                    copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][e] = {};
+                    return '';
+                })
+                return copyState
+            });
+        }
+    }
+
+    const setNoteMIDI = (trackIndex, note, velocity) => {
         selectedRef.current.map(index => {
-            let time = `0:0:${index}`;
             let event = { 
                 ...eventsRef.current[trackIndex][index],
             };
-            console.log('[FMSynth]: event', event);
+            let time = {
+                '16n': index,
+                '128n': event.offset ? event.offset : 0,
+            };
+            // console.log('[FMSynth]: event', event);
             let notes = event && event.note ? [...event['note']] : [];
             if (notes.includes(note)){
                 notes = notes.filter(n => n !== note);
@@ -542,6 +867,7 @@ const Sequencer = (props) => {
                 notes.push(note)
             }
             event['note'] = notes ? notes : null;
+            event['velocity'] = velocity;
             triggStatesRef.current[trackIndex].at(time, event);
             return '';
         }) 
@@ -574,10 +900,12 @@ const Sequencer = (props) => {
                 eventsRef.current[TrkCtx.selectedTrack][index] = {
                     ...eventsRef.current[TrkCtx.selectedTrack][index],
                     note: notes ? notes : null,
+                    velocity: velocity,
                 }
                 copyState[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index] = {
                     ...state[state.activePattern]['tracks'][TrkCtx.selectedTrack]['events'][index],
                     note: notes ? notes : null,
+                    velocity: velocity, 
                 };
                 return '';
             })
@@ -704,15 +1032,40 @@ const Sequencer = (props) => {
     };
 
     function keydown(e) {
-        if (e.repeat) { return }
         let char = String.fromCharCode(e.keyCode).toLowerCase();
-        if (Object.keys(keyDict).includes(char)) {
-            let index = (activePageRef.current + 1) * keyDict[char];
-            if (index <= sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length']) {
-                selectStep(index);
+        if (e.target.tagName.toLowerCase() !== "input"){
+            if (Object.keys(keyDict).includes(char)) {
+                if (e.repeat) { return }
+                let index = (activePageRef.current + 1) * keyDict[char];
+                console.log('[Sequencer.js]: activePatternRef', activePatternRef, 'state', sequencerState);
+                // if (index <= sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length']) {
+                if (index <= selLenRef.current) {
+                    selectStep(index);
+                }
+            } else if (e.keyCode === 37 && selectedRef.current.length >= 1) {
+                e.shiftKey ? setOffset(-10) : setOffset(-1);
+            } else if (e.keyCode === 39 && selectedRef.current.length >= 1) {
+                e.shiftKey ? setOffset(10) : setOffset(1);
+            } else if (e.keyCode === 46 || e.keyCode === 8) {
+                deleteEvents();
             }
         }
     };
+
+    function keyup(e) {
+        let char = String.fromCharCode(e.keyCode).toLowerCase();
+        if (e.target.tagName.toLowerCase() !== "input"){
+            if (Object.keys(keyDict).includes(char)) {
+                if (e.repeat) { return }
+                let index = (activePageRef.current + 1) * keyDict[char];
+                console.log('[Sequencer.js]: activePatternRef', activePatternRef, 'state', sequencerState);
+                // if (index <= sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length']) {
+                if (index <= selLenRef.current) {
+                    selectStep(index);
+                }
+            } 
+        }
+    }
 
 
 
@@ -750,9 +1103,12 @@ const Sequencer = (props) => {
                         changePatternName={changePatternName}
                         activePattern={sequencerState.activePattern}
                         removePattern={removePattern}
+                        patternNoteLength = {sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['noteLength']}
                         page={page}
                         setNote={setNote}
+                        setPatternNoteLength={setPatternNoteLength}
                         changePage={changePage}
+                        setNoteLength={setNoteLength}
                         setVelocity={setVelocity}></StepsEdit>
                 <p> {`${sequencerState[sequencerState.activePattern]['name']}`} </p>
             </div>

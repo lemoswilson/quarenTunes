@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import ToneContext from '../../context/toneContext';
 import './Transport.scss';
 import { useState } from 'react';
@@ -22,6 +22,12 @@ const Transport = (props) => {
     let Tone = useContext(ToneContext),
         SeqCtx = useContext(sequencerContext),
         TrsCtx = useContext(transportContext),
+        metronomeRef = useRef(new Tone.MembraneSynth({
+                envelope: {
+                    release: 0.3,
+                }
+            }).toMaster(),
+        ),
         ArrCtx = useContext(arrangerContext);
 
     useEffect(() => {
@@ -37,8 +43,8 @@ const Transport = (props) => {
     const start = () => {
         if (Tone.context.state !== 'running') {
             Tone.context.resume();
-            Tone.context.latencyHint = 'playback';
-            Tone.context.lookAhead = 0.2;
+            // Tone.context.latencyHint = 'playback';
+            // Tone.context.lookAhead = 0.2;
         }
         if (!transportState.isPlaying || Tone.Transport.state === 'started'){
             setTransportState(state => ({
@@ -46,19 +52,23 @@ const Transport = (props) => {
                 isPlaying: true,
             }))
         }
+        // Temporary metronome
+        Tone.Transport.scheduleRepeat(() => {
+           metronomeRef.current.triggerAttackRelease("C3", "16n"); 
+        }, "4n");
         Tone.Transport.start();
     }
 
     const stopCallback = () => {
-        if (ArrCtx.mode === 'pattern'){
-            Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(track => {
-                if (SeqCtx[SeqCtx.activePattern]['tracks'][track]) {
-                    console.log('[Transport.js]: cancelling callbacks, track', track);
-                    SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
-                }
-                return '';
-            });
-        } else {
+        // if (ArrCtx.mode === 'pattern'){
+        //     Object.keys(SeqCtx[SeqCtx.activePattern]['tracks']).map(track => {
+        //         if (SeqCtx[SeqCtx.activePattern]['tracks'][track]) {
+        //             console.log('[Transport.js]: cancelling callbacks, track', track);
+        //             SeqCtx[SeqCtx.activePattern]['tracks'][track].triggState.stop();
+        //         }
+        //         return '';
+        //     });
+        // } else {
             // ArrCtx.songs[ArrCtx.selectedSong]['events'].forEach((value, index, array) => {
             //     if(value.pattern >= 0){
             //         if (index === 0) {
@@ -77,7 +87,7 @@ const Transport = (props) => {
             //         }
             //     }
             // })
-        }
+        // }
         Tone.Transport.cancel();
     };
 
@@ -98,7 +108,7 @@ const Transport = (props) => {
     const record = () => {
         setTransportState(state => ({
             ...state,
-            recording: !state.record
+            recording: state.recording ? false : true,
         }))
     }
 

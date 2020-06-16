@@ -176,6 +176,7 @@ class App extends Component {
               length: state.sequencer[key]['patternLength'],
               // triggState: new Tone.Part(),
               triggState: new Tone.Part(),
+              noteLength: '16n',
               events: Array(state.sequencer[key]['patternLength']).fill({}),
               page: 0,
               selected: [],
