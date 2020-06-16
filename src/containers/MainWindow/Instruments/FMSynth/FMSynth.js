@@ -206,6 +206,9 @@ const FMSynth = (props) => {
                             passos = step+1;
                             offset = 1-offset;
                             // return
+                        } else {
+                            SeqRef.current.setPlaybackInput.current(patt, props.trackIndex, step, offset, noteName, e.velocity*127);
+                            passos = step; 
                         }
                     } else {
                         // song mode
