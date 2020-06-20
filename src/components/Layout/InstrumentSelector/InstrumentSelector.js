@@ -42,7 +42,7 @@ const InstrumentSelector = (props) => {
     }
 
     const selectMidiChannel = (e) => {
-        props.selectMidiChannel(props.trackIndex, parseInt(e.target.value));
+        props.selectMidiChannel(props.trackIndex, e.target.value);
     }
 
     // I don't know why, but if I try to directly render this div in the return call I get a weird error.

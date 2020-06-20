@@ -3,7 +3,6 @@ import './MainWindow.scss';
 import Instruments from './Instruments/Instruments';
 import Effects from './Effects/Effects'
 import InstrumentSelector from './../../components/Layout/InstrumentSelector/InstrumentSelector'
-import webMidiContext from '../../context/webMidiContext';
 import trackContext from '../../context/trackContext';
 import sequencerContext from '../../context/sequencerContext';
 
@@ -17,7 +16,8 @@ const MainWindow = (props) => {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     let TrkCtx = useContext(trackContext), 
         selectedTrackRef = useRef(0),
-        SeqCtx = useContext(sequencerContext);
+        SeqCtx = useContext(sequencerContext),
+        addTrackToSequencer = SeqCtx.addTrackToSequencer;
 
     const [state, setState] = useState({
         instruments: [{instrument:'FMSynth', id:0, midi: false}],
@@ -34,9 +34,6 @@ const MainWindow = (props) => {
         }
     }, [])
 
-    useEffect(() => {
-        
-    }, []);
 
     // Pass instrument unique id to TrackContext - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -78,7 +75,8 @@ const MainWindow = (props) => {
     };
 
     const addInstrument = () => {
-        SeqCtx.addTrackToSequencer(state.trackCount);
+        // SeqCtx.addTrackToSequencer(state.trackCount);
+        addTrackToSequencer(state.trackCount);
         
         setState((state) => {
             let inst = state.instruments;

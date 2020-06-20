@@ -7,26 +7,6 @@ import transportContext from '../../context/transportContext';
 import toneContext from '../../context/toneContext';
 import usePrevious from '../../hooks/usePrevious';
 
-const subtractBBS = (time) => {
-    let timeArray = time.split(':');
-    if (parseInt(timeArray[2]) > 0) {
-        timeArray[2] = parseInt(timeArray[2]) - 1;
-    } else {
-        if (parseInt(timeArray[1]) > 0) {
-            timeArray[1] = parseInt(timeArray[1]) - 1;
-            timeArray[2] = 3;
-        } else {
-            timeArray[0] = parseInt(timeArray[0]) - 1;
-            timeArray[1] = 3;
-            timeArray[2] = 3;
-        }
-    }
-    let newTime = timeArray.join(':');
-    return newTime;
-}
-
-
-
 const Arranger = (props) => {
     // Initializing contexts and state and necessary variables- - - - - - - - - - - - -
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -342,8 +322,8 @@ const Arranger = (props) => {
                     }
                 }
             }
-            let parsa = [...state.songs[state.selectedSong]['events']];
-            parsa.unshift({
+            let events = [...state.songs[state.selectedSong]['events']];
+            events.unshift({
                 pattern: null,
                 start: 0,
                 end: 16,
@@ -353,10 +333,10 @@ const Arranger = (props) => {
             })
         if (isPlaying) {
             Tone.Transport.cancel(0);
-            scheduleFromIndex(0, parsa);
+            scheduleFromIndex(0, events);
         }
             copyState.songs[state.selectedSong]['counter'] = state.songs[state.selectedSong]['counter'] + 1;
-            copyState.songs[state.selectedSong]['events'] = parsa;
+            copyState.songs[state.selectedSong]['events'] = events;
             return copyState;
         })
     }
@@ -620,7 +600,7 @@ const Arranger = (props) => {
             <div className="songManager">
                 <form>
                     <label htmlFor="songSelector">Song</label>
-                    <select onChange={ selectSong } id="songSelector" defaultValue={arrangerState[arrangerState.selectedSong]}>
+                    <select onChange={ selectSong } id="songSelector" defaultValue={arrangerState.songs[arrangerState.selectedSong]}>
                         { Object.keys(arrangerState.songs).map(key => {
                             return arrangerState.songs[key] ? <option value={key} key={ `songSelector, song${key}`}> { arrangerState.songs[key].name } </option> : null;
                         }) }

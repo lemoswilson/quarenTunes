@@ -1,9 +1,6 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import ToneContext from '../../context/toneContext';
 import './Transport.scss';
-import { useState } from 'react';
-import sequencerContext from '../../context/sequencerContext';
-import arrangerContext from '../../context/arrangerContext';
 import transportContext from '../../context/transportContext';
 
 
@@ -17,22 +14,39 @@ const Transport = (props) => {
         loopEnd: '4m',
         loop: true,
         masterVolume: -3,
-        // mode: 'pattern' // three modes, pattern, song, 
+        counter: 0,
     })
     let Tone = useContext(ToneContext),
-        SeqCtx = useContext(sequencerContext),
         TrsCtx = useContext(transportContext),
         metronomeRef = useRef(new Tone.MembraneSynth({
                 envelope: {
                     release: 0.3,
                 }
             }).toMaster(),
-        ),
-        ArrCtx = useContext(arrangerContext);
+        );
 
     useEffect(() => {
         Tone.Master.volume.value = transportState.masterVolume;
     }, [transportState.masterVolume])
+
+
+    // metronome logic
+
+    useEffect(() => {
+        if(transportState.counter === 0) {
+            Tone.Transport.scheduleRepeat(() => {
+           metronomeRef.current.triggerAttackRelease("C3", "16n"); 
+           let position = String(Tone.Transport.position);
+           let realPosition = "0:0:0." + String(position.split(".")[1]);
+           let inSec = Tone.Time(realPosition).toSeconds();
+           console.log('[Transport.js]: tone transport time:,', Tone.Transport.position, 'real position', realPosition, 'inSeconds', inSec);
+        }, "4n"); 
+        setTransportState(state => ({
+            ...state, 
+            counter: state.counter + 1,
+        }))
+        }
+    }, [])
 
 
     // Subscribing transportContext to any change in transportState
@@ -43,8 +57,9 @@ const Transport = (props) => {
     const start = () => {
         if (Tone.context.state !== 'running') {
             Tone.context.resume();
-            // Tone.context.latencyHint = 'playback';
-            // Tone.context.lookAhead = 0.2;
+            Tone.context.latencyHint = 'playback';
+            Tone.context.lookAhead = 0;
+            // Tone.context.
         }
         if (!transportState.isPlaying || Tone.Transport.state === 'started'){
             setTransportState(state => ({
@@ -53,9 +68,9 @@ const Transport = (props) => {
             }))
         }
         // Temporary metronome
-        Tone.Transport.scheduleRepeat(() => {
-           metronomeRef.current.triggerAttackRelease("C3", "16n"); 
-        }, "4n");
+        // Tone.Transport.scheduleRepeat(() => {
+        //    metronomeRef.current.triggerAttackRelease("C3", "16n"); 
+        // }, "4n");
         Tone.Transport.start();
     }
 

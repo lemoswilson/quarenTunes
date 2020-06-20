@@ -8,7 +8,6 @@ import StepsEdit from './Steps/StepsEdit';
 import arrangerContext from '../../context/arrangerContext';
 import transportContext from '../../context/transportContext';
 import usePrevious from '../../hooks/usePrevious';
-import useEventListener from '../../hooks/useEventListener';
 
 export const returnPartArray = (length) => {
     return [...Array(length).keys()].map(i => {
@@ -81,7 +80,6 @@ const Sequencer = (props) => {
         }
     );
     let activePatternRef = useRef(sequencerState.activePattern);
-    let selectedTrack = TrkCtx.selectedTrack;
     let selectedTrackRef = TrkCtx.selectedTrackRef;
     let activePageRef = useRef(0);
     let sequencerEvents = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
@@ -316,10 +314,6 @@ const Sequencer = (props) => {
                 ...state[pattern]['tracks'][track]['events'][step],
                 note: [],
             };
-            let newTime = {
-                '16n': step,
-                '128n': offset,
-            };
             let pastTime = {
                 '16n': step,
                 '128n': event.offset ? event.offset : 0,
@@ -432,8 +426,7 @@ const Sequencer = (props) => {
             return result
         } else if (ArrCtx.mode === 'song') {
             let patternToUse = patternTracker.current[0] ? patternTracker.current[0] : ArrCtx['songs'][ArrCtx.selectedSong]['events'][0]['pattern'],
-            timeb = patternTracker.current[1] ? patternTracker.current[1] : 0,
-            patternToGo = patternToUse;
+            timeb = patternTracker.current[1] ? patternTracker.current[1] : 0;
             let timeBBS = Tone.Time(timeb, 's').toBarsBeatsSixteenths(),
             step = to16(nowTime) - to16(timeBBS);
             let patternLocation = sequencerState[ArrCtx.patternTracker.current[0]] ? step % parseInt(sequencerState[ArrCtx.patternTracker.current[0]]['patternLength']) : null;
@@ -1048,7 +1041,7 @@ const Sequencer = (props) => {
                 e.shiftKey ? setOffset(10) : setOffset(1);
             } else if (e.keyCode === 46 || e.keyCode === 8) {
                 deleteEvents();
-            }
+            } 
         }
     };
 
