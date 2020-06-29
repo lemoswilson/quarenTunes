@@ -84,21 +84,21 @@ const Sequencer = (props) => {
     let activePageRef = useRef(0);
     let sequencerEvents = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
             if (track){
-                return sequencerState[activePatternRef.current]['tracks'][track]['events'];
+                return sequencerState[activePatternRef.current]['tracks'] && sequencerState[activePatternRef.current]['tracks'][track] ? sequencerState[activePatternRef.current]['tracks'][track]['events'] : null ;
             }
         });
     let eventsRef = useRef(sequencerEvents);
     let triggStates = Object.keys(sequencerState[activePatternRef.current]['tracks']).map(track => {
         if (track) {
-            return sequencerState[activePatternRef.current]['tracks'][track]['triggState'];
+            return sequencerState[activePatternRef.current]['tracks'] && sequencerState[activePatternRef.current]['tracks'][track] ? sequencerState[activePatternRef.current]['tracks'][track]['triggState'] : null ;
         }
     });
     let triggStatesRef = useRef(triggStates); 
-    let selected = selectedTrackRef && selectedTrackRef.current ? sequencerState[sequencerState.activePattern]['tracks'][selectedTrackRef.current]['selected']: sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['selected'] ; 
+    let selected = selectedTrackRef && selectedTrackRef.current && sequencerState[sequencerState.activePattern]['tracks'] && sequencerState[sequencerState.activePattern]['tracks'][selectedTrackRef.current] && sequencerState[sequencerState.activePattern]['tracks'][selectedTrackRef.current]['selected'] ? sequencerState[sequencerState.activePattern]['tracks'][selectedTrackRef.current]['selected']: [] ;
     let selectedRef = useRef(selected);
     let schedulerID = sequencerState.followSchedulerID;
     let stepFollowerID = sequencerState.stepFollowerID;
-    let selLen = sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length'];
+    let selLen = sequencerState[activePatternRef.current]['tracks'] && sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack] && sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length']? sequencerState[activePatternRef.current]['tracks'][TrkCtx.selectedTrack]['length'] : null ;
     let selLenRef = useRef(selLen);
 
     // setting subscripition of the seleted ref to the sequencerEvents
@@ -1096,7 +1096,7 @@ const Sequencer = (props) => {
                         changePatternName={changePatternName}
                         activePattern={sequencerState.activePattern}
                         removePattern={removePattern}
-                        patternNoteLength = {sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['noteLength']}
+                        patternNoteLength = { sequencerState[sequencerState.activePattern]['tracks'] && sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack] && sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['noteLength'] ? sequencerState[sequencerState.activePattern]['tracks'][TrkCtx.selectedTrack]['noteLength'] : null }
                         page={page}
                         setNote={setNote}
                         setPatternNoteLength={setPatternNoteLength}

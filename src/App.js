@@ -186,7 +186,7 @@ class App extends Component {
         })
         // updating the triggState ref
         let triggState = Object.keys(newState.sequencer[newState.sequencer.activePattern]['tracks']).map(track => {
-          return newState.sequencer[newState.sequencer.activePattern]['tracks'][track]['triggState'];
+          return newState.sequencer[newState.sequencer.activePattern]['tracks'] && newState.sequencer[newState.sequencer.activePattern]['tracks'][track] && newState.sequencer[newState.sequencer.activePattern]['tracks'][track]['triggState'] ?  newState.sequencer[newState.sequencer.activePattern]['tracks'][track]['triggState'] : null;
         })
         state.sequencer.updateTriggStateRef = triggState;
         state.sequencer.updateSequencerState(newState.sequencer);
