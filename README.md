@@ -1,1 +1,0 @@
-jam online in this social distancing times.
