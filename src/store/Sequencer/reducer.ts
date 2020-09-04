@@ -1,5 +1,4 @@
 import produce from "immer";
-import Tone from "../../lib/tone";
 import {
 	sequencerActionTypes,
 	sequencerActions,
@@ -23,7 +22,7 @@ export const initialState: Sequencer = {
 					noteLength: "16n",
 					page: 0,
 					selected: [],
-					triggState: new Tone.Part(),
+					velocity: 60
 				},
 			],
 		},
@@ -49,8 +48,11 @@ export function sequencerReducer(
 			data: LockData,
 			note: string[] | string,
 			offset: number,
+			name: string,
 			velocity: number,
-			step: number[] | number;
+			step: number[] | number,
+			counter: number = draft.counter,
+			pastEvent: any
 		switch (action.type) {
 			case sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER:
 				let trackNumber: number = draft.patterns[0].tracks.length;
@@ -60,9 +62,9 @@ export function sequencerReducer(
 							length: 16,
 							events: Array(16).fill({}),
 							noteLength: "16n",
+							velocity: 60,
 							page: 0,
 							selected: [],
-							triggState: new Tone.Part(),
 						})
 				);
 				break;
@@ -82,10 +84,10 @@ export function sequencerReducer(
 					draft.patterns[draft.counter].tracks[i] = {
 						length: 16,
 						events: Array(16).fill({}),
+						velocity: 60,
 						noteLength: "16n",
 						page: 0,
 						selected: [],
-						triggState: new Tone.Part(),
 					};
 				});
 				draft.counter = draft.counter + 1;
@@ -111,11 +113,8 @@ export function sequencerReducer(
 				draft.patterns[pattern].tracks[track].length = patternLength;
 				break;
 			case sequencerActions.DELETE_EVENTS:
-				[pattern, track] = [action.payload.pattern, action.payload.track];
-				selected = draft.patterns[pattern].tracks[track].selected;
-				selected.forEach((v, i, a) => {
-					draft.patterns[pattern].tracks[track].events[v] = {};
-				});
+				[pattern, track, step] = [action.payload.pattern, action.payload.track, action.payload.step];
+				draft.patterns[pattern].tracks[track].events[step] = {};
 				break;
 			case sequencerActions.GO_TO_ACTIVE:
 				[patternToGo, pageToGo, track] = [
@@ -174,9 +173,21 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.note,
 				];
-				step.forEach(
-					(v) => (draft.patterns[pattern].tracks[track].events[v]["note"] = note)
-				);
+				draft.patterns[pattern].tracks[track].events[step]["note"] = note
+				break;
+			case sequencerActions.SET_NOTE_MIDI:
+				[track, note, velocity, step] = [
+					action.payload.track,
+					action.payload.note,
+					action.payload.step,
+					action.payload.velocity
+				]
+				if (!draft.patterns[draft.activePattern].tracks[track].events[step]['notes'].includes(note))
+					draft.patterns[draft.activePattern].tracks[track].events[step]['notes'].push(note);
+				else
+					draft.patterns[draft.activePattern].tracks[track].events[step]['notes'] =
+						draft.patterns[draft.activePattern].tracks[track].events[step]['notes'].filter((n: string) => n !== note)
+				draft.patterns[draft.activePattern].tracks[track].events[step]['velocity'] = velocity;
 				break;
 			case sequencerActions.SET_NOTE_LENGTH:
 				[noteLength, step, pattern, track] = [
@@ -185,9 +196,7 @@ export function sequencerReducer(
 					action.payload.pattern,
 					action.payload.track,
 				];
-				step.forEach(
-					(v) => (draft.patterns[pattern].tracks[track].events[v]["length"] = noteLength)
-				);
+				draft.patterns[pattern].tracks[track].events[step]["length"] = noteLength
 				break;
 			case sequencerActions.SET_NOTE_LENGTH_PLAYBACK:
 				[noteLength, note, pattern, track, step] = [
@@ -212,9 +221,7 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.offset,
 				];
-				step.forEach(
-					(v) => (draft.patterns[pattern].tracks[track].events[v].offset = offset)
-				);
+				draft.patterns[pattern].tracks[track].events[step].offset = offset
 				break;
 			case sequencerActions.SET_PATTERN_NOTE_LENGTH:
 				[pattern, noteLength, track] = [action.payload.pattern, action.payload.noteLength, action.payload.track];
@@ -240,10 +247,7 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.velocity,
 				];
-				step.forEach(
-					(v) =>
-						(draft.patterns[pattern].tracks[track].events[v].velocity = velocity)
-				);
+				draft.patterns[pattern].tracks[track].events[step].velocity = velocity;
 				break;
 			case sequencerActions.TOGGLE_OVERRIDE:
 				draft.override = !draft.override;
@@ -251,6 +255,17 @@ export function sequencerReducer(
 			case sequencerActions.TOGGLE_RECORDING_QUANTIZATION:
 				draft.quantizeRecording = !draft.quantizeRecording;
 				break;
+			case sequencerActions.CHANGE_PATTERN_NAME:
+				[pattern, name] = [action.payload.pattern, action.payload.name]
+				draft.patterns[pattern].name = name;
+				break;
+			case sequencerActions.DUPLICATE_PATTERN:
+				[pattern] = [action.payload.pattern]
+				draft.patterns[counter] = {
+					...draft.patterns[pattern],
+					name: draft.patterns[pattern].name + ' Copy'
+				}
+				draft.counter = draft.counter + 1;
 		}
 	});
 }

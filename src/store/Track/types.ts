@@ -1,6 +1,100 @@
+import { RecursivePartial } from '../../containers/Track/Instruments/types';
+import {
+	AutoPanner,
+	AutoWah,
+	BitCrusher,
+	Chebyshev,
+	Chorus,
+	Distortion,
+	FeedbackDelay,
+	Freeverb,
+	FrequencyShifter,
+	JCReverb,
+	Phaser,
+	PingPongDelay,
+	PitchShift,
+	Reverb,
+	StereoWidener,
+	Tremolo,
+	Vibrato,
+	Compressor,
+	EQ3,
+	Filter,
+	LowpassCombFilter,
+	Gain,
+	Meter,
+	Volume,
+	Limiter,
+	Delay,
+	MultibandCompressor,
+	MembraneSynth,
+	MetalSynth,
+	FMSynth,
+	AMSynth,
+	Synth,
+	Sampler,
+	DuoSynth,
+	NoiseSynth,
+	MonoSynth,
+	PluckSynth,
+	MembraneSynthOptions,
+	MetalSynthOptions,
+	FMSynthOptions,
+	AMSynthOptions,
+	SynthOptions,
+	DuoSynthOptions,
+	SamplerOptions,
+	PolySynthOptions,
+	NoiseSynthOptions,
+	PluckSynthOptions,
+} from 'tone';
+
+
+export type toneEffects =
+	AutoPanner |
+	AutoWah |
+	BitCrusher |
+	Chebyshev |
+	Chorus |
+	Distortion |
+	FeedbackDelay |
+	Freeverb |
+	FrequencyShifter |
+	JCReverb |
+	Phaser |
+	PingPongDelay |
+	PitchShift |
+	Reverb |
+	StereoWidener |
+	Tremolo |
+	Vibrato |
+	Compressor |
+	EQ3 |
+	Gain |
+	Filter |
+	LowpassCombFilter |
+	Meter |
+	Volume |
+	Limiter |
+	Delay |
+	MultibandCompressor;
+
+export type toneInstruments =
+	Sampler
+	| AMSynth
+	| FMSynth
+	| MetalSynth
+	| MembraneSynth
+	| Synth
+	| NoiseSynth
+	| PluckSynth
+
+export type PolyInstruments = MembraneSynth | MetalSynth | FMSynth | AMSynth | Synth
+
+
+
 export enum instrumentTypes {
 	FMSYNTH = "FMSYNTH",
-	DUOSYNTH = "DUOSYNTH",
 	AMSYNTH = "AMSYNTH",
 	MEMBRANESYNTH = "MEMBRANESYNTH",
 	METALSYNTH = "METALSYNTH",
@@ -66,6 +160,7 @@ export interface trackInfo {
 	midi: midi;
 	fx: effectsInfo[];
 	fxCounter: number;
+	options: any;
 }
 
 export interface Track {
@@ -84,8 +179,11 @@ export enum trackActions {
 	SELECT_MIDI_CHANNEL = "SELECT_MIDI_CHANNEL",
 	INSERT_EFFECT = "INSERT_EFFECT",
 	DELETE_EFFECT = "DELETE_EFFECT",
+	CHANGE_EFFECT = "CHANGE_EFFECT",
 	CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
+	UPDATE_INSTRUMENT_STATE = "UPDATE_INSTRUMENT_STATE"
 }
+
 
 export interface changeInstrumentAction {
 	type: trackActions.CHANGE_INSTRUMENT;
@@ -93,6 +191,25 @@ export interface changeInstrumentAction {
 		index: number;
 		instrument: instrumentTypes;
 	};
+}
+
+export type generalInstrumentOptions = RecursivePartial<MembraneSynthOptions |
+	MetalSynthOptions |
+	FMSynthOptions |
+	AMSynthOptions |
+	SynthOptions |
+	DuoSynthOptions |
+	SamplerOptions |
+	NoiseSynthOptions |
+	PluckSynthOptions
+>
+
+export interface updateInstrumentStateAction {
+	type: trackActions.UPDATE_INSTRUMENT_STATE,
+	payload: {
+		index: number,
+		options: generalInstrumentOptions,
+	}
 }
 
 export interface addInstrumentAction {
@@ -141,6 +258,15 @@ export interface insertEffectAction {
 	};
 }
 
+export interface changeEffectAction {
+	type: trackActions.CHANGE_EFFECT,
+	payload: {
+		trackId: number,
+		effect: effectTypes,
+		effectIndex: number,
+	}
+}
+
 export interface deleteEffectAction {
 	type: trackActions.DELETE_EFFECT;
 	payload: {
@@ -167,4 +293,6 @@ export type trackActionTypes =
 	| selectMidiChannelAction
 	| insertEffectAction
 	| deleteEffectAction
+	| changeEffectAction
+	| updateInstrumentStateAction
 	| changeEffectIndexAction;

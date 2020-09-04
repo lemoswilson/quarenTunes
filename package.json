@@ -27,7 +27,8 @@
     "sizeof": "^1.0.0",
     "styled-components": "^5.1.1",
     "tone": "^14.7.12",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "webmidi": "^2.5.1"
   },
   "scripts": {
     "start": "react-scripts start",

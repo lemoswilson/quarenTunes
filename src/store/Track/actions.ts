@@ -3,7 +3,21 @@ import {
 	trackActionTypes,
 	instrumentTypes,
 	effectTypes,
+	generalInstrumentOptions,
 } from "./types";
+
+export function updateInstrumentState(
+	index: number,
+	options: generalInstrumentOptions
+): trackActionTypes {
+	return {
+		type: trackActions.UPDATE_INSTRUMENT_STATE,
+		payload: {
+			index: index,
+			options: options
+		}
+	};
+}
 
 export function changeInstrument(
 	index: number,

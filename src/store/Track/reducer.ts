@@ -1,3 +1,5 @@
+import { accessNestedProperty, propertiesToArray, setNestedPropertyValue, setNestedPropertyFirstEntry } from '../../lib/objectDecompose'
+import { getInitials } from '../../containers/Track/defaults'
 import {
 	trackActionTypes,
 	trackActions,
@@ -13,6 +15,7 @@ export const initialState: Track = {
 	tracks: [
 		{
 			instrument: instrumentTypes.FMSYNTH,
+			options: getInitials(instrumentTypes.FMSYNTH),
 			id: 0,
 			fx: [],
 			fxCounter: 0,
@@ -34,6 +37,7 @@ export function trackReducer(
 				console.log(state, draft.trackCount);
 				draft.tracks.push({
 					instrument: action.payload.instrument,
+					options: getInitials(action.payload.instrument),
 					id: draft.instrumentCounter + 1,
 					midi: {
 						channel: undefined,
@@ -47,6 +51,7 @@ export function trackReducer(
 				break;
 			case trackActions.CHANGE_INSTRUMENT:
 				draft.tracks[action.payload.index].instrument = action.payload.instrument;
+				draft.tracks[action.payload.index].options = getInitials(action.payload.instrument);
 				break;
 			case trackActions.REMOVE_INSTRUMENT:
 				draft.tracks.splice(action.payload.index, 1);
@@ -81,6 +86,20 @@ export function trackReducer(
 				draft.tracks[action.payload.trackIndex].fxCounter =
 					draft.tracks[action.payload.trackIndex].fxCounter + 1;
 				break;
+			case trackActions.CHANGE_EFFECT:
+				const [trackId, effect, effectIndex] = [
+					action.payload.trackId,
+					action.payload.effect,
+					action.payload.effectIndex
+				]
+				draft.tracks[trackId].fx[effectIndex].fx = effect;
+				break;
+			case trackActions.UPDATE_INSTRUMENT_STATE:
+				const [index, options] = [action.payload.index, action.payload.options];
+				const props = propertiesToArray(options);
+				props.forEach(
+					prop => setNestedPropertyFirstEntry(draft.tracks[0].options, prop, accessNestedProperty(options, prop))
+				);
 		}
 	});
 }
