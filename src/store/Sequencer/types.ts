@@ -247,8 +247,8 @@ export interface parameterLockAction {
 	payload: {
 		pattern: number;
 		track: number;
-		step: number[];
-		data: LockData;
+		step: number;
+		data: any;
 	};
 };
 

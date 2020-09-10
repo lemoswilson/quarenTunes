@@ -323,8 +323,8 @@ export function setVelocity(
 export function parameterLock(
 	pattern: number,
 	track: number,
-	step: number[],
-	data: pLockType,
+	step: number,
+	data: any,
 	parameter: string
 ): sequencerActionTypes {
 	return {

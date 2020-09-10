@@ -1,43 +1,50 @@
 export enum indicators {
     KNOB = 'knob',
-    SLIDER = 'slider',
+    VERTICAL_SLIDER = 'slider',
     DROPDOWN = 'dropdown',
     RADIO = 'radio',
+    HORIZONTAL_SLIDER = 'horizontal_slider'
 }
+
+export enum curveTypes {
+    EXPONENTIAL = 'exponential',
+    LINEAR = 'linear',
+};
 
 import { instrumentTypes } from "../../store/Track";
 
-// format [defaultValue, min, max, typeofHandler]
+// format [defaultValue, [min, max], typeofHandler, extraInfo]
 export const noiseTypeIndicator = indicators.RADIO;
-export const attackNoiseIndicator = indicators.SLIDER
-export const volumeIndicator = indicators.SLIDER;
-export const detuneIndicator = indicators.KNOB;
-export const portamentoIndicator = indicators.KNOB;
-export const harmonicityIndicator = indicators.KNOB;
+export const attackNoiseIndicator = indicators.VERTICAL_SLIDER // exponential 
+export const volumeIndicator = indicators.VERTICAL_SLIDER; // exponential 
+export const detuneIndicator = indicators.HORIZONTAL_SLIDER; // linear  
+export const portamentoIndicator = indicators.KNOB; // exponential 
+export const harmonicityIndicator = indicators.KNOB; // exponential 
 export const oscillatorTypeIndicator = indicators.DROPDOWN;
-export const envelopeTimeIndicator = indicators.KNOB;
+export const envelopeTimeIndicator = indicators.KNOB; // exponential 
 export const envelopeCurveIndicator = indicators.RADIO;
-export const modulationIndictaor = indicators.KNOB;
-export const octaveIndictaor = indicators.SLIDER;
-export const frequencyIndicator = indicators.KNOB;
-export const resonanceIndicator = indicators.KNOB;
+export const modulationIndicator = indicators.KNOB; // exponential
+export const frequencyIndicator = indicators.KNOB; // exponential 
+export const resonanceIndicator = indicators.KNOB; // exponential
 
 export const volumeRange = [-100, 6];
 export const detuneRange = [-1200, 1200];
 export const portamentoRange = [0, 3];
-export const harmonicityRange = [0, 100];
+export const harmonicityRange = [0.1, 10];
 export const envelopeTimeRange = [0, 10];
 export const normalRange = [0, 1];
 export const audioRange = [0, 1];
 export const modulationRange = [0, 100];
-export const octaveRange = [0, 12];
-export const frequencyRange = [0, 22000];
-export const resonanceRange = [20, 20000];
+export const membraneSynthOctaveRange = [0.5, 8];
+export const metalSynthOctaveRange = [0, 8]
+export const dampeningRange = [0, 7000];
 export const attackNoiseRange = [0.1, 20]
 export const noiseTypeOptions = ['white', 'brown', 'pink']
 export const oscillatorTypeOptions = ['sine', 'square', 'saw', 'triangle'];
 export const envelopeCurveOptions = ['linear', 'exponential'];
 
+// data that will be used to generate the indicators/selectors
+// that will lay in the state of each track.
 // envelopes
 
 export const envelope = {
@@ -101,17 +108,17 @@ export const noise = {
     type: ['white', noiseTypeOptions, noiseTypeIndicator]
 }
 
-export const volume = [0, volumeRange, volumeIndicator];
-export const detune = [0, detuneRange, detuneIndicator];
-export const portamento = [0, portamentoRange, portamentoIndicator];
-export const modSynthHarmonicity = [3, harmonicityRange, harmonicityIndicator];
-export const metalSynthHarmonicity = [5.1, harmonicityRange, harmonicityIndicator];
-export const modSynthModulationIndex = [10, modulationRange, modulationIndictaor];
-export const metalSynthModulationIndex = [32, modulationRange, modulationIndictaor];
-export const membraneSynthOctaves = [10, octaveRange, octaveIndictaor];
-export const membraneSynthPitchDecay = [1.4, envelopeTimeRange, envelopeTimeIndicator];
-export const metalSynthOctaves = [1.5, octaveRange, octaveIndictaor];
-export const metalSynthResonance = [4000, resonanceRange, resonanceIndicator];
+export const volume = [0, volumeRange, volumeIndicator, curveTypes.EXPONENTIAL];
+export const detune = [0, detuneRange, detuneIndicator, curveTypes.LINEAR];
+export const portamento = [0, portamentoRange, portamentoIndicator, curveTypes.EXPONENTIAL];
+export const modSynthHarmonicity = [3, harmonicityRange, harmonicityIndicator, curveTypes.EXPONENTIAL];
+export const metalSynthHarmonicity = [5.1, harmonicityRange, harmonicityIndicator, curveTypes.EXPONENTIAL];
+export const modSynthModulationIndex = [10, modulationRange, modulationIndicator, curveTypes.EXPONENTIAL];
+export const metalSynthModulationIndex = [32, modulationRange, modulationIndicator, curveTypes.EXPONENTIAL];
+export const membraneSynthOctaves = [10, membraneSynthOctaveRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+export const membraneSynthPitchDecay = [1.4, envelopeTimeRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+export const metalSynthOctaves = [1.5, metalSynthOctaveRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+export const metalSynthResonance = [4000, dampeningRange, resonanceIndicator, curveTypes.EXPONENTIAL];
 
 export function getInitials(type: instrumentTypes) {
     switch (type) {
@@ -169,7 +176,7 @@ export function getInitials(type: instrumentTypes) {
             return {
                 volume: volume,
                 attackNoise: [1, attackNoiseRange, attackNoiseIndicator],
-                dampening: [4000, frequencyRange, frequencyIndicator],
+                dampening: [4000, dampeningRange, frequencyIndicator],
                 resonance: [0.7, normalRange, frequencyIndicator],
                 release: [1, envelopeTimeRange, envelopeTimeIndicator]
             }
@@ -195,79 +202,3 @@ export function getInitials(type: instrumentTypes) {
             return {}
     }
 }
-
-export var FMSynthInitials = {
-    volume: volume,
-    detune: detune,
-    portamento: portamento,
-    harmonicity: modSynthHarmonicity,
-    oscillator: oscillator,
-    envelope: envelope,
-    modulation: modulation,
-    modulationEnvelope: modulationEnvelope,
-    modulationIndex: modSynthModulationIndex
-}
-
-export var AMSynthInitials = {
-    volume: volume,
-    detune: detune,
-    portamento: portamento,
-    harmonicity: modSynthHarmonicity,
-    oscillator: oscillator,
-    envelope: envelope,
-    modulation: modulation,
-    modulationEnvelope: modulationEnvelope,
-}
-
-export var MetalSynthInitials = {
-    volume: volume,
-    detune: detune,
-    portamento: portamento,
-    envelope: metalSynthEnvelope,
-    harmonicity: metalSynthHarmonicity,
-    modulationIndex: metalSynthModulationIndex,
-    octaves: metalSynthOctaves,
-    resonance: metalSynthResonance
-}
-
-export var MembraneSynthInitials = {
-    volume: volume,
-    detune: detune,
-    portamento: portamento,
-    envelope: membraneSynthEnvelope,
-    oscillator: oscillator,
-    octaves: membraneSynthOctaves,
-    pitchDecay: membraneSynthPitchDecay,
-}
-
-export var NoiseSynthInitials = {
-    volume: volume,
-    envelope: envelope,
-    noise: noise,
-}
-
-export var PluckSynthInitials = {
-    volume: volume,
-    attackNoise: [1, attackNoiseRange, attackNoiseIndicator],
-    dampening: [4000, frequencyRange, frequencyIndicator],
-    resonance: [0.7, normalRange, frequencyIndicator],
-    release: [1, envelopeTimeRange, envelopeTimeIndicator]
-}
-
-export var SamplerInitials = {
-    volume: volume,
-    attack: [0, envelopeTimeRange, envelopeTimeIndicator],
-    baseUrl: " ",
-    curve: ['exponential', envelopeCurveOptions, envelopeCurveIndicator],
-    release: [0.1, envelopeTimeRange, envelopeTimeIndicator],
-    urls: {},
-}
-
-export var DrumRackInitials = {
-    volume: volume,
-    attack: [0, envelopeTimeRange, envelopeTimeIndicator],
-    baseUrl: " ",
-    curve: ['exponential', envelopeCurveOptions, envelopeCurveIndicator],
-    release: [0.1, envelopeTimeRange, envelopeTimeIndicator],
-    urls: {},
-} 

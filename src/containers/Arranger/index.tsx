@@ -50,19 +50,17 @@ type patternObjs = {
 
 const ArrangerComponent: FunctionComponent = () => {
 	const [schedulerID, setSchedulerID] = useState<number | undefined>(undefined);
-
 	const triggRef = useContext(triggCtx);
-
 	const dispatch = useDispatch();
 
 	const activePattern = useSelector(
 		(state: RootState) => state.sequencer.activePattern
 	);
-
 	const isPlaying = useSelector(
 		(state: RootState) => state.transport.isPlaying
 	);
 
+	// previous
 	const previousPlaying = usePrevious(isPlaying);
 
 	const Track = useSelector(
@@ -137,15 +135,13 @@ const ArrangerComponent: FunctionComponent = () => {
 		[...Array(trackCount)]
 			.map((_, i) => i)
 			.forEach((ix: number) => {
-				if (triggRef) {
-					triggRef.current[activePattern][ix].loop = true;
-					triggRef.current[activePattern][ix].loopStart = 0;
-					triggRef.current[activePattern][ix].loopEnd = to16string(
-						activePatternObj.tracks[ix].length
-					);
-					triggRef.current[activePattern][ix].mute = false;
-					triggRef.current[activePattern][ix].start(0);
-				}
+				triggRef.current[activePattern][ix].loop = true;
+				triggRef.current[activePattern][ix].loopStart = 0;
+				triggRef.current[activePattern][ix].loopEnd = to16string(
+					activePatternObj.tracks[ix].length
+				);
+				triggRef.current[activePattern][ix].mute = false;
+				triggRef.current[activePattern][ix].start(0);
 			});
 	};
 
@@ -213,33 +209,39 @@ const ArrangerComponent: FunctionComponent = () => {
 			activePattern !== pageToGo &&
 			activePage !== pageToGo
 		) {
-			goToActive(pageToGo, selectedTrack, patternToGo);
+			dispatch(goToActive(pageToGo, selectedTrack, patternToGo));
 		} else if (
 			activePattern === patternToGo
 			&& activePage !== pageToGo
 		) {
-			goToActive(pageToGo, selectedTrack, undefined);
+			dispatch(goToActive(pageToGo, selectedTrack, undefined));
 		} else if (
 			activePattern !== patternToGo
 			&& pageToGo === activePage
 		) {
-			goToActive(undefined, selectedTrack, patternToGo);
+			dispatch(goToActive(undefined, selectedTrack, patternToGo));
 		}
 	};
 
 	const scheduleFromIndex = (...args: any): void => {
 		let events: event[] = args[1] ? args[1] : activeSongObject.events;
+
 		if (Tone.Transport.loop) {
 			Tone.Transport.loop = false;
 		}
+
 		if (events.length >= 1) {
+
 			let timeCounter: number = 0;
 			let eventsLength: number = events.length - 1;
+
 			events.forEach((v, idx, arr) => {
 				let repeat: number = v.repeat + 1;
 				let secondaryTime: number = timeCounter;
 				let rowEnd = to16string(patternsObj[v.pattern].patternLength * repeat);
+
 				if (v.pattern >= 0) {
+
 					if (idx === 0) {
 						Tone.Transport.schedule((time) => {
 							dispatch(setTracker([v.pattern, 0]));
@@ -275,16 +277,15 @@ const ArrangerComponent: FunctionComponent = () => {
 							});
 						}, timeCounter);
 					}
+
 				} else {
 					if (idx > 0 && arr[idx - 1].pattern >= 0) {
 						Tone.Transport.schedule((time) => {
-							if (triggRef) {
-								[...Array(trackCount).keys()].forEach(track => {
-									let pastTrigg: Tone.Part = triggRef.current[arr[idx - 1].pattern][track];
-									pastTrigg.stop();
-									pastTrigg.mute = true;
-								});
-							}
+							[...Array(trackCount).keys()].forEach(track => {
+								let pastTrigg: Tone.Part = triggRef.current[arr[idx - 1].pattern][track];
+								pastTrigg.stop();
+								pastTrigg.mute = true;
+							});
 						}, timeCounter);
 					}
 				}

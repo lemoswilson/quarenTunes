@@ -5,6 +5,7 @@ import {
 	Sequencer,
 	LockData,
 } from "./types";
+import { propertiesToArray, accessNested, setNestedArray } from "../../lib/objectDecompose";
 
 export const initialState: Sequencer = {
 	activePattern: 0,
@@ -138,10 +139,9 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.track,
 				];
-				step.forEach((v, i, a) => {
-					draft.patterns[pattern].tracks[track].events[v][data.parameter] =
-						data.value;
-				});
+				let prop = propertiesToArray(data)[0];
+				let val = accessNested(data, prop);
+				setNestedArray(draft.patterns[pattern].tracks[track].events[step], prop, val);
 				break;
 			case sequencerActions.REMOVE_PATTERN:
 				pattern = action.payload.patternKey;

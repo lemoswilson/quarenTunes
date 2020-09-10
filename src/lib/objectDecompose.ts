@@ -19,7 +19,7 @@ export function propertiesToArray(obj: any): string[] {
 };
 
 
-export function setNestedPropertyFirstEntry(obj: any, accessment: string, val: any): any {
+export function setNestedArray(obj: any, accessment: string, val: any): any {
     if (typeof obj !== 'object') return
     const fields = accessment.split('.');
 
@@ -38,7 +38,7 @@ export function setNestedPropertyFirstEntry(obj: any, accessment: string, val: a
     return obj;
 }
 
-export function setNestedPropertyValue(obj: any, accessment: string, val: any): any {
+export function setNestedValue(accessment: string, val: any, obj: any = {}): any {
     if (typeof obj !== 'object') return
     const fields = accessment.split('.');
 
@@ -58,7 +58,7 @@ export function setNestedPropertyValue(obj: any, accessment: string, val: any): 
 }
 
 
-export function accessNestedProperty(obj: any, property: string): any {
+export function accessNested(obj: any, property: string): any {
     if (typeof obj !== 'object') return
     const fields = property.split('.');
 
@@ -73,6 +73,7 @@ export function accessNestedProperty(obj: any, property: string): any {
     }
 
     if (last) return cur[last];
+    else return undefined;
 
 }
 
@@ -82,7 +83,7 @@ export function onlyValues(obj: any, temp: any = {}): any {
     let entries = Object.entries(obj);
     entries.forEach(([key, value]: [string, any]) => {
         if (Array.isArray(value) || typeof value !== 'object') {
-            temp[key] = value ? !Array.isArray(value) : value[0];
+            temp[key] = Array.isArray(value) ? value[0] : value;
         } else {
             temp[key] = {};
             onlyValues(obj[key], temp[key]);

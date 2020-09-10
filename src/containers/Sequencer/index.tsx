@@ -203,11 +203,22 @@ const Sequencer: FunctionComponent = () => {
     };
 
     const chgPatternName = (name: string): void => {
-        dispatch(changePatternName(activePattern, name));
+        dispatch(
+            changePatternName(
+                activePattern,
+                name
+            )
+        );
     };
 
     const chgPage = (pageIndex: number): void => {
-        dispatch(changePage(activePattern, selectedTrack, pageIndex));
+        dispatch(
+            changePage(
+                activePattern,
+                selectedTrack,
+                pageIndex
+            )
+        );
     };
 
     const sOffSet = (direction: number): void => {
@@ -227,7 +238,14 @@ const Sequencer: FunctionComponent = () => {
                 };
                 triggRef.current[activePattern][selectedTrack].remove(pastEventTime);
                 triggRef.current[activePattern][selectedTrack].at(newEventTime, eVent)
-                dispatch(setOffset(activePattern, selectedTrack, step, off));
+                dispatch(
+                    setOffset(
+                        activePattern,
+                        selectedTrack,
+                        step,
+                        off
+                    )
+                );
             }
         })
     };
@@ -241,24 +259,44 @@ const Sequencer: FunctionComponent = () => {
             }
             e.note = note ? note : null;
             triggRef.current[activePattern][selectedTrack].at(time, e);
-            dispatch(setNote(activePattern, selectedTrack, note, s));
+            dispatch(
+                setNote(
+                    activePattern,
+                    selectedTrack,
+                    note,
+                    s
+                )
+            );
         });
     };
 
     const sPatternNoteLength = (length: number | string) => {
-        dispatch(setPatternNoteLength(activePattern, length, selectedTrack));
+        dispatch(
+            setPatternNoteLength(
+                activePattern,
+                length,
+                selectedTrack
+            )
+        );
     };
 
     const sNoteLength = (noteLength: number | string): void => {
         selectedRef.current.forEach(step => {
-            let e = { ...activePatternObj.tracks[selectedTrack].events[step] }
+            let e = { ...activePatternObj.tracks[selectedTrack].events[step] };
             let time = {
                 '16n': step,
                 '128n': e.offset,
-            }
+            };
             e.length = noteLength ? noteLength : undefined;
             triggRef.current[activePattern][selectedTrack].at(time, e)
-            dispatch(setNoteLength(activePattern, selectedTrack, noteLength, step))
+            dispatch(
+                setNoteLength(
+                    activePattern,
+                    selectedTrack,
+                    noteLength,
+                    step
+                )
+            );
         });
     };
 
@@ -271,7 +309,13 @@ const Sequencer: FunctionComponent = () => {
                     '128n': e.offset,
                 }
                 triggRef.current[activePattern][selectedTrack].remove(time);
-                dispatch(deleteEvents(activePattern, selectedTrack, s));
+                dispatch(
+                    deleteEvents(
+                        activePattern,
+                        selectedTrack,
+                        s
+                    )
+                );
             });
         }
     };
@@ -285,16 +329,35 @@ const Sequencer: FunctionComponent = () => {
             };
             e.velocity = velocity;
             triggRef.current[activePattern][selectedTrack].at(time, e);
-            dispatch(setVelocity(activePattern, selectedTrack, s, velocity));
+            dispatch(
+                setVelocity(
+                    activePattern,
+                    selectedTrack,
+                    s,
+                    velocity
+                )
+            );
         });
     };
 
     const sPatternTrackVelocity = (velocity: number): void => {
-        dispatch(setPatternTrackVelocity(activePattern, selectedTrack, velocity));
+        dispatch(
+            setPatternTrackVelocity(
+                activePattern,
+                selectedTrack,
+                velocity
+            )
+        );
     };
 
     const selStep = (index: number): void => {
-        dispatch(selectStep(activePattern, selectedTrack, index));
+        dispatch(
+            selectStep(
+                activePattern,
+                selectedTrack,
+                index
+            )
+        );
     };
 
 

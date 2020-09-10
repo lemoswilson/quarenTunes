@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useRef } from 'react';
+import React, { MutableRefObject } from 'react';
 import { Part } from 'tone';
 
 export interface triggContext {

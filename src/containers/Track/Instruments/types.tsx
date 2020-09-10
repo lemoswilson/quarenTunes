@@ -11,7 +11,7 @@ export interface InstrumentProps<T extends instrumentTypes> {
     index: number
 }
 
-export declare type parcialInstrumentProp<T extends instrumentTypes> = Pick<InstrumentProps<T>, "voice" | "options">
+// export declare type parcialInstrumentProp<T extends instrumentTypes> = Pick<InstrumentProps<T>, "voice" | "options">
 
 // declare type typeFromVoice<T> = T extends  
 // declare type VoiceFromType<T> = T extends instrumentTypes.AMSYNTH ? AMSynth : T extends instrumentTypes.DRUMRACK ? Sampler : T extends instrumentTypes.FMSYNTH ? FMSynth : T extends instrumentTypes.MEMBRANESYNTH ? MembraneSynth : T extends instrumentTypes.METALSYNTH ? MetalSynth : T extends instrumentTypes.NOISESYNTH ? NoiseSynth : T extends instrumentTypes.PLUCKSYNTH ? PluckSynth : T extends instrumentTypes.SAMPLER ? Sampler : never
