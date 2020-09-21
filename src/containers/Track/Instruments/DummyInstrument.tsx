@@ -1,3 +1,4 @@
+import deep_diff from 'deep-diff';
 import React, {
     useEffect,
     useRef,
@@ -5,13 +6,15 @@ import React, {
     useState,
     useContext,
     useCallback,
-    MouseEvent,
 } from 'react';
 import {
     propertiesToArray,
     setNestedValue,
     getNested,
-    onlyValues, deleteProperty, copyToNew
+    onlyValues,
+    deleteProperty,
+    copyToNew,
+    definedPropertiesToArray,
 } from '../../../lib/objectDecompose'
 import Tone from '../../../lib/tone';
 import triggCtx from '../../../context/triggState';
@@ -22,7 +25,7 @@ import WebMidi, {
     Input,
     InputEventControlchange
 } from 'webmidi';
-import { InstrumentProps } from './index'
+import { InstrumentProps, RecursiveFunction } from './index'
 import { instrumentTypes, updateInstrumentState } from '../../../store/Track';
 import { useDispatch, useSelector } from 'react-redux';
 import { getInitials, indicators, instrumentOptions } from '../defaults';
@@ -34,14 +37,13 @@ import {
     setNoteLengthPlayback
 } from '../../../store/Sequencer';
 import valueFromCC, { valueFromMouse, optionFromCC } from '../../../lib/curves';
+import { useProperty } from '../../../hooks/useProperty';
 import { timeObjFromEvent, extendObj, typeMovement } from '../../../lib/utility';
 import { sixteenthFromBBS } from '../../Arranger';
 import usePrevious from '../../../hooks/usePrevious';
-import { useProperty } from '../../../hooks/useProperty';
-import useQuickRef from '../../../hooks/useQuickRef';
-import { RecursivePartial } from './types';
+import { newProps } from './types';
 
-export const returnInstrument = (voice: instrumentTypes, opt: any) => {
+const returnInstrument = (voice: instrumentTypes, opt: any) => {
     let options = onlyValues(opt);
 
     switch (voice) {
@@ -64,108 +66,165 @@ export const returnInstrument = (voice: instrumentTypes, opt: any) => {
 
 type controlChangeEvent = (e: InputEventControlchange) => void;
 
-export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
+// export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
+export const DummyInstrument = <T extends instrumentTypes>({
+    id,
+    index,
+    midi,
+    voice,
+    maxPolyphony,
+    dummy,
+    attack,
+    attackNoise,
+    baseUrl,
+    curve,
+    dampening,
+    detune,
+    envelope,
+    harmonicity,
+    modulation,
+    modulationEnvelope,
+    modulationIndex,
+    noise,
+    octaves,
+    oscillator,
+    pitchDecay,
+    portamento,
+    release,
+    resonance,
+    urls,
+    volume,
+}: newProps) => {
+
+
+
 
     const dispatch = useDispatch()
-    const instrumentRef = useRef(returnInstrument(voice, options));
-    const properties: string[] = useMemo(() => propertiesToArray(getInitials(voice)), [voice]);
+    const packed = {
+        attack,
+        attackNoise,
+        baseUrl,
+        curve,
+        dampening,
+        detune,
+        envelope,
+        harmonicity,
+        modulation,
+        modulationEnvelope,
+        modulationIndex,
+        noise,
+        octaves,
+        oscillator,
+        pitchDecay,
+        portamento,
+        release,
+        resonance,
+        urls,
+        volume,
+    }
+    const instrumentRef = useRef(returnInstrument(voice, packed));
+
+    const properties: string[] = useMemo(() => definedPropertiesToArray({ ...packed }), [voice]);
+
+    const optionsRef = useRef(packed);
+    const indexRef = useRef(index);
     const CCMaps = useRef<any>({});
     const listenCC = useRef<controlChangeEvent>();
     const inputRef = useRef<false | Input>(false);
     const previousMidi = usePrevious(midi);
     const triggRefs = useContext(triggCtx);
     const patTracker = useSelector((state: RootState) => state.arranger.patternTracker);
+    const patternTracker = useRef(patTracker);
     const arrMode = useSelector((state: RootState) => state.arranger.mode);
+    const arrangerMode = useRef(arrMode);
     const actPat = useSelector((state: RootState) => state.sequencer.activePattern);
+    const activePattern = useRef(actPat);
     const selSteps = useSelector((state: RootState) => state.sequencer.patterns[actPat].tracks[index].selected);
+    const selectedSteps = useRef(selSteps);
     const lockedParameters = useRef({});
     const ovr = useSelector((state: RootState) => state.sequencer.override);
+    const override = useRef(ovr);
     const isRecording = useSelector((state: RootState) => state.transport.recording);
+    const isRec = useRef(isRecording);
     const isPlaying = useSelector((state: RootState) => state.transport.isPlaying);
-    const previousPlaying = usePrevious(isPlaying);
+    const isPlay = useRef(isPlaying);
     const onHoldNotes = useRef<{ [key: string]: any }>({});
     const [firstRender, setRender] = useState(true);
 
-    const override = useQuickRef(ovr);
-    const optionsRef = useQuickRef(options)
-    const indexRef = useQuickRef(index);
-    const patternTracker = useQuickRef(patTracker);
-    const arrangerMode = useQuickRef(arrMode);
-    const activePattern = useQuickRef(actPat);
-    const selectedSteps = useQuickRef(selSteps);
-    const isRec = useQuickRef(isRecording);
-    const isPlay = useQuickRef(isPlaying);
+    // const harmonicity = options.harmonicity ? options.harmonicity[0] : undefined
+    // const volume = options.volume ? options.volume[0] : undefined
 
     const patternVelos = useSelector(
         (state: RootState) => {
             let o: { [key: number]: number } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
+            Object.keys(state.sequencer.patterns).forEach(key => {
                 let k = parseInt(key);
-                o[k] = pattern.tracks[index].velocity;
+                o[k] = state.sequencer.patterns[k].tracks[index].velocity;
             });
             return o;
         }
     );
-
-    const patternVelocities = useQuickRef(patternVelos);
+    const patternVelocities = useRef(patternVelos);
 
     const patNoteLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: string | number } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
+            Object.keys(state.sequencer.patterns).forEach(key => {
                 let k = parseInt(key);
-                o[k] = pattern.tracks[index].noteLength;
+                o[k] = state.sequencer.patterns[k].tracks[index].noteLength;
             });
             return o
         }
     );
-    const patternNoteLens = useQuickRef(patNoteLen);
+    const patternNoteLens = useRef(patNoteLen);
 
     const patLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
+            Object.keys(state.sequencer.patterns).forEach(key => {
                 let k = parseInt(key);
-                o[k] = pattern.patternLength;
+                o[k] = state.sequencer.patterns[k].patternLength;
             });
             return o;
         }
     );
-    const patternLengths = useQuickRef(patLen);
+    const patternLengths = useRef(patLen);
 
     const trkPatLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
+            Object.keys(state.sequencer.patterns).forEach(key => {
                 let k = parseInt(key);
-                o[k] = pattern.tracks[index].length;
+                o[k] = state.sequencer.patterns[k].tracks[index].length;
             });
             return o;
         }
     );
-    const trackPatternLength = useQuickRef(trkPatLen);
+    const trackPatternLength = useRef(trkPatLen);
 
     const ev = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
+            Object.keys(state.sequencer.patterns).forEach(key => {
                 let k = parseInt(key);
-                o[k] = pattern.tracks[index].events;
+                o[k] = state.sequencer.patterns[k].tracks[index].events;
             });
             return o;
         }
     );
-    const events = useQuickRef(ev);
+    const events = useRef(ev);
 
     const propertyUpdate: any = useMemo(() => {
-        let o = {}
-        console.log('re calculating propertyUpdate');
+        let o: RecursiveFunction<typeof packed> = {}
         let callArray = properties.map((property) => {
             return (value: any) => {
+                // console.log(accessNested(instrumentRef.current.get(), property))
+                // console.log(accessNested(optionsRef.current, property));
                 if (getNested(instrumentRef.current.get(), property)
                     === getNested(optionsRef.current, property)[0]) {
+                    // console.log('[instruments.tsx]: property updating', property, 'value', value);
                     let temp = setNestedValue(property, value)
-                    // instrumentRef.current.set(temp);
+                    instrumentRef.current.set(temp);
                     dispatch(updateInstrumentState(indexRef.current, temp));
                 };
             }
@@ -177,8 +236,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     }, [
         dispatch,
         indexRef,
-        properties,
-        optionsRef,
+        properties
     ]);
 
     // preciso definir o state should be pra usar dentro dessa callback aqui tambem
@@ -194,10 +252,6 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                 ] = [...getNested(optionsRef.current, property)]
                 const low = parameterOptions[0], high = parameterOptions[1]
 
-                const isContinuous = indicatorType === indicators.KNOB
-                    || indicatorType === indicators.VERTICAL_SLIDER
-                    || indicatorType === indicators.HORIZONTAL_SLIDER
-
                 if (selectedSteps.current.length >= 1) {
 
                     for (let step of selectedSteps.current) {
@@ -208,7 +262,11 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                         const evp = getNested(event, property);
 
                         // parameter lock logic
-                        if (isContinuous) {
+                        if (
+                            indicatorType === indicators.KNOB
+                            || indicatorType === indicators.VERTICAL_SLIDER
+                            || indicatorType === indicators.HORIZONTAL_SLIDER
+                        ) {
                             const currentValue = evp ? evp : stateValue;
                             propVal = e.controller && e.controler.number
                                 ? valueFromCC(e.value, low, high, parameterPayload)
@@ -244,9 +302,15 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                     }
                 } else {
                     // no steps selected logic
-                    if (isContinuous) {
+
+                    if (
+                        indicatorType === indicators.KNOB
+                        || indicatorType === indicators.VERTICAL_SLIDER
+                        || indicatorType === indicators.HORIZONTAL_SLIDER
+                    ) {
                         if (
-                            stateValue === getNested(
+                            stateValue
+                            === getNested(
                                 instrumentRef.current.get(),
                                 property
                             )
@@ -260,7 +324,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                                     high,
                                     parameterPayload
                                 );
-                            // instrumentRef.current.set(setNestedValue(property, val))
+                            instrumentRef.current.set(setNestedValue(property, val))
                             dispatch(
                                 updateInstrumentState(
                                     index,
@@ -274,7 +338,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                             : e.target.value
                         if (val !== stateValue) {
                             let data = setNestedValue(property, val);
-                            // instrumentRef.current.set(data);
+                            instrumentRef.current.set(data);
                             dispatch(updateInstrumentState(index, data))
                         }
                     }
@@ -288,36 +352,31 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
         return o;
     }, [
         dispatch,
-        activePattern,
-        events,
-        indexRef,
-        optionsRef,
-        selectedSteps,
         index,
         properties,
         triggRefs
     ]);
 
-    useProperty(instrumentRef, options, 'harmonicity');
-    useProperty(instrumentRef, options, 'attack');
-    useProperty(instrumentRef, options, 'attackNoise');
-    useProperty(instrumentRef, options, 'curve');
-    useProperty(instrumentRef, options, 'dampening');
-    useProperty(instrumentRef, options, 'detune');
-    useProperty(instrumentRef, options, 'envelope', true);
-    useProperty(instrumentRef, options, 'modulation', true);
-    useProperty(instrumentRef, options, 'modulationEnvelope', true);
-    useProperty(instrumentRef, options, 'noise', true);
-    useProperty(instrumentRef, options, 'octaves');
-    useProperty(instrumentRef, options, 'pitchDecay');
-    useProperty(instrumentRef, options, 'oscillator', true);
-    useProperty(instrumentRef, options, 'modulationIndex')
-    useProperty(instrumentRef, options, 'portamento');
-    useProperty(instrumentRef, options, 'resonance');
-    useProperty(instrumentRef, options, 'volume')
+
+    // values that are used inside a tone schedule callback 
+    // are all in a reference in order to avoid closure values
+    // being used wrongly 
+
+    useEffect(() => { optionsRef.current = packed; }, [packed]);
+    useEffect(() => { indexRef.current = index; }, [index]);
+    useEffect(() => { patternNoteLens.current = patNoteLen; }, [patNoteLen]);
+    useEffect(() => { events.current = ev; }, [ev]);
+    useEffect(() => { patternVelocities.current = patternVelos }, [patternVelos]);
+    useEffect(() => { trackPatternLength.current = trkPatLen; }, [trkPatLen]);
+    useEffect(() => { activePattern.current = actPat; }, [actPat]);
+    useEffect(() => { selectedSteps.current = selSteps; }, [selSteps]);
+    useEffect(() => { isRec.current = isRecording; }, [isRecording]);
+    useEffect(() => { patternLengths.current = patLen; }, [patLen]);
+    useEffect(() => { arrangerMode.current = arrMode; }, [arrMode]);
+    useEffect(() => { override.current = ovr }, [ovr]);
 
     useEffect(() => {
-        if (!isPlaying && previousPlaying) {
+        if (!isPlaying) {
             let p = propertiesToArray(lockedParameters.current);
             p.forEach((property) => {
                 const d = copyToNew(lockedParameters.current, property)
@@ -326,14 +385,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             });
         }
         isPlay.current = isPlaying;
-    }, [
-        isPlaying,
-        dispatch,
-        index,
-        previousPlaying,
-        isPlay
-    ]
-    );
+    }, [isPlaying, dispatch, index]);
 
     const instrumentCallback = useCallback((time: number, value: any) => {
         let velocity: number = value.velocity
@@ -376,45 +428,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                 // setNestedValue(property, undefined, lockedParameters.current)
             }
         });
-    }, [
-        properties,
-        propertyUpdate,
-        activePattern,
-        arrangerMode,
-        optionsRef,
-        patternNoteLens,
-        patternTracker,
-        patternVelocities,
-    ]
-    );
-
-    const returnStep = useCallback((t: string): number => {
-        let result;
-        const n = sixteenthFromBBS(t)
-        if (arrangerMode.current === "pattern") {
-            result = trackPatternLength.current[activePattern.current] >= patternLengths.current[activePattern.current]
-                ? n
-                : n % trackPatternLength.current[activePattern.current]
-        } else {
-            const pattern = patternTracker.current[0];
-            const timeb = patternTracker.current[1] ? patternTracker.current[1] : 0;
-            const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
-            const step = n - sixteenthFromBBS(timebbs);
-            const patternLocation = step % patternLengths.current[pattern];
-            if (!patternLocation) return -1
-            result = trackPatternLength.current[pattern] < patternLengths.current[activePattern.current]
-                ? patternLocation % trackPatternLength.current[pattern]
-                : patternLocation;
-        };
-        return result;
-    }, [
-        arrangerMode,
-        patternTracker,
-        patternLengths,
-        activePattern,
-        trackPatternLength
-    ]
-    )
+    }, [properties, propertyUpdate]);
 
     const noteLock = useCallback((
         note: string,
@@ -438,7 +452,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             dispatch(setNoteMidi(index, event['note'], velocity, step));
         });
 
-    }, [dispatch, index, triggRefs, events, selectedSteps]);
+    }, [dispatch, index, triggRefs])
 
     const setNoteInput = useCallback((
         pattern: number,
@@ -480,14 +494,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             time,
             e,
         }
-    }, [
-        dispatch,
-        index,
-        triggRefs,
-        events,
-        override
-    ]
-    )
+    }, [dispatch, index, triggRefs])
 
     const noteInCallback = useCallback((e: InputEventNoteon) => {
         const noteName = e.note.name + e.note.octave;
@@ -519,18 +526,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
         } else {
             instrumentRef.current.triggerAttack(noteName, 0, velocity);
         }
-    }, [noteLock,
-        setNoteInput,
-        activePattern,
-        arrangerMode,
-        events,
-        isPlay,
-        isRec,
-        patternTracker,
-        returnStep,
-        selectedSteps
-    ]
-    )
+    }, [noteLock, setNoteInput])
 
 
     const noteOffCallback = useCallback((e: InputEventNoteoff): void => {
@@ -562,15 +558,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
         if (!(selectedSteps.current.length > 0) && !isRec.current) {
             instrumentRef.current.triggerRelease(noteName);
         }
-    }, [
-        dispatch,
-        index,
-        triggRefs,
-        isPlay,
-        isRec,
-        selectedSteps,
-    ]
-    );
+    }, [dispatch, index, triggRefs]);
 
     useEffect(() => {
         instrumentRef.current = returnInstrument(voice, optionsRef.current);
@@ -598,11 +586,9 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                 let inputPrev = previousMidi.device
                     ? WebMidi.getInputByName(previousMidi.device)
                     : undefined;
-                // a non standard approach in handling event listeners
-                // because there are many channels to handle in a same
-                // type of event 
                 if (
                     inputPrev
+                    && previousMidi.device
                     && previousMidi.channel
                 ) {
                     inputPrev.removeListener(
@@ -656,8 +642,55 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             })
             setRender(false);
         }
-    }, []);
+    });
 
+    useEffect(() => { console.log('options changed') }, [packed])
+    useProperty(instrumentRef, harmonicity, 'harmonicity');
+    useProperty(instrumentRef, attack, 'attack');
+    useProperty(instrumentRef, attackNoise, 'attackNoise');
+    useProperty(instrumentRef, curve, 'curve');
+    useProperty(instrumentRef, dampening, 'dampening');
+    useProperty(instrumentRef, detune, 'detune');
+    useProperty(instrumentRef, envelope, 'envelope', true);
+    useProperty(instrumentRef, modulation, 'modulation', true);
+    useProperty(instrumentRef, modulationEnvelope, 'modulationEnvelope', true);
+    useProperty(instrumentRef, noise, 'noise', true);
+    useProperty(instrumentRef, octaves, 'octaves');
+    useProperty(instrumentRef, pitchDecay, 'pitchDecay');
+    useProperty(instrumentRef, oscillator, 'oscillator', true);
+    useProperty(instrumentRef, modulationIndex, 'modulationIndex')
+    useProperty(instrumentRef, portamento, 'portamento');
+    useProperty(instrumentRef, resonance, 'resonance');
+    useProperty(instrumentRef, volume, 'volume')
+
+
+    useEffect(() => {
+        if (volume) {
+            let v = { resonance: getNested(packed, 'volume')[0] };
+            instrumentRef.current.set(v);
+        }
+    }, [volume])
+
+    const returnStep = (t: string): number => {
+        let result;
+        const n = sixteenthFromBBS(t)
+        if (arrangerMode.current === "pattern") {
+            result = trackPatternLength.current[activePattern.current] >= patternLengths.current[activePattern.current]
+                ? n
+                : n % trackPatternLength.current[activePattern.current]
+        } else {
+            const pattern = patternTracker.current[0];
+            const timeb = patternTracker.current[1] ? patternTracker.current[1] : 0;
+            const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
+            const step = n - sixteenthFromBBS(timebbs);
+            const patternLocation = step % patternLengths.current[pattern];
+            if (!patternLocation) return -1
+            result = trackPatternLength.current[pattern] < patternLengths.current[activePattern.current]
+                ? patternLocation % trackPatternLength.current[pattern]
+                : patternLocation;
+        };
+        return result;
+    }
     const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
         const functRect = (e: InputEventControlchange) => {
             if (e.controller.number === cc) {
@@ -729,58 +762,44 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
         }
     }
 
+    const setHarmonicity = () => {
+        propertyUpdate['harmonicity'](4)
+    };
+
+    const logHarm = () => {
+        console.log(getNested(instrumentRef.current.get(), 'harmonicity'))
+    }
 
     return (
         <div>
             {properties.map(property => {
                 // vai passar () => midiLearn(property) como funcão 
-                const [value, r, indicatorType, curve] = getNested(options, property)
-                switch (indicatorType) {
+                switch (getNested(packed, property)[2]) {
                     case indicators.DROPDOWN:
-                        return (
-                            // <Dropdown 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Dropdown>
-                            console.log()
-                        )
+                        // return a JSX dropdown with classes as property name and instrument type
+                        break;
                     case indicators.KNOB:
-                        return (
-                            // <Knob 
-                            //     property={property} 
-                            //     value={value} 
-                            //     range={r} 
-                            //     curve={curve}
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Knob>
-                            console.log()
-                        )
+                        // return a JSX knob with classes as property name and instrument type
+                        break;
                     case indicators.RADIO:
-                        return (
-                            // <Radio 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Radio>
-                            console.log()
-                        )
+                        // return a JSX radio with classes as property name and instrument type
+                        break;
                     case indicators.VERTICAL_SLIDER:
-                        return (
-                            // <VSlider 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </VSlider>
-                            console.log()
-                        )
-
+                        // return a JSX slider with classes as property name and instrument type
+                        break;
                 };
-                return ''
             })}
+
+            <h1>harmonicity {harmonicity ? harmonicity[0] : null}</h1>
+            <h1>dummy {dummy}</h1>
+            {/* <h1>properties</h1> */}
+            {/* { properties.map(v => <h1>{v}</h1>)} */}
+            {/* {propertiesToArray(propertyUpdate).map(k => <h1>{k}</h1>)} */}
+            {}
+            <button onClick={setHarmonicity}></button>
+            <button onClick={logHarm}></button>
         </div>
     )
 }
+
+export default DummyInstrument;

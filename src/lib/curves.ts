@@ -18,7 +18,7 @@ export function valueFromMouse(
     max: number,
     curveType: curveTypes
 ): number {
-    if (curveType == curveTypes.EXPONENTIAL) {
+    if (curveType === curveTypes.EXPONENTIAL) {
         let c = getBaseLog(127, max - min);
         let x = (prevValue - min) ** (-c);
         let s = (c - 1) * x ** (c - 1)

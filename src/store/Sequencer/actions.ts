@@ -1,4 +1,4 @@
-import { sequencerActions, sequencerActionTypes, pLockType } from "./types";
+import { sequencerActions, sequencerActionTypes } from "./types";
 
 export function removePattern(patternKey: number): sequencerActionTypes {
 	return {
@@ -15,13 +15,11 @@ export function setNoteLengthPlayback(
 	track: number,
 	step: number,
 	noteLength: number | string,
-	pastEvent: any
 ): sequencerActionTypes {
 	return {
 		type: sequencerActions.SET_NOTE_LENGTH_PLAYBACK,
 		payload: {
 			noteLength: noteLength,
-			pastEvent: pastEvent,
 			note: note,
 			pattern: pattern,
 			step: step,
@@ -30,7 +28,7 @@ export function setNoteLengthPlayback(
 	};
 }
 
-export function setPlaybackInput(
+export function noteInput(
 	pattern: number,
 	track: number,
 	step: number,
@@ -39,7 +37,7 @@ export function setPlaybackInput(
 	velocity: number
 ): sequencerActionTypes {
 	return {
-		type: sequencerActions.SET_PLAYBACK_INPUT,
+		type: sequencerActions.NOTE_INPUT,
 		payload: {
 			note: note,
 			pattern: pattern,
@@ -53,7 +51,7 @@ export function setPlaybackInput(
 
 export function setNoteMidi(
 	track: number,
-	note: string,
+	note: string | string[],
 	velocity: number,
 	step: number,
 ): sequencerActionTypes {

@@ -4,10 +4,10 @@ export function range(size: number, startAt: number = 0): number[] {
     return [...Array(size).keys()].map(i => i + startAt);
 };
 
-export function timeObjFromEvent(s: number, ev: any): any {
+export function timeObjFromEvent(step: number, event: any, isEvent: boolean = true): any {
     return {
-        '16n': s,
-        '128n': ev.offset ? ev.offset : 0,
+        '16n': step,
+        '128n': isEvent && event.offset ? event.offset : event ? event : 0,
     };
 }
 

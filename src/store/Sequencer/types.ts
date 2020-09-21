@@ -1,16 +1,13 @@
+import { eventOptions } from "../../containers/Track/Instruments";
 import Tone from "../../lib/tone";
+import { RecursivePartial } from '../../containers/Track/Instruments'
 
 export type pLockType = number | string | boolean | Tone.TimeClass;
-
-export interface LockData {
-	value: pLockType;
-	parameter: string;
-};
 
 export enum sequencerActions {
 	REMOVE_PATTERN = "REMOVE_PATTERN",
 	SET_NOTE_LENGTH_PLAYBACK = "SET_NOTE_LENGTH_PLAYBACK",
-	SET_PLAYBACK_INPUT = "SET_PLAYBACK_INPUT",
+	NOTE_INPUT = "NOTE_INPUT",
 	GO_TO_ACTIVE = "GO_TO_ACTIVE",
 	TOGGLE_OVERRIDE = "TOGGLE_OVERRIDE",
 	TOGGLE_RECORDING_QUANTIZATION = "TOGGLE_RECORDING_QUANTIZATION",
@@ -39,7 +36,7 @@ export interface trackSeqData {
 	length: number;
 	velocity: number;
 	noteLength: string | number;
-	events: any[];
+	events: RecursivePartial<eventOptions>[];
 	page: number;
 	selected: number[];
 };
@@ -95,22 +92,21 @@ export interface setNoteLengthPlaybackAction {
 		track: number;
 		step: number;
 		noteLength: number | string;
-		pastEvent: any;
 	};
 };
 
 export interface setNoteMidiAction {
 	type: sequencerActions.SET_NOTE_MIDI;
 	payload: {
-		note: string;
+		note: string | string[];
 		step: number;
 		track: number;
 		velocity: number;
 	}
 };
 
-export interface setPlaybackInputAction {
-	type: sequencerActions.SET_PLAYBACK_INPUT;
+export interface noteInputAction {
+	type: sequencerActions.NOTE_INPUT;
 	payload: {
 		pattern: number;
 		track: number;
@@ -149,7 +145,11 @@ export interface changeTrackLengthAction {
 		track: number;
 		patternLength: number;
 	};
-}
+};
+
+// export interface setPlaybackInputAction {
+// 	type: 
+// }
 
 export interface setNoteLengthAction {
 	type: sequencerActions.SET_NOTE_LENGTH;
@@ -286,7 +286,7 @@ export type sequencerActionTypes =
 	| setNoteLengthPlaybackAction
 	| setOffsetAction
 	| setPatternNoteLengthAction
-	| setPlaybackInputAction
+	| noteInputAction
 	| setVelocityAction
 	| toggleOverrideAction
 	| toggleRecordingQuantizationAction

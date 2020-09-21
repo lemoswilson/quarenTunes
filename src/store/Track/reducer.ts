@@ -1,4 +1,4 @@
-import { accessNested, propertiesToArray, setNestedValue, setNestedArray } from '../../lib/objectDecompose'
+import { getNested, propertiesToArray, setNestedArray } from '../../lib/objectDecompose'
 import { getInitials } from '../../containers/Track/defaults'
 import {
 	trackActionTypes,
@@ -98,7 +98,11 @@ export function trackReducer(
 				const [index, options] = [action.payload.index, action.payload.options];
 				const props = propertiesToArray(options);
 				props.forEach(
-					prop => setNestedArray(draft.tracks[0].options, prop, accessNested(options, prop))
+					prop => {
+						let v = getNested(options, prop)
+						setNestedArray(draft.tracks[index].options, prop, getNested(options, prop))
+						console.log('setting proeperty, ', props, v);
+					}
 				);
 		}
 	});

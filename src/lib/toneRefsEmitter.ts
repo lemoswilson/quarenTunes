@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import { toneEffects } from '../store/Track';
-import { PolySynth, Synth, SynthOptions } from 'tone';
+import { PolySynth } from 'tone';
 import { ExtractEventParameters } from './triggEmitter'
 
 export enum trackEventTypes {

@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject } from 'react'
+import React, { MutableRefObject } from 'react'
 import { PolySynth } from 'tone';
 import { toneEffects } from '../store/Track/';
 import Chain from '../lib/fxChain';

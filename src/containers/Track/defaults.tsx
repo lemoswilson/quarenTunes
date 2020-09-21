@@ -1,3 +1,5 @@
+import { onlyValues } from "../../lib/objectDecompose";
+import { instrumentTypes } from "../../store/Track";
 export enum indicators {
     KNOB = 'knob',
     VERTICAL_SLIDER = 'slider',
@@ -11,7 +13,6 @@ export enum curveTypes {
     LINEAR = 'linear',
 };
 
-import { instrumentTypes } from "../../store/Track";
 
 // format [defaultValue, [min, max], typeofHandler, extraInfo]
 export const noiseTypeIndicator = indicators.RADIO;
@@ -108,17 +109,99 @@ export const noise = {
     type: ['white', noiseTypeOptions, noiseTypeIndicator]
 }
 
-export const volume = [0, volumeRange, volumeIndicator, curveTypes.EXPONENTIAL];
-export const detune = [0, detuneRange, detuneIndicator, curveTypes.LINEAR];
-export const portamento = [0, portamentoRange, portamentoIndicator, curveTypes.EXPONENTIAL];
-export const modSynthHarmonicity = [3, harmonicityRange, harmonicityIndicator, curveTypes.EXPONENTIAL];
-export const metalSynthHarmonicity = [5.1, harmonicityRange, harmonicityIndicator, curveTypes.EXPONENTIAL];
-export const modSynthModulationIndex = [10, modulationRange, modulationIndicator, curveTypes.EXPONENTIAL];
-export const metalSynthModulationIndex = [32, modulationRange, modulationIndicator, curveTypes.EXPONENTIAL];
-export const membraneSynthOctaves = [10, membraneSynthOctaveRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
-export const membraneSynthPitchDecay = [1.4, envelopeTimeRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
-export const metalSynthOctaves = [1.5, metalSynthOctaveRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
-export const metalSynthResonance = [4000, dampeningRange, resonanceIndicator, curveTypes.EXPONENTIAL];
+const volume = [0, volumeRange, volumeIndicator, curveTypes.EXPONENTIAL];
+const detune = [0, detuneRange, detuneIndicator, curveTypes.LINEAR];
+const portamento = [0, portamentoRange, portamentoIndicator, curveTypes.EXPONENTIAL];
+const modSynthHarmonicity = [3, harmonicityRange, harmonicityIndicator, curveTypes.EXPONENTIAL];
+const metalSynthHarmonicity = [5.1, harmonicityRange, harmonicityIndicator, curveTypes.EXPONENTIAL];
+const modSynthModulationIndex = [10, modulationRange, modulationIndicator, curveTypes.EXPONENTIAL];
+const metalSynthModulationIndex = [32, modulationRange, modulationIndicator, curveTypes.EXPONENTIAL];
+const membraneSynthOctaves = [10, membraneSynthOctaveRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+const membraneSynthPitchDecay = [1.4, envelopeTimeRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+const metalSynthOctaves = [1.5, metalSynthOctaveRange, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+const metalSynthResonance = [4000, dampeningRange, resonanceIndicator, curveTypes.EXPONENTIAL];
+const attackNoise = [1, attackNoiseRange, attackNoiseIndicator]
+const dampening = [4000, dampeningRange, frequencyIndicator]
+const pluckResonance = [0.7, normalRange, frequencyIndicator]
+const pluckRelease = [1, envelopeTimeRange, envelopeTimeIndicator]
+
+export type instrumentOptions<T> =
+    T extends instrumentTypes.AMSYNTH
+    ? {
+        volume: typeof volume,
+        detune: typeof detune,
+        portamento: typeof portamento,
+        harmonicity: typeof modSynthHarmonicity,
+        oscillator: typeof oscillator,
+        envelope: typeof envelope,
+        modulation: typeof modulation,
+        modulationEnvelope: typeof modulationEnvelope,
+        modulationIndex: typeof modSynthModulationIndex
+    }
+    : T extends instrumentTypes.AMSYNTH
+    ? {
+        volume: typeof volume,
+        detune: typeof detune,
+        portamento: typeof portamento,
+        harmonicity: typeof modSynthHarmonicity,
+        oscillator: typeof oscillator,
+        envelope: typeof envelope,
+        modulation: typeof modulation,
+        modulationEnvelope: typeof modulationEnvelope,
+    }
+    : T extends instrumentTypes.MEMBRANESYNTH
+    ? {
+        volume: typeof volume,
+        detune: typeof detune,
+        portamento: typeof portamento,
+        envelope: typeof membraneSynthEnvelope,
+        oscillator: typeof oscillator,
+        octaves: typeof membraneSynthOctaves,
+        pitchDecay: typeof membraneSynthPitchDecay,
+    }
+    : T extends instrumentTypes.METALSYNTH
+    ? {
+        volume: typeof volume,
+        detune: typeof detune,
+        portamento: typeof portamento,
+        envelope: typeof metalSynthEnvelope,
+        harmonicity: typeof metalSynthHarmonicity,
+        modulationIndex: typeof metalSynthModulationIndex,
+        octaves: typeof metalSynthOctaves,
+        resonance: typeof metalSynthResonance
+    }
+    : T extends instrumentTypes.NOISESYNTH
+    ? {
+        volume: typeof volume,
+        envelope: typeof envelope,
+        noise: typeof noise,
+    }
+    : T extends instrumentTypes.PLUCKSYNTH
+    ? {
+        volume: typeof volume,
+        attackNoise: typeof attackNoise,
+        dampening: typeof dampening,
+        resonance: typeof pluckResonance,
+        release: typeof pluckRelease
+    }
+    : {
+        volume: typeof volume,
+        attack: typeof samplerAttack,
+        baseUrl: string,
+        curve: typeof curve,
+        release: typeof samplerRelase,
+        urls: { [url: string]: any },
+    }
+
+const samplerAttack = [0, envelopeTimeRange, envelopeTimeIndicator]
+const curve = ['exponential', envelopeCurveOptions, envelopeCurveIndicator]
+const samplerRelase = [0.1, envelopeTimeRange, envelopeTimeIndicator]
+
+
+export function getInitialsValue(type: instrumentTypes) {
+    return onlyValues(getInitials(type))
+}
+
 
 export function getInitials(type: instrumentTypes) {
     switch (type) {

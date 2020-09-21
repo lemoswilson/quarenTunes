@@ -33,9 +33,7 @@ import {
 	AMSynth,
 	Synth,
 	Sampler,
-	DuoSynth,
 	NoiseSynth,
-	MonoSynth,
 	PluckSynth,
 	MembraneSynthOptions,
 	MetalSynthOptions,
@@ -44,7 +42,6 @@ import {
 	SynthOptions,
 	DuoSynthOptions,
 	SamplerOptions,
-	PolySynthOptions,
 	NoiseSynthOptions,
 	PluckSynthOptions,
 } from 'tone';

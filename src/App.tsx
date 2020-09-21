@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
+import Dummy from './containers/Dummy';
 import Chain from './lib/fxChain';
 import TriggContext, { triggContext } from './context/triggState';
-import { Instruments } from './containers/Track/Instruments/'
 import { instrumentTypes } from './store/Track'
 import toneRefsContext, { toneRefs } from './context/toneRefsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from './lib/triggEmitter';
@@ -13,6 +13,7 @@ import Transport from "./containers/Transport";
 import Arranger from './containers/Arranger';
 import Sequencer from './containers/Sequencer';
 import Track from './containers/Track';
+import { Instruments } from './containers/Track/Instruments'
 import { Grommet, ThemeType } from "grommet";
 import "./App.css";
 import { combineReducers, createStore, compose } from "redux";
@@ -21,6 +22,7 @@ import { trackReducer, initialState as TrkInit, toneEffects } from "./store/Trac
 import { sequencerReducer, initialState as SeqInit } from "./store/Sequencer";
 import { transportReducer, initialState as TrsState } from "./store/Transport";
 import { AMSynth } from "tone";
+import { getInitials } from "./containers/Track/defaults";
 
 declare global {
 	interface Window {
@@ -97,8 +99,8 @@ export default function App() {
 	const duplicatePattern = (payload: ExtractTriggPayload<triggEventTypes.DUPLICATE_PATTERN>): void => {
 		let patN = payload.pattern
 		let counter = store.getState().sequencer.counter;
-		[...Array(store.getState().track.trackCount).keys()].
-			forEach(track => {
+		[...Array(store.getState().track.trackCount).keys()]
+			.forEach(track => {
 				triggRef.current[counter][track] = new Tone.Part()
 				let events = store.getState().sequencer.patterns[patN].tracks[track].events
 				events.forEach((e, idx, arr) => {
@@ -336,7 +338,8 @@ export default function App() {
 					<Grommet theme={theme}>
 						<Arranger></Arranger>
 						<Transport></Transport>
-						{/* <Instruments voice={instrumentTypes.FMSYNTH} options={{}} index={1} ></Instruments> */}
+						<Dummy></Dummy>
+						{/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
 					</Grommet>
 				</Provider>
 			</TriggContext.Provider>

@@ -57,7 +57,7 @@ export function showInstrument(index: number): trackActionTypes {
 			index: index,
 		},
 	};
-}
+};
 
 export function selectMidiDevice(
 	index: number,
@@ -70,7 +70,7 @@ export function selectMidiDevice(
 			device: device,
 		},
 	};
-}
+};
 
 export function selectMidiChannel(
 	index: number,

@@ -3,9 +3,11 @@ import {
 	sequencerActionTypes,
 	sequencerActions,
 	Sequencer,
-	LockData,
+	// LockData,
 } from "./types";
-import { propertiesToArray, accessNested, setNestedArray } from "../../lib/objectDecompose";
+import { propertiesToArray, getNested, setNestedArray } from "../../lib/objectDecompose";
+import { eventOptions } from "../../containers/Track/Instruments";
+import { isArray } from "util";
 
 export const initialState: Sequencer = {
 	activePattern: 0,
@@ -42,18 +44,16 @@ export function sequencerReducer(
 			track: number,
 			patternLength: number,
 			noteLength: number | string,
-			selected: number[],
 			page: number,
 			patternToGo: number | undefined,
 			pageToGo: number | undefined,
-			data: LockData,
+			data: eventOptions,
 			note: string[] | string,
 			offset: number,
 			name: string,
 			velocity: number,
 			step: number[] | number,
-			counter: number = draft.counter,
-			pastEvent: any
+			counter: number = draft.counter
 		switch (action.type) {
 			case sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER:
 				let trackNumber: number = draft.patterns[0].tracks.length;
@@ -140,7 +140,7 @@ export function sequencerReducer(
 					action.payload.track,
 				];
 				let prop = propertiesToArray(data)[0];
-				let val = accessNested(data, prop);
+				let val = getNested(data, prop);
 				setNestedArray(draft.patterns[pattern].tracks[track].events[step], prop, val);
 				break;
 			case sequencerActions.REMOVE_PATTERN:
@@ -182,11 +182,7 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.velocity
 				]
-				if (!draft.patterns[draft.activePattern].tracks[track].events[step]['notes'].includes(note))
-					draft.patterns[draft.activePattern].tracks[track].events[step]['notes'].push(note);
-				else
-					draft.patterns[draft.activePattern].tracks[track].events[step]['notes'] =
-						draft.patterns[draft.activePattern].tracks[track].events[step]['notes'].filter((n: string) => n !== note)
+				draft.patterns[draft.activePattern].tracks[track].events[step]['note'] = Array.isArray(note) ? note : undefined;
 				draft.patterns[draft.activePattern].tracks[track].events[step]['velocity'] = velocity;
 				break;
 			case sequencerActions.SET_NOTE_LENGTH:
@@ -206,13 +202,7 @@ export function sequencerReducer(
 					action.payload.track,
 					action.payload.step,
 				];
-				if (draft.override)
-					draft.patterns[pattern].tracks[track].events[step].note = [note];
-				else if (
-					!draft.override &&
-					draft.patterns[pattern].tracks[track].events[step].note.includes(note)
-				)
-					draft.patterns[pattern].tracks[track].events[step].note.push(note);
+				draft.patterns[pattern].tracks[track].events[step].length = noteLength;
 				break;
 			case sequencerActions.SET_OFFSET:
 				[pattern, track, step, offset] = [
@@ -227,7 +217,8 @@ export function sequencerReducer(
 				[pattern, noteLength, track] = [action.payload.pattern, action.payload.noteLength, action.payload.track];
 				draft.patterns[pattern].tracks[track].noteLength = noteLength;
 				break;
-			case sequencerActions.SET_PLAYBACK_INPUT:
+			case sequencerActions.NOTE_INPUT:
+				// length property is not set on note on message
 				[pattern, track, step, offset, note, velocity] = [
 					action.payload.pattern,
 					action.payload.track,
@@ -236,7 +227,7 @@ export function sequencerReducer(
 					action.payload.note,
 					action.payload.velocity,
 				];
-				draft.patterns[pattern].tracks[track].events[step].note = note;
+				draft.patterns[pattern].tracks[track].events[step].note = Array.isArray(note) ? note : undefined;
 				draft.patterns[pattern].tracks[track].events[step].offset = offset;
 				draft.patterns[pattern].tracks[track].events[step].velocity = velocity;
 				break;
