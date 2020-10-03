@@ -1,2 +1,2 @@
-export * from './Instruments'
+export * from './Instrument'
 export * from './types'

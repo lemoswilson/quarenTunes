@@ -1,4 +1,4 @@
-import { RecursivePartial } from '../../containers/Track/Instruments/types';
+import { effectsInitials, effectsInitialsArray, RecursivePartial } from '../../containers/Track/Instruments/types';
 import {
 	AutoPanner,
 	AutoWah,
@@ -40,15 +40,18 @@ import {
 	FMSynthOptions,
 	AMSynthOptions,
 	SynthOptions,
+	Gate,
 	DuoSynthOptions,
 	SamplerOptions,
 	NoiseSynthOptions,
 	PluckSynthOptions,
+	AutoFilter
 } from 'tone';
 
 
 export type toneEffects =
 	AutoPanner |
+	AutoFilter |
 	AutoWah |
 	BitCrusher |
 	Chebyshev |
@@ -68,6 +71,7 @@ export type toneEffects =
 	Compressor |
 	EQ3 |
 	Gain |
+	Gate |
 	Filter |
 	LowpassCombFilter |
 	Meter |
@@ -104,26 +108,27 @@ export enum instrumentTypes {
 export enum effectTypes {
 	AUTOFILTER = "AUTOFILTER",
 	AUTOPANNER = "AUTOPANNER",
-	AUTOWAH = "AUTOWAH",
+	// AUTOWAH = "AUTOWAH",
 	BITCRUSHER = "BITCRUSHER",
 	CHEBYSHEV = "CHEBYSHEV",
 	CHORUS = "CHORUS",
-	CONVOLVER = "CONVOLVER",
+	// CONVOLVER = "CONVOLVER",
 	DISTORTION = "DISTORTION",
-	EFFECT = "EFFECT",
+	// EFFECT = "EFFECT",
 	FEEDBACKDELAY = "FEEDBACKDELAY",
-	FEEDBACKEFFECT = "FEEDBACKEFFECT",
+	// FEEDBACKEFFECT = "FEEDBACKEFFECT",
 	FREEVERB = "FREEVERB",
 	JCREVERB = "JCREVERB",
-	MIDSIDEEFFECT = "MIDSIDEEFFECT",
+	// MIDSIDEEFFECT = "MIDSIDEEFFECT",
 	PHASER = "PHASER",
 	PINGPONGDELAY = "PINGPONGDELAY",
 	PITCHSHIFT = "PITCHSHIFT",
-	REVERB = "REVERB",
-	STEREOEFFECT = "STEREOEFFECT",
-	STEREOFEEDBACKEFFECT = "STEREOFEEDBACKEFFECT",
+	FREQUENCYSHIFTER = 'FREQUENCYSHIFTER',
+	// REVERB = "REVERB",
+	// STEREOEFFECT = "STEREOEFFECT",
+	// STEREOFEEDBACKEFFECT = "STEREOFEEDBACKEFFECT",
 	STEREOWIDENER = "STEREOWIDENER",
-	STEREOXFEEDBACKEFFECT = "STEREOXFEEDBACKEFFECT",
+	// STEREOXFEEDBACKEFFECT = "STEREOXFEEDBACKEFFECT",
 	TREMOLO = "TREMOLO",
 	VIBRATO = "VIBRATO",
 	COMPRESSOR = "COMPRESSOR",
@@ -131,7 +136,8 @@ export enum effectTypes {
 	FILTER = "FILTER",
 	LIMITER = "LIMITER",
 	GATE = "GATE",
-	MIDSIDECOMPRESSOR = "MIDISIDECOMPRESSOR",
+	// MIDSIDECOMPRESSOR = "MIDISIDECOMPRESSOR",
+	MULTIBANDCOMPRESSOR = 'MULTIBANDCOMPRESSOR',
 	MONO = "MONO",
 }
 
@@ -140,15 +146,16 @@ export interface midi {
 	channel: number | "all" | undefined;
 }
 
-export interface instrumentInfo {
-	instrument: instrumentTypes;
-	id: number;
-	midi: midi;
-}
+// export interface instrumentInfo {
+// 	instrument: instrumentTypes;
+// 	id: number;
+// 	midi: midi;
+// }
 
 export interface effectsInfo {
 	fx: effectTypes;
 	id: number;
+	options: effectsInitialsArray;
 }
 
 export interface trackInfo {
@@ -178,7 +185,8 @@ export enum trackActions {
 	DELETE_EFFECT = "DELETE_EFFECT",
 	CHANGE_EFFECT = "CHANGE_EFFECT",
 	CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
-	UPDATE_INSTRUMENT_STATE = "UPDATE_INSTRUMENT_STATE"
+	UPDATE_INSTRUMENT_STATE = "UPDATE_INSTRUMENT_STATE",
+	UPDATE_EFFECT_STATE = "UPDATE_EFFECT_STATE",
 }
 
 
@@ -188,6 +196,15 @@ export interface changeInstrumentAction {
 		index: number;
 		instrument: instrumentTypes;
 	};
+}
+
+export interface updateEffectStateAction {
+	type: trackActions.UPDATE_EFFECT_STATE,
+	payload: {
+		track: number,
+		fxIndex: number,
+		options: effectsInitials,
+	}
 }
 
 export type generalInstrumentOptions = RecursivePartial<MembraneSynthOptions |
@@ -291,5 +308,6 @@ export type trackActionTypes =
 	| insertEffectAction
 	| deleteEffectAction
 	| changeEffectAction
+	| updateEffectStateAction
 	| updateInstrumentStateAction
 	| changeEffectIndexAction;

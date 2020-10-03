@@ -1,13 +1,24 @@
 import React, { MutableRefObject } from 'react';
 import { Part } from 'tone';
 
+export interface triggFx {
+    [index: number]: Part
+}
+
 export interface triggs {
     instrument: Part
-    effects: Part
+    // effects: {
+    //     0: Part,
+    //     1: Part,
+    //     2: Part,
+    //     3: Part,
+    // }
+    // effects: triggFx
+    effects: Part[]
 }
 
 export interface triggContext {
-    [pattern: number]: Part[],
+    [pattern: number]: triggs[],
 };
 
 class fakeTrig {

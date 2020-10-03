@@ -18,6 +18,7 @@ export type TrackEvent =
         event: trackEventTypes.ADD_EFFECT,
         trackId: number,
         effect: toneEffects,
+        effectIndex: number,
     }
     | {
         event: trackEventTypes.ADD_INSTRUMENT,

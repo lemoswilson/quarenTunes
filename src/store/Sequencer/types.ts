@@ -1,6 +1,7 @@
-import { eventOptions } from "../../containers/Track/Instruments";
+import { effectsInitials, eventOptions } from "../../containers/Track/Instruments";
 import Tone from "../../lib/tone";
 import { RecursivePartial } from '../../containers/Track/Instruments'
+import { Part } from "tone";
 
 export type pLockType = number | string | boolean | Tone.TimeClass;
 
@@ -29,14 +30,27 @@ export enum sequencerActions {
 	PARAMETER_LOCK = "PARAMETER_LOCK",
 	ADD_INSTRUMENT_TO_SEQUENCER = "ADD_INSTRUMENT_TO_SEQUENCER",
 	REMOVE_INSTRUMENT_FROM_SEQUENCER = "REMOVE_INSTRUMENT_FROM_SEQUENCER",
-	SET_PATTERN_TRACK_VELOCITY = "SET_PATTERN_TRACK_VELOCITY"
+	SET_PATTERN_TRACK_VELOCITY = "SET_PATTERN_TRACK_VELOCITY",
+	ADD_EFFECT_SEQUENCER = "ADD_EFFECT_SEQUENCER",
+	REMOVE_EFFECT_SEQUENCER = "REMOVE_EFFECT_SEQUENCER",
+	CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
+	PARAMETER_LOCK_EFFECT = "PARAMETER_LOCK_EFFECT",
 };
+
+export type fxOptions = effectsInitials;
+
+export interface event {
+	instrument: RecursivePartial<eventOptions>,
+	fx: fxOptions[],
+	offset: number,
+}
 
 export interface trackSeqData {
 	length: number;
 	velocity: number;
 	noteLength: string | number;
-	events: RecursivePartial<eventOptions>[];
+	// events: RecursivePartial<eventOptions>[];
+	events: event[];
 	page: number;
 	selected: number[];
 };
@@ -69,6 +83,31 @@ export interface setPatternTrackVelocityAction {
 	}
 };
 
+export interface addEffectAction {
+	type: sequencerActions.ADD_EFFECT_SEQUENCER,
+	payload: {
+		track: number,
+		index: number,
+	}
+};
+
+export interface removeEffectAction {
+	type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
+	payload: {
+		track: number,
+		index: number
+	}
+};
+
+export interface changeEffectIndexAction {
+	type: sequencerActions.CHANGE_EFFECT_INDEX,
+	payload: {
+		track: number,
+		from: number,
+		to: number,
+	}
+};
+
 export interface changePatternNameAction {
 	type: sequencerActions.CHANGE_PATTERN_NAME;
 	payload: {
@@ -82,6 +121,17 @@ export interface removePatternAction {
 	payload: {
 		patternKey: number;
 	};
+};
+
+export interface parameterLockEffectAction {
+	type: sequencerActions.PARAMETER_LOCK_EFFECT,
+	payload: {
+		pattern: number,
+		track: number,
+		fxIndex: number,
+		step: number,
+		data: any
+	}
 };
 
 export interface setNoteLengthPlaybackAction {
@@ -290,9 +340,13 @@ export type sequencerActionTypes =
 	| setVelocityAction
 	| toggleOverrideAction
 	| toggleRecordingQuantizationAction
+	| parameterLockEffectAction
 	| changePatternNameAction
 	| addInstrumentToSequencerAction
 	| setNoteMidiAction
 	| duplicatePatternAction
 	| setPatternTrackVelocityAction
+	| addEffectAction
+	| removeEffectAction
+	| changeEffectIndexAction
 	| removeInstrumentFromSequencerAction;

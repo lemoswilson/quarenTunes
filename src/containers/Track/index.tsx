@@ -50,9 +50,6 @@ const Track: FunctionComponent = () => {
     };
 
     const remInstr = (index: number): void => {
-        if (triggRef) {
-            patternKeys.forEach(key => triggRef.current[key][index].stop());
-        }
         dispatch(removeInstrument(index));
         dispatch(removeInstrumentFromSequencer(index));
         triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { track: index })

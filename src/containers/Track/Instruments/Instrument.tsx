@@ -5,7 +5,7 @@ import React, {
     useState,
     useContext,
     useCallback,
-    MouseEvent,
+    MouseEvent, MutableRefObject
 } from 'react';
 import {
     propertiesToArray,
@@ -22,10 +22,10 @@ import WebMidi, {
     Input,
     InputEventControlchange
 } from 'webmidi';
-import { InstrumentProps } from './index'
+import { InstrumentProps, initials } from './index'
 import { instrumentTypes, updateInstrumentState } from '../../../store/Track';
 import { useDispatch, useSelector } from 'react-redux';
-import { getInitials, indicators, instrumentOptions } from '../defaults';
+import { getInitials, indicators } from '../defaults';
 import { RootState } from '../../../App';
 import {
     parameterLock,
@@ -39,9 +39,9 @@ import { sixteenthFromBBS } from '../../Arranger';
 import usePrevious from '../../../hooks/usePrevious';
 import { useProperty } from '../../../hooks/useProperty';
 import useQuickRef from '../../../hooks/useQuickRef';
-import { RecursivePartial } from './types';
+import { initialsArray } from './types';
 
-export const returnInstrument = (voice: instrumentTypes, opt: any) => {
+export const returnInstrument = (voice: instrumentTypes, opt: initialsArray) => {
     let options = onlyValues(opt);
 
     switch (voice) {
@@ -62,9 +62,9 @@ export const returnInstrument = (voice: instrumentTypes, opt: any) => {
     }
 }
 
-type controlChangeEvent = (e: InputEventControlchange) => void;
+export type controlChangeEvent = (e: InputEventControlchange) => void;
 
-export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
+export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
 
     const dispatch = useDispatch()
     const instrumentRef = useRef(returnInstrument(voice, options));
@@ -72,13 +72,13 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     const CCMaps = useRef<any>({});
     const listenCC = useRef<controlChangeEvent>();
     const inputRef = useRef<false | Input>(false);
-    const previousMidi = usePrevious(midi);
+    // const previousMidi = usePrevious(midi);
     const triggRefs = useContext(triggCtx);
     const patTracker = useSelector((state: RootState) => state.arranger.patternTracker);
     const arrMode = useSelector((state: RootState) => state.arranger.mode);
     const actPat = useSelector((state: RootState) => state.sequencer.activePattern);
     const selSteps = useSelector((state: RootState) => state.sequencer.patterns[actPat].tracks[index].selected);
-    const lockedParameters = useRef({});
+    const lockedParameters: MutableRefObject<initials> = useRef({});
     const ovr = useSelector((state: RootState) => state.sequencer.override);
     const isRecording = useSelector((state: RootState) => state.transport.recording);
     const isPlaying = useSelector((state: RootState) => state.transport.isPlaying);
@@ -99,9 +99,9 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     const patternVelos = useSelector(
         (state: RootState) => {
             let o: { [key: number]: number } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
-                let k = parseInt(key);
-                o[k] = pattern.tracks[index].velocity;
+            Object.keys(state.sequencer.patterns).forEach(key => {
+                let k = parseInt(key)
+                o[k] = state.sequencer.patterns[k].tracks[index].velocity
             });
             return o;
         }
@@ -116,6 +116,10 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                 let k = parseInt(key);
                 o[k] = pattern.tracks[index].noteLength;
             });
+            Object.keys(state.sequencer.patterns).forEach(key => {
+                let k = parseInt(key)
+                o[k] = state.sequencer.patterns[k].tracks[index].noteLength
+            });
             return o
         }
     );
@@ -124,9 +128,9 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     const patLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
-                let k = parseInt(key);
-                o[k] = pattern.patternLength;
+            Object.keys(state.sequencer.patterns).forEach(key => {
+                let k = parseInt(key)
+                o[k] = state.sequencer.patterns[k].patternLength
             });
             return o;
         }
@@ -136,9 +140,9 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     const trkPatLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
-                let k = parseInt(key);
-                o[k] = pattern.tracks[index].length;
+            Object.keys(state.sequencer.patterns).forEach(key => {
+                let k = parseInt(key)
+                o[k] = state.sequencer.patterns[k].tracks[index].length
             });
             return o;
         }
@@ -148,9 +152,9 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     const ev = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.entries(state.sequencer.patterns).forEach(([key, pattern]) => {
-                let k = parseInt(key);
-                o[k] = pattern.tracks[index].events;
+            Object.keys(state.sequencer.patterns).forEach(key => {
+                let k = parseInt(key)
+                o[k] = state.sequencer.patterns[k].tracks[index].events
             });
             return o;
         }
@@ -204,7 +208,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                         let data, propVal;
                         let event = { ...events.current[activePattern.current][step] }
                         const time = timeObjFromEvent(step, event)
-                        const trigg = triggRefs.current[activePattern.current][indexRef.current]
+                        const trigg = triggRefs.current[activePattern.current][indexRef.current].instrument
                         const evp = getNested(event, property);
 
                         // parameter lock logic
@@ -229,8 +233,8 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                             }
                         }
                         if (data) {
-                            event = extendObj(event, data);
-                            trigg.at(time, event);
+                            // event = extendObj(event, data);
+                            // trigg.at(time, event);
                             dispatch(
                                 parameterLock(
                                     activePattern.current,
@@ -316,12 +320,13 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     useProperty(instrumentRef, options, 'resonance');
     useProperty(instrumentRef, options, 'volume')
 
+    // reset to normal state after playback stopped
     useEffect(() => {
         if (!isPlaying && previousPlaying) {
             let p = propertiesToArray(lockedParameters.current);
             p.forEach((property) => {
                 const d = copyToNew(lockedParameters.current, property)
-                instrumentRef.current.set(d);
+                // instrumentRef.current.set(d);
                 dispatch(updateInstrumentState(index, d));
             });
         }
@@ -434,7 +439,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             }
             event['note'] = notes ? notes : null;
             event['velocity'] = velocity;
-            triggRefs.current[pattern][index].at(time, event)
+            triggRefs.current[pattern][index].instrument.at(time, event)
             dispatch(setNoteMidi(index, event['note'], velocity, step));
         });
 
@@ -460,7 +465,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
         } else if (!override && !e.note.includes(noteName)) {
             e.note.push(noteName);
         }
-        triggRefs.current[pattern][index].remove(pastTime);
+        triggRefs.current[pattern][index].instrument.remove(pastTime);
         dispatch(
             noteInput(
                 pattern,
@@ -547,7 +552,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
                 length: length,
             }
             const time = timeObjFromEvent(noteObj.step, e);
-            triggRefs.current[pattern][index].at(time, e);
+            triggRefs.current[pattern][index].instrument.at(time, e);
             dispatch(
                 setNoteLengthPlayback(
                     noteName,
@@ -580,7 +585,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
         );
         Object.keys(triggRefs.current).forEach(key => {
             let k = parseInt(key);
-            triggRefs.current[k][index].callback = instrumentCallback;
+            triggRefs.current[k][index].instrument.callback = instrumentCallback;
         });
     }, [
         voice,
@@ -594,55 +599,25 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
     useEffect(() => {
         if (midi.channel && midi.device) {
             inputRef.current = WebMidi.getInputByName(midi.device);
-            if (JSON.stringify(midi) !== JSON.stringify(previousMidi)) {
-                let inputPrev = previousMidi.device
-                    ? WebMidi.getInputByName(previousMidi.device)
-                    : undefined;
-                // a non standard approach in handling event listeners
-                // because there are many channels to handle in a same
-                // type of event 
-                if (
-                    inputPrev
-                    && previousMidi.channel
+            if (
+                inputRef.current
+                && !inputRef.current.hasListener('noteon', midi.channel, noteInCallback)
+            ) {
+                inputRef.current.addListener('noteon', midi.channel, noteInCallback);
+                inputRef.current.addListener('noteoff', midi.channel, noteOffCallback);
+            }
+
+            return () => {
+                if (inputRef.current
+                    && midi.channel
+                    && inputRef.current.hasListener('noteon', midi.channel, noteInCallback)
                 ) {
-                    inputPrev.removeListener(
-                        'noteon',
-                        previousMidi.channel,
-                        noteInCallback
-                    );
-                    inputPrev.removeListener(
-                        'noteoff',
-                        previousMidi.channel,
-                        noteOffCallback
-                    );
-                }
-                if (
-                    inputRef.current
-                    && !inputRef.current.hasListener(
-                        'noteon',
-                        midi.channel,
-                        noteInCallback
-                    )
-                ) {
-                    inputRef.current.addListener(
-                        'noteon',
-                        midi.channel,
-                        noteInCallback
-                    );
-                    inputRef.current.addListener(
-                        'noteoff',
-                        midi.channel,
-                        noteOffCallback
-                    );
+                    inputRef.current.removeListener('noteon', midi.channel, noteInCallback);
+                    inputRef.current.removeListener('noteon', midi.channel, noteInCallback);
                 }
             }
         }
-    }, [
-        midi,
-        noteInCallback,
-        noteOffCallback,
-        previousMidi
-    ])
+    })
 
     useEffect(() => {
         if (firstRender) {
@@ -652,7 +627,7 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             );
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key)
-                triggRefs.current[k][index].callback = instrumentCallback;
+                triggRefs.current[k][index].instrument.callback = instrumentCallback;
             })
             setRender(false);
         }
@@ -684,12 +659,15 @@ export const Instruments = <T extends instrumentTypes>({ id, index, midi, voice,
             channel: channel,
             cc: cc,
         })
-        if (inputRef.current) {
-            inputRef.current.addListener(
-                'controlchange',
-                channel,
-                f
-            );
+        if (device && channel) {
+            let i = WebMidi.getInputByName(device)
+            if (i) {
+                i.addListener(
+                    'controlchange',
+                    channel,
+                    f
+                );
+            }
         }
     }
 

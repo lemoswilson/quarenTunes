@@ -63,6 +63,7 @@ export function deleteProperty(obj: any, property: string): void {
     else delete cur[fields[j]]
 }
 
+// export function setNestedArray(obj: any, property: string, val: any): any {
 export function setNestedArray(obj: any, property: string, val: any): any {
     if (typeof obj !== 'object') return
     const fields = property.split('.');

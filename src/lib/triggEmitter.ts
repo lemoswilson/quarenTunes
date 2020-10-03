@@ -6,6 +6,9 @@ export enum triggEventTypes {
     ADD_PATTERN = 'ADD_PATTERN',
     REMOVE_PATTERN = 'REMOVE_PATTERN',
     DUPLICATE_PATTERN = 'DUPLICATE_PATTERN',
+    ADD_EFFECT = 'ADD_EFFECT',
+    REMOVE_EFFECT = 'REMOVE_EFFECT',
+    CHANGE_EFFECT_INDEX = 'CHANGE_EFFECT_INDEX',
 }
 
 export type TriggEvent =
@@ -28,6 +31,22 @@ export type TriggEvent =
         event: triggEventTypes.REMOVE_TRACK,
         track: number
     }
+    | {
+        event: triggEventTypes.ADD_EFFECT,
+        track: number,
+        index: number,
+    }
+    | {
+        event: triggEventTypes.REMOVE_EFFECT,
+        track: number,
+        index: number,
+    }
+    | {
+        event: triggEventTypes.CHANGE_EFFECT_INDEX,
+        track: number,
+        from: number,
+        to: number
+    }
 
 type EventType = TriggEvent['event']
 
@@ -40,7 +59,6 @@ export type ExtractEventParameters<A, T> = ExcludeEventField<Extract<A, { event:
 export type ExtractTriggPayload<T> = ExtractEventParameters<TriggEvent, T>
 
 type PayloadType<T> = [T, (payload: ExtractTriggPayload<T>) => void];
-
 
 const eventEmitter = new EventEmitter();
 

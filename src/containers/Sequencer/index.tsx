@@ -28,6 +28,7 @@ import usePrevious from '../../hooks/usePrevious';
 import { bbsFromSixteenth } from '../Arranger'
 import { RootState } from '../../App';
 import { setPatternTrackVelocity } from '../../store/Sequencer/actions';
+import { timeObjFromEvent } from '../../lib/utility';
 
 
 const Sequencer: FunctionComponent = () => {
@@ -83,7 +84,13 @@ const Sequencer: FunctionComponent = () => {
         Ref: MutableRefObject<HTMLInputElement>
     ): void => {
         if (newLength <= 64 && newLength >= 1) {
-            triggRef.current[activePattern][selectedTrack].loopEnd = bbsFromSixteenth(newLength);
+            const nl = bbsFromSixteenth(newLength)
+            triggRef.current[activePattern][selectedTrack].instrument.loopEnd = nl;
+            let i = 0;
+            while (i < 4) {
+                triggRef.current[activePattern][selectedTrack].effects[i].loopEnd = nl;
+                i++
+            }
             dispatch(changeTrackLength(activePattern, selectedTrack, newLength));
         }
     };
@@ -108,13 +115,24 @@ const Sequencer: FunctionComponent = () => {
         if (Tone.Transport.state === "started") {
 
             [...Array(trackCount).keys()].forEach(track => {
-                triggRef.current[activePattern][track].stop(0);
-                triggRef.current[nextPattern][track].start(0)
+                triggRef.current[activePattern][track].instrument.stop(0);
+                triggRef.current[nextPattern][track].instrument.start(0)
+                const l = triggRef.current[activePattern][track].effects.length
+                for (let j = 0; j < l; j++) {
+                    triggRef.current[activePattern][track].effects[j].stop(0);
+                    triggRef.current[nextPattern][track].effects[j].start(0)
+                }
 
                 Tone.Transport.scheduleOnce(() => {
                     Tone.Transport.loopEnd = bbsFromSixteenth(loopEnd);
-                    triggRef.current[activePatternRef.current][track].mute = true;
-                    triggRef.current[nextPattern][track].mute = false;
+                    triggRef.current[activePatternRef.current][track].instrument.mute = true;
+                    triggRef.current[nextPattern][track].instrument.mute = false;
+                    const l = triggRef.current[activePattern][track].effects.length
+                    for (let j = 0; j < l; j++) {
+                        triggRef.current[activePatternRef.current][track].effects[j].mute = true;
+                        triggRef.current[nextPattern][track].effects[j].mute = false;
+                    }
+
                 }, 0);
             });
             Tone.Transport.scheduleOnce((time) => {
@@ -125,7 +143,11 @@ const Sequencer: FunctionComponent = () => {
 
         } else {
             [...Array(trackCount).keys()].forEach(track => {
-                triggRef.current[activePattern][track].stop();
+                triggRef.current[activePattern][track].instrument.stop();
+                const l = triggRef.current[activePattern][track].effects.length
+                for (let j = 0; j < l; j++) {
+                    triggRef.current[activePattern][track].effects[j].stop();
+                }
             });
             dispatch(selectPattern(nextPattern));
         }
@@ -234,11 +256,12 @@ const Sequencer: FunctionComponent = () => {
         if (selectedRef.current.length >= 1) {
             selectedRef.current.forEach(s => {
                 let e = { ...activePatternObj.tracks[selectedTrack].events[s] }
-                let time = {
-                    '16n': s,
-                    '128n': e.offset,
+                let time = timeObjFromEvent(s, e)
+                triggRef.current[activePattern][selectedTrack].instrument.remove(time);
+                const l = triggRef.current[activePattern][selectedTrack].effects.length
+                for (let j = 0; j < l; j++) {
+                    triggRef.current[activePattern][selectedTrack].effects[j].remove(time);
                 }
-                triggRef.current[activePattern][selectedTrack].remove(time);
                 dispatch(
                     deleteEvents(
                         activePattern,

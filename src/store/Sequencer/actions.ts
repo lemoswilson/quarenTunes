@@ -98,19 +98,63 @@ export function toggleOverride(): sequencerActionTypes {
 	return {
 		type: sequencerActions.TOGGLE_OVERRIDE,
 	};
-}
+};
 
 export function toggleRecordingQuantization(): sequencerActionTypes {
 	return {
 		type: sequencerActions.TOGGLE_RECORDING_QUANTIZATION,
 	};
-}
+};
 
 export function addPattern(): sequencerActionTypes {
 	return {
 		type: sequencerActions.ADD_PATTERN,
 	};
-}
+};
+
+export function addEffectSequencer(index: number, track: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.ADD_EFFECT_SEQUENCER,
+		payload: {
+			index: index,
+			track: track
+		}
+	}
+};
+
+export function removeEffectSequencer(index: number, track: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
+		payload: {
+			index: index,
+			track: track,
+		}
+	}
+};
+
+export function changeEffectIndexSequencer(index: number, track: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
+		payload: {
+			index: index,
+			track: track,
+		}
+	}
+};
+
+export function parameterLockEffect(pattern: number, track: number, step: number, fxIndex: number, data: any): sequencerActionTypes {
+	return {
+		type: sequencerActions.PARAMETER_LOCK_EFFECT,
+		payload: {
+			data: data,
+			fxIndex: fxIndex,
+			pattern: pattern,
+			step: step,
+			track: track
+		}
+	}
+};
+
 
 export function changeTrackLength(
 	pattern: number,
@@ -142,7 +186,7 @@ export function removeInstrumentFromSequencer(
 			index: index,
 		},
 	};
-}
+};
 
 export function setNoteLength(
 	pattern: number,

@@ -13,7 +13,7 @@ import Transport from "./containers/Transport";
 import Arranger from './containers/Arranger';
 import Sequencer from './containers/Sequencer';
 import Track from './containers/Track';
-import { Instruments } from './containers/Track/Instruments'
+import { Instrument } from './containers/Track/Instruments'
 import { Grommet, ThemeType } from "grommet";
 import "./App.css";
 import { combineReducers, createStore, compose } from "redux";
@@ -23,6 +23,7 @@ import { sequencerReducer, initialState as SeqInit } from "./store/Sequencer";
 import { transportReducer, initialState as TrsState } from "./store/Transport";
 import { AMSynth } from "tone";
 import { getInitials } from "./containers/Track/defaults";
+import { timeObjFromEvent } from "./lib/utility";
 
 declare global {
 	interface Window {
@@ -92,7 +93,12 @@ export default function App() {
 		let patN = payload.pattern
 		triggRef.current[patN] = [];
 		[...Array(store.getState().track.trackCount).keys()].forEach(track => {
-			triggRef.current[patN][track] = new Tone.Part();
+			triggRef.current[patN][track].instrument = new Tone.Part();
+			let i = 0;
+			while (i < 4) {
+				triggRef.current[patN][track].effects[i] = new Tone.Part();
+				i++
+			}
 		});
 	};
 
@@ -101,29 +107,71 @@ export default function App() {
 		let counter = store.getState().sequencer.counter;
 		[...Array(store.getState().track.trackCount).keys()]
 			.forEach(track => {
-				triggRef.current[counter][track] = new Tone.Part()
+				triggRef.current[counter][track].instrument = new Tone.Part()
+				let i = 0;
+				while (i < 4) {
+					triggRef.current[counter][track].effects[i] = new Tone.Part()
+					i++
+				}
 				let events = store.getState().sequencer.patterns[patN].tracks[track].events
 				events.forEach((e, idx, arr) => {
-					let time = {
-						'16n': idx,
-						'128n': e.offset
+					const time = timeObjFromEvent(idx, e)
+					triggRef.current[counter][track].instrument.at(time, e.instrument);
+					i = 0;
+					while (i < 4) {
+						triggRef.current[counter][track].effects[i].at(time, e.fx[i])
+						i++
 					}
-					triggRef.current[counter][track].at(time, e);
 				});
 			})
+	}
+
+	const addEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.ADD_EFFECT>): void => {
+		let [track, index] = [payload.track, payload.index];
+		let patternCount = Object.keys(store.getState().sequencer.patterns).length;
+		[...Array(patternCount).keys()].forEach(pat => {
+			triggRef.current[pat][track].effects.push(new Tone.Part());
+		});
+	};
+
+	const removeEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_EFFECT>): void => {
+		let [track, index] = [payload.track, payload.index];
+		let patternCount = Object.keys(store.getState().sequencer.patterns).length;
+		[...Array(patternCount).keys()].forEach(pat => {
+			triggRef.current[pat][track].effects.splice(index, 1);
+		});
+	}
+
+	const changeEffectIndexTrigg = (payload: ExtractTriggPayload<triggEventTypes.CHANGE_EFFECT_INDEX>): void => {
+		let [track, from, to] = [payload.track, payload.from, payload.to];
+		let patternCount = Object.keys(store.getState().sequencer.patterns).length;
+		[...Array(patternCount).keys()].forEach(pat => {
+			[triggRef.current[pat][track].effects[to], triggRef.current[pat][track].effects[from]] =
+				[triggRef.current[pat][track].effects[from], triggRef.current[pat][track].effects[to]];
+		});
 	}
 
 
 	const removePattern = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_PATTERN>): void => {
 		let patN: number = payload.pattern;
-		triggRef.current[patN].forEach(part => part.dispose())
+		triggRef.current[patN].forEach(part => {
+			part.instrument.dispose();
+			let i = 0;
+			while (i < 4) {
+				part.effects[i].dispose();
+				i++
+			}
+		})
 		delete triggRef.current[patN];
 	};
 
 
 	const addTrack = (): void => {
 		Object.keys(triggRef.current).forEach(patt => {
-			triggRef.current[parseInt(patt)].push(new Tone.Part());
+			triggRef.current[parseInt(patt)].push({
+				instrument: new Tone.Part(),
+				effects: []
+			});
 		});
 	};
 
@@ -131,7 +179,12 @@ export default function App() {
 	const removeTrack = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_TRACK>): void => {
 		let trackN: number = payload.track;
 		Object.keys(triggRef.current).forEach(patt => {
-			triggRef.current[parseInt(patt)][trackN].dispose();
+			triggRef.current[parseInt(patt)][trackN].instrument.dispose();
+			let i = 0;
+			while (i < 4) {
+				triggRef.current[parseInt(patt)][trackN].effects[i].dispose();
+				i++
+			}
 			triggRef.current[parseInt(patt)].splice(trackN, 1);
 		});
 		toneObjRef.current[trackN].instrument?.dispose();
@@ -141,17 +194,28 @@ export default function App() {
 	};
 
 	const addEffect = (payload: ExtractTrackPayload<trackEventTypes.ADD_EFFECT>): void => {
-		const [trackId, effect] = [
+		const [trackId, effect, index] = [
 			payload.trackId,
 			payload.effect,
+			payload.effectIndex
 		];
 		let lgth: number = toneObjRef.current[trackId].effects.length;
 		let chain: Chain = toneObjRef.current[trackId].chain;
+
 		if (lgth > 0) {
-			let lastFx = toneObjRef.current[trackId].effects[lgth - 1];
-			lastFx.disconnect();
-			lastFx.connect(effect);
-			effect.connect(chain.out);
+			let from, to;
+			if (index === lgth - 1) {
+				from = toneObjRef.current[trackId].effects[lgth - 1];
+				to = chain.out
+			} else {
+				from = toneObjRef.current[trackId].effects[index]
+				to = toneObjRef.current[trackId].effects[index + 1]
+			}
+			if (from && to) {
+				from.disconnect();
+				from.connect(effect);
+				effect.connect(to);
+			}
 		} else {
 			chain.in.disconnect();
 			chain.in.connect(effect);
@@ -292,6 +356,8 @@ export default function App() {
 		triggEmitter.on(triggEventTypes.ADD_TRACK, addTrack);
 		triggEmitter.on(triggEventTypes.REMOVE_TRACK, removeTrack);
 		triggEmitter.on(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
+		triggEmitter.on(triggEventTypes.ADD_EFFECT, addEffectTrigg);
+		triggEmitter.on(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
 
 		toneRefsEmitter.on(trackEventTypes.ADD_EFFECT, addEffect);
 		toneRefsEmitter.on(trackEventTypes.ADD_INSTRUMENT, addInstrument);
@@ -306,6 +372,9 @@ export default function App() {
 			triggEmitter.off(triggEventTypes.ADD_TRACK, addTrack);
 			triggEmitter.off(triggEventTypes.REMOVE_TRACK, removeTrack);
 			triggEmitter.off(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
+			triggEmitter.off(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
+			triggEmitter.off(triggEventTypes.ADD_EFFECT, addEffectTrigg);
+			triggEmitter.off(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
 
 
 			toneRefsEmitter.off(trackEventTypes.ADD_EFFECT, addEffect);
@@ -319,7 +388,10 @@ export default function App() {
 	}, [])
 
 	let triggRef = useRef<triggContext>({
-		0: [new Tone.Part()]
+		0: [{
+			instrument: new Tone.Part(),
+			effects: []
+		}]
 	})
 
 

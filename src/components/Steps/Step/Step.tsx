@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { eventOptions } from '../../../containers/Track/Instruments';
+import { event } from '../../../store/Sequencer'
 import TriggCtx from '../../../context/triggState'
 import usePrevious from '../../../hooks/usePrevious';
 import { useTrigg } from '../../../hooks/useProperty';
@@ -13,7 +14,7 @@ interface StepProps {
     selected: number[],
     index: number,
     tempo: number,
-    event: eventOptions
+    event: event
 };
 
 const Step: React.FC<StepProps> = ({
@@ -27,7 +28,14 @@ const Step: React.FC<StepProps> = ({
     const previousOffset = usePrevious(event.offset);
     const triggRefs = useContext(TriggCtx)
 
-    useTrigg(triggRefs.current[activePattern][selectedTrack], event, index, previousOffset)
+    useTrigg(
+        triggRefs.current[activePattern][selectedTrack].instrument,
+        triggRefs.current[activePattern][selectedTrack].effects,
+        event.fx,
+        event.instrument,
+        index,
+        previousOffset
+    )
 
     const dispatch = useDispatch();
     const selStep = () => {

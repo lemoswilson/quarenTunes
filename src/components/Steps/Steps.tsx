@@ -1,11 +1,12 @@
 import React from 'react';
 import { eventOptions } from '../../containers/Track/Instruments';
+import { event } from '../../store/Sequencer'
 import { range } from '../../lib/utility';
 
 interface StepsProps {
     page: number,
     length: number,
-    events: eventOptions[],
+    events: event[],
     activePattern: number,
     selectedTrack: number,
     selected: number[],

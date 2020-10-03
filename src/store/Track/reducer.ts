@@ -1,10 +1,11 @@
 import { getNested, propertiesToArray, setNestedArray } from '../../lib/objectDecompose'
 import { getInitials } from '../../containers/Track/defaults'
+import { getEffectsInitials } from '../../containers/Track/defaults'
 import {
 	trackActionTypes,
 	trackActions,
 	Track,
-	instrumentTypes,
+	instrumentTypes, effectTypes
 } from "./types";
 import produce from "immer";
 
@@ -82,6 +83,7 @@ export function trackReducer(
 				draft.tracks[action.payload.trackIndex].fx.splice(action.payload.index, 0, {
 					fx: action.payload.effect,
 					id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
+					options: getEffectsInitials(effectTypes.PINGPONGDELAY)
 				});
 				draft.tracks[action.payload.trackIndex].fxCounter =
 					draft.tracks[action.payload.trackIndex].fxCounter + 1;

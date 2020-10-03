@@ -1,3 +1,4 @@
+import { effectsInitials } from "../../containers/Track/Instruments";
 import {
 	trackActions,
 	trackActionTypes,
@@ -17,6 +18,21 @@ export function updateInstrumentState(
 			options: options
 		}
 	};
+}
+
+export function updateEffectState(
+	track: number,
+	options: effectsInitials,
+	fxIndex: number,
+): trackActionTypes {
+	return {
+		type: trackActions.UPDATE_EFFECT_STATE,
+		payload: {
+			fxIndex: fxIndex,
+			track: track,
+			options: options,
+		}
+	}
 }
 
 export function changeInstrument(

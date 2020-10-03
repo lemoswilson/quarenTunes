@@ -111,31 +111,54 @@ const Arranger: FunctionComponent = () => {
 							dispatch(setTracker([v.pattern, 0]));
 							[...Array(trackCounter.current).keys()].forEach(track => {
 								const trackLength: number | string = patterns.current[v.pattern].tracks[track].length;
-								const trigg: Tone.Part = triggRef.current[v.pattern][track];
-								trigg.mute = false;
-								trigg.loop = true;
-								trigg.loopEnd = bbsFromSixteenth(trackLength);
-								trigg.start("+0");
+								const b = bbsFromSixteenth(trackLength)
+								const instrumentTrigg: Tone.Part = triggRef.current[v.pattern][track].instrument;
+								const fxTriggs = triggRef.current[v.pattern][track].effects
+								const l = fxTriggs.length
+								for (let i = 0; i < l; i++) {
+									fxTriggs[i].mute = false;
+									fxTriggs[i].loop = true;
+									fxTriggs[i].loopEnd = b;
+									fxTriggs[i].start("+0");
+								}
+								instrumentTrigg.mute = false;
+								instrumentTrigg.loop = true;
+								instrumentTrigg.loopEnd = b;
+								instrumentTrigg.start("+0");
 							});
 						}, 0);
 					} else {
 						Tone.Transport.schedule((time) => {
 							dispatch(setTracker([v.pattern, secondaryTime]));
 							[...Array(trackCounter.current).keys()].forEach(track => {
-								const trigg = triggRef.current[v.pattern][track];
-								const pastTrigg = triggRef.current[arr[idx - 1].pattern][track];
+								const instrumentTrigg = triggRef.current[v.pattern][track].instrument;
+								const fxTriggs = triggRef.current[v.pattern][track].effects
+								const pastFxTriggs = triggRef.current[arr[idx - 1].pattern][track].effects
+								const pastInstrumentTrigg = triggRef.current[arr[idx - 1].pattern][track].instrument;
 								const trackLength: number = patterns.current[v.pattern].tracks[track].length;
 								if (arr[idx - 1].pattern === v.pattern) {
-									if (trigg.state !== "started") trigg.start("+0");
+									if (instrumentTrigg.state !== "started") instrumentTrigg.start("+0");
+									for (let i = 0; i < fxTriggs.length; i++) {
+										if (fxTriggs[i].state !== "started") fxTriggs[i].start("+0")
+									}
 								} else {
 									if (arr[idx - 1].pattern >= 0) {
-										pastTrigg.stop();
-										pastTrigg.mute = true;
-										pastTrigg.loop = false;
-										trigg.loop = true;
-										trigg.loopEnd = bbsFromSixteenth(trackLength);
-										trigg.mute = false;
-										trigg.start("+0");
+										pastInstrumentTrigg.stop();
+										pastInstrumentTrigg.mute = true;
+										pastInstrumentTrigg.loop = false;
+										instrumentTrigg.loop = true;
+										instrumentTrigg.loopEnd = bbsFromSixteenth(trackLength);
+										instrumentTrigg.mute = false;
+										instrumentTrigg.start("+0");
+										for (let i = 0; i < fxTriggs.length; i++) {
+											pastFxTriggs[i].mute = true
+											pastFxTriggs[i].loop = false
+											pastFxTriggs[i].stop();
+											fxTriggs[i].mute = false;
+											fxTriggs[i].loop = true;
+											fxTriggs[i].loopEnd = bbsFromSixteenth(trackLength);
+											fxTriggs[i].start("+0");
+										}
 									}
 								}
 							});
@@ -146,9 +169,14 @@ const Arranger: FunctionComponent = () => {
 					if (idx > 0 && arr[idx - 1].pattern >= 0) {
 						Tone.Transport.schedule((time) => {
 							[...Array(trkCount).keys()].forEach(track => {
-								const pastTrigg: Tone.Part = triggRef.current[arr[idx - 1].pattern][track];
-								pastTrigg.stop();
-								pastTrigg.mute = true;
+								const pastInstrumentTriggs: Tone.Part = triggRef.current[arr[idx - 1].pattern][track].instrument;
+								const pastEffectTriggs = triggRef.current[arr[idx - 1].pattern][track].effects
+								for (let i = 0; i < pastEffectTriggs.length; i++) {
+									pastEffectTriggs[i].stop();
+									pastEffectTriggs[i].mute = true;
+								}
+								pastInstrumentTriggs.stop();
+								pastInstrumentTriggs.mute = true;
 							});
 						}, timeCounter);
 					}
@@ -159,10 +187,15 @@ const Arranger: FunctionComponent = () => {
 				// Stopping patterns
 				Tone.Transport.schedule((time) => {
 					[...Array(trkCount).keys()].forEach(track => {
-						const lastTrigg: Tone.Part =
-							triggRef.current[events[eventsLength].pattern][track];
-						lastTrigg.stop();
-						lastTrigg.mute = true;
+						const lastTriggInstrument: Tone.Part =
+							triggRef.current[events[eventsLength].pattern][track].instrument;
+						const lastTriggFx = triggRef.current[events[eventsLength].pattern][track].effects
+						for (let i = 0; i < lastTriggFx.length; i++) {
+							lastTriggFx[i].stop();
+							lastTriggFx[i].mute = true;
+						}
+						lastTriggInstrument.stop();
+						lastTriggInstrument.mute = true;
 					});
 				}, timeCounter);
 			}
@@ -186,13 +219,21 @@ const Arranger: FunctionComponent = () => {
 		[...Array(trkCount)]
 			.map((_, i) => i)
 			.forEach((ix: number) => {
-				triggRef.current[actPat][ix].loop = true;
-				triggRef.current[actPat][ix].loopStart = 0;
-				triggRef.current[actPat][ix].loopEnd = bbsFromSixteenth(
-					activePatternObj.tracks[ix].length
-				);
-				triggRef.current[actPat][ix].mute = false;
-				triggRef.current[actPat][ix].start(0);
+				const b = bbsFromSixteenth(activePatternObj.tracks[ix].length)
+				const InstrumentTrigg = triggRef.current[actPat][ix].instrument
+				const fxTriggs = triggRef.current[actPat][ix].effects
+				InstrumentTrigg.loop = true;
+				InstrumentTrigg.loopStart = 0;
+				InstrumentTrigg.loopEnd = b;
+				InstrumentTrigg.mute = false;
+				InstrumentTrigg.start(0);
+				for (let i = 0; i < fxTriggs.length; i++) {
+					fxTriggs[i].mute = false;
+					fxTriggs[i].loop = true;
+					fxTriggs[i].loopEnd = b;
+					fxTriggs[i].loopStart = 0;
+					fxTriggs[i].start(0);
+				}
 			});
 	}, [
 		actPat,
@@ -259,8 +300,13 @@ const Arranger: FunctionComponent = () => {
 			} else {
 				if (previousMode === "pattern") {
 					[...Array(trackCounter.current).keys()].forEach(track => {
-						triggRef.current[activePattern.current][track].stop();
-						triggRef.current[activePattern.current][track].mute = true;
+						const fxTriggs = triggRef.current[activePattern.current][track].effects
+						triggRef.current[activePattern.current][track].instrument.stop();
+						triggRef.current[activePattern.current][track].instrument.mute = true;
+						for (let i = 0; i < fxTriggs.length; i++) {
+							fxTriggs[i].mute = true;
+							fxTriggs[i].stop();
+						}
 					})
 				}
 				Tone.Transport.loop = false;
