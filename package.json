@@ -26,6 +26,7 @@
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
+    "redux-undo": "^1.0.1",
     "sizeof": "^1.0.0",
     "styled-components": "^5.1.1",
     "tone": "^14.7.12",

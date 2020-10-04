@@ -8,13 +8,14 @@ import { useTrigg } from '../../../hooks/useProperty';
 import { selectStep } from '../../../store/Sequencer'
 
 interface StepProps {
-    offset: number,
+    // offset: number,
     activePattern: number,
     selectedTrack: number,
     selected: number[],
     index: number,
     tempo: number,
-    event: event
+    event: event,
+    un: string,
 };
 
 const Step: React.FC<StepProps> = ({
@@ -23,10 +24,12 @@ const Step: React.FC<StepProps> = ({
     activePattern,
     selectedTrack,
     tempo,
-    event
+    event,
+    un
 }) => {
     const previousOffset = usePrevious(event.offset);
     const triggRefs = useContext(TriggCtx)
+    const previousPattern = usePrevious(activePattern)
 
     useTrigg(
         triggRefs.current[activePattern][selectedTrack].instrument,
@@ -34,7 +37,8 @@ const Step: React.FC<StepProps> = ({
         event.fx,
         event.instrument,
         index,
-        previousOffset
+        previousOffset,
+        un
     )
 
     const dispatch = useDispatch();

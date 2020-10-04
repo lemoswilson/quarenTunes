@@ -11,18 +11,14 @@ import Tone from './lib/tone'
 import styled from "styled-components";
 import Transport from "./containers/Transport";
 import Arranger from './containers/Arranger';
-import Sequencer from './containers/Sequencer';
-import Track from './containers/Track';
-import { Instrument } from './containers/Track/Instruments'
 import { Grommet, ThemeType } from "grommet";
 import "./App.css";
+import undoable from 'redux-undo'
 import { combineReducers, createStore, compose } from "redux";
 import { arrangerReducer, initialState as ArrInit } from "./store/Arranger";
 import { trackReducer, initialState as TrkInit, toneEffects } from "./store/Track";
 import { sequencerReducer, initialState as SeqInit } from "./store/Sequencer";
 import { transportReducer, initialState as TrsState } from "./store/Transport";
-import { AMSynth } from "tone";
-import { getInitials } from "./containers/Track/defaults";
 import { timeObjFromEvent } from "./lib/utility";
 
 declare global {

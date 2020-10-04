@@ -502,7 +502,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         <div>
             { properties.map(property => {
                 // vai passar () => midiLearn(property) como funcão 
-                const [value, r, indicatorType, curve] = getNested(options, property)
+                const [value, r, unit, indicatorType, curve, utypes] = getNested(options, property)
                 switch (indicatorType) {
                     case indicators.DROPDOWN:
                         return (
@@ -543,6 +543,16 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                             //     option={r} 
                             //     calc={accessNested(calcCallback, property)}>
                             // </VSlider>
+                            console.log()
+                        )
+                    case indicators.STEPPED_KNOB:
+                        return (
+                            // <STEPKNOB 
+                            //     property={property} 
+                            //     value={value} 
+                            //     option={r} 
+                            //     calc={accessNested(calcCallback, property)}>
+                            // </STEPKNOB>
                             console.log()
                         )
 

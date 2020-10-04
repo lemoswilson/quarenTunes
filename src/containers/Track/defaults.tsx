@@ -76,41 +76,41 @@ const envelopeCurveOptions = ['linear', 'exponential'];
 
 const envelope = {
     attack: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    attackCurve: ["linear", envelopeCurveOptions, envelopeCurveIndicator],
+    attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     decay: [0.01, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
-    decayCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    releaseCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     sustain: [1, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 };
 
 const metalSynthEnvelope = {
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    attackCurve: ["linear", envelopeCurveOptions, envelopeCurveIndicator],
+    attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
-    decayCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     release: [0.2, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    releaseCurve: ["exponential", envelopeCurveOptions, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
+    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     sustain: [0, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 }
 
 const membraneSynthEnvelope = {
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    attackCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    attackCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     decay: [0.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    decayCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     release: [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    releaseCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     sustain: [0.01, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 }
 
 const modulationEnvelope = {
     attack: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    attackCurve: ["linear", envelopeCurveOptions, envelopeCurveIndicator],
+    attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     decay: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    decayCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    releaseCurve: ["exponential", envelopeCurveOptions, envelopeCurveIndicator],
+    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     sustain: [1, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 };
 
@@ -118,21 +118,21 @@ const oscillator = {
     // partialCount: [0, 0, 8, 'dropdown', [1,2,3,4,5,6,7,8]],
     // partials: [],
     // phase: 0,
-    type: ["sine", oscillatorTypeOptions, oscillatorTypeIndicator]
+    type: ["sine", oscillatorTypeOptions, undefined, oscillatorTypeIndicator]
 };
 
 const modulation = {
     // partialCount: 0,
     // partials: [],
     // phase: 0,
-    type: ["square", oscillatorTypeOptions, oscillatorTypeIndicator]
+    type: ["square", oscillatorTypeOptions, undefined, oscillatorTypeIndicator]
 }
 
 const noise = {
     fadeIn: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     fadeOut: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     playbackRate: [1, modulationRange, modulationUnit, modulationRange, curveTypes.EXPONENTIAL],
-    type: ['white', noiseTypeOptions, noiseTypeIndicator]
+    type: ['white', noiseTypeOptions, undefined, noiseTypeIndicator]
 }
 
 const volume = [0, volumeRange, volumeUnit, volumeIndicator, curveTypes.EXPONENTIAL];
@@ -300,9 +300,9 @@ export function getInitials(type: instrumentTypes) {
         case instrumentTypes.DRUMRACK:
             return {
                 volume: volume,
-                attack: [0, envelopeTimeRange, envelopeTimeIndicator],
+                attack: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
                 baseUrl: " ",
-                curve: ['exponential', envelopeCurveOptions, envelopeCurveIndicator],
+                curve: ['exponential', envelopeCurveOptions, undefined, envelopeCurveIndicator],
                 release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
                 urls: {},
             }
@@ -395,7 +395,7 @@ const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "4n.", "
 
 const wet = [1, drywetRange, drywetUnit, drywetIndicator, curveTypes.LINEAR];
 const halfwet = [0.5, drywetIndicator, drywetUnit, drywetIndicator, curveTypes.LINEAR]
-const oscillatorType = ['sine', oscillatorTypeOptions, oscillatorTypeIndicator];
+const oscillatorType = ['sine', oscillatorTypeOptions, undefined, oscillatorTypeIndicator];
 const effectsFrequency = [15, timeOptions('frequency'), timeUnit('frequency'), timeIndicator("frequency"), curveTypes.EXPONENTIAL, ['frequency', 'subdivision']];
 const depth = [1, normalRange, normalUnit, frequencyIndicator, curveTypes.EXPONENTIAL];
 const chorusDepth = [0.5, normalRange, normalUnit, frequencyIndicator, curveTypes.EXPONENTIAL];
@@ -406,12 +406,12 @@ const autoFilterOctaves = [2.6, ocatvesRange, octaveUnit, octavesIndicator, curv
 const phaserOctaves = [3, ocatvesRange, octaveUnit, octavesIndicator, curveTypes.EXPONENTIAL];
 const autoFilterQ = [1, qRange, qUnit, qIndicator, curveTypes.EXPONENTIAL];
 const phaserQ = [10, qRange, qUnit, qIndicator, curveTypes.EXPONENTIAL]
-const autoFilterRolloff = [-12, rolloffOptions, rolloffIndicators];
-const filterRolloff = [-12, FilterrolloffOptions, rolloffIndicators];
-const autoFilterType = ['lowpass', filterTypeOptions, filterTypeIndicator];
+const autoFilterRolloff = [-12, rolloffOptions, undefined, rolloffIndicators];
+const filterRolloff = [-12, FilterrolloffOptions, undefined, rolloffIndicators];
+const autoFilterType = ['lowpass', filterTypeOptions, undefined, filterTypeIndicator];
 const bits = [4, bitRange, bitUnit, bitIndicator, curveTypes.LINEAR];
 const order = [15, orderRange, orderUnit, orderIndicator, curveTypes.LINEAR];
-const oversample = ['none', oversampleOptions, oversampleIndicator];
+const oversample = ['none', oversampleOptions, undefined, oversampleIndicator];
 const chorusFeedback = [0, feedbackRange, feedbackUnit, feedbackIndicator, curveTypes.LINEAR];
 const pitchShiftFeedback = [0, feedbackRange, feedbackUnit, feedbackIndicator, curveTypes.LINEAR];
 const chorusFrequency = [4, timeOptions('frequency'), timeUnit('frequency'), timeIndicator('frequency'), curveTypes.EXPONENTIAL, ['frequency', 'subdivision']]

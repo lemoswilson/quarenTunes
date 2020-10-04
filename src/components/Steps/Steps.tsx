@@ -1,4 +1,5 @@
 import React from 'react';
+import Step from './Step/Step'
 import { eventOptions } from '../../containers/Track/Instruments';
 import { event } from '../../store/Sequencer'
 import { range } from '../../lib/utility';
@@ -40,7 +41,17 @@ const Steps: React.FC<StepsProps> = ({
     return (
         <div>
             {range(page * 16, finalStep()).map(idx => {
-                return // insert step component here
+                return <Step
+                    activePattern={activePattern}
+                    event={events[idx]}
+                    index={idx}
+                    selected={selected}
+                    selectedTrack={selectedTrack}
+                    tempo={idx + 1}
+                    un={`${activePattern}:${selectedTrack}:${idx}`}
+                    key={`${activePattern}:${selectedTrack}:${idx}`}
+                // offset={}
+                ></Step>// insert step component here
                 // will also send events.offset pra cada um deles como offset props
             })}
         </div>
