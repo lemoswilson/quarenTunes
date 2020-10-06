@@ -114,6 +114,16 @@ export function setRepeat(
 	};
 }
 
+export function setTimer(timer: (string | number)[], song: number): arrangerActionTypes {
+	return {
+		type: arrangerActions.SET_TIMER,
+		payload: {
+			timer: timer,
+			song: song
+		}
+	}
+}
+
 export function removeRow(rowIndex: number): arrangerActionTypes {
 	return {
 		type: arrangerActions.REMOVE_ROW,

@@ -3,7 +3,7 @@ export enum arrangerMode {
 	PATTERN = "pattern",
 }
 
-export interface event {
+export interface songEvent {
 	pattern: number;
 	repeat: number;
 	mute: number[];
@@ -12,8 +12,9 @@ export interface event {
 
 export interface Song {
 	name: string;
-	events: event[];
+	events: songEvent[];
 	counter: number;
+	timer: (string | number)[];
 }
 
 export interface Arranger {
@@ -40,13 +41,22 @@ export enum arrangerActions {
 	SET_REPEAT = "SET_REPEAT",
 	REMOVE_ROW = "REMOVE_ROW",
 	REMOVE_PATTERN = "REMOVE_PATTERN",
-	SET_TRACKER = "SET_TRACKER"
+	SET_TRACKER = "SET_TRACKER",
+	SET_TIMER = "SET_TIMER",
 }
 
 export interface setTrackerAction {
 	type: arrangerActions.SET_TRACKER,
 	payload: {
-		tracker: number[]
+		tracker: number[],
+	}
+}
+
+export interface setTimerAction {
+	type: arrangerActions.SET_TIMER,
+	payload: {
+		timer: (number | string)[],
+		song: number,
 	}
 }
 
@@ -144,4 +154,5 @@ export type arrangerActionTypes =
 	| setPatternAction
 	| setRepeatAction
 	| setTrackerAction
+	| setTimerAction
 	| removePatternAction;

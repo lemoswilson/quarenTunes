@@ -70,7 +70,7 @@ export const useTrigg = (
 ) => {
     const off = instrumentOptions.offset ? instrumentOptions.offset : 0
     const prevUn = usePrevious(un);
-    const now = timeObjFromEvent(step, off)
+    // const now = timeObjFromEvent(step, off)
     const fx1Trigg = triggFx[0];
     const f1Opt = fxOptions[0]
     const fx2Trigg = triggFx[1]
@@ -82,12 +82,14 @@ export const useTrigg = (
 
     useEffect(() => {
         if (un === prevUn) {
+            const now = timeObjFromEvent(step, off)
             trig.at(now, instrumentOptions)
         }
-    }, [instrumentOptions, trig, un, prevUn])
+    }, [instrumentOptions, trig, un, prevUn, off])
 
     useEffect(() => {
-        if (un === prevUn) {
+        if (un === prevUn && off !== previousOffset) {
+            const now = timeObjFromEvent(step, off)
             const pastTime = timeObjFromEvent(step, previousOffset, false)
             trig.remove({ time: pastTime })
             trig.at(now, instrumentOptions)
@@ -98,32 +100,36 @@ export const useTrigg = (
                 i++
             }
         }
-    }, [instrumentOptions.offset, prevUn])
+    }, [off, prevUn, previousOffset, instrumentOptions, trig, triggFx, fxOptions, un])
 
     useEffect(() => {
-        if (un === prevUn && fx1Trigg) {
+        if (un === prevUn && fx1Trigg && off === previousOffset) {
+            const now = timeObjFromEvent(step, off)
             fx1Trigg.at(now, f1Opt)
         }
-    }, [fx1Trigg, f1Opt])
+    }, [fx1Trigg, f1Opt, off, previousOffset, un, prevUn])
 
 
     useEffect(() => {
-        if (un === prevUn && fx2Trigg) {
+        if (un === prevUn && fx2Trigg && off === previousOffset) {
+            const now = timeObjFromEvent(step, off)
             fx2Trigg.at(now, f2Opt)
         }
-    }, [fx2Trigg, f2Opt])
+    }, [fx2Trigg, f2Opt, off, un, prevUn, previousOffset])
 
 
     useEffect(() => {
-        if (un === prevUn && fx3Trigg) {
+        if (un === prevUn && fx3Trigg && off === previousOffset) {
+            const now = timeObjFromEvent(step, off)
             fx3Trigg.at(now, f3Opt)
         }
-    }, [fx3Trigg, f2Opt])
+    }, [fx3Trigg, f3Opt, off, un, prevUn, previousOffset])
 
 
     useEffect(() => {
-        if (un === prevUn && fx3Trigg) {
+        if (un === prevUn && fx4Trigg && off === previousOffset) {
+            const now = timeObjFromEvent(step, off)
             fx4Trigg.at(now, f4Opt)
         }
-    }, [fx4Trigg, f4Opt])
+    }, [fx4Trigg, f4Opt, off, un, prevUn, previousOffset])
 }

@@ -13,14 +13,14 @@ const Transport: FunctionComponent = () => {
 	const dispatch = useDispatch();
 
 	const isPlaying = useSelector(
-		(state: RootState) => state.transport.isPlaying
+		(state: RootState) => state.transport.present.isPlaying
 	);
 
 	const recording = useSelector(
-		(state: RootState) => state.transport.recording
+		(state: RootState) => state.transport.present.recording
 	);
 
-	const bpm = useSelector((state: RootState) => state.transport.bpm);
+	const bpm = useSelector((state: RootState) => state.transport.present.bpm);
 
 	useEffect(() => {
 		isPlaying ? Tone.Transport.start() : Tone.Transport.stop();

@@ -1,10 +1,10 @@
 import React, {
 	useEffect,
+	useRef,
 	FunctionComponent,
 	ChangeEvent,
 	KeyboardEvent,
 	MouseEvent,
-	useRef,
 	useContext,
 	useState,
 	useCallback
@@ -24,8 +24,9 @@ import {
 	setMute,
 	setPattern,
 	setRepeat,
+	setTimer,
 	arrangerMode,
-	event,
+	songEvent,
 	// Arranger,
 } from "../../store/Arranger";
 import { goToActive } from '../../store/Sequencer'
@@ -33,7 +34,6 @@ import Tone from "../../lib/tone";
 import { RootState } from "../../App";
 import usePrevious from "../../hooks/usePrevious";
 import useQuickRef from "../../hooks/useQuickRef";
-import { current } from "immer";
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;
@@ -60,35 +60,59 @@ const Arranger: FunctionComponent = () => {
 	const triggRef = useContext(triggCtx);
 	const dispatch = useDispatch();
 
-	const actPat = useSelector((state: RootState) => state.sequencer.activePattern);
-	const isPlaying = useSelector((state: RootState) => state.transport.isPlaying);
+	const actPat = useSelector((state: RootState) => state.sequencer.present.activePattern);
+	const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
 	const previousPlaying = usePrevious(isPlaying);
-	const selectedTrack = useSelector((state: RootState) => state.track.selectedTrack);
-	const activePage = useSelector((state: RootState) => state.sequencer.patterns[actPat].tracks[selectedTrack].page);
-	const trkCount = useSelector((state: RootState) => state.track.trackCount);
-	const trackCounter = useQuickRef(trkCount);
-	const songAmount = useSelector((state: RootState) => Object.keys(state.arranger.songs).length)
-	const currentSong = useSelector((state: RootState) => state.arranger.selectedSong);
-	const arrangerMode = useSelector((state: RootState) => state.arranger.mode);
-	const patternTracker = useSelector((state: RootState) => state.arranger.patternTracker);
-	const patte = useSelector((state: RootState) => state.sequencer.patterns)
+	const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack);
+	const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[actPat].tracks[selectedTrack].page);
+	const trkCount = useSelector((state: RootState) => state.track.present.trackCount);
+	// const trackCounter = useQuickRef(trkCount);
+	const trackCounter = useRef(trkCount);
+	useEffect(() => { trackCounter.current = trkCount }, [trkCount])
+	const songAmount = useSelector((state: RootState) => Object.keys(state.arranger.present.songs).length)
+	const currentSong = useSelector((state: RootState) => state.arranger.present.selectedSong);
+	const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
+	const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
+	const patte = useSelector((state: RootState) => state.sequencer.present.patterns)
 	const arrg = useSelector((state: RootState) => state.arranger)
-	const actSongObj = useSelector((state: RootState) => state.arranger.songs[currentSong]);
-	const isFollowing = useSelector((state: RootState) => state.arranger.following);
+	const actSongObj = useSelector((state: RootState) => state.arranger.present.songs[currentSong]);
+	const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
 	const previousMode = usePrevious(arrangerMode);
-	const patternsObj = useSelector((state: RootState) => state.sequencer.patterns);
+	const patternsObj = useSelector((state: RootState) => state.sequencer.present.patterns);
 	const activePatternObj = patternsObj[actPat];
-	const activePattern = useQuickRef(actPat)
-	const isPlay = useQuickRef(isPlaying)
-	const patterns = useQuickRef(patte);
-	const arranger = useQuickRef(arrg);
-	const activeSongObject = useQuickRef(actSongObj);
+	// const activePattern = useQuickRef(actPat)
+	const activePattern = useRef(actPat);
+	useEffect(() => { activePattern.current = actPat }, [actPat]);
+	// const isPlay = useQuickRef(isPlaying)
+	const isPlay = useRef(isPlaying);
+	useEffect(() => { isPlay.current = isPlaying }, [isPlaying])
+	// const patterns = useQuickRef(patte);
+	const patterns = useRef(patte);
+	useEffect(() => { patterns.current = patte }, [patte])
+	// const arranger = useQuickRef(arrg);
+	const arranger = useRef(arrg);
+	useEffect(() => { arranger.current = arrg }, [arrg])
+	// const activeSongObject = useQuickRef(actSongObj);
+	const activeSongObject = useRef(actSongObj);
+	useEffect(() => { activeSongObject.current = actSongObj }, [actSongObj])
 	const songPatterns = actSongObj.events.map(v => v.pattern);
 	const songRepeats = actSongObj.events.map(v => v.repeat);
 	const songMutes = actSongObj.events.map(v => v.mute);
 
+	const timers = useCallback((pt: number[], repeats: number[]) => {
+		const f = pt.map((pat, idx, arr) => {
+			if (idx === 0) return 0
+			else {
+				const repeat = repeats[idx] < 2 ? 1 : repeats[idx]
+				const length = patterns.current[pat].patternLength * repeat
+				return bbsFromSixteenth(length)
+			}
+		})
+		return f
+	}, [patterns])
+
 	const scheduleFromIndex = useCallback((...args: any) => {
-		const events: event[] = args[1] ? args[1] : activeSongObject.current.events;
+		const events: songEvent[] = args[1] ? args[1] : activeSongObject.current.events;
 
 		if (Tone.Transport.loop) {
 			Tone.Transport.loop = false;
@@ -102,7 +126,7 @@ const Arranger: FunctionComponent = () => {
 			events.forEach((v, idx, arr) => {
 				const secondaryTime: number = timeCounter;
 				const repeat: number = v.repeat + 1;
-				const rowEnd = bbsFromSixteenth(patternsObj[v.pattern].patternLength * repeat);
+				const rowEnd = v.pattern >= 0 ? bbsFromSixteenth(patterns.current[v.pattern].patternLength * repeat) : 0;
 
 				if (v.pattern >= 0) {
 
@@ -115,16 +139,18 @@ const Arranger: FunctionComponent = () => {
 								const instrumentTrigg: Tone.Part = triggRef.current[v.pattern][track].instrument;
 								const fxTriggs = triggRef.current[v.pattern][track].effects
 								const l = fxTriggs.length
-								for (let i = 0; i < l; i++) {
-									fxTriggs[i].mute = false;
-									fxTriggs[i].loop = true;
-									fxTriggs[i].loopEnd = b;
-									fxTriggs[i].start("+0");
+								if (!v.mute.includes(track)) {
+									for (let i = 0; i < l; i++) {
+										fxTriggs[i].mute = false;
+										fxTriggs[i].loop = true;
+										fxTriggs[i].loopEnd = b;
+										fxTriggs[i].start("+0");
+									}
+									instrumentTrigg.mute = false;
+									instrumentTrigg.loop = true;
+									instrumentTrigg.loopEnd = b;
+									instrumentTrigg.start("+0");
 								}
-								instrumentTrigg.mute = false;
-								instrumentTrigg.loop = true;
-								instrumentTrigg.loopEnd = b;
-								instrumentTrigg.start("+0");
 							});
 						}, 0);
 					} else {
@@ -137,27 +163,33 @@ const Arranger: FunctionComponent = () => {
 								const pastInstrumentTrigg = triggRef.current[arr[idx - 1].pattern][track].instrument;
 								const trackLength: number = patterns.current[v.pattern].tracks[track].length;
 								if (arr[idx - 1].pattern === v.pattern) {
-									if (instrumentTrigg.state !== "started") instrumentTrigg.start("+0");
-									for (let i = 0; i < fxTriggs.length; i++) {
-										if (fxTriggs[i].state !== "started") fxTriggs[i].start("+0")
+									if (!v.mute.includes(track)) {
+										if (instrumentTrigg.state !== "started") instrumentTrigg.start("+0");
+										for (let i = 0; i < fxTriggs.length; i++) {
+											if (fxTriggs[i].state !== "started") fxTriggs[i].start("+0")
+										}
 									}
 								} else {
 									if (arr[idx - 1].pattern >= 0) {
 										pastInstrumentTrigg.stop();
 										pastInstrumentTrigg.mute = true;
 										pastInstrumentTrigg.loop = false;
-										instrumentTrigg.loop = true;
-										instrumentTrigg.loopEnd = bbsFromSixteenth(trackLength);
-										instrumentTrigg.mute = false;
-										instrumentTrigg.start("+0");
+										if (!v.mute.includes(track)) {
+											instrumentTrigg.loop = true;
+											instrumentTrigg.loopEnd = bbsFromSixteenth(trackLength);
+											instrumentTrigg.mute = false;
+											instrumentTrigg.start("+0");
+										}
 										for (let i = 0; i < fxTriggs.length; i++) {
 											pastFxTriggs[i].mute = true
 											pastFxTriggs[i].loop = false
 											pastFxTriggs[i].stop();
-											fxTriggs[i].mute = false;
-											fxTriggs[i].loop = true;
-											fxTriggs[i].loopEnd = bbsFromSixteenth(trackLength);
-											fxTriggs[i].start("+0");
+											if (v.mute.includes(track)) {
+												fxTriggs[i].mute = false;
+												fxTriggs[i].loop = true;
+												fxTriggs[i].loopEnd = bbsFromSixteenth(trackLength);
+												fxTriggs[i].start("+0");
+											}
 										}
 									}
 								}
@@ -202,8 +234,10 @@ const Arranger: FunctionComponent = () => {
 		}
 	}, [
 		dispatch,
-		patternsObj,
+		activeSongObject,
 		triggRef,
+		patterns,
+		trackCounter,
 		trkCount
 	]
 	)
@@ -287,6 +321,7 @@ const Arranger: FunctionComponent = () => {
 		activePage,
 		dispatch,
 		patternTracker,
+		activeSongObject,
 		selectedTrack,
 		patterns,
 	])
@@ -320,6 +355,8 @@ const Arranger: FunctionComponent = () => {
 		trkCount,
 		isPlaying,
 		currentSong,
+		activePattern,
+		trackCounter,
 		scheduleFromIndex,
 		setupPatternMode,
 		previousMode,
@@ -329,8 +366,18 @@ const Arranger: FunctionComponent = () => {
 
 
 	useEffect(() => {
+		const f = timers(songPatterns, songRepeats)
+		// dispatch(setTimer(f, currentSong));
 		scheduleFromIndex(0)
-	}, [songMutes, songPatterns, songRepeats, scheduleFromIndex, currentSong])
+	}, [
+		songMutes,
+		songPatterns,
+		songRepeats,
+		scheduleFromIndex,
+		currentSong,
+		timers,
+		dispatch
+	])
 
 	// set following scheduler
 	useEffect(() => {
@@ -373,13 +420,13 @@ const Arranger: FunctionComponent = () => {
 		dispatch(setMode(newMode));
 	};
 
-
-
-
+	const setPosition = (position: string | number) => {
+		Tone.Transport.position = position;
+	};
 
 	const ppRow = (): void => {
 		dispatch(prependRow());
-		const edummy: event[] = [...activeSongObject.current.events];
+		const edummy: songEvent[] = [...activeSongObject.current.events];
 		edummy.unshift({
 			pattern: -1,
 			repeat: 0,
@@ -392,7 +439,7 @@ const Arranger: FunctionComponent = () => {
 
 	const aRow = (index: number): void => {
 		dispatch(addRow(index));
-		const edummy: event[] = [...activeSongObject.current.events];
+		const edummy: songEvent[] = [...activeSongObject.current.events];
 		edummy.splice(index + 1, 0, {
 			pattern: -1,
 			repeat: 0,
@@ -441,7 +488,7 @@ const Arranger: FunctionComponent = () => {
 	};
 
 	const rRow = (index: number): void => {
-		const dummye: event[] = [...activeSongObject.current.events];
+		const dummye: songEvent[] = [...activeSongObject.current.events];
 		dummye.splice(index, 1);
 		dispatch(removeRow(index));
 		// Tone.Transport.cancel()

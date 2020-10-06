@@ -1,4 +1,4 @@
-import { effectsInitials, effectsInitialsArray, RecursivePartial } from '../../containers/Track/Instruments/types';
+import { effectsInitials, effectsInitialsArray, initialsArray, RecursivePartial } from '../../containers/Track/Instruments/types';
 import {
 	AutoPanner,
 	AutoWah,
@@ -164,7 +164,8 @@ export interface trackInfo {
 	midi: midi;
 	fx: effectsInfo[];
 	fxCounter: number;
-	options: any;
+	// options: any;
+	options: initialsArray;
 }
 
 export interface Track {

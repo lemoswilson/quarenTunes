@@ -5,7 +5,7 @@ import { instrumentTypes } from '../store/Track'
 import { Instrument } from './Track/Instruments'
 
 const Dummy: FunctionComponent = () => {
-    const options = useSelector((state: RootState) => state.track.tracks[0].options)
+    const options = useSelector((state: RootState) => state.track.present.tracks[0].options)
     const [v, vs] = useState(1)
     const up = () => {
         vs(t => t + 1);

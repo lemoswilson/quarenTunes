@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import Dummy from './containers/Dummy';
 import Chain from './lib/fxChain';
 import TriggContext, { triggContext } from './context/triggState';
-import { instrumentTypes } from './store/Track'
+import { instrumentTypes, trackActions } from './store/Track'
 import toneRefsContext, { toneRefs } from './context/toneRefsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from './lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, toneRefsPayload, ExtractTrackPayload } from './lib/toneRefsEmitter';
@@ -11,15 +11,18 @@ import Tone from './lib/tone'
 import styled from "styled-components";
 import Transport from "./containers/Transport";
 import Arranger from './containers/Arranger';
+import Track from './containers/Track/';
 import { Grommet, ThemeType } from "grommet";
 import "./App.css";
-import undoable from 'redux-undo'
+import undoable, { newHistory, includeAction, excludeAction } from 'redux-undo'
+import { arrangerActions } from './store/Arranger'
 import { combineReducers, createStore, compose } from "redux";
 import { arrangerReducer, initialState as ArrInit } from "./store/Arranger";
 import { trackReducer, initialState as TrkInit, toneEffects } from "./store/Track";
-import { sequencerReducer, initialState as SeqInit } from "./store/Sequencer";
-import { transportReducer, initialState as TrsState } from "./store/Transport";
+import { sequencerReducer, initialState as SeqInit, sequencerActions } from "./store/Sequencer";
+import { transportReducer, initialState as TrsState, transportActions } from "./store/Transport";
 import { timeObjFromEvent } from "./lib/utility";
+import Sequencer from "./containers/Sequencer";
 
 declare global {
 	interface Window {
@@ -29,21 +32,52 @@ declare global {
 
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
+const arrangerHistory = newHistory([], ArrInit, [])
+const sequencerHistory = newHistory([], SeqInit, [])
+const trackHistory = newHistory([], TrkInit, [])
+const transportHistory = newHistory([], TrsState, [])
 
 
 export const rootReducer = combineReducers({
-	arranger: arrangerReducer,
-	track: trackReducer,
-	sequencer: sequencerReducer,
-	transport: transportReducer,
+	arranger: undoable(arrangerReducer, {
+		filter: includeAction([
+			arrangerActions.SET_TRACKER,
+			arrangerActions.SET_TIMER
+		])
+	}),
+	track: undoable(trackReducer, {
+		filter: includeAction([
+			trackActions.SELECT_MIDI_CHANNEL,
+			trackActions.SELECT_MIDI_DEVICE,
+			trackActions.SHOW_INSTRUMENT,
+			trackActions.ADD_INSTRUMENT,
+			trackActions.DELETE_EFFECT,
+			trackActions.INSERT_EFFECT,
+			trackActions.REMOVE_INSTRUMENT,
+		])
+	}),
+	sequencer: undoable(sequencerReducer, {
+		filter: includeAction([
+			sequencerActions.ADD_EFFECT_SEQUENCER,
+			sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER,
+			sequencerActions.CHANGE_PAGE,
+			sequencerActions.CHANGE_TRACK_LENGTH,
+			sequencerActions.CHANGE_PATTERN_LENGTH,
+			sequencerActions.REMOVE_EFFECT_SEQUENCER,
+			sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER,
+			sequencerActions.GO_TO_ACTIVE,
+		])
+	}),
+	transport: undoable(transportReducer, {
+		filter: includeAction([transportActions.RECORD, transportActions.START, transportActions.STOP])
+	}),
 });
 
 const store = createStore(rootReducer, {
-	arranger: ArrInit,
-	sequencer: SeqInit,
-	track: TrkInit,
-	transport: TrsState,
+	arranger: arrangerHistory,
+	sequencer: sequencerHistory,
+	track: trackHistory,
+	transport: transportHistory,
 }, composeEnhancers());
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -88,7 +122,7 @@ export default function App() {
 	const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
 		let patN = payload.pattern
 		triggRef.current[patN] = [];
-		[...Array(store.getState().track.trackCount).keys()].forEach(track => {
+		[...Array(store.getState().track.present.trackCount).keys()].forEach(track => {
 			triggRef.current[patN][track].instrument = new Tone.Part();
 			let i = 0;
 			while (i < 4) {
@@ -100,8 +134,8 @@ export default function App() {
 
 	const duplicatePattern = (payload: ExtractTriggPayload<triggEventTypes.DUPLICATE_PATTERN>): void => {
 		let patN = payload.pattern
-		let counter = store.getState().sequencer.counter;
-		[...Array(store.getState().track.trackCount).keys()]
+		let counter = store.getState().sequencer.present.counter;
+		[...Array(store.getState().track.present.trackCount).keys()]
 			.forEach(track => {
 				triggRef.current[counter][track].instrument = new Tone.Part()
 				let i = 0;
@@ -109,7 +143,7 @@ export default function App() {
 					triggRef.current[counter][track].effects[i] = new Tone.Part()
 					i++
 				}
-				let events = store.getState().sequencer.patterns[patN].tracks[track].events
+				let events = store.getState().sequencer.present.patterns[patN].tracks[track].events
 				events.forEach((e, idx, arr) => {
 					const time = timeObjFromEvent(idx, e)
 					triggRef.current[counter][track].instrument.at(time, e.instrument);
@@ -124,7 +158,7 @@ export default function App() {
 
 	const addEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.ADD_EFFECT>): void => {
 		let [track, index] = [payload.track, payload.index];
-		let patternCount = Object.keys(store.getState().sequencer.patterns).length;
+		let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
 		[...Array(patternCount).keys()].forEach(pat => {
 			triggRef.current[pat][track].effects.push(new Tone.Part());
 		});
@@ -132,7 +166,7 @@ export default function App() {
 
 	const removeEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_EFFECT>): void => {
 		let [track, index] = [payload.track, payload.index];
-		let patternCount = Object.keys(store.getState().sequencer.patterns).length;
+		let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
 		[...Array(patternCount).keys()].forEach(pat => {
 			triggRef.current[pat][track].effects.splice(index, 1);
 		});
@@ -140,7 +174,7 @@ export default function App() {
 
 	const changeEffectIndexTrigg = (payload: ExtractTriggPayload<triggEventTypes.CHANGE_EFFECT_INDEX>): void => {
 		let [track, from, to] = [payload.track, payload.from, payload.to];
-		let patternCount = Object.keys(store.getState().sequencer.patterns).length;
+		let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
 		[...Array(patternCount).keys()].forEach(pat => {
 			[triggRef.current[pat][track].effects[to], triggRef.current[pat][track].effects[from]] =
 				[triggRef.current[pat][track].effects[from], triggRef.current[pat][track].effects[to]];
@@ -406,7 +440,9 @@ export default function App() {
 					<Grommet theme={theme}>
 						<Arranger></Arranger>
 						<Transport></Transport>
-						<Dummy></Dummy>
+						{/* <Dummy></Dummy> */}
+						<Track></Track>
+						<Sequencer></Sequencer>
 						{/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
 					</Grommet>
 				</Provider>

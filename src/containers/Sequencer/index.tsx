@@ -1,5 +1,16 @@
-import React, { useEffect, useContext, FunctionComponent, useState, MutableRefObject, ChangeEvent, useRef, KeyboardEvent } from 'react';
+import React, {
+    useEffect,
+    useContext,
+    FunctionComponent,
+    useState,
+    MutableRefObject,
+    ChangeEvent,
+    useRef,
+    KeyboardEvent,
+    useCallback, RefObject
+} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { ActionCreators } from 'redux-undo';
 import triggCtx from '../../context/triggState';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 import Tone from '../../lib/tone';
@@ -11,7 +22,7 @@ import {
     changeTrackLength,
     deleteEvents,
     removePattern,
-    Sequencer,
+    // Sequencer,
     selectPattern,
     selectStep,
     setNote,
@@ -25,6 +36,8 @@ import {
     changePatternName,
 } from '../../store/Sequencer';
 import usePrevious from '../../hooks/usePrevious';
+import Steps from '../../components/Steps/Steps'
+import StepsEdit from '../../components/StepsEdit/StepsEdit'
 import { bbsFromSixteenth } from '../Arranger'
 import { RootState } from '../../App';
 import { setPatternTrackVelocity } from '../../store/Sequencer/actions';
@@ -35,26 +48,39 @@ const Sequencer: FunctionComponent = () => {
     const triggRef = useContext(triggCtx);
     const dispatch = useDispatch()
 
-    const isPlaying = useSelector((state: RootState) => state.transport.isPlaying);
-    const sequencer = useSelector((state: RootState) => state.sequencer);
+    const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
+    const sequencer = useSelector((state: RootState) => state.sequencer.present);
     const previousPlaying = usePrevious(isPlaying);
-    const arrangerMode = useSelector((state: RootState) => state.arranger.mode);
-    const counter = useSelector((state: RootState) => state.sequencer.counter);
-    const isFollowing = useSelector((state: RootState) => state.arranger.following);
-    const activePage = useSelector((state: RootState) => state.sequencer.patterns[activePattern].tracks[selectedTrack].page);
-    const activePageRef = useQuickRef(activePage);
-    const activePattern = useSelector((state: RootState) => state.sequencer.activePattern);
+    const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
+    const counter = useSelector((state: RootState) => state.sequencer.present.counter);
+    const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
+    // const activePageRef = useQuickRef(activePage);
+
+    const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
     // **** Preciso atualizar a ref com o useEffect;
-    const activePatternRef = useQuickRef(activePattern);
-    const selectedTrack = useSelector((state: RootState) => state.track.selectedTrack)
-    const selected = useSelector((state: RootState) => state.sequencer.patterns[activePattern].tracks[selectedTrack].selected);
-    const selectedRef = useQuickRef(selected);
-    const selLen = useSelector((state: RootState) => state.sequencer.patterns[activePattern].tracks[selectedTrack].noteLength);
-    const patternTrackVelocity = useSelector((state: RootState) => state.sequencer.patterns[activePattern].tracks[selectedTrack].velocity);
-    const selLenRef = useQuickRef(selLen);
-    const trackCount = useSelector((state: RootState) => state.track.trackCount)
-    const activePatternObj = useSelector((state: RootState) => state.sequencer.patterns[activePattern])
-    const patternAmount = useSelector((state: RootState) => Object.keys(state.sequencer.patterns).length)
+    // const activePatternRef = useQuickRef(activePattern);
+    const activePatternRef = useRef(activePattern);
+    useEffect(() => { activePatternRef.current = activePattern }, [activePattern])
+    const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack)
+    const selected = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].selected);
+    // const selectedRef = useQuickRef(selected);
+    const selectedRef = useRef(selected);
+    useEffect(() => { selectedRef.current = selected }, [selected])
+    const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
+    const patternTrackVelocity = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].velocity);
+    // const selLenRef = useQuickRef(selLen);
+    const selLenRef = useRef(selLen);
+    useEffect(() => { selLenRef.current = selLen }, [selLen])
+    const trackCount = useSelector((state: RootState) => state.track.present.trackCount)
+    const activePatternObj = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern])
+    const patternAmount = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).length)
+    const events = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].events);
+    const patternLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].patternLength)
+    const patternNoteLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength)
+    const trackLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].length)
+    const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].page);
+    const activePageRef = useRef(activePage);
+    useEffect(() => { activePageRef.current = activePage }, [activePage])
 
     const remPattern = (): void => {
         dispatch(removePattern(activePattern))
@@ -74,14 +100,18 @@ const Sequencer: FunctionComponent = () => {
         dispatch(toggleRecordingQuantization());
     };
 
-    const adPattern = (): void => {
+    const adPattern = useCallback(() => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
         dispatch(addPattern());
-    };
+    }, [
+        triggEmitter,
+        dispatch,
+        addPattern
+    ]);
 
     const chgTrackLength = (
         newLength: number,
-        Ref: MutableRefObject<HTMLInputElement>
+        Ref: RefObject<HTMLFormElement>
     ): void => {
         if (newLength <= 64 && newLength >= 1) {
             const nl = bbsFromSixteenth(newLength)
@@ -95,9 +125,9 @@ const Sequencer: FunctionComponent = () => {
         }
     };
 
-    const chgPatternLength = (
+    const chgPatternLength = useCallback((
         newLength: number,
-        ref: MutableRefObject<HTMLInputElement>
+        ref: RefObject<HTMLFormElement>
     ): void => {
         if (newLength >= 1) {
             if (arrangerMode === "pattern") {
@@ -105,7 +135,7 @@ const Sequencer: FunctionComponent = () => {
             }
             dispatch(changePatternLength(activePattern, newLength))
         }
-    };
+    }, []);
 
     const selPattern = (e: ChangeEvent<HTMLInputElement>): void => {
         e.preventDefault();
@@ -154,16 +184,16 @@ const Sequencer: FunctionComponent = () => {
 
     };
 
-    const chgPatternName = (name: string): void => {
+    const chgPatternName = useCallback((name: string): void => {
         dispatch(
             changePatternName(
                 activePattern,
                 name
             )
         );
-    };
+    }, []);
 
-    const chgPage = (pageIndex: number): void => {
+    const chgPage = useCallback((pageIndex: number): void => {
         dispatch(
             changePage(
                 activePattern,
@@ -171,7 +201,7 @@ const Sequencer: FunctionComponent = () => {
                 pageIndex
             )
         );
-    };
+    }, [dispatch, changePage, activePattern, selectedTrack]);
 
     const sOffSet = (direction: number): void => {
         selectedRef.current.forEach(step => {
@@ -369,7 +399,38 @@ const Sequencer: FunctionComponent = () => {
     };
 
     return (
-        <div></div>
+        <div>
+            <StepsEdit
+                activePattern={activePattern}
+                addPattern={adPattern}
+                changePage={chgPage}
+                changePatternLength={chgPatternLength}
+                changePatternName={chgPatternName}
+                changeTrackLength={chgTrackLength}
+                events={events}
+                page={activePage}
+                patternAmount={patternAmount}
+                patternLength={patternLength}
+                patternNoteLength={patternNoteLength}
+                patternTrackVelocity={patternTrackVelocity}
+                removePattern={remPattern}
+                selectPattern={selPattern}
+                selected={selected}
+                setNote={sNote}
+                setNoteLength={sNoteLength}
+                setPatternNoteLength={sPatternNoteLength}
+                setVelocity={sVelocity}
+                trackLength={trackLength}
+            ></StepsEdit>
+            <Steps
+                activePattern={activePattern}
+                events={events}
+                length={trackLength}
+                page={activePage}
+                selected={selected}
+                selectedTrack={selectedTrack}
+            ></Steps>
+        </div>
     )
 }
 

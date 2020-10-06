@@ -1,4 +1,5 @@
-import React, { ChangeEvent, FormEvent, useRef, RefObject } from 'react';
+import React, { ChangeEvent, FormEvent, useRef, RefObject, MutableRefObject } from 'react';
+import { event } from '../../store/Sequencer'
 
 
 interface StepsEditProps {
@@ -14,7 +15,7 @@ interface StepsEditProps {
     changePatternName: (name: string) => void,
     removePattern: () => void,
     patternTrackVelocity: number,
-    events: any[],
+    events: event[],
     patternNoteLength: string | number,
     page: number,
     setNote: (note: string[]) => void,
@@ -128,7 +129,7 @@ const StepsEdit: React.FC<StepsEditProps> = ({
         if (selected.length > 1) {
             return '*';
         } else if (selected.length === 1) {
-            return events[selected[0]]['note'] ? events[selected[0]]['note'].join(',') : 'noNote';
+            return events[selected[0]].instrument['note'] ? events[selected[0]].instrument.note?.join(',') : 'noNote';
         } else {
             return 'Input Note';
         }
@@ -138,7 +139,8 @@ const StepsEdit: React.FC<StepsEditProps> = ({
         if (selected.length > 1) {
             return 'mais do que um selecionado'
         } else if (selected.length === 1) {
-            return events[selected[0]]['velocity'] ? events[selected[0]]['velocity'] : patternTrackVelocity;
+            const v = events[selected[0]].instrument.velocity
+            return v ? v : patternTrackVelocity
         } else {
             return patternTrackVelocity;
         }
@@ -148,7 +150,8 @@ const StepsEdit: React.FC<StepsEditProps> = ({
         if (selected.length > 1) {
             return 'mais do que um selecionado'
         } else if (selected.length === 1) {
-            return events[selected[0]]['length'] ? events[selected[0]]['length'] : patternNoteLength;
+            const l = events[selected[0]].instrument.length
+            return l ? l : patternNoteLength
         } else {
             return patternNoteLength;
         }
@@ -164,3 +167,5 @@ const StepsEdit: React.FC<StepsEditProps> = ({
         </div>
     )
 }
+
+export default StepsEdit;

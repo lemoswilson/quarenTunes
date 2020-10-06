@@ -23,6 +23,7 @@ export const initialState: Arranger = {
 					id: 0,
 				},
 			],
+			timer: [0],
 			counter: 1,
 		},
 	},
@@ -59,6 +60,7 @@ export function arrangerReducer(
 							id: 0,
 						},
 					],
+					timer: [0],
 					counter: 1,
 				};
 				draft.counter = draft.counter + 1;
@@ -119,6 +121,10 @@ export function arrangerReducer(
 				let tracker: number[] = action.payload.tracker;
 				draft.patternTracker = tracker;
 				break;
+			case arrangerActions.SET_TIMER:
+				const timer = action.payload.timer;
+				const song = action.payload.song;
+				draft.songs[song].timer = timer;
 		}
 	});
 }

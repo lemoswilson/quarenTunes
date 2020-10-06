@@ -2,6 +2,8 @@ import React, { FunctionComponent, useContext, useEffect, useRef } from 'react';
 import triggContext from '../../context/triggState';
 import { addInstrumentToSequencer, removeInstrumentFromSequencer } from '../../store/Sequencer';
 import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/toneRefsEmitter';
+import { Instrument } from './Instruments'
+import Effect from './Effects/Effect'
 import { range } from '../../lib/utility';
 import {
     addInstrument,
@@ -27,16 +29,18 @@ const Track: FunctionComponent = () => {
     const triggRef = useContext(triggContext);
 
     const patternKeys: number[] = useSelector(
-        (state: RootState) => Object.keys(state.sequencer.patterns).map(key => parseInt(key))
+        (state: RootState) => Object.keys(state.sequencer.present.patterns).map(key => parseInt(key))
     );
 
     const trackNumber: number = useSelector(
-        (state: RootState) => state.track.trackCount
+        (state: RootState) => state.track.present.trackCount
     );
 
     const selectedTrack = useSelector(
-        (state: RootState) => state.track.selectedTrack
+        (state: RootState) => state.track.present.selectedTrack
     );
+
+    const Tracks = useSelector((state: RootState) => state.track.present.tracks);
 
     const chgInstrument = (instrument: instrumentTypes, index: number): void => {
         dispatch(changeInstrument(index, instrument));
@@ -46,7 +50,7 @@ const Track: FunctionComponent = () => {
     const addInstr = (instrument: instrumentTypes): void => {
         dispatch(addInstrumentToSequencer());
         dispatch(addInstrument(instrument));
-        // triggEmitter.emit(triggEventTypes.ADD_TRACK, {})
+        triggEmitter.emit(triggEventTypes.ADD_TRACK, {})
     };
 
     const remInstr = (index: number): void => {
@@ -83,7 +87,39 @@ const Track: FunctionComponent = () => {
     };
 
     return (
-        <div></div>
+        <div>
+            { Tracks.map((track, tidx, arr) => {
+                return (
+                    <React.Fragment key={`xablau${track}.${track.id}`}>
+                        <Instrument
+                            dummy={0}
+                            id={track.id}
+                            index={tidx}
+                            midi={track.midi}
+                            options={track.options}
+                            voice={track.instrument}
+                            key={`instrument${track.id}`}
+                        ></Instrument>
+                        { track.fx.map((fx, fidx, arr) => {
+                            return (
+                                <Effect
+                                    index={fidx}
+                                    midi={track.midi}
+                                    options={fx.options}
+                                    track={tidx}
+                                    trackId={track.id}
+                                    type={fx.fx}
+                                    id={fx.id}
+                                    key={`instrument${track.id}fx${fx.id}`}
+                                ></Effect>
+                            )
+                        })}
+                    </React.Fragment>
+                    // <div>
+                    // </div>
+                )
+            })}
+        </div>
     )
 };
 

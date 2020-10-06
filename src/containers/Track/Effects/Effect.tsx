@@ -82,62 +82,84 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     const CCMaps = useRef<any>({});
     const listenCC = useRef<controlChangeEvent>();
     const triggRefs = useContext(triggContext);
-    const patTracker = useSelector((state: RootState) => state.arranger.patternTracker);
-    const arrMode = useSelector((state: RootState) => state.arranger.mode);
-    const actPat = useSelector((state: RootState) => state.sequencer.activePattern);
-    const selSteps = useSelector((state: RootState) => state.sequencer.patterns[actPat].tracks[index].selected);
+    const patTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
+    const arrMode = useSelector((state: RootState) => state.arranger.present.mode);
+    const actPat = useSelector((state: RootState) => state.sequencer.present.activePattern);
+    const selSteps = useSelector((state: RootState) => state.sequencer.present.patterns[actPat].tracks[index].selected);
     const lockedParameters: MutableRefObject<effectsInitials> = useRef({});
     const inputRef = useRef<false | Input>(false);
     // const ovr = useSelector((state: RootState) => state.sequencer.override);
-    const isRecording = useSelector((state: RootState) => state.transport.recording);
-    const isPlaying = useSelector((state: RootState) => state.transport.isPlaying);
+    const isRecording = useSelector((state: RootState) => state.transport.present.recording);
+    const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
     const previousPlaying = usePrevious(isPlaying);
     const [firstRender, setRender] = useState(true);
 
-    const optionsRef = useQuickRef(options)
-    const indexRef = useQuickRef(index);
-    const patternTracker = useQuickRef(patTracker);
-    const arrangerMode = useQuickRef(arrMode);
-    const activePattern = useQuickRef(actPat);
-    const selectedSteps = useQuickRef(selSteps);
-    const isRec = useQuickRef(isRecording);
-    const isPlay = useQuickRef(isPlaying);
+    // const optionsRef = useQuickRef(options)
+    const optionsRef = useRef(options)
+    useEffect(() => { optionsRef.current = options }, [options])
+    // const indexRef = useQuickRef(index);
+    const indexRef = useRef(index);
+    useEffect(() => { indexRef.current = index }, [index]);
+    // const patternTracker = useQuickRef(patTracker);
+    const patternTracker = useRef(patTracker);
+    useEffect(() => { patternTracker.current = patTracker }, [patTracker]);
+    // const arrangerMode = useQuickRef(arrMode);
+    const arrangerMode = useRef(arrMode);
+    useEffect(() => { arrangerMode.current = arrMode }, [arrMode]);
+    // const activePattern = useQuickRef(actPat);
+    const activePattern = useRef(actPat);
+    useEffect(() => { activePattern.current = actPat }, [actPat]);
+    // const selectedSteps = useQuickRef(selSteps);
+    const selectedSteps = useRef(selSteps);
+    useEffect(() => { selectedSteps.current = selSteps }, [selSteps]);
+    // const isRec = useQuickRef(isRecording);
+    const isRec = useRef(isRecording);
+    useEffect(() => { isRec.current = isRecording }, [isRecording])
+    // const isPlay = useQuickRef(isPlaying);
+    const isPlay = useRef(isPlaying);
+    useEffect(() => { isPlay.current = isPlaying }, [isPlaying]);
 
     const patLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.keys(state.sequencer.patterns).forEach(key => {
+            Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.patterns[k].patternLength
+                o[k] = state.sequencer.present.patterns[k].patternLength
             });
             return o;
         }
     );
-    const patternLengths = useQuickRef(patLen);
+    // const patternLengths = useQuickRef(patLen);
+    const patternLengths = useRef(patLen);
+    useEffect(() => { patternLengths.current = patLen }, [patLen])
 
     const trkPatLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.keys(state.sequencer.patterns).forEach(key => {
+            Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.patterns[k].tracks[index].length
+                o[k] = state.sequencer.present.patterns[k].tracks[index].length
             });
             return o;
         }
     );
-    const trackPatternLength = useQuickRef(trkPatLen);
+    // const trackPatternLength = useQuickRef(trkPatLen);
+    const trackPatternLength = useRef(trkPatLen);
+    useEffect(() => { trackPatternLength.current = trkPatLen }, [trkPatLen])
 
     const ev = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
-            Object.keys(state.sequencer.patterns).forEach(key => {
+            Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.patterns[k].tracks[index].events
+                o[k] = state.sequencer.present.patterns[k].tracks[index].events
             });
             return o;
         }
     );
-    const events = useQuickRef(ev);
+    // const events = useQuickRef(ev);
+    const events = useRef(ev);
+    useEffect(() => { events.current = ev }, [ev])
 
     const propertyUpdate: any = useMemo(() => {
         let o = {}
