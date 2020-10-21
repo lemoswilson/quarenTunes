@@ -39,7 +39,7 @@ import { sixteenthFromBBS } from '../../Arranger';
 import usePrevious from '../../../hooks/usePrevious';
 import { useProperty } from '../../../hooks/useProperty';
 import useQuickRef from '../../../hooks/useQuickRef';
-import { initialsArray } from './types';
+import { eventOptions, initialsArray } from './types';
 
 export const returnInstrument = (voice: instrumentTypes, opt: initialsArray) => {
     let options = onlyValues(opt);
@@ -368,7 +368,8 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
     ]
     );
 
-    const instrumentCallback = useCallback((time: number, value: any) => {
+    // const instrumentCallback = useCallback((time: number, value: any) => {
+    const instrumentCallback = useCallback((time: number, value: eventOptions) => {
         let velocity: number = value.velocity
             ? value.velocity
             : arrangerMode.current === "pattern"
@@ -395,20 +396,42 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
             })
         }
 
-        // parameter lock
-        properties.forEach(property => {
-            const currVal = getNested(optionsRef.current, property);
-            const callbackVal = getNested(value, property);
-            const lockVal = getNested(lockedParameters.current, property);
-            if (callbackVal && callbackVal !== currVal[0]) {
-                propertyUpdate[property](callbackVal);
-                setNestedValue(property, callbackVal, lockedParameters);
-            } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-                propertyUpdate[property](lockVal);
-                deleteProperty(lockedParameters.current, property);
-                // setNestedValue(property, undefined, lockedParameters.current)
+        const p = propertiesToArray(value);
+
+        p.forEach(property => {
+            if (
+                property !== 'velocity'
+                && property !== 'length'
+                && property !== 'note'
+            ) {
+                const currVal = getNested(optionsRef.current, property);
+                const callbackVal = getNested(value, property);
+                const lockVal = getNested(lockedParameters.current, property);
+                if (callbackVal && callbackVal !== currVal[0]) {
+                    propertyUpdate[property](callbackVal);
+                    setNestedValue(property, callbackVal, lockedParameters);
+                } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
+                    propertyUpdate[property](lockVal);
+                    deleteProperty(lockedParameters.current, property);
+                    // setNestedValue(property, undefined, lockedParameters.current)
+                }
             }
-        });
+        })
+
+        // parameter lock
+        // properties.forEach(property => {
+        //     const currVal = getNested(optionsRef.current, property);
+        //     const callbackVal = getNested(value, property);
+        //     const lockVal = getNested(lockedParameters.current, property);
+        //     if (callbackVal && callbackVal !== currVal[0]) {
+        //         propertyUpdate[property](callbackVal);
+        //         setNestedValue(property, callbackVal, lockedParameters);
+        //     } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
+        //         propertyUpdate[property](lockVal);
+        //         deleteProperty(lockedParameters.current, property);
+        //         // setNestedValue(property, undefined, lockedParameters.current)
+        //     }
+        // });
     }, [
         properties,
         propertyUpdate,

@@ -104,9 +104,10 @@ const Sequencer: FunctionComponent = () => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
         dispatch(addPattern());
     }, [
-        triggEmitter,
+        // triggEmitter,
         dispatch,
-        addPattern
+        // addPattern,
+        counter
     ]);
 
     const chgTrackLength = (
@@ -135,7 +136,7 @@ const Sequencer: FunctionComponent = () => {
             }
             dispatch(changePatternLength(activePattern, newLength))
         }
-    }, []);
+    }, [activePattern, arrangerMode, dispatch]);
 
     const selPattern = (e: ChangeEvent<HTMLInputElement>): void => {
         e.preventDefault();
@@ -191,7 +192,7 @@ const Sequencer: FunctionComponent = () => {
                 name
             )
         );
-    }, []);
+    }, [activePattern, dispatch]);
 
     const chgPage = useCallback((pageIndex: number): void => {
         dispatch(
@@ -201,7 +202,7 @@ const Sequencer: FunctionComponent = () => {
                 pageIndex
             )
         );
-    }, [dispatch, changePage, activePattern, selectedTrack]);
+    }, [dispatch, activePattern, selectedTrack]);
 
     const sOffSet = (direction: number): void => {
         selectedRef.current.forEach(step => {

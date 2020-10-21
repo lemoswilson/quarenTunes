@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useDispatch } from 'react-redux';
-import { eventOptions } from '../../../containers/Track/Instruments';
+// import { eventOptions } from '../../../containers/Track/Instruments';
 import { event } from '../../../store/Sequencer'
 import TriggCtx from '../../../context/triggState'
 import usePrevious from '../../../hooks/usePrevious';
@@ -29,7 +29,7 @@ const Step: React.FC<StepProps> = ({
 }) => {
     const previousOffset = usePrevious(event.offset);
     const triggRefs = useContext(TriggCtx)
-    const previousPattern = usePrevious(activePattern)
+    // const previousPattern = usePrevious(activePattern)
 
     useTrigg(
         triggRefs.current[activePattern][selectedTrack].instrument,

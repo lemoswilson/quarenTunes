@@ -11,7 +11,7 @@ import { effectsInitials, effectsInitialsArray } from '../Instruments';
 import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
 import Tone from '../../../lib/tone'
 import usePrevious from '../../../hooks/usePrevious';
-import useQuickRef from '../../../hooks/useQuickRef';
+// import useQuickRef from '../../../hooks/useQuickRef';
 import { updateEffectState } from '../../../store/Track/actions'
 import { controlChangeEvent } from '../Instruments'
 import { effectsProps } from './types';
@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getEffectsInitials } from '../defaults';
 import triggContext from '../../../context/triggState';
 import { useEffectProperty } from '../../../hooks/useProperty';
-import webmidi from 'webmidi';
+// import webmidi from 'webmidi';
 
 export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
     let options = onlyValues(opt);
@@ -180,6 +180,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         return o
     }, [
         dispatch,
+        index,
+        track,
         indexRef,
         properties,
         optionsRef,
@@ -206,8 +208,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                     for (let step of selectedSteps.current) {
                         let data, propVal;
                         let event = { ...events.current[activePattern.current][step] }
-                        const time = timeObjFromEvent(step, event)
-                        const trigg = triggRefs.current[activePattern.current][indexRef.current].instrument
+                        // const time = timeObjFromEvent(step, event)
+                        // const trigg = triggRefs.current[activePattern.current][indexRef.current].instrument
                         const evp = getNested(event, property);
 
                         // parameter lock logic
@@ -288,6 +290,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     }, [
         dispatch,
         activePattern,
+        track,
         events,
         indexRef,
         optionsRef,
@@ -355,6 +358,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     }, [
         isPlaying,
         dispatch,
+        track,
         index,
         previousPlaying,
         isPlay
@@ -380,39 +384,39 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     }, [
         properties,
         propertyUpdate,
-        activePattern,
-        arrangerMode,
+        // activePattern,
+        // arrangerMode,
         optionsRef,
-        patternTracker,
+        // patternTracker,
     ])
 
-    const returnStep = useCallback((t: string): number => {
-        let result;
-        const n = sixteenthFromBBS(t)
-        if (arrangerMode.current === "pattern") {
-            result = trackPatternLength.current[activePattern.current] >= patternLengths.current[activePattern.current]
-                ? n
-                : n % trackPatternLength.current[activePattern.current]
-        } else {
-            const pattern = patternTracker.current[0];
-            const timeb = patternTracker.current[1] ? patternTracker.current[1] : 0;
-            const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
-            const step = n - sixteenthFromBBS(timebbs);
-            const patternLocation = step % patternLengths.current[pattern];
-            if (!patternLocation) return -1
-            result = trackPatternLength.current[pattern] < patternLengths.current[activePattern.current]
-                ? patternLocation % trackPatternLength.current[pattern]
-                : patternLocation;
-        };
-        return result;
-    }, [
-        arrangerMode,
-        patternTracker,
-        patternLengths,
-        activePattern,
-        trackPatternLength
-    ]
-    )
+    // const returnStep = useCallback((t: string): number => {
+    //     let result;
+    //     const n = sixteenthFromBBS(t)
+    //     if (arrangerMode.current === "pattern") {
+    //         result = trackPatternLength.current[activePattern.current] >= patternLengths.current[activePattern.current]
+    //             ? n
+    //             : n % trackPatternLength.current[activePattern.current]
+    //     } else {
+    //         const pattern = patternTracker.current[0];
+    //         const timeb = patternTracker.current[1] ? patternTracker.current[1] : 0;
+    //         const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
+    //         const step = n - sixteenthFromBBS(timebbs);
+    //         const patternLocation = step % patternLengths.current[pattern];
+    //         if (!patternLocation) return -1
+    //         result = trackPatternLength.current[pattern] < patternLengths.current[activePattern.current]
+    //             ? patternLocation % trackPatternLength.current[pattern]
+    //             : patternLocation;
+    //     };
+    //     return result;
+    // }, [
+    //     arrangerMode,
+    //     patternTracker,
+    //     patternLengths,
+    //     activePattern,
+    //     trackPatternLength
+    // ]
+    // )
 
     useEffect(() => {
         effectRef.current = returnEffect(type, optionsRef.current);
@@ -428,6 +432,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         type,
         id,
         index,
+        track,
+        trackId,
         triggRefs,
         effectCallback,
         optionsRef

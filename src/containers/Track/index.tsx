@@ -4,7 +4,6 @@ import { addInstrumentToSequencer, removeInstrumentFromSequencer } from '../../s
 import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/toneRefsEmitter';
 import { Instrument } from './Instruments'
 import Effect from './Effects/Effect'
-import { range } from '../../lib/utility';
 import {
     addInstrument,
     changeEffectIndex,

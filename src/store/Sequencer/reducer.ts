@@ -10,7 +10,7 @@ import { eventOptions } from "../../containers/Track/Instruments";
 export const initialState: Sequencer = {
 	activePattern: 0,
 	counter: 1,
-	followSchedulerID: undefined,
+	// followSchedulerID: undefined,
 	override: true,
 	patterns: {
 		0: {
@@ -30,7 +30,7 @@ export const initialState: Sequencer = {
 	},
 	quantizeRecording: false,
 	step: undefined,
-	stepFollowerdID: undefined,
+	// stepFollowerdID: undefined,
 };
 
 export function sequencerReducer(

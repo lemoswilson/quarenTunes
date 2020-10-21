@@ -1,8 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import Dummy from './containers/Dummy';
 import Chain from './lib/fxChain';
 import TriggContext, { triggContext } from './context/triggState';
-import { instrumentTypes, trackActions } from './store/Track'
+import { trackActions } from './store/Track'
 import toneRefsContext, { toneRefs } from './context/toneRefsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from './lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, toneRefsPayload, ExtractTrackPayload } from './lib/toneRefsEmitter';

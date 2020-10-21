@@ -62,13 +62,13 @@ export type Pattern = {
 };
 
 export interface Sequencer {
+	// followSchedulerID: number | undefined;
+	// stepFollowerdID: number | undefined;
 	patterns: {
 		[key: number]: Pattern;
 	};
 	activePattern: number;
 	step: number | undefined;
-	followSchedulerID: number | undefined;
-	stepFollowerdID: number | undefined;
 	counter: number;
 	override: boolean;
 	quantizeRecording: boolean;
