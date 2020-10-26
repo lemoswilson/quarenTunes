@@ -1,15 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs'
 
-export interface User extends password {
+export interface User {
     email: string,
+    local?: {
+        password?: string,
+    },
+    google?: {
+        id: string,
+    }
+    username?: string,
     firstName: string,
     lastName: string,
-}
-
-export interface password {
-    password: string,
-    username: string,
+    method: 'local' | 'google'
 }
 
 export const hashPassword = async (password: string) => {
@@ -33,15 +36,23 @@ export interface UserModelType extends User, Document { }
 
 const UserSchema: Schema = new Schema({
     email: { type: String, required: true, unique: true, lowercase: true },
-    username: { type: String, required: true, unique: true, minlength: 6 },
+    local: {
+        password: String,
+    },
+    google: {
+        id: { type: String, unique: true },
+    },
+    username: { type: String, unique: true, minlength: 6 },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    password: { type: String, required: true }
+    method: { type: String, required: true, enum: ['local', 'google'] }
 }, { timestamps: true })
 
 UserSchema.pre<UserModelType>('save', async function (next) {
     try {
-        this.password = await hashPassword(this.password);
+        if (this.method !== "local") next();
+        if (this.local?.password)
+            this.local.password = await hashPassword(this.local.password);
         next();
     } catch (error) {
         next(error)

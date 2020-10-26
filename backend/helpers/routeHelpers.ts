@@ -10,11 +10,11 @@ declare module 'express' {
             password: string,
             confirmationPassword?: string,
             email?: string,
+            method: 'local' | 'google'
         },
         user?: any,
     }
 }
-
 
 export function validateBody(schema: Joi.ObjectSchema<any>) {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -39,6 +39,7 @@ export const schemas = {
         confirmationPassword: Joi.any().valid(Joi.ref('password')).required(),
         firstName: Joi.string().required().regex(/^[a-zA-Z]+$/),
         lastName: Joi.string().required().regex(/^[a-zA-Z]+$/),
+        method: Joi.string().required().valid(...['local', 'google'])
 
     }),
     passSchema: Joi.object().keys({

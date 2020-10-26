@@ -20,15 +20,6 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json())
 app.use(passport.initialize())
-// app.use(passport.session())
-// app.use(session({
-//     cookie: {
-//         sameSite: true,
-//     },
-//     secret: 'olocoparsa',
-//     resave: true,
-//     saveUninitialized: true
-// }))
 
 // Routes
 app.use('/users', userRouter);

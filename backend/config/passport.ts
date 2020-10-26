@@ -1,23 +1,18 @@
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import JWTStrategy, { ExtractJwt } from 'passport-jwt';
-import passportGoogle from 'passport-google-oauth20'
-import User, { UserModelType } from '../models/user.model';
+import passportGoogle from 'passport-google-oauth'
+import UserModel from '../models/user.model';
 import { comparePassword } from '../models/user.model'
 import { JWTToken } from '../controllers/users';
 import { JWT_SECRET } from './token';
 
-passport.serializeUser((user: UserModelType, done) => {
-    done(null, user._id);
+passport.serializeUser((user, done) => {
+    done(null, user);
 });
 
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await User.findById(id)
-        done(null, user);
-    } catch (error) {
-        done(error, null);
-    }
+passport.deserializeUser((user, done) => {
+    done(null, user);
 });
 
 passport.use('jwt', new JWTStrategy.Strategy({
@@ -28,7 +23,7 @@ passport.use('jwt', new JWTStrategy.Strategy({
     done: JWTStrategy.VerifiedCallback
 ) => {
     try {
-        const user = await User.findById(payload.sub);
+        const user = await UserModel.findById(payload.sub);
         if (!user) return done(null, false);
         done(null, user);
     } catch (error) {
@@ -46,20 +41,24 @@ passport.use('local', new LocalStrategy.Strategy({
     done
 ) => {
     try {
-        const user = await User.findOne({ username: username })
+        const user = await UserModel.findOne({ username: username })
         if (!user) return done(null, false, { message: "Unknown User" });
-        const isValid = await comparePassword(password, user.password);
-        if (isValid) return done(null, user)
-        else return done(null, false, { message: 'Unknown password' })
+        if (user.local?.password) {
+            const isValid = await comparePassword(password, user.local.password);
+            if (isValid) return done(null, user)
+            else return done(null, false, { message: 'Unknown password ' })
+        } else {
+            return done(null, false, { message: 'Account created via Google, first create a password' });
+        }
     } catch (error) {
         return done(error, false)
     }
 }))
 
-passport.use('google', new passportGoogle.Strategy({
+passport.use('google', new passportGoogle.OAuth2Strategy({
     clientID: '860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com',
     clientSecret: 'Vyi80tfHhUqC_WJg-H8-RpWW',
-    callbackURL: ''
+    callbackURL: 'http://localhost:5000/users/auth/google/callback'
 }, async (
     accessToken,
     refreshToken,
@@ -67,13 +66,36 @@ passport.use('google', new passportGoogle.Strategy({
     cb
 ) => {
     try {
-        accessToken;
-        refreshToken;
-
+        if (profile.emails) {
+            const existingUser = await UserModel.findOne({
+                email: profile.emails[0].value,
+                google: {
+                    id: profile.id,
+                }
+            });
+            if (existingUser) {
+                console.log('user already exists');
+                return cb(undefined, existingUser);
+            }
+            else {
+                console.log('user does not exist')
+                if (profile.emails && profile.name) {
+                    const newUser = new UserModel({
+                        method: 'google',
+                        email: profile.emails[0].value,
+                        google: {
+                            id: profile.id,
+                        },
+                        firstName: profile.name.givenName,
+                        lastName: profile.name.familyName,
+                    });
+                    await newUser.save();
+                    return cb(undefined, newUser);
+                }
+            }
+        }
         return cb(undefined, profile);
     } catch (error) {
-
+        cb(error, undefined, error.message);
     }
 }))
-
-// export default 

@@ -8,6 +8,7 @@ import EffectModel from '../models/effect.model';
 import { JWT_SECRET } from '../config/token';
 
 type userRequest = Request<ParamsDictionary, User, any, Query>
+
 export interface JWTToken {
     iss: string,
     sub: string,
@@ -27,10 +28,10 @@ const signToken = (user: any) => {
 
 export async function signUp(req: userRequest, res: Response) {
     if (req.value) {
-        const { username, email, firstName, lastName, password } = { ...req.value }
-        const existence = await UserModel.findOne({ username: username, email: email }).exec();
+        const { username, email, firstName, lastName, password, method } = { ...req.value }
+        const existence = await UserModel.findOne({ email: email, username: username }).exec();
         if (!existence) {
-            const newUser = new UserModel({ username, email, firstName, lastName, password })
+            const newUser = new UserModel({ username, email, firstName, lastName, local: { password }, method })
             newUser.save()
                 .then((user) => { res.status(200).json({ token: signToken(user) }) })
                 .catch((err) => { res.send(err) })
@@ -41,7 +42,7 @@ export async function signUp(req: userRequest, res: Response) {
 
 export async function signIn(req: userRequest, res: Response, next: NextFunction) {
     if (req.user) {
-        const token = signToken(req.user)
+        const token = signToken(req.value)
         res.status(200).json({ token })
         next()
     } else {
@@ -56,7 +57,7 @@ export async function update(req: userRequest, _res: Response) {
         .then(user => {
             if (user?.username && firstName && email && lastName && username) {
                 user.username = username
-                user.email = email;
+                user.email = email
                 user.firstName = firstName
                 user.lastName = lastName
                 user.save()
@@ -64,8 +65,10 @@ export async function update(req: userRequest, _res: Response) {
         })
 }
 
-export async function google(_req: Request, res: Response) {
-    res.redirect('/')
+export async function google(req: Request, res: Response) {
+    console.log('req.user', req.user);
+    const token = signToken(req.user)
+    res.status(200).json({ token })
 }
 
 export async function deleteD(
@@ -95,5 +98,6 @@ export async function getProjects(
     res: Response
 ) {
     console.log('rolou')
+    console.log('memo');
     res.status(200).json({ message: 'tatenu' });
 };
