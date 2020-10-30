@@ -18,7 +18,7 @@ import {
     effectTypes
 } from '../../store/Track';
 import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../../App';
+import { RootState } from '../Xolombrisx';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 
 const Track: FunctionComponent = () => {

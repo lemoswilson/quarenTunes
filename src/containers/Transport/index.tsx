@@ -6,7 +6,7 @@ import {
 } from "../../store/Transport";
 import React, { useEffect, FunctionComponent, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../App";
+import { RootState } from "../Xolombrisx";
 import Tone from "../../lib/tone";
 
 const Transport: FunctionComponent = () => {

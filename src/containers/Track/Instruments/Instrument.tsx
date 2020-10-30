@@ -26,7 +26,7 @@ import { InstrumentProps, initials } from './index'
 import { instrumentTypes, updateInstrumentState } from '../../../store/Track';
 import { useDispatch, useSelector } from 'react-redux';
 import { getInitials, indicators } from '../defaults';
-import { RootState } from '../../../App';
+import { RootState } from '../../Xolombrisx';
 import {
     parameterLock,
     setNoteMidi,

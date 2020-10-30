@@ -39,7 +39,7 @@ import usePrevious from '../../hooks/usePrevious';
 import Steps from '../../components/Steps/Steps'
 import StepsEdit from '../../components/StepsEdit/StepsEdit'
 import { bbsFromSixteenth } from '../Arranger'
-import { RootState } from '../../App';
+import { RootState } from '../Xolombrisx';
 import { setPatternTrackVelocity } from '../../store/Sequencer/actions';
 import { timeObjFromEvent } from '../../lib/utility';
 

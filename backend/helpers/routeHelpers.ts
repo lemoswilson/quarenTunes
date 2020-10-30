@@ -18,7 +18,7 @@ declare module 'express' {
 
 export function validateBody(schema: Joi.ObjectSchema<any>) {
     return (req: Request, res: Response, next: NextFunction) => {
-        console.log('bananas');
+        console.log('validating body');
         const validation = schema.validate(req.body);
 
         if (validation.error) {

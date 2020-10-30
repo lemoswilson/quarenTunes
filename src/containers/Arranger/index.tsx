@@ -31,9 +31,8 @@ import {
 } from "../../store/Arranger";
 import { goToActive } from '../../store/Sequencer'
 import Tone from "../../lib/tone";
-import { RootState } from "../../App";
+import { RootState } from "../Xolombrisx";
 import usePrevious from "../../hooks/usePrevious";
-import useQuickRef from "../../hooks/useQuickRef";
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;

@@ -1,7 +1,7 @@
 import Router from 'express-promise-router';
 import passport from 'passport';
 import '../config/passport';
-import { deleteD, signUp, update, getProjects, signIn, google } from '../controllers/users';
+import { deleteD, signUp, update, getProjects, signIn, google, googleTwo } from '../controllers/users';
 import { validateBody, schemas } from '../helpers/routeHelpers';
 
 const router = Router()
@@ -14,7 +14,9 @@ router.route('/success').get((_req, res) => {
     res.send('success');
 });
 router.route('/projects').get(passport.authenticate('jwt', { session: false }), getProjects);
-router.route('/auth/google').get(passport.authenticate('google', { scope: ['profile', 'email'] }));
+// router.route('/auth/google').get(passport.authenticate('google', { scope: ['profile', 'email'] }));
+// router.route('/auth/google/callback').get(passport.authenticate('google', { failureRedirect: '/failed' }), google);
+router.route('/auth/google').post(googleTwo);
 router.route('/auth/google/callback').get(passport.authenticate('google', { failureRedirect: '/failed' }), google);
 
 export default router;

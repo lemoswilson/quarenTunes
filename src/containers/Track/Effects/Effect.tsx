@@ -15,7 +15,7 @@ import usePrevious from '../../../hooks/usePrevious';
 import { updateEffectState } from '../../../store/Track/actions'
 import { controlChangeEvent } from '../Instruments'
 import { effectsProps } from './types';
-import { RootState } from '../../../App';
+import { RootState } from '../../Xolombrisx';
 import { useDispatch, useSelector } from 'react-redux';
 import { getEffectsInitials } from '../defaults';
 import triggContext from '../../../context/triggState';

@@ -1,11 +1,35 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { UserModelType } from './user.model';
+import { InstrumentModel } from './instrument.model';
+import { EffectModel } from './effect.model';
 import { Song } from '../../src/store/Arranger'
 import { Pattern } from '../../src/store/Sequencer'
-import { Track } from '../../src/store/Track';
+import { midi, instrumentTypes, effectTypes } from '../../src/store/Track';
 
 interface SongWithId extends Song {
     id: number,
+}
+
+interface fxinfo {
+    fx: effectTypes;
+    id: number;
+    options: EffectModel['_id'];
+}
+
+interface trackinfo {
+    instrument: instrumentTypes;
+    id: number;
+    midi: midi;
+    fx: fxinfo[];
+    fxCounter: number;
+    options: InstrumentModel['_id'];
+}
+
+interface Track {
+    tracks: trackinfo[];
+    selectedTrack: number;
+    trackCount: number;
+    instrumentCounter: number;
 }
 
 export interface Project {

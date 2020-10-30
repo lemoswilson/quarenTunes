@@ -15,6 +15,9 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
+// in order to get authorization to login, 
+// we'll need a header with a signed JWT
+
 passport.use('jwt', new JWTStrategy.Strategy({
     jwtFromRequest: ExtractJwt.fromHeader('authorization'),
     secretOrKey: JWT_SECRET,
