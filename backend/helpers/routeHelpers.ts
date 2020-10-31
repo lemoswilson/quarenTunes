@@ -16,6 +16,15 @@ declare module 'express' {
     }
 }
 
+export enum messages {
+    UNKOWN_USER = "Unknown user",
+    CREATED_GOOGLE = "Account linked to google, first create a password in options",
+    USER_ALREADY_EXISTS = "User already exists",
+    DATA_VALIDATION_ERROR = "Data validation error",
+    USER_DELETED = "User deleted",
+    NO_EMAIL_VERIFIED = 'no email verified, and no user id found on account'
+}
+
 export function validateBody(schema: Joi.ObjectSchema<any>) {
     return (req: Request, res: Response, next: NextFunction) => {
         console.log('validating body');
@@ -25,7 +34,8 @@ export function validateBody(schema: Joi.ObjectSchema<any>) {
             return res.status(400).json(validation.error)
         }
 
-        req.value = { ...validation.value }
+        // req.value = { ...validation.value }
+        req.body = { ...validation.value }
         return next();
     }
 }

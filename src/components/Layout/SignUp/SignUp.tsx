@@ -4,6 +4,7 @@ import { userProps } from '../../../App';
 import axios, { AxiosResponse } from 'axios';
 import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 
+
 const SignUp: React.FC<userProps> = ({
     errorMessage,
     isAuthenticated,
@@ -11,10 +12,6 @@ const SignUp: React.FC<userProps> = ({
     updateUser,
 }) => {
 
-    const responseGoogle = (res: any) => {
-        console.log('response Google', res.tokenId)
-        axios.post('http://localhost:5000/users/auth/google', { token: res.tokenId })
-    };
 
     const history = useHistory()
     const username = useRef<HTMLInputElement>(null);
@@ -23,6 +20,46 @@ const SignUp: React.FC<userProps> = ({
     const confirmationPassword = useRef<HTMLInputElement>(null);
     const firstName = useRef<HTMLInputElement>(null);
     const lastName = useRef<HTMLInputElement>(null);
+
+    const postError = (err: any) => {
+        updateUser({
+            errorMessage: err,
+            isAuthenticated: false,
+            token: ''
+        });
+    };
+
+    const authenticate = (token: string) => {
+        updateUser({
+            errorMessage: '',
+            isAuthenticated: true,
+            token: token,
+        })
+        localStorage.setItem('xolombrisJWT', token);
+        history.push({
+            pathname: '/',
+            state: {
+                response: 'authenticated'
+            }
+        })
+    }
+
+    // const responseGoogle = (res: GoogleLoginResponse) => {
+    // const responseGoogle = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
+    const responseGoogle = async (res: any) => {
+        try {
+            console.log('response Google', res.tokenId)
+            const token = res.tokenId
+            const userId = res.googleId
+            axios.post(process.env.REACT_APP_SERVER_URL + '/users/auth/google', { token: token, access: res.accessToken, id: userId })
+                .then((response) => {
+                    console.log(response.data.token);
+                    authenticate(response.data.token)
+                }).catch(postError)
+        } catch (error) {
+            postError(error)
+        }
+    };
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         try {
@@ -36,33 +73,14 @@ const SignUp: React.FC<userProps> = ({
                 lastName: lastName.current?.value,
                 method: 'local'
             }
-            const response = axios.post('http://localhost:5000/users/signup', data).then((res) => {
-                console.log('login axios response', res);
+            const response = axios.post(process.env.REACT_APP_SERVER_URL + '/users/signup', data).then((res) => {
                 if (res.status === 200 && res.data.token) {
-                    updateUser({
-                        errorMessage: '',
-                        isAuthenticated: true,
-                        token: res.data.token
-                    })
-                    localStorage.setItem('xolombrisJWT', res.data.token);
-                    history.push({
-                        pathname: '/',
-                        state: {
-                            response: 'authenticated'
-                        }
-                    })
+                    authenticate(res.data.token);
                 }
-            }).catch((err) => {
-                updateUser({
-                    errorMessage: err,
-                    isAuthenticated: false,
-                    token: ''
-                })
-                // display error to the user
-            })
+            }).catch(postError)
 
         } catch (error) {
-            // display error to the user 
+            postError(error);
         }
     }
 
@@ -80,7 +98,6 @@ const SignUp: React.FC<userProps> = ({
             </form>
             <GoogleLogin
                 clientId={'860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com'}
-                autoLoad={true}
                 buttonText='Google'
                 onSuccess={responseGoogle}
                 onFailure={responseGoogle}

@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs'
+import { StringSchema } from 'joi';
 
 export interface User {
     email: string,
@@ -13,6 +14,18 @@ export interface User {
     firstName: string,
     lastName: string,
     method: 'local' | 'google'
+}
+
+export interface UserBody {
+    email?: string,
+    username: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+    method?: string,
+    token: string,
+    access: string,
+    id: string
 }
 
 export const hashPassword = async (password: string) => {
