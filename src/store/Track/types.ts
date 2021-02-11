@@ -94,7 +94,7 @@ export type PolyInstruments = MembraneSynth | MetalSynth | FMSynth | AMSynth | S
 
 
 
-export enum instrumentTypes {
+export enum xolombrisxInstruments {
 	FMSYNTH = "FMSYNTH",
 	AMSYNTH = "AMSYNTH",
 	MEMBRANESYNTH = "MEMBRANESYNTH",
@@ -159,7 +159,7 @@ export interface effectsInfo {
 }
 
 export interface trackInfo {
-	instrument: instrumentTypes;
+	instrument: xolombrisxInstruments;
 	id: number;
 	midi: midi;
 	fx: effectsInfo[];
@@ -195,7 +195,7 @@ export interface changeInstrumentAction {
 	type: trackActions.CHANGE_INSTRUMENT;
 	payload: {
 		index: number;
-		instrument: instrumentTypes;
+		instrument: xolombrisxInstruments;
 	};
 }
 
@@ -230,7 +230,7 @@ export interface updateInstrumentStateAction {
 export interface addInstrumentAction {
 	type: trackActions.ADD_INSTRUMENT;
 	payload: {
-		instrument: instrumentTypes;
+		instrument: xolombrisxInstruments;
 	};
 }
 

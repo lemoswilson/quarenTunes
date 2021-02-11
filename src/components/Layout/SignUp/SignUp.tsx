@@ -46,16 +46,18 @@ const SignUp: React.FC<userProps> = ({
 
     // const responseGoogle = (res: GoogleLoginResponse) => {
     // const responseGoogle = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
+    // type seems not to be making sense, if using any of these two up here
+    // it raises a type error
     const responseGoogle = async (res: any) => {
         try {
-            console.log('response Google', res.tokenId)
-            const token = res.tokenId
-            const userId = res.googleId
-            axios.post(process.env.REACT_APP_SERVER_URL + '/users/auth/google', { token: token, access: res.accessToken, id: userId })
-                .then((response) => {
-                    console.log(response.data.token);
-                    authenticate(response.data.token)
-                }).catch(postError)
+            const data = {
+                token: res.tokenId,
+                access: res.accessToken,
+                id: res.googleId
+            }
+            axios.post(process.env.REACT_APP_SERVER_URL + '/users/auth/google', data)
+                .then((response) => { authenticate(response.data.token) })
+                .catch(postError)
         } catch (error) {
             postError(error)
         }

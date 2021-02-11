@@ -1,6 +1,6 @@
 import { onlyValues } from "../../lib/objectDecompose";
 import { range } from "../../lib/utility";
-import { effectTypes, instrumentTypes } from "../../store/Track";
+import { effectTypes, xolombrisxInstruments } from "../../store/Track";
 
 export enum indicators {
     KNOB = 'knob',
@@ -154,83 +154,14 @@ const samplerAttack = [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator
 const curve = ['exponential', envelopeCurveOptions, envelopeCurveIndicator]
 const samplerRelase = [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 
-
-// export type instrumentOptions<T> =
-//     T extends instrumentTypes.AMSYNTH
-//     ? {
-//         volume: typeof volume,
-//         detune: typeof detune,
-//         portamento: typeof portamento,
-//         harmonicity: typeof modSynthHarmonicity,
-//         oscillator: typeof oscillator,
-//         envelope: typeof envelope,
-//         modulation: typeof modulation,
-//         modulationEnvelope: typeof modulationEnvelope,
-//         modulationIndex: typeof modSynthModulationIndex
-//     }
-//     : T extends instrumentTypes.AMSYNTH
-//     ? {
-//         volume: typeof volume,
-//         detune: typeof detune,
-//         portamento: typeof portamento,
-//         harmonicity: typeof modSynthHarmonicity,
-//         oscillator: typeof oscillator,
-//         envelope: typeof envelope,
-//         modulation: typeof modulation,
-//         modulationEnvelope: typeof modulationEnvelope,
-//     }
-//     : T extends instrumentTypes.MEMBRANESYNTH
-//     ? {
-//         volume: typeof volume,
-//         detune: typeof detune,
-//         portamento: typeof portamento,
-//         envelope: typeof membraneSynthEnvelope,
-//         oscillator: typeof oscillator,
-//         octaves: typeof membraneSynthOctaves,
-//         pitchDecay: typeof membraneSynthPitchDecay,
-//     }
-//     : T extends instrumentTypes.METALSYNTH
-//     ? {
-//         volume: typeof volume,
-//         detune: typeof detune,
-//         portamento: typeof portamento,
-//         envelope: typeof metalSynthEnvelope,
-//         harmonicity: typeof metalSynthHarmonicity,
-//         modulationIndex: typeof metalSynthModulationIndex,
-//         octaves: typeof metalSynthOctaves,
-//         resonance: typeof metalSynthResonance
-//     }
-//     : T extends instrumentTypes.NOISESYNTH
-//     ? {
-//         volume: typeof volume,
-//         envelope: typeof envelope,
-//         noise: typeof noise,
-//     }
-//     : T extends instrumentTypes.PLUCKSYNTH
-//     ? {
-//         volume: typeof volume,
-//         attackNoise: typeof attackNoise,
-//         dampening: typeof dampening,
-//         resonance: typeof pluckResonance,
-//         release: typeof pluckRelease
-//     }
-//     : {
-//         volume: typeof volume,
-//         attack: typeof samplerAttack,
-//         baseUrl: string,
-//         curve: typeof curve,
-//         release: typeof samplerRelase,
-//         urls: { [url: string]: any },
-//     }
-
-export function getInitialsValue(type: instrumentTypes) {
+export function getInitialsValue(type: xolombrisxInstruments) {
     return onlyValues(getInitials(type))
 }
 
 
-export function getInitials(type: instrumentTypes) {
+export function getInitials(type: xolombrisxInstruments) {
     switch (type) {
-        case instrumentTypes.AMSYNTH:
+        case xolombrisxInstruments.AMSYNTH:
             return {
                 volume: volume,
                 detune: detune,
@@ -241,7 +172,7 @@ export function getInitials(type: instrumentTypes) {
                 modulation: modulation,
                 modulationEnvelope: modulationEnvelope,
             }
-        case instrumentTypes.FMSYNTH:
+        case xolombrisxInstruments.FMSYNTH:
             return {
                 volume: volume,
                 detune: detune,
@@ -253,7 +184,7 @@ export function getInitials(type: instrumentTypes) {
                 modulationEnvelope: modulationEnvelope,
                 modulationIndex: modSynthModulationIndex
             }
-        case instrumentTypes.MEMBRANESYNTH:
+        case xolombrisxInstruments.MEMBRANESYNTH:
             return {
                 volume: volume,
                 detune: detune,
@@ -263,7 +194,7 @@ export function getInitials(type: instrumentTypes) {
                 octaves: membraneSynthOctaves,
                 pitchDecay: membraneSynthPitchDecay,
             }
-        case instrumentTypes.METALSYNTH:
+        case xolombrisxInstruments.METALSYNTH:
             return {
                 volume: volume,
                 detune: detune,
@@ -274,13 +205,13 @@ export function getInitials(type: instrumentTypes) {
                 octaves: metalSynthOctaves,
                 resonance: metalSynthResonance
             }
-        case instrumentTypes.NOISESYNTH:
+        case xolombrisxInstruments.NOISESYNTH:
             return {
                 volume: volume,
                 envelope: envelope,
                 noise: noise,
             }
-        case instrumentTypes.PLUCKSYNTH:
+        case xolombrisxInstruments.PLUCKSYNTH:
             return {
                 volume: volume,
                 attackNoise: attackNoise,
@@ -288,7 +219,7 @@ export function getInitials(type: instrumentTypes) {
                 resonance: pluckResonance,
                 release: pluckRelease
             }
-        case instrumentTypes.SAMPLER:
+        case xolombrisxInstruments.SAMPLER:
             return {
                 volume: volume,
                 attack: samplerAttack,
@@ -297,7 +228,7 @@ export function getInitials(type: instrumentTypes) {
                 release: samplerRelase,
                 urls: {},
             }
-        case instrumentTypes.DRUMRACK:
+        case xolombrisxInstruments.DRUMRACK:
             return {
                 volume: volume,
                 attack: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
@@ -513,6 +444,7 @@ export const getEffectsInitials = (type: effectTypes) => {
                 wet: wet,
                 roomSize: roomSize
             }
+        // parei aqui
         case effectTypes.PHASER:
             return {
                 wet: wet,

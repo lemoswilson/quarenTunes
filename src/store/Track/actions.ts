@@ -2,7 +2,7 @@ import { effectsInitials } from "../../containers/Track/Instruments";
 import {
 	trackActions,
 	trackActionTypes,
-	instrumentTypes,
+	xolombrisxInstruments,
 	effectTypes,
 	generalInstrumentOptions,
 } from "./types";
@@ -37,7 +37,7 @@ export function updateEffectState(
 
 export function changeInstrument(
 	index: number,
-	instrument: instrumentTypes
+	instrument: xolombrisxInstruments
 ): trackActionTypes {
 	return {
 		type: trackActions.CHANGE_INSTRUMENT,
@@ -48,7 +48,7 @@ export function changeInstrument(
 	};
 }
 
-export function addInstrument(instrument: instrumentTypes): trackActionTypes {
+export function addInstrument(instrument: xolombrisxInstruments): trackActionTypes {
 	return {
 		type: trackActions.ADD_INSTRUMENT,
 		payload: {

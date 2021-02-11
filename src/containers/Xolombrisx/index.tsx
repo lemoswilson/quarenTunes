@@ -1,7 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
-import undoable, { newHistory, includeAction } from 'redux-undo'
+import undoable, { newHistory, includeAction } from 'redux-undo';
+import Div100vh from 'react-div-100vh';
 
 import Chain from '../../lib/fxChain';
 import TriggContext, { triggContext } from '../../context/triggState';
@@ -9,6 +10,7 @@ import { trackActions } from '../../store/Track'
 import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/toneRefsEmitter';
+
 import Tone from '../../lib/tone'
 import { arrangerActions } from '../../store/Arranger'
 import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
@@ -17,7 +19,9 @@ import { sequencerReducer, initialState as SeqInit, sequencerActions } from "../
 import { transportReducer, initialState as TrsState, transportActions } from "../../store/Transport";
 import { timeObjFromEvent } from "../../lib/utility";
 import { userProps } from '../../App';
+import styles from './xolombrisx.module.scss'
 import Sequencer from "../../containers/Sequencer";
+import Playground from '../../components/Layout/Playground';
 
 declare global {
     interface Window {
@@ -75,6 +79,7 @@ const store = createStore(rootReducer, {
 }, composeEnhancers());
 
 export type RootState = ReturnType<typeof rootReducer>;
+
 interface XolombrisxProps extends userProps {
     children?: React.ReactNode,
 }
@@ -86,7 +91,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     token,
     updateUser
 }) => {
-
     // context manager actions 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
         let patN = payload.pattern
@@ -371,7 +375,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             triggEmitter.off(triggEventTypes.ADD_TRACK, addTrack);
             triggEmitter.off(triggEventTypes.REMOVE_TRACK, removeTrack);
             triggEmitter.off(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
-            triggEmitter.off(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
             triggEmitter.off(triggEventTypes.ADD_EFFECT, addEffectTrigg);
             triggEmitter.off(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
 
@@ -407,17 +410,55 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             <toneRefsContext.Provider value={toneObjRef}>
                 <TriggContext.Provider value={triggRef}>
                     <Provider store={store}>
-                        <div>eita joao</div>
-                        {/* <Arranger></Arranger>
-							<Transport></Transport> */}
-                        {/* <Dummy></Dummy> */}
-                        {/* <Track></Track>
-							<Sequencer></Sequencer> */}
-                        {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
+                        <Div100vh className={styles.app}>
+                            <div className={styles.content}>
+                                <div className={styles.top}>
+                                    <div className={styles.transport}></div>
+                                </div>
+                                <div className={styles.mid}>
+                                    <div className={styles.arrangerColumn}>
+                                        <div className={styles.box}>
+                                        </div>
+                                    </div>
+                                    <div className={styles.instrumentColumn}>
+                                        <div className={styles.tabs}></div>
+                                        <div className={styles.box}>
+                                            <Playground></Playground>
+                                        </div>
+                                    </div>
+                                    <div className={styles.effectsColumn}>
+                                        <div className={styles.wrapper}>
+                                            <div className={styles.fx}>
+                                                <div className={styles.box}></div>
+                                                <div className={styles.tabs}></div>
+                                            </div>
+                                            <div className={styles.fx}>
+                                                <div className={styles.box}></div>
+                                                <div className={styles.tabs}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.bottom}>
+                                    <div className={styles.arrangerColumn}>
+                                        <div className={styles.patterns}></div>
+                                    </div>
+                                    <div className={styles.sequencerColumn}>
+                                        <div className={styles.box}></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* <Arranger></Arranger>
+                                                        <Transport></Transport> */}
+                            {/* <Dummy></Dummy> */}
+                            {/* <Track></Track>
+                                                        <Sequencer></Sequencer> */}
+                            {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
+                        </Div100vh>
                     </Provider>
                 </TriggContext.Provider>
             </toneRefsContext.Provider>
-        </React.Fragment>
+        </React.Fragment >
     );
 }
 

@@ -4,7 +4,7 @@ import { InstrumentModel } from './instrument.model';
 import { EffectModel } from './effect.model';
 import { Song } from '../../src/store/Arranger'
 import { Pattern } from '../../src/store/Sequencer'
-import { midi, instrumentTypes, effectTypes } from '../../src/store/Track';
+import { midi, xolombrisxInstruments, effectTypes } from '../../src/store/Track';
 
 interface SongWithId extends Song {
     id: number,
@@ -17,7 +17,7 @@ interface fxinfo {
 }
 
 interface trackinfo {
-    instrument: instrumentTypes;
+    instrument: xolombrisxInstruments;
     id: number;
     midi: midi;
     fx: fxinfo[];

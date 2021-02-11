@@ -5,7 +5,7 @@ import {
 	trackActionTypes,
 	trackActions,
 	Track,
-	instrumentTypes, effectTypes
+	xolombrisxInstruments, effectTypes
 } from "./types";
 import produce from "immer";
 
@@ -15,8 +15,8 @@ export const initialState: Track = {
 	trackCount: 1,
 	tracks: [
 		{
-			instrument: instrumentTypes.FMSYNTH,
-			options: getInitials(instrumentTypes.FMSYNTH),
+			instrument: xolombrisxInstruments.FMSYNTH,
+			options: getInitials(xolombrisxInstruments.FMSYNTH),
 			id: 0,
 			fx: [],
 			fxCounter: 0,

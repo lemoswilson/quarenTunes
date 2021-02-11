@@ -1,13 +1,24 @@
 import React, { FC, Fragment } from 'react';
-import { userData } from '../../../App';
-import { Link } from 'react-router-dom';
+import { userData, userProps } from '../../../App';
+import { Link, useHistory } from 'react-router-dom';
 
-const Header: FC<userData> = ({
+const Header: FC<userProps> = ({
     errorMessage,
     isAuthenticated,
     token,
+    updateUser,
     children
 }) => {
+
+    const history = useHistory()
+
+    const signOut = () => {
+        localStorage.removeItem('xolombrisJWT')
+        updateUser({ errorMessage: '', isAuthenticated: false, token: '' })
+        history.push('/')
+    };
+
+
     return (
         <Fragment>
             <ul>
@@ -22,6 +33,9 @@ const Header: FC<userData> = ({
                 </li>
                 <li>
                     <Link to={'/contact'}>Contact</Link>
+                </li>
+                <li>
+                    <Link onClick={signOut} to={'#'}>SignOut</Link>
                 </li>
                 <li>
                     <Link to={'/'}>Home</Link>

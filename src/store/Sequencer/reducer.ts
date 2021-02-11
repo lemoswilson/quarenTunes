@@ -4,7 +4,7 @@ import {
 	sequencerActions,
 	Sequencer,
 } from "./types";
-import { propertiesToArray, getNested, setNestedArray, setNestedValue } from "../../lib/objectDecompose";
+import { propertiesToArray, getNested, setNestedValue } from "../../lib/objectDecompose";
 import { eventOptions } from "../../containers/Track/Instruments";
 
 export const initialState: Sequencer = {
@@ -61,15 +61,15 @@ export function sequencerReducer(
 				let trackNumber: number = draft.patterns[0].tracks.length;
 				Object.keys(draft.patterns).forEach(
 					(v) =>
-						(draft.patterns[parseInt(v)].tracks[trackNumber] = {
-							length: 16,
-							events: Array(16).fill({ instrument: {}, fx: {}, offset: 0 }),
-							// eventsFx: Array(16).fill({}),
-							noteLength: "16n",
-							velocity: 60,
-							page: 0,
-							selected: [],
-						})
+					(draft.patterns[parseInt(v)].tracks[trackNumber] = {
+						length: 16,
+						events: Array(16).fill({ instrument: {}, fx: {}, offset: 0 }),
+						// eventsFx: Array(16).fill({}),
+						noteLength: "16n",
+						velocity: 60,
+						page: 0,
+						selected: [],
+					})
 				);
 				break;
 			case sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER:

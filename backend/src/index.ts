@@ -34,8 +34,8 @@ mongoose.connect(uri, {
 });
 
 // const connection = mongoose.connection;
-// connection.once('open', () => { 
-//     console.log('MONGODB database conneciton established '); 
+// connection.once('open', () => {
+//     console.log('MONGODB database conneciton established ');
 // })
 
 

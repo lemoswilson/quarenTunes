@@ -49,19 +49,12 @@ const StepsEdit: React.FC<StepsEditProps> = ({
     children
 }) => {
     const patternNameInput = useRef<HTMLInputElement>(null);
-
     const tlRef = useRef<HTMLFormElement>(null);
-
     const tlInputRef = useRef<HTMLInputElement>(null);
-
     const plRef = useRef<HTMLFormElement>(null);
-
     const plInputRef = useRef<HTMLInputElement>(null);
-
     const noteInRef = useRef<HTMLInputElement>(null);
-
     const velocityRef = useRef<HTMLInputElement>(null);
-
     const noteLengthRef = useRef<HTMLInputElement>(null);
 
     const changePatternNameHandler = (e: FormEvent<HTMLFormElement | undefined>): void => {
@@ -129,7 +122,9 @@ const StepsEdit: React.FC<StepsEditProps> = ({
         if (selected.length > 1) {
             return '*';
         } else if (selected.length === 1) {
-            return events[selected[0]].instrument['note'] ? events[selected[0]].instrument.note?.join(',') : 'noNote';
+            return events[selected[0]].instrument['note']
+                ? events[selected[0]].instrument.note?.join(',')
+                : 'noNote';
         } else {
             return 'Input Note';
         }

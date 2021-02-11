@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap');
+
+$jost: 'Jost', serif;
+$blue: #f5f8fa;
+$light: #ededed;
+$dark: #d4d4d4;
+$red: #ea8686;
+$shadow: #cccccc;
+$textColor: #c8c9c8;
+$textShadow: rgba(220, 223, 224, 0.75);
+
+@mixin shadow($x, $y, $b) {
+        box-shadow: $x $y $b rgba(204,204,204,0.5);
+}
+
+@mixin center {
+        justify-content: center;
+        align-items: center;
+}

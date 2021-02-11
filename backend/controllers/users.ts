@@ -118,18 +118,18 @@ export async function google(
     res: Response
 ): Promise<void> {
     const tokenId = req.body.token
-    const access = req.body.access
+    // const access = req.body.access
     const googleId = req.body.id
     // const TokenInfo = await client.getTokenInfo(tokenId)
-    const TokenInfo = await client.getTokenInfo(access)
-    console.log('tokenid', tokenId, 'tokenInfo', TokenInfo, 'id', googleId)
+    // const TokenInfo = await client.getTokenInfo(access)
+    // console.log('tokenid', tokenId, 'tokenInfo', TokenInfo, 'id', googleId)
     client.verifyIdToken({ idToken: tokenId, audience: process.env.CLIENT_ID })
         .then(
             async (response) => {
                 try {
                     const payload = response.getAttributes().payload
-                    console.log('verifying token, payload', payload)
-                    console.log('user id', TokenInfo.user_id)
+                    // console.log('verifying token, payload', payload)
+                    // console.log('user id', TokenInfo.user_id)
                     if (payload) {
                         const { email_verified, family_name, given_name, email } = payload
                         if (email_verified && googleId) {

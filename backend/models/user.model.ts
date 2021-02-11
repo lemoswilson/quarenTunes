@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs'
-import { StringSchema } from 'joi';
+// import { StringSchema } from 'joi';
 
 export interface User {
     email: string,

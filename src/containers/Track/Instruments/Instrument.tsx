@@ -23,7 +23,7 @@ import WebMidi, {
     InputEventControlchange
 } from 'webmidi';
 import { InstrumentProps, initials } from './index'
-import { instrumentTypes, updateInstrumentState } from '../../../store/Track';
+import { xolombrisxInstruments, updateInstrumentState } from '../../../store/Track';
 import { useDispatch, useSelector } from 'react-redux';
 import { getInitials, indicators } from '../defaults';
 import { RootState } from '../../Xolombrisx';
@@ -41,21 +41,21 @@ import { useProperty } from '../../../hooks/useProperty';
 import useQuickRef from '../../../hooks/useQuickRef';
 import { eventOptions, initialsArray } from './types';
 
-export const returnInstrument = (voice: instrumentTypes, opt: initialsArray) => {
+export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
     let options = onlyValues(opt);
 
     switch (voice) {
-        case instrumentTypes.AMSYNTH:
+        case xolombrisxInstruments.AMSYNTH:
             return new Tone.PolySynth(Tone.AMSynth, options);
-        case instrumentTypes.FMSYNTH:
+        case xolombrisxInstruments.FMSYNTH:
             return new Tone.PolySynth(Tone.FMSynth, options);
-        case instrumentTypes.MEMBRANESYNTH:
+        case xolombrisxInstruments.MEMBRANESYNTH:
             return new Tone.PolySynth(Tone.MembraneSynth, options);
-        case instrumentTypes.METALSYNTH:
+        case xolombrisxInstruments.METALSYNTH:
             return new Tone.PolySynth(Tone.MetalSynth, options);
-        case instrumentTypes.NOISESYNTH:
+        case xolombrisxInstruments.NOISESYNTH:
             return new Tone.NoiseSynth(options);
-        case instrumentTypes.PLUCKSYNTH:
+        case xolombrisxInstruments.PLUCKSYNTH:
             return new Tone.PluckSynth(options);
         default:
             return new Tone.Sampler();
@@ -64,7 +64,7 @@ export const returnInstrument = (voice: instrumentTypes, opt: initialsArray) => 
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
-export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
+export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
 
     const dispatch = useDispatch()
     const instrumentRef = useRef(returnInstrument(voice, options));
@@ -86,31 +86,22 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
     const onHoldNotes = useRef<{ [key: string]: any }>({});
     const [firstRender, setRender] = useState(true);
 
-    // const override = useQuickRef(ovr);
     const override = useRef(ovr);
     useEffect(() => { override.current = ovr }, [ovr])
-    // const optionsRef = useQuickRef(options)
     const optionsRef = useRef(options);
     useEffect(() => { optionsRef.current = options }, [options])
-    // const indexRef = useQuickRef(index);
     const indexRef = useRef(index);
     useEffect(() => { indexRef.current = index }, [index])
-    // const patternTracker = useQuickRef(patTracker);
     const patternTracker = useRef(patTracker);
     useEffect(() => { patternTracker.current = patTracker }, [patTracker])
-    // const arrangerMode = useQuickRef(arrMode);
     const arrangerMode = useRef(arrMode);
     useEffect(() => { arrangerMode.current = arrMode }, [arrMode])
-    // const activePattern = useQuickRef(actPat)
     const activePattern = useRef(actPat);
     useEffect(() => { activePattern.current = actPat }, [actPat]);
-    // const selectedSteps = useQuickRef(selSteps);
     const selectedSteps = useRef(selSteps);
     useEffect(() => { selectedSteps.current = selSteps }, [selSteps])
-    // const isRec = useQuickRef(isRecording);
     const isRec = useRef(isRecording);
     useEffect(() => { isRec.current = isRecording }, [isRecording])
-    // const isPlay = useQuickRef(isPlaying);
     const isPlay = useRef(isPlaying);
     useEffect(() => { isPlay.current = isPlaying }, [isPlaying])
 
@@ -124,8 +115,6 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
             return o;
         }
     );
-
-    // const patternVelocities = useQuickRef(patternVelos);
     const patternVelocities = useRef(patternVelos);
     useEffect(() => { patternVelocities.current = patternVelos }, [patternVelos])
 
@@ -143,7 +132,6 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
             return o
         }
     );
-    // const patternNoteLens = useQuickRef(patNoteLen);
     const patternNoteLens = useRef(patNoteLen);
     useEffect(() => { patternNoteLens.current = patNoteLen }, [patNoteLen])
 
@@ -157,7 +145,6 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
             return o;
         }
     );
-    // const patternLengths = useQuickRef(patLen);
     const patternLengths = useRef(patLen);
     useEffect(() => { patternLengths.current = patLen }, [patLen])
 
@@ -171,7 +158,6 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
             return o;
         }
     );
-    // const trackPatternLength = useQuickRef(trkPatLen);
     const trackPatternLength = useRef(trkPatLen);
     useEffect(() => { trackPatternLength.current = trkPatLen }, [trkPatLen])
 
@@ -185,7 +171,6 @@ export const Instrument = <T extends instrumentTypes>({ id, index, midi, voice, 
             return o;
         }
     );
-    // const events = useQuickRef(ev);
     const events = useRef(ev);
     useEffect(() => { events.current = ev }, [ev])
 

@@ -1,12 +1,13 @@
-import React, { useRef, useEffect, FunctionComponent, ReactElement, useState } from "react";
-import { BrowserRouter, Route } from 'react-router-dom'
+import React, { useState, Suspense, lazy } from "react";
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import Header from './components/Layout/Header/Header';
-import { Grommet, ThemeType } from 'grommet';
 import HomePage from './components/Layout/HomePage/HomePage';
 import SignUp from './components/Layout/SignUp/SignUp';
-import Xolombrisx from './containers/Xolombrisx';
-import styled from "styled-components";
+import './App.scss';
+// import Xolombrisx from './containers/Xolombrisx';
 
+const Xolombrisx = lazy(() => import('./containers/Xolombrisx'))
+const SuspenseFallback: React.FC = () => <div>Fallback</div>
 
 export interface userData {
 	isAuthenticated: boolean,
@@ -18,21 +19,11 @@ export interface userProps extends userData {
 	updateUser: React.Dispatch<React.SetStateAction<userData>>,
 }
 
-const theme: ThemeType = {
-	// 	global: {
-	// 		colors: {
-	// 			brand: "#FEFF",
-	// 		},
-	// 		font: {
-	// 			family: "Roboto",
-	// 			size: "12px",
-	// 			height: "20px",
-	// 		},
-	// 	},
-};
 
 
 const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+
+	// check for token in local storage before setting the state
 
 	const [user, updateUser] = useState<userData>({
 		isAuthenticated: false,
@@ -42,18 +33,20 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 
 	return (
 		<React.Fragment>
-			<Grommet theme={theme}>
-				<BrowserRouter>
-					<Header {...user} />
-					<Route path={'/'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
-					<Route path={'/app'} render={() => <Xolombrisx {...user} updateUser={updateUser} />}></Route>
-					<Route path={'/signin'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
-					<Route path={'/signup'} render={() => <SignUp  {...user} updateUser={updateUser} />}></Route>
-					<Route path={'/contact'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
-					<Route path={'/dashboard'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
-				</BrowserRouter>
-				{children}
-			</Grommet>
+			<BrowserRouter>
+				<Suspense fallback={<SuspenseFallback />}>
+					{/* <Header {...user} updateUser={updateUser} /> */}
+					<Switch>
+						<Route path={'/app'} render={() => <Xolombrisx {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/signin'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/signup'} render={() => <SignUp  {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/contact'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/dashboard'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+					</Switch>
+				</Suspense>
+			</BrowserRouter>
+			{children}
 		</React.Fragment>
 	);
 }

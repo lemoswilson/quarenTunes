@@ -1,14 +1,14 @@
 import { getEffectsInitials, getInitials, getInitialsValue } from '../defaults'
-import { instrumentTypes, midi } from '../../../store/Track'
+import { xolombrisxInstruments, midi } from '../../../store/Track'
 
-export interface InstrumentProps<T extends instrumentTypes> extends instrumentProps {
+export interface InstrumentProps<T extends xolombrisxInstruments> extends instrumentProps {
     options: initialsArray,
 }
 interface instrumentProps {
     id: number,
     maxPolyphony?: number,
     midi: midi,
-    voice: instrumentTypes
+    voice: xolombrisxInstruments
     index: number
     dummy: number,
 }

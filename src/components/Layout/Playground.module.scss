@@ -1,0 +1,11 @@
+@import '../../style/variables';
+
+.box {
+    background-color: $light;
+    width: 90%;
+    height: 50%;
+    display: flex;
+    // @include center;
+    justify-content: center;
+    align-items: flex-start;
+}

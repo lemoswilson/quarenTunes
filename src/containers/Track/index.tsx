@@ -14,7 +14,7 @@ import {
     selectMidiChannel,
     selectMidiDevice,
     showInstrument,
-    instrumentTypes,
+    xolombrisxInstruments,
     effectTypes
 } from '../../store/Track';
 import { useSelector, useDispatch } from 'react-redux'
@@ -41,12 +41,12 @@ const Track: FunctionComponent = () => {
 
     const Tracks = useSelector((state: RootState) => state.track.present.tracks);
 
-    const chgInstrument = (instrument: instrumentTypes, index: number): void => {
+    const chgInstrument = (instrument: xolombrisxInstruments, index: number): void => {
         dispatch(changeInstrument(index, instrument));
     };
 
 
-    const addInstr = (instrument: instrumentTypes): void => {
+    const addInstr = (instrument: xolombrisxInstruments): void => {
         dispatch(addInstrumentToSequencer());
         dispatch(addInstrument(instrument));
         triggEmitter.emit(triggEventTypes.ADD_TRACK, {})
