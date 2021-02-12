@@ -1,22 +1,21 @@
-@import '../../style/variables';
+@import '../../../style/variables';
 
 .box {
     background-color: $light;
     width: 38%;
     height: 9%;
     display: flex;
-    // @include center;
     justify-content: center;
     align-items: flex-start;
     flex-direction: row;
     border-radius: 1rem;
     margin-top: 2rem;
 
-    .mamao {
+    .dropdown {
         margin-top: 0.35rem;
     }
 
-    .estopin {
+    .buttons {
         margin-top: 0.35rem;
         margin-left: 0.3rem;
     }

@@ -79,7 +79,9 @@ html {
                     margin-bottom: 1rem;
                     display: flex;
                     @include shadow(7px, 9px, 5px);
-                    @include center;
+                    // @include center;
+                    justify-content: center;
+                    align-items: flex-start;
                 }
             }
 

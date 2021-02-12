@@ -1,0 +1,12 @@
+@import '../../../../style/variables';
+
+
+.svg {
+    margin-left: 0.13rem;
+    margin-top: 0.1rem;
+}
+
+.hover {
+    @include shadow(3px, 5px, 5px);
+    cursor: pointer;
+}

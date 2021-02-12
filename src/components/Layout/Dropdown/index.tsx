@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './style.module.scss';
 import Polygon from './Polygon';
 
@@ -7,11 +7,14 @@ interface Dropdown {
     selected: string;
     select: any;
     lookup: (key: string) => string;
+    className?: string;
+    onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
-const Dropdown: React.FC<Dropdown> = ({ keys, select, selected, lookup }) => {
+const Dropdown: React.FC<Dropdown> = ({ keys, select, selected, lookup, className, onSubmit }) => {
     const [isOpen, toggleState] = useState(false);
     const [renderCount, increaseCounter] = useState(0)
-    const vw = window.innerWidth;
+    const [, updateState] = useState();
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const state = isOpen
         ? `${styles.closed} ${styles.animate}`
@@ -32,9 +35,23 @@ const Dropdown: React.FC<Dropdown> = ({ keys, select, selected, lookup }) => {
         toggleState(!isOpen)
     }
 
+    const selectAndToggle = (key: string) => {
+        select(key);
+        if (inputRef.current) {
+            inputRef.current.value = lookup(key);
+        }
+        openClose();
+    }
+
+    const onBlur = (event: React.FocusEvent<HTMLFormElement>) => {
+        const input = event.currentTarget.getElementsByTagName('input')[0]
+        console.log('jsafj')
+        input.value = lookup(selected);
+    }
+
     const optionsList = <div className={styles.list}>
         {keys.map(key => {
-            return (<div className={styles.row} key={key} onClick={() => select(key)}>
+            return (<div className={styles.row} key={key} onClick={() => { selectAndToggle(key) }}>
                 <div className={styles.hh}></div>
                 <div className={styles.text}>{lookup(key)}</div>
                 <div className={styles.hh}></div>
@@ -43,11 +60,13 @@ const Dropdown: React.FC<Dropdown> = ({ keys, select, selected, lookup }) => {
     </div>
 
     return (
-        <div onClick={openClose} className={state}>
+        <div className={`${state} ${className}`}>
             <div className={styles.selected}>
                 <div className={styles.whitespace}></div>
-                <div className={styles.text}>{lookup(selected)}</div>
-                <div className={styles.arrow}><Polygon className={polygonState} /></div>
+                <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
+                    <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} />
+                </form>
+                <div onClick={openClose} className={styles.arrow}><Polygon className={polygonState} /></div>
             </div>
             {isOpen ? optionsList : null}
         </div>

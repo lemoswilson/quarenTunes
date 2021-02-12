@@ -1,6 +1,11 @@
 import React, { useRef, useState } from 'react';
 import Dropdrown from './Dropdown'
 import styles from './Playground.module.scss';
+// import ButtonBackground from './Icons/ButtonBackground';
+import Save from './Icons/Save';
+import TrashCan from './Icons/TrashCan';
+import Plus from './Icons/Plus';
+import Minus from './Icons/Minus';
 
 const Playground: React.FC = () => {
     const [selected, select] = useState('1')
@@ -20,10 +25,19 @@ const Playground: React.FC = () => {
         }
     }
 
+    const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        // do shit
+    }
+
     return (
         <React.Fragment>
             <div className={styles.box}>
-                <Dropdrown selected={selected} lookup={lookup} keys={Options.current} select={select}></Dropdrown>
+                <Dropdrown onSubmit={onSubmit} className={styles.mamao} selected={selected} lookup={lookup} keys={Options.current} select={select}></Dropdrown>
+                {/* <Plus className={styles.mamao}></Plus>
+                <Minus className={styles.estopin}></Minus> */}
+                <Save className={styles.estopin}></Save>
+                <TrashCan className={styles.estopin}></TrashCan>
             </div>
         </React.Fragment>
     )

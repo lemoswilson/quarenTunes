@@ -4,7 +4,6 @@ import Header from './components/Layout/Header/Header';
 import HomePage from './components/Layout/HomePage/HomePage';
 import SignUp from './components/Layout/SignUp/SignUp';
 import './App.scss';
-// import Xolombrisx from './containers/Xolombrisx';
 
 const Xolombrisx = lazy(() => import('./containers/Xolombrisx'))
 const SuspenseFallback: React.FC = () => <div>Fallback</div>

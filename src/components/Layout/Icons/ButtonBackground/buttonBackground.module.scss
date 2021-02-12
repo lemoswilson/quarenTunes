@@ -1,0 +1,10 @@
+@import '../../../../style/variables';
+
+.box {
+    background-color: white;
+    width: 1.85rem;
+    height: 1.85rem;
+    display: flex;
+    border-radius: 0.7rem;
+    // @include center;
+}
