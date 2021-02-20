@@ -1,0 +1,17 @@
+@import '../../../style/variables';
+
+.box {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid black;
+    align-self: center;
+    cursor: pointer;
+}
+
+.right {
+    transform: rotate(180deg);
+}
+
+.arrow {
+    padding-top: 0.2rem;
+}

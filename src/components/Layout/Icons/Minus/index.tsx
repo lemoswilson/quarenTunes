@@ -5,7 +5,7 @@ import minus from '../../../../assets/minus.svg';
 
 interface Minus {
     className?: string;
-    onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 

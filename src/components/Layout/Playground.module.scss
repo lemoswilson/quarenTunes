@@ -2,15 +2,16 @@
 
 .box {
     background-color: $light;
-    width: 38%;
-    height: 9%;
+    width: 47%;
+    height: 100%;
     display: flex;
     // @include center;
     justify-content: center;
     align-items: flex-start;
     flex-direction: row;
     border-radius: 1rem;
-    margin-top: 2rem;
+    // margin-top: 2rem;
+    align-self: center;
 
     .mamao {
         margin-top: 0.35rem;

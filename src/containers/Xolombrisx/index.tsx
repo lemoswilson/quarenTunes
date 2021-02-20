@@ -423,7 +423,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                     <div className={styles.instrumentColumn}>
                                         <div className={styles.tabs}></div>
                                         <div className={styles.box}>
-                                            <Playground></Playground>
+                                            {/* <Playground></Playground> */}
                                         </div>
                                     </div>
                                     <div className={styles.effectsColumn}>
@@ -444,7 +444,10 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                         <div className={styles.patterns}></div>
                                     </div>
                                     <div className={styles.sequencerColumn}>
-                                        <div className={styles.box}></div>
+                                        <div className={styles.box}>
+                                            <div className={styles.stepSequencer}></div>
+                                            <Playground></Playground>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -10,10 +10,16 @@ interface Dropdown {
     className?: string;
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
-const Dropdown: React.FC<Dropdown> = ({ keys, select, selected, lookup, className, onSubmit }) => {
+const Dropdown: React.FC<Dropdown> = ({
+    keys,
+    select,
+    selected,
+    lookup,
+    className,
+    onSubmit
+}) => {
     const [isOpen, toggleState] = useState(false);
     const [renderCount, increaseCounter] = useState(0)
-    const [, updateState] = useState();
     const inputRef = useRef<HTMLInputElement>(null);
 
     const state = isOpen
@@ -45,7 +51,6 @@ const Dropdown: React.FC<Dropdown> = ({ keys, select, selected, lookup, classNam
 
     const onBlur = (event: React.FocusEvent<HTMLFormElement>) => {
         const input = event.currentTarget.getElementsByTagName('input')[0]
-        console.log('jsafj')
         input.value = lookup(selected);
     }
 
