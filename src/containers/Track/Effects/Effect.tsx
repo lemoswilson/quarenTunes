@@ -1,26 +1,31 @@
 import React, { useRef, useMemo, useContext, MutableRefObject, useState, useEffect, useCallback } from 'react';
-import { indicators } from '../defaults'
-import valueFromCC, { optionFromCC, valueFromMouse } from '../../../lib/curves';
-import WebMidi, { InputEventControlchange, Input } from 'webmidi';
-import { parameterLockEffect } from '../../../store/Sequencer/actions'
-import { onlyValues, propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
+
+import usePrevious from '../../../hooks/usePrevious';
+import { useEffectProperty } from '../../../hooks/useProperty';
+
+import { useDispatch, useSelector } from 'react-redux';
 import { effectTypes } from '../../../store/Track';
-import { sixteenthFromBBS } from '../../Arranger'
+import { updateEffectState } from '../../../store/Track/actions'
+import { parameterLockEffect } from '../../../store/Sequencer/actions'
+
+import triggContext from '../../../context/triggState';
+
+import WebMidi, { InputEventControlchange, Input } from 'webmidi';
+
 import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
-import { effectsInitials, effectsInitialsArray } from '../Instruments';
+import valueFromCC, { optionFromCC, valueFromMouse } from '../../../lib/curves';
+import { onlyValues, propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
 import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
 import Tone from '../../../lib/tone'
-import usePrevious from '../../../hooks/usePrevious';
-// import useQuickRef from '../../../hooks/useQuickRef';
-import { updateEffectState } from '../../../store/Track/actions'
+
+import { sixteenthFromBBS } from '../../Arranger'
+import { effectsInitials, effectsInitialsArray } from '../Instruments';
 import { controlChangeEvent } from '../Instruments'
-import { effectsProps } from './types';
 import { RootState } from '../../Xolombrisx';
-import { useDispatch, useSelector } from 'react-redux';
+
+import { effectsProps } from './types';
 import { getEffectsInitials } from '../defaults';
-import triggContext from '../../../context/triggState';
-import { useEffectProperty } from '../../../hooks/useProperty';
-// import webmidi from 'webmidi';
+import { indicators } from '../defaults'
 
 export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
     let options = onlyValues(opt);
@@ -76,50 +81,51 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
 }
 
 const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track, trackId }) => {
-    const dispatch = useDispatch();
-    const effectRef = useRef(returnEffect(type, options))
-    const properties = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
-    const CCMaps = useRef<any>({});
-    const listenCC = useRef<controlChangeEvent>();
     const triggRefs = useContext(triggContext);
-    const patTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
-    const arrMode = useSelector((state: RootState) => state.arranger.present.mode);
-    const actPat = useSelector((state: RootState) => state.sequencer.present.activePattern);
-    const selSteps = useSelector((state: RootState) => state.sequencer.present.patterns[actPat].tracks[index].selected);
-    const lockedParameters: MutableRefObject<effectsInitials> = useRef({});
-    const inputRef = useRef<false | Input>(false);
-    // const ovr = useSelector((state: RootState) => state.sequencer.override);
-    const isRecording = useSelector((state: RootState) => state.transport.present.recording);
-    const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
-    const previousPlaying = usePrevious(isPlaying);
+    const effectRef = useRef(returnEffect(type, options))
+    const dispatch = useDispatch();
+    const properties = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
     const [firstRender, setRender] = useState(true);
 
-    // const optionsRef = useQuickRef(options)
+    const CCMaps = useRef<any>({});
+    const listenCC = useRef<controlChangeEvent>();
+
+    const lockedParameters: MutableRefObject<effectsInitials> = useRef({});
+    const inputRef = useRef<false | Input>(false);
+
+
     const optionsRef = useRef(options)
     useEffect(() => { optionsRef.current = options }, [options])
-    // const indexRef = useQuickRef(index);
+
     const indexRef = useRef(index);
     useEffect(() => { indexRef.current = index }, [index]);
-    // const patternTracker = useQuickRef(patTracker);
-    const patternTracker = useRef(patTracker);
-    useEffect(() => { patternTracker.current = patTracker }, [patTracker]);
-    // const arrangerMode = useQuickRef(arrMode);
-    const arrangerMode = useRef(arrMode);
-    useEffect(() => { arrangerMode.current = arrMode }, [arrMode]);
-    // const activePattern = useQuickRef(actPat);
-    const activePattern = useRef(actPat);
-    useEffect(() => { activePattern.current = actPat }, [actPat]);
-    // const selectedSteps = useQuickRef(selSteps);
-    const selectedSteps = useRef(selSteps);
-    useEffect(() => { selectedSteps.current = selSteps }, [selSteps]);
-    // const isRec = useQuickRef(isRecording);
-    const isRec = useRef(isRecording);
-    useEffect(() => { isRec.current = isRecording }, [isRecording])
-    // const isPlay = useQuickRef(isPlaying);
-    const isPlay = useRef(isPlaying);
-    useEffect(() => { isPlay.current = isPlaying }, [isPlaying]);
 
-    const patLen = useSelector(
+    const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
+    const patternTrackerRef = useRef(patternTracker);
+    useEffect(() => { patternTrackerRef.current = patternTracker }, [patternTracker]);
+
+    const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
+    const arrangerModeRef = useRef(arrangerMode);
+    useEffect(() => { arrangerModeRef.current = arrangerMode }, [arrangerMode]);
+
+    const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
+    const activePatternRef = useRef(activePattern);
+    useEffect(() => { activePatternRef.current = activePattern }, [activePattern]);
+
+    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[index].selected);
+    const selectedStepsRef = useRef(selectedSteps);
+    useEffect(() => { selectedStepsRef.current = selectedSteps }, [selectedSteps]);
+
+    const isRecording = useSelector((state: RootState) => state.transport.present.recording);
+    const isRecordingRef = useRef(isRecording);
+    useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
+
+    const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
+    const isPlayingRef = useRef(isPlaying);
+    useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying]);
+    const previousPlaying = usePrevious(isPlaying);
+
+    const patternLengths = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -130,10 +136,10 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         }
     );
     // const patternLengths = useQuickRef(patLen);
-    const patternLengths = useRef(patLen);
-    useEffect(() => { patternLengths.current = patLen }, [patLen])
+    const patternLengthsRef = useRef(patternLengths);
+    useEffect(() => { patternLengthsRef.current = patternLengths }, [patternLengths])
 
-    const trkPatLen = useSelector(
+    const trackPatternLength = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -143,11 +149,10 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
             return o;
         }
     );
-    // const trackPatternLength = useQuickRef(trkPatLen);
-    const trackPatternLength = useRef(trkPatLen);
-    useEffect(() => { trackPatternLength.current = trkPatLen }, [trkPatLen])
+    const trackPatternLengthRef = useRef(trackPatternLength);
+    useEffect(() => { trackPatternLengthRef.current = trackPatternLength }, [trackPatternLength])
 
-    const ev = useSelector(
+    const events = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -158,10 +163,10 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         }
     );
     // const events = useQuickRef(ev);
-    const events = useRef(ev);
-    useEffect(() => { events.current = ev }, [ev])
+    const eventsRef = useRef(events);
+    useEffect(() => { eventsRef.current = events }, [events])
 
-    const propertyUpdate: any = useMemo(() => {
+    const propertyValueUpdateCallback: any = useMemo(() => {
         let o = {}
         let callArray = properties.map((property) => {
             return (value: any) => {
@@ -187,7 +192,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         optionsRef,
     ]);
 
-    const calcCallbacks: any = useMemo(() => {
+    const calculationCallbacks: any = useMemo(() => {
         const callArray = properties.map((property) => {
             return (e: any) => {
 
@@ -203,11 +208,11 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                     || indicatorType === indicators.VERTICAL_SLIDER
                     || indicatorType === indicators.HORIZONTAL_SLIDER
 
-                if (selectedSteps.current.length >= 1) {
+                if (selectedStepsRef.current.length >= 1) {
 
-                    for (let step of selectedSteps.current) {
+                    for (let step of selectedStepsRef.current) {
                         let data, propVal;
-                        let event = { ...events.current[activePattern.current][step] }
+                        let event = { ...eventsRef.current[activePatternRef.current][step] }
                         // const time = timeObjFromEvent(step, event)
                         // const trigg = triggRefs.current[activePattern.current][indexRef.current].instrument
                         const evp = getNested(event, property);
@@ -238,7 +243,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                             // trigg.at(time, event);
                             dispatch(
                                 parameterLockEffect(
-                                    activePattern.current,
+                                    activePatternRef.current,
                                     track,
                                     step,
                                     index,
@@ -289,12 +294,12 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         return o;
     }, [
         dispatch,
-        activePattern,
+        activePatternRef,
         track,
-        events,
+        eventsRef,
         indexRef,
         optionsRef,
-        selectedSteps,
+        selectedStepsRef,
         index,
         properties,
         triggRefs
@@ -338,6 +343,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     useEffectProperty(effectRef, options, 'windowSize');
 
 
+    // get handle of input object
     useEffect(() => {
         if (midi.channel && midi.device) {
             inputRef.current = WebMidi.getInputByName(midi.device);
@@ -345,6 +351,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     })
 
 
+    // reset locked property values after stopping playback
     useEffect(() => {
         if (!isPlaying && previousPlaying) {
             let p = propertiesToArray(lockedParameters.current);
@@ -354,14 +361,14 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                 dispatch(updateEffectState(track, d, index));
             });
         }
-        isPlay.current = isPlaying;
+        isPlayingRef.current = isPlaying;
     }, [
         isPlaying,
         dispatch,
         track,
         index,
         previousPlaying,
-        isPlay
+        isPlayingRef
     ]
     );
 
@@ -372,10 +379,10 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
             const callbackVal = getNested(value, property);
             const lockVal = getNested(lockedParameters.current, property);
             if (callbackVal && callbackVal !== currVal[0]) {
-                propertyUpdate[property](callbackVal);
+                propertyValueUpdateCallback[property](callbackVal);
                 setNestedValue(property, callbackVal, lockedParameters);
             } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-                propertyUpdate[property](lockVal);
+                propertyValueUpdateCallback[property](lockVal);
                 deleteProperty(lockedParameters.current, property);
                 // setNestedValue(property, undefined, lockedParameters.current)
             }
@@ -383,41 +390,14 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
 
     }, [
         properties,
-        propertyUpdate,
+        propertyValueUpdateCallback,
         // activePattern,
         // arrangerMode,
         optionsRef,
         // patternTracker,
     ])
 
-    // const returnStep = useCallback((t: string): number => {
-    //     let result;
-    //     const n = sixteenthFromBBS(t)
-    //     if (arrangerMode.current === "pattern") {
-    //         result = trackPatternLength.current[activePattern.current] >= patternLengths.current[activePattern.current]
-    //             ? n
-    //             : n % trackPatternLength.current[activePattern.current]
-    //     } else {
-    //         const pattern = patternTracker.current[0];
-    //         const timeb = patternTracker.current[1] ? patternTracker.current[1] : 0;
-    //         const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
-    //         const step = n - sixteenthFromBBS(timebbs);
-    //         const patternLocation = step % patternLengths.current[pattern];
-    //         if (!patternLocation) return -1
-    //         result = trackPatternLength.current[pattern] < patternLengths.current[activePattern.current]
-    //             ? patternLocation % trackPatternLength.current[pattern]
-    //             : patternLocation;
-    //     };
-    //     return result;
-    // }, [
-    //     arrangerMode,
-    //     patternTracker,
-    //     patternLengths,
-    //     activePattern,
-    //     trackPatternLength
-    // ]
-    // )
-
+    // change effect logic
     useEffect(() => {
         effectRef.current = returnEffect(type, optionsRef.current);
         toneRefEmitter.emit(
@@ -439,6 +419,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         optionsRef
     ]);
 
+    // add effect first render logic 
     useEffect(() => {
         if (firstRender) {
             toneRefEmitter.emit(
@@ -469,7 +450,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     ) => {
         const f = wrapBind(
             getNested(
-                calcCallbacks,
+                calculationCallbacks,
                 property
             ), cc);
         setNestedValue(CCMaps.current, {

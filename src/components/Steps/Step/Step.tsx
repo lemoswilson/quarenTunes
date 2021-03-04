@@ -1,11 +1,14 @@
 import React, { useContext } from 'react';
 import { useDispatch } from 'react-redux';
-// import { eventOptions } from '../../../containers/Track/Instruments';
-import { event } from '../../../store/Sequencer'
-import TriggCtx from '../../../context/triggState'
+
 import usePrevious from '../../../hooks/usePrevious';
 import { useTrigg } from '../../../hooks/useProperty';
+// import { eventOptions } from '../../../containers/Track/Instruments';
+
+import { event } from '../../../store/Sequencer'
 import { selectStep } from '../../../store/Sequencer'
+
+import TriggCtx from '../../../context/triggState'
 
 interface StepProps {
     // offset: number,

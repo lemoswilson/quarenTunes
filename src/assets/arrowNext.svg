@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="a" x1="7.47" y1="7.25" x2="17.49" y2="22.53" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f0f0f0" stop-opacity="0.3"/>
+      <stop offset="0.98" stop-color="#ededed" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+  <title>arrowNext</title>
+  <g style="isolation: isolate">
+    <g>
+      <g>
+        <polygon points="26.44 15.93 6.44 25.93 6.44 5.93 26.44 15.93" style="fill: url(#a)"/>
+        <polygon points="26.44 15.93 6.44 25.93 6.44 5.93 26.44 15.93" style="fill: url(#a)"/>
+      </g>
+      <g>
+        <image width="40" height="40" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAACXBIWXMAAAsSAAALEgHS3X78AAADT0lEQVRYR+2YaW7bQAxGn+M1e5p0u0fufwRdpc1S77XVH+SXocaSrbRykAAlQGis9fkbDkmpV5Yl791ODp3wHuw/ZFc22HewKIpetqsHVIL4/v7+6EHda1o4DignbGVl8KPC1kIGwBP3Xtjqgq2PtS2B8hiwO5ABsI+BDcJYMSy4TfCjwVYgMwX7wNB9RIKVmhvgN7B21+/OYesWjiAHGNwk+NCPlRjQyn3p27Xvf4EtiuKfYdtAngIXwLmPByTIJTB3X7h3DptDxukeAGMM7gq4xmDHfo4gp8FnJODOYPcp2ScpeQXcAjfAmV+3wWCmwLP7L/dOYV8WTlg0Ayz+zoFPwBfgO/AV+IwBj7EpX5Egn4BH37aGle+DbVJSKSjG5SWm5C2m5gn2sBkGJEh5hJ1isEt3wSp9URRFY0Goi8k4VhqKoNe+HWFqKC6f/dgju7AKBcEuSLA9PM82gTbV7lgS83SkhTQhLaC575NfAw8+fvTxE1VgVTBZCfWK7m0wqC6iAabqGFNVC2iLgc99e4EpfYlBXvr+M792SCoKkOJyS4rTih2ChKqiOeyIpOYEg9cfkJ/6MVUtFYNNjdfG5L5+UnD57xxW8XqGqXiNZYVb4A7LCHekFHbl50nZ2BsA9PIWsY2SUIXVb8H2MQXin9L0bbDFsWBX1SHVfiAX5cU+fGeugIbdWIlK6Tw1HEtMuVmN1yX2eI9WeXKfxVWotkwzEad1RrUKPQA/gR+kVKRqtCSBbvWc16YgqIdbYw/QzdeYSqo+sUwKUi7QKUnV2DTv2CHIHG5FUkuLRcl8RoKTgqo6dcl85vdSw9waMsZgvkLVO06xaV74ObEs5vW7TVmsxGXbstgEKKWGmKJ9kor/2mA0AgI77zh5s3uDtWrf3O+wZD32S1YkeIG9SauWqzjHIEZ+bE56hYhT/aqmlxZwsrqYFKReD2bYFPewB06wmNyE461fH3gFnGyfkhFSPV8EFuSCFi9i/AWc7BDkCgPa+nhEqtUKh1XwTuFkTV8wYqejbifvA7Uyldw17gxO1pTMpRRUF5E6FUFswvHO4WSHPljFHjJvpRQWJUeCkx369Af1za8uEtzbf/qLVvMhtWLHhJMdhHwP9iE68w8B+QfJy10h+EUyKAAAAABJRU5ErkJggg==" style="opacity: 0.5;mix-blend-mode: multiply"/>
+        <polygon points="26.44 15.93 6.44 25.93 6.44 5.93 26.44 15.93" style="fill: #fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -6,8 +6,9 @@
     height: 100%;
     display: flex;
     // @include center;
-    justify-content: center;
-    align-items: flex-start;
+    // justify-content: center;
+    // align-items: flex-start;
+    @include center;
     flex-direction: row;
     border-radius: 1rem;
     // margin-top: 2rem;

@@ -6,15 +6,13 @@ import React, {
     MutableRefObject,
     ChangeEvent,
     useRef,
-    KeyboardEvent,
+    KeyboardEvent as kEvent,
     useCallback, RefObject
 } from 'react';
+import useQuickRef from '../../hooks/useQuickRef';
+import usePrevious from '../../hooks/usePrevious';
 import { useSelector, useDispatch } from 'react-redux';
 import { ActionCreators } from 'redux-undo';
-import triggCtx from '../../context/triggState';
-import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
-import Tone from '../../lib/tone';
-import useQuickRef from '../../hooks/useQuickRef';
 import {
     addPattern,
     changePage,
@@ -22,7 +20,7 @@ import {
     changeTrackLength,
     deleteEvents,
     removePattern,
-    // Sequencer,
+    Sequencer,
     selectPattern,
     selectStep,
     setNote,
@@ -35,13 +33,20 @@ import {
     toggleRecordingQuantization,
     changePatternName,
 } from '../../store/Sequencer';
-import usePrevious from '../../hooks/usePrevious';
+import { setPatternTrackVelocity } from '../../store/Sequencer/actions';
+import { noteOff, noteOn, upOctaveKey, downOctaveKey, keyDict, noteDict } from '../../store/MidiInput';
+
+import triggCtx from '../../context/triggState';
+
+import { timeObjFromEvent } from '../../lib/utility';
+import Tone from '../../lib/tone';
+import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
+
 import Steps from '../../components/Steps/Steps'
 import StepsEdit from '../../components/StepsEdit/StepsEdit'
+
 import { bbsFromSixteenth } from '../Arranger'
 import { RootState } from '../Xolombrisx';
-import { setPatternTrackVelocity } from '../../store/Sequencer/actions';
-import { timeObjFromEvent } from '../../lib/utility';
 
 
 const Sequencer: FunctionComponent = () => {
@@ -54,23 +59,6 @@ const Sequencer: FunctionComponent = () => {
     const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
     const counter = useSelector((state: RootState) => state.sequencer.present.counter);
     const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
-    // const activePageRef = useQuickRef(activePage);
-
-    const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
-    // **** Preciso atualizar a ref com o useEffect;
-    // const activePatternRef = useQuickRef(activePattern);
-    const activePatternRef = useRef(activePattern);
-    useEffect(() => { activePatternRef.current = activePattern }, [activePattern])
-    const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack)
-    const selected = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].selected);
-    // const selectedRef = useQuickRef(selected);
-    const selectedRef = useRef(selected);
-    useEffect(() => { selectedRef.current = selected }, [selected])
-    const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
-    const patternTrackVelocity = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].velocity);
-    // const selLenRef = useQuickRef(selLen);
-    const selLenRef = useRef(selLen);
-    useEffect(() => { selLenRef.current = selLen }, [selLen])
     const trackCount = useSelector((state: RootState) => state.track.present.trackCount)
     const activePatternObj = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern])
     const patternAmount = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).length)
@@ -78,39 +66,53 @@ const Sequencer: FunctionComponent = () => {
     const patternLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].patternLength)
     const patternNoteLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength)
     const trackLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].length)
+
+    const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
+    const activePatternRef = useRef(activePattern);
+    useEffect(() => { activePatternRef.current = activePattern }, [activePattern])
+
+    const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack)
+    const selected = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].selected);
+    const selectedRef = useRef(selected);
+    useEffect(() => { selectedRef.current = selected }, [selected])
+
+    const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
+    const patternTrackVelocity = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].velocity);
+    const selLenRef = useRef(selLen);
+    useEffect(() => { selLenRef.current = selLen }, [selLen])
+
     const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].page);
     const activePageRef = useRef(activePage);
     useEffect(() => { activePageRef.current = activePage }, [activePage])
 
-    const remPattern = (): void => {
+
+    const dispatchRemovePattern = (): void => {
         dispatch(removePattern(activePattern))
         triggEmitter.emit(triggEventTypes.REMOVE_PATTERN, { pattern: activePattern });
     };
 
-    const dupPattern = (): void => {
+    const dispatchDuplicatePattern = (): void => {
         triggEmitter.emit(triggEventTypes.DUPLICATE_PATTERN, { pattern: activePattern })
         dispatch(duplicatePattern(activePattern));
     };
 
-    const tOverride = (): void => {
+    const dispatchToggleOverride = (): void => {
         dispatch(toggleOverride());
     };
 
-    const tRecordingQuntization = (): void => {
+    const dispatchToggleRecordingQuantization = (): void => {
         dispatch(toggleRecordingQuantization());
     };
 
-    const adPattern = useCallback(() => {
+    const dispatchAddPattern = useCallback(() => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
         dispatch(addPattern());
     }, [
-        // triggEmitter,
         dispatch,
-        // addPattern,
         counter
     ]);
 
-    const chgTrackLength = (
+    const dispatchChangeTrackLength = (
         newLength: number,
         Ref: RefObject<HTMLFormElement>
     ): void => {
@@ -126,7 +128,7 @@ const Sequencer: FunctionComponent = () => {
         }
     };
 
-    const chgPatternLength = useCallback((
+    const dispatchChangePatternLength = useCallback((
         newLength: number,
         ref: RefObject<HTMLFormElement>
     ): void => {
@@ -138,7 +140,7 @@ const Sequencer: FunctionComponent = () => {
         }
     }, [activePattern, arrangerMode, dispatch]);
 
-    const selPattern = (e: ChangeEvent<HTMLInputElement>): void => {
+    const dispatchSelectPattern = (e: ChangeEvent<HTMLInputElement>): void => {
         e.preventDefault();
         let nextPattern: number = e.currentTarget.valueAsNumber;
         let loopEnd = sequencer.patterns[nextPattern].patternLength;
@@ -185,7 +187,7 @@ const Sequencer: FunctionComponent = () => {
 
     };
 
-    const chgPatternName = useCallback((name: string): void => {
+    const dispatchChangePatternName = useCallback((name: string): void => {
         dispatch(
             changePatternName(
                 activePattern,
@@ -194,7 +196,7 @@ const Sequencer: FunctionComponent = () => {
         );
     }, [activePattern, dispatch]);
 
-    const chgPage = useCallback((pageIndex: number): void => {
+    const dispatchChangePage = useCallback((pageIndex: number): void => {
         dispatch(
             changePage(
                 activePattern,
@@ -204,23 +206,13 @@ const Sequencer: FunctionComponent = () => {
         );
     }, [dispatch, activePattern, selectedTrack]);
 
-    const sOffSet = (direction: number): void => {
+    const dispatchSetOffset = (direction: number): void => {
         selectedRef.current.forEach(step => {
             let eVent = { ...activePatternObj.tracks[selectedTrack].events[step] };
             let currOffset: number = eVent.offset ? eVent.offset : 0;
-            // let pastEventTime = {
-            //     '16n': step,
-            //     '128n': currOffset
-            // };
             if ((direction > 0 && currOffset + direction <= 128)
                 || (direction < 0 && currOffset + direction >= -128)) {
                 let off: number = currOffset + direction;
-                // let newEventTime = {
-                //     '16n': step,
-                //     '128n': off,
-                // };
-                // triggRef.current[activePattern][selectedTrack].remove(pastEventTime);
-                // triggRef.current[activePattern][selectedTrack].at(newEventTime, eVent)
                 dispatch(
                     setOffset(
                         activePattern,
@@ -233,15 +225,8 @@ const Sequencer: FunctionComponent = () => {
         })
     };
 
-    const sNote = (note: string[]): void => {
+    const dispatchSetNote = (note: string[]): void => {
         selectedRef.current.forEach(s => {
-            // let e = { ...activePatternObj.tracks[selectedTrack].events[s] };
-            // let time = {
-            //     '16n': s,
-            //     '128n': e.offset,
-            // }
-            // e.note = note ? note : [];
-            // triggRef.current[activePattern][selectedTrack].at(time, e);
             dispatch(
                 setNote(
                     activePattern,
@@ -253,7 +238,7 @@ const Sequencer: FunctionComponent = () => {
         });
     };
 
-    const sPatternNoteLength = (length: number | string) => {
+    const dispatchSetPatternNoteLength = (length: number | string) => {
         dispatch(
             setPatternNoteLength(
                 activePattern,
@@ -263,15 +248,8 @@ const Sequencer: FunctionComponent = () => {
         );
     };
 
-    const sNoteLength = (noteLength: number | string): void => {
+    const dispatchSetNoteLength = (noteLength: number | string): void => {
         selectedRef.current.forEach(step => {
-            // let e = { ...activePatternObj.tracks[selectedTrack].events[step] };
-            // let time = {
-            //     '16n': step,
-            //     '128n': e.offset,
-            // };
-            // e.length = noteLength;
-            // triggRef.current[activePattern][selectedTrack].at(time, e)
             dispatch(
                 setNoteLength(
                     activePattern,
@@ -283,7 +261,7 @@ const Sequencer: FunctionComponent = () => {
         });
     };
 
-    const delEvents = (): void => {
+    const dispatchDeleteEvents = (): void => {
         if (selectedRef.current.length >= 1) {
             selectedRef.current.forEach(s => {
                 let e = { ...activePatternObj.tracks[selectedTrack].events[s] }
@@ -304,15 +282,8 @@ const Sequencer: FunctionComponent = () => {
         }
     };
 
-    const sVelocity = (velocity: number): void => {
+    const dispatchSetVelocity = (velocity: number): void => {
         selectedRef.current.forEach(s => {
-            // let e = { ...activePatternObj.tracks[selectedTrack].events[s] };
-            // let time = {
-            //     '16n': s,
-            //     '128n': e.offset,
-            // };
-            // e.velocity = velocity;
-            // triggRef.current[activePattern][selectedTrack].at(time, e);
             dispatch(
                 setVelocity(
                     activePattern,
@@ -324,7 +295,7 @@ const Sequencer: FunctionComponent = () => {
         });
     };
 
-    const sPatternTrackVelocity = (velocity: number): void => {
+    const dispatchSetPatternTrackVelocity = (velocity: number): void => {
         dispatch(
             setPatternTrackVelocity(
                 activePattern,
@@ -334,7 +305,7 @@ const Sequencer: FunctionComponent = () => {
         );
     };
 
-    const selStep = (index: number): void => {
+    const dispatchSelectStep = (index: number): void => {
         dispatch(
             selectStep(
                 activePattern,
@@ -344,32 +315,31 @@ const Sequencer: FunctionComponent = () => {
         );
     };
 
+    // keyboard shortcuts event listeners
+    useEffect(() => {
+        document.addEventListener('keydown', keydown)
+        document.addEventListener('keydown', keyup)
 
-    interface keyDict {
-        [key: string]: number
+        return () => {
+            document.removeEventListener('keydown', keydown)
+            document.removeEventListener('keydown', keyup)
+        }
+    }, [])
+
+
+    const dispatchUpOctaveKey = () => { dispatch(upOctaveKey()) };
+    const dispatchDownOctaveKey = () => { dispatch(downOctaveKey()) };
+
+    type keyFunctionsType = typeof dispatchUpOctaveKey | typeof dispatchDownOctaveKey
+
+    const keyFunctions: { [f: string]: keyFunctionsType } = {
+        '1': dispatchUpOctaveKey,
+        '0': dispatchDownOctaveKey
     }
 
-    const keyDict: keyDict = {
-        a: 0,
-        s: 1,
-        d: 2,
-        f: 3,
-        g: 4,
-        h: 5,
-        j: 6,
-        k: 7,
-        l: 8,
-        z: 9,
-        x: 10,
-        c: 11,
-        v: 12,
-        b: 13,
-        n: 14,
-        m: 15
-    };
-
-    function keydown(e: KeyboardEvent<Document>): void {
-        let char: string = String.fromCharCode(e.keyCode).toLowerCase();
+    // sequencer keyboard shortcuts 
+    function keydown(this: Document, e: KeyboardEvent): void {
+        let char: string = e.key.toLowerCase();
         // colocar o condicional pra ver se não tem foco em um input box
         if (Object.keys(keyDict).includes(char)) {
             if (e.repeat) { return }
@@ -378,23 +348,25 @@ const Sequencer: FunctionComponent = () => {
             if (index <= selLen) {
                 dispatch(selectStep(activePattern, selectedTrack, index));
             }
-        } else if (e.keyCode === 37 && selectedRef.current.length >= 1) {
-            e.shiftKey ? sOffSet(-10) : sOffSet(-1);
-        } else if (e.keyCode === 39 && selectedRef.current.length >= 1) {
-            e.shiftKey ? sOffSet(10) : sOffSet(1);
-        } else if (e.keyCode === 46 || e.keyCode === 8) {
-            delEvents();
+        } else if (char === 'arrowleft' && selectedRef.current.length >= 1) {
+            e.shiftKey ? dispatchSetOffset(-10) : dispatchSetOffset(-1);
+        } else if (char === 'arrowright' && selectedRef.current.length >= 1) {
+            e.shiftKey ? dispatchSetOffset(10) : dispatchSetOffset(1);
+        } else if (char === 'delete' || e.key.toLowerCase() === 'backspace') {
+            dispatchDeleteEvents();
+        } else if (Object.keys(keyFunctions).includes(char)) {
+            keyFunctions[char]()
         }
     };
 
-    function keyup(e: KeyboardEvent<Document>): void {
-        let char = String.fromCharCode(e.keyCode).toLowerCase();
+    function keyup(e: KeyboardEvent): void {
+        let char = e.key.toLowerCase();
         // colocar o condicional pra ver se não tem foco em um input box
         if (Object.keys(keyDict).includes(char)) {
             if (e.repeat) { return }
             let index = (activePageRef.current + 1) * keyDict[char];
             if (index <= selLenRef.current) {
-                selStep(index);
+                dispatchSelectStep(index);
             }
         }
     };
@@ -403,24 +375,24 @@ const Sequencer: FunctionComponent = () => {
         <div>
             <StepsEdit
                 activePattern={activePattern}
-                addPattern={adPattern}
-                changePage={chgPage}
-                changePatternLength={chgPatternLength}
-                changePatternName={chgPatternName}
-                changeTrackLength={chgTrackLength}
+                addPattern={dispatchAddPattern}
+                changePage={dispatchChangePage}
+                changePatternLength={dispatchChangePatternLength}
+                changePatternName={dispatchChangePatternName}
+                changeTrackLength={dispatchChangeTrackLength}
                 events={events}
                 page={activePage}
                 patternAmount={patternAmount}
                 patternLength={patternLength}
                 patternNoteLength={patternNoteLength}
                 patternTrackVelocity={patternTrackVelocity}
-                removePattern={remPattern}
-                selectPattern={selPattern}
+                removePattern={dispatchRemovePattern}
+                selectPattern={dispatchSelectPattern}
                 selected={selected}
-                setNote={sNote}
-                setNoteLength={sNoteLength}
-                setPatternNoteLength={sPatternNoteLength}
-                setVelocity={sVelocity}
+                setNote={dispatchSetNote}
+                setNoteLength={dispatchSetNoteLength}
+                setPatternNoteLength={dispatchSetPatternNoteLength}
+                setVelocity={dispatchSetVelocity}
                 trackLength={trackLength}
             ></StepsEdit>
             <Steps

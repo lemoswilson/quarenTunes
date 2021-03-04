@@ -17,6 +17,7 @@ import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
 import { trackReducer, initialState as TrkInit, toneEffects } from "../../store/Track";
 import { sequencerReducer, initialState as SeqInit, sequencerActions } from "../../store/Sequencer";
 import { transportReducer, initialState as TrsState, transportActions } from "../../store/Transport";
+import { midiInputReducer, initialState as MidiState } from '../../store/MidiInput';
 import { timeObjFromEvent } from "../../lib/utility";
 import { userProps } from '../../App';
 import styles from './xolombrisx.module.scss'
@@ -69,6 +70,7 @@ export const rootReducer = combineReducers({
     transport: undoable(transportReducer, {
         filter: includeAction([transportActions.RECORD, transportActions.START, transportActions.STOP])
     }),
+    midi: midiInputReducer,
 });
 
 const store = createStore(rootReducer, {
@@ -76,6 +78,7 @@ const store = createStore(rootReducer, {
     sequencer: sequencerHistory,
     track: trackHistory,
     transport: transportHistory,
+    midi: MidiState,
 }, composeEnhancers());
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -91,6 +94,21 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     token,
     updateUser
 }) => {
+
+    let triggRef = useRef<triggContext>({
+        0: [{
+            instrument: new Tone.Part(),
+            effects: []
+        }]
+    })
+
+    let toneObjRef = useRef<toneRefs>({
+        0: {
+            effects: [],
+            chain: new Chain(),
+        }
+    });
+
     // context manager actions 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
         let patN = payload.pattern
@@ -388,22 +406,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             toneRefsEmitter.off(trackEventTypes.REMOVE_INSTRUMENT, removeInstrument);
         }
     }, [])
-
-    let triggRef = useRef<triggContext>({
-        0: [{
-            instrument: new Tone.Part(),
-            effects: []
-        }]
-    })
-
-
-    let toneObjRef = useRef<toneRefs>({
-        0: {
-            effects: [],
-            chain: new Chain(),
-        }
-    });
-
 
     return (
         <React.Fragment>

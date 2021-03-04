@@ -49,11 +49,11 @@ const StepsEdit: React.FC<StepsEditProps> = ({
     children
 }) => {
     const patternNameInput = useRef<HTMLInputElement>(null);
-    const tlRef = useRef<HTMLFormElement>(null);
-    const tlInputRef = useRef<HTMLInputElement>(null);
-    const plRef = useRef<HTMLFormElement>(null);
-    const plInputRef = useRef<HTMLInputElement>(null);
-    const noteInRef = useRef<HTMLInputElement>(null);
+    const trackLengthRef = useRef<HTMLFormElement>(null);
+    const trackLengthInputRef = useRef<HTMLInputElement>(null);
+    const patternLengthRef = useRef<HTMLFormElement>(null);
+    const patternLengthInputRef = useRef<HTMLInputElement>(null);
+    const noteInputRef = useRef<HTMLInputElement>(null); // maybe don't need it, because of keyboard UI implementation
     const velocityRef = useRef<HTMLInputElement>(null);
     const noteLengthRef = useRef<HTMLInputElement>(null);
 
@@ -64,14 +64,14 @@ const StepsEdit: React.FC<StepsEditProps> = ({
 
     const changeTrackLengthHandler = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        let newLength = tlInputRef.current ? tlInputRef.current.valueAsNumber : 0;
-        tlRef.current && changeTrackLength(newLength, tlRef);
+        let newLength = trackLengthInputRef.current ? trackLengthInputRef.current.valueAsNumber : 0;
+        trackLengthRef.current && changeTrackLength(newLength, trackLengthRef);
     };
 
     const changePatternLengthHandler = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        let newLength = plInputRef.current ? plInputRef.current.valueAsNumber : 0;
-        changePatternLength(newLength, plRef)
+        let newLength = patternLengthInputRef.current ? patternLengthInputRef.current.valueAsNumber : 0;
+        changePatternLength(newLength, patternLengthRef)
     };
 
     const inputNoteForm = (e: FormEvent<HTMLFormElement>): void => {
@@ -79,7 +79,7 @@ const StepsEdit: React.FC<StepsEditProps> = ({
         if (!selected) {
             alert('noStepSelected')
         } else {
-            let value: string | string[] = noteInRef.current ? noteInRef.current.value : '';
+            let value: string | string[] = noteInputRef.current ? noteInputRef.current.value : '';
             value = value.split(',');
             let newValue = value.map(e => e.trim());
             newValue = newValue[0] === '' ? [] : newValue;
@@ -154,11 +154,11 @@ const StepsEdit: React.FC<StepsEditProps> = ({
 
     return (
         <div>
-            <form ref={tlRef} action=""></form>
-            <form ref={plRef} action=""></form>
-            <input ref={tlInputRef} type="text" />
-            <input ref={plInputRef} type="text" />
-            <input ref={noteInRef} type="text" />
+            <form ref={trackLengthRef} action=""></form>
+            <form ref={patternLengthRef} action=""></form>
+            <input ref={trackLengthInputRef} type="text" />
+            <input ref={patternLengthInputRef} type="text" />
+            <input ref={noteInputRef} type="text" />
         </div>
     )
 }
