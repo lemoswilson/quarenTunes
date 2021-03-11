@@ -1,12 +1,10 @@
 import { MidiInputActionTypes, MidiInputActions, MidiState } from './types';
 import produce from 'immer';
 
-const a = Array(128).map(x => { return false });
 
 export const initialState = {
     devices: {
-        // onboardKey: Array(128).map(x => 'coxinha')
-        onboardKey: a,
+        onboardKey: Array(128).map(x => { return false }),
     },
     onboardRange: 4,
 }

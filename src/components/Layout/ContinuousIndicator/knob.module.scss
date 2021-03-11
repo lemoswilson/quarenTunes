@@ -1,0 +1,31 @@
+@import '../../../style/variables';
+
+.wrapper {
+    width: 4rem;
+    height: 5.5rem;
+    // border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .svg {
+        padding-left: 0.15rem;
+        order: 1;
+    }
+
+    .title {
+        // border: 1px solid green;
+        // line-height: 0.5rem;
+        order: 0;
+        width: 100%;
+        height: auto; 
+        padding-bottom: 0.2rem;
+        font-family: $jost;
+        font-weight: 500;
+        color: $textColor;
+        text-shadow: 0 0 1px $textShadow;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+}

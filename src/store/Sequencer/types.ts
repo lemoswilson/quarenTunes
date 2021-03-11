@@ -62,8 +62,6 @@ export type Pattern = {
 };
 
 export interface Sequencer {
-	// followSchedulerID: number | undefined;
-	// stepFollowerdID: number | undefined;
 	patterns: {
 		[key: number]: Pattern;
 	};
@@ -269,7 +267,7 @@ export interface setNoteAction {
 		pattern: number;
 		track: number;
 		step: number;
-		note: string[];
+		note: string;
 	};
 };
 
@@ -327,6 +325,7 @@ export type sequencerActionTypes =
 	| changeTrackLengthAction
 	| deleteEventsAction
 	| goToActiveAction
+	| noteInputAction
 	| parameterLockAction
 	| removePatternAction
 	| selectPatternAction
@@ -336,7 +335,6 @@ export type sequencerActionTypes =
 	| setNoteLengthPlaybackAction
 	| setOffsetAction
 	| setPatternNoteLengthAction
-	| noteInputAction
 	| setVelocityAction
 	| toggleOverrideAction
 	| toggleRecordingQuantizationAction

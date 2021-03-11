@@ -1,7 +1,6 @@
-import EventEmitter from 'eventemitter3';
 import { toneEffects } from '../store/Track';
 import { PolySynth } from 'tone';
-import { ExtractEventParameters } from './triggEmitter'
+import EventEmitter from './EventEmitter';
 
 export enum trackEventTypes {
     ADD_INSTRUMENT = "ADD_INSTRUMENT",
@@ -11,6 +10,7 @@ export enum trackEventTypes {
     CHANGE_EFFECT = "CHANGE_EFFECT",
     CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
     REMOVE_EFFECT = "REMOVE_EFFECT",
+    TEST = "TEST",
 };
 
 export type TrackEvent =
@@ -53,8 +53,18 @@ export type TrackEvent =
         event: trackEventTypes.REMOVE_INSTRUMENT,
         trackId: number,
     }
+    | {
+        event: trackEventTypes.TEST,
+        testPayload: string,
+    }
 
 type EventType = TrackEvent['event']
+
+export type ExcludeEventKey<K> = K extends "event" ? never : K
+
+export type ExcludeEventField<A> = { [K in ExcludeEventKey<keyof A>]: A[K] }
+
+export type ExtractEventParameters<A, T> = ExcludeEventField<Extract<A, { event: T }>>;
 
 export type ExtractTrackPayload<T> = ExtractEventParameters<TrackEvent, T>
 
@@ -71,25 +81,20 @@ export interface toneRefsPayload {
     to?: number,
 }
 
-function on<T extends EventType>(...[event, fn]: PayloadType<T>): EventEmitter<string | symbol, any> {
+function on<T extends EventType>(...[event, fn]: PayloadType<T>) {
     return eventEmitter.on(event, fn)
 }
 
-function once<T extends EventType>(...[event, fn]: PayloadType<T>): EventEmitter<string | symbol, any> {
-    return eventEmitter.once(event, fn);
-}
-
-function off<T extends EventType>(...[event, fn]: PayloadType<T>): EventEmitter<string | symbol, any> {
+function off<T extends EventType>(...[event, fn]: PayloadType<T>) {
     return eventEmitter.off(event, fn);
 }
 
-function emit<T extends EventType>(event: T, payload: ExtractEventParameters<TrackEvent, T>): boolean {
+function emit<T extends EventType>(event: T, payload: ExtractEventParameters<TrackEvent, T>) {
     return eventEmitter.emit(event, payload);
 }
 
 const toneRefsEmitter = {
     on: on,
-    once: once,
     off: off,
     emit: emit,
 }

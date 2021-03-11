@@ -120,4 +120,11 @@ export const numberToNote = (note: number) => {
     return `${noteName}${octave}`;
 }
 
+export const blackOrWhite = (idx: number): number => {
+    const reduced = idx % 12;
+    const whites = [0, 2, 4, 5, 7, 9, 11];
+    if (whites.includes(reduced)) return 1
+    else return -1
+}
+
 export type MidiInputActionTypes = midiOnAction | midiOffAction | panicAction | addDeviceAction | removeDeviceAction | upOctaveKeyAction | downOctaveKeyAction;

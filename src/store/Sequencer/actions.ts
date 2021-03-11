@@ -316,7 +316,7 @@ export function setOffset(
 export function setNote(
 	pattern: number,
 	track: number,
-	note: string[],
+	note: string,
 	step: number
 ): sequencerActionTypes {
 	return {

@@ -30,7 +30,6 @@ export const initialState: Sequencer = {
 	},
 	quantizeRecording: false,
 	step: undefined,
-	// stepFollowerdID: undefined,
 };
 
 export function sequencerReducer(
@@ -54,7 +53,7 @@ export function sequencerReducer(
 			name: string,
 			velocity: number,
 			fxIndex: number,
-			step: number[] | number,
+			step: number,
 			counter: number = draft.counter
 		switch (action.type) {
 			case sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER:
@@ -177,7 +176,12 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.note,
 				];
-				draft.patterns[pattern].tracks[track].events[step].instrument = note
+				const noteIndex = draft.patterns[pattern].tracks[track].events[step].instrument.note?.indexOf(note);
+				if (noteIndex && noteIndex >= 0) {
+					draft.patterns[pattern].tracks[track].events[step].instrument.note?.splice(noteIndex, 1)
+				} else {
+					draft.patterns[pattern].tracks[track].events[step].instrument.note?.push(note)
+				}
 				break;
 			case sequencerActions.SET_NOTE_MIDI:
 				[track, note, velocity, step] = [
@@ -188,6 +192,20 @@ export function sequencerReducer(
 				]
 				draft.patterns[draft.activePattern].tracks[track].events[step].instrument['note'] = Array.isArray(note) ? note : undefined;
 				draft.patterns[draft.activePattern].tracks[track].events[step].instrument['velocity'] = velocity;
+				break;
+			case sequencerActions.NOTE_INPUT:
+				// length property is not set on note on message
+				[pattern, track, step, offset, note, velocity] = [
+					action.payload.pattern,
+					action.payload.track,
+					action.payload.step,
+					action.payload.offset,
+					action.payload.note,
+					action.payload.velocity,
+				];
+				draft.patterns[pattern].tracks[track].events[step].instrument.note = Array.isArray(note) ? note : undefined;
+				draft.patterns[pattern].tracks[track].events[step].instrument.offset = offset;
+				draft.patterns[pattern].tracks[track].events[step].instrument.velocity = velocity;
 				break;
 			case sequencerActions.SET_NOTE_LENGTH:
 				[noteLength, step, pattern, track] = [
@@ -220,20 +238,6 @@ export function sequencerReducer(
 			case sequencerActions.SET_PATTERN_NOTE_LENGTH:
 				[pattern, noteLength, track] = [action.payload.pattern, action.payload.noteLength, action.payload.track];
 				draft.patterns[pattern].tracks[track].noteLength = noteLength;
-				break;
-			case sequencerActions.NOTE_INPUT:
-				// length property is not set on note on message
-				[pattern, track, step, offset, note, velocity] = [
-					action.payload.pattern,
-					action.payload.track,
-					action.payload.step,
-					action.payload.offset,
-					action.payload.note,
-					action.payload.velocity,
-				];
-				draft.patterns[pattern].tracks[track].events[step].instrument.note = Array.isArray(note) ? note : undefined;
-				draft.patterns[pattern].tracks[track].events[step].instrument.offset = offset;
-				draft.patterns[pattern].tracks[track].events[step].instrument.velocity = velocity;
 				break;
 			case sequencerActions.SET_VELOCITY:
 				[pattern, track, step, velocity] = [

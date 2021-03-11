@@ -1,0 +1,78 @@
+@import '../../style/variables';
+
+.trackWrapper {
+    width: 79.4rem;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 38.5rem auto;
+
+    .instrumentColumn {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        // border-right: 1px solid black;
+
+        .tabs {
+            width: 36.5rem;
+            height: 1.6rem;
+            // border: 1px solid black;
+        }
+
+        .box {
+            height: 91%;
+            width: 36.5rem;
+            border-radius: 2rem;
+            border-top-left-radius: 0;
+            background-color: white;
+            margin-bottom: 1rem;
+            display: flex;
+            @include shadow(7px, 9px, 5px);
+            // @include center;
+            justify-content: center;
+            // align-items: flex-start;
+            align-items: center;
+            // border: 1px solid black;
+        }
+    }
+
+    .effectsColumn {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        
+        .wrapper {
+            margin-bottom: 1rem; 
+            margin-left: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            height: 91%;
+            width: 95%;
+
+            .fx {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                height: 47%;
+                
+                .box {
+                    border-radius: 2rem;
+                    border-top-right-radius: 0;
+                    background-color: white;
+                    @include shadow(7px, 9px, 5px);
+                    height: 100%;
+                    width: 95%;
+                }
+
+                .tabs {
+                    height: 100%;
+                    width: 1.6rem;
+                    // border: 1px solid black;
+                }
+            }
+        }
+    }
+}

@@ -10,8 +10,10 @@ import { trackActions } from '../../store/Track'
 import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/toneRefsEmitter';
+// import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/myCustomToneRefsEmitter';
 
 import Tone from '../../lib/tone'
+
 import { arrangerActions } from '../../store/Arranger'
 import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
 import { trackReducer, initialState as TrkInit, toneEffects } from "../../store/Track";
@@ -22,6 +24,7 @@ import { timeObjFromEvent } from "../../lib/utility";
 import { userProps } from '../../App';
 import styles from './xolombrisx.module.scss'
 import Sequencer from "../../containers/Sequencer";
+import Track from '../../containers/Track';
 import Playground from '../../components/Layout/Playground';
 
 declare global {
@@ -106,6 +109,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         0: {
             effects: [],
             chain: new Chain(),
+            instrument: undefined,
         }
     });
 
@@ -214,76 +218,77 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
     };
 
-    const addEffect = (payload: ExtractTrackPayload<trackEventTypes.ADD_EFFECT>): void => {
-        const [trackId, effect, index] = [
-            payload.trackId,
-            payload.effect,
-            payload.effectIndex
-        ];
-        let lgth: number = toneObjRef.current[trackId].effects.length;
-        let chain: Chain = toneObjRef.current[trackId].chain;
+    // const addEffect = (payload: ExtractTrackPayload<trackEventTypes.ADD_EFFECT>): void => {
+    //     const [trackId, effect, index] = [
+    //         payload.trackId,
+    //         payload.effect,
+    //         payload.effectIndex
+    //     ];
+    //     let lgth: number = toneObjRef.current[trackId].effects.length;
+    //     let chain: Chain = toneObjRef.current[trackId].chain;
 
-        if (lgth > 0) {
-            let from, to;
-            if (index === lgth - 1) {
-                from = toneObjRef.current[trackId].effects[lgth - 1];
-                to = chain.out
-            } else {
-                from = toneObjRef.current[trackId].effects[index]
-                to = toneObjRef.current[trackId].effects[index + 1]
-            }
-            if (from && to) {
-                from.disconnect();
-                from.connect(effect);
-                effect.connect(to);
-            }
-        } else {
-            chain.in.disconnect();
-            chain.in.connect(effect);
-            effect.connect(chain.out);
-        }
-        toneObjRef.current[trackId].effects.push(effect);
-    };
+    //     if (lgth > 0) {
+    //         let from, to;
+    //         if (index === lgth - 1) {
+    //             from = toneObjRef.current[trackId].effects[lgth - 1];
+    //             to = chain.out
+    //         } else {
+    //             from = toneObjRef.current[trackId].effects[index]
+    //             to = toneObjRef.current[trackId].effects[index + 1]
+    //         }
+    //         if (from && to) {
+    //             from.disconnect();
+    //             from.connect(effect);
+    //             effect.connect(to);
+    //         }
+    //     } else {
+    //         chain.in.disconnect();
+    //         chain.in.connect(effect);
+    //         effect.connect(chain.out);
+    //     }
+    //     toneObjRef.current[trackId].effects.push(effect);
+    // };
 
-    const addInstrument = (payload: ExtractTrackPayload<trackEventTypes.ADD_INSTRUMENT>): void => {
-        const [trackId, instrument] = [
-            payload.trackId,
-            payload.instrument,
-        ];
-        toneObjRef.current[trackId] = {
-            effects: [],
-            instrument: instrument,
-            chain: new Chain()
-        }
-        instrument.connect(toneObjRef.current[trackId].chain.in);
-    };
+    // const addInstrument = (payload: ExtractTrackPayload<trackEventTypes.ADD_INSTRUMENT>): void => {
+    //     console.log('adding instrument callback');
+    //     const [trackId, instrument] = [
+    //         payload.trackId,
+    //         payload.instrument,
+    //     ];
+    //     toneObjRef.current[trackId] = {
+    //         effects: [],
+    //         instrument: instrument,
+    //         chain: new Chain()
+    //     }
+    //     instrument.connect(toneObjRef.current[trackId].chain.in);
+    // };
 
-    const changeEffect = (payload: ExtractTrackPayload<trackEventTypes.CHANGE_EFFECT>): void => {
-        const [trackId, effect, effectIndex] = [
-            payload.trackId,
-            payload.effect,
-            payload.effectsIndex
-        ];
-        const chain: Chain = toneObjRef.current[trackId].chain
-        const effects: toneEffects[] = toneObjRef.current[trackId].effects;
-        let prev, next: Tone.Gain | toneEffects;
-        if (effectIndex === toneObjRef.current[trackId].effects.length - 1) {
-            next = chain.out
-            if (effectIndex === 0) prev = chain.in;
-            else prev = effects[effectIndex - 1];
-        } else {
-            next = effects[effectIndex + 1]
-            if (effectIndex === 0) prev = chain.in
-            else prev = effects[effectIndex - 1]
+    // const changeEffect = (payload: ExtractTrackPayload<trackEventTypes.CHANGE_EFFECT>): void => {
+    //     const [trackId, effect, effectIndex] = [
+    //         payload.trackId,
+    //         payload.effect,
+    //         payload.effectsIndex
+    //     ];
+    //     const chain: Chain = toneObjRef.current[trackId].chain
+    //     const effects: toneEffects[] = toneObjRef.current[trackId].effects;
+    //     let prev, next: Tone.Gain | toneEffects;
+    //     if (effectIndex === toneObjRef.current[trackId].effects.length - 1) {
+    //         next = chain.out
+    //         if (effectIndex === 0) prev = chain.in;
+    //         else prev = effects[effectIndex - 1];
+    //     } else {
+    //         next = effects[effectIndex + 1]
+    //         if (effectIndex === 0) prev = chain.in
+    //         else prev = effects[effectIndex - 1]
 
-        }
-        effects[effectIndex].disconnect();
-        prev.disconnect()
-        prev.connect(effect);
-        effect.connect(next)
-        effects[effectIndex].dispose();
-        effects[effectIndex] = effect;
-    };
+    //     }
+    //     effects[effectIndex].disconnect();
+    //     prev.disconnect()
+    //     prev.connect(effect);
+    //     effect.connect(next)
+    //     effects[effectIndex].dispose();
+    //     effects[effectIndex] = effect;
+    // };
 
     const changeEffectIndex = (payload: ExtractTrackPayload<trackEventTypes.CHANGE_EFFECT_INDEX>): void => {
         const [trackId, from, to] = [
@@ -332,14 +337,14 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         }
     };
 
-    const changeInstrument = (payload: ExtractTrackPayload<trackEventTypes.CHANGE_INSTRUMENT>): void => {
-        const [trackId, instrument] = [payload.trackId, payload.instrument];
-        const chain: Chain = toneObjRef.current[trackId].chain;
-        toneObjRef.current[trackId].instrument?.disconnect();
-        toneObjRef.current[trackId].instrument?.dispose();
-        instrument.connect(chain.in);
-        toneObjRef.current[trackId].instrument = instrument;
-    };
+    // const changeInstrument = (payload: ExtractTrackPayload<trackEventTypes.CHANGE_INSTRUMENT>): void => {
+    //     const [trackId, instrument] = [payload.trackId, payload.instrument];
+    //     const chain: Chain = toneObjRef.current[trackId].chain;
+    //     toneObjRef.current[trackId].instrument?.disconnect();
+    //     toneObjRef.current[trackId].instrument?.dispose();
+    //     instrument.connect(chain.in);
+    //     toneObjRef.current[trackId].instrument = instrument;
+    // };
 
     const removeEffect = (payload: ExtractTrackPayload<trackEventTypes.REMOVE_EFFECT>): void => {
         const [trackId, effectIndex] = [
@@ -371,7 +376,9 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         }
     };
 
+
     useEffect(() => {
+        console.log('setting event emitter');
         triggEmitter.on(triggEventTypes.ADD_PATTERN, addPattern);
         triggEmitter.on(triggEventTypes.REMOVE_PATTERN, removePattern);
         triggEmitter.on(triggEventTypes.ADD_TRACK, addTrack);
@@ -380,11 +387,11 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         triggEmitter.on(triggEventTypes.ADD_EFFECT, addEffectTrigg);
         triggEmitter.on(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
 
-        toneRefsEmitter.on(trackEventTypes.ADD_EFFECT, addEffect);
-        toneRefsEmitter.on(trackEventTypes.ADD_INSTRUMENT, addInstrument);
-        toneRefsEmitter.on(trackEventTypes.CHANGE_EFFECT, changeEffect);
+        // toneRefsEmitter.on(trackEventTypes.ADD_EFFECT, addEffect);
+        // toneRefsEmitter.on(trackEventTypes.ADD_INSTRUMENT, addInstrument);
+        // toneRefsEmitter.on(trackEventTypes.CHANGE_EFFECT, changeEffect);
         toneRefsEmitter.on(trackEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndex);
-        toneRefsEmitter.on(trackEventTypes.CHANGE_INSTRUMENT, changeInstrument);
+        // toneRefsEmitter.on(trackEventTypes.CHANGE_INSTRUMENT, changeInstrument);
         toneRefsEmitter.on(trackEventTypes.REMOVE_EFFECT, removeEffect);
         toneRefsEmitter.on(trackEventTypes.REMOVE_INSTRUMENT, removeInstrument);
         return () => {
@@ -397,11 +404,11 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             triggEmitter.off(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
 
 
-            toneRefsEmitter.off(trackEventTypes.ADD_EFFECT, addEffect);
-            toneRefsEmitter.off(trackEventTypes.ADD_INSTRUMENT, addInstrument);
-            toneRefsEmitter.off(trackEventTypes.CHANGE_EFFECT, changeEffect);
+            // toneRefsEmitter.off(trackEventTypes.ADD_EFFECT, addEffect);
+            // toneRefsEmitter.off(trackEventTypes.ADD_INSTRUMENT, addInstrument);
+            // toneRefsEmitter.off(trackEventTypes.CHANGE_EFFECT, changeEffect);
             toneRefsEmitter.off(trackEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndex);
-            toneRefsEmitter.off(trackEventTypes.CHANGE_INSTRUMENT, changeInstrument);
+            // toneRefsEmitter.off(trackEventTypes.CHANGE_INSTRUMENT, changeInstrument);
             toneRefsEmitter.off(trackEventTypes.REMOVE_EFFECT, removeEffect);
             toneRefsEmitter.off(trackEventTypes.REMOVE_INSTRUMENT, removeInstrument);
         }
@@ -422,26 +429,10 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                         <div className={styles.box}>
                                         </div>
                                     </div>
-                                    <div className={styles.instrumentColumn}>
-                                        <div className={styles.tabs}></div>
-                                        <div className={styles.box}>
-                                            {/* <Playground></Playground> */}
-                                        </div>
-                                    </div>
-                                    <div className={styles.effectsColumn}>
-                                        <div className={styles.wrapper}>
-                                            <div className={styles.fx}>
-                                                <div className={styles.box}></div>
-                                                <div className={styles.tabs}></div>
-                                            </div>
-                                            <div className={styles.fx}>
-                                                <div className={styles.box}></div>
-                                                <div className={styles.tabs}></div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Track></Track>
                                 </div>
-                                <div className={styles.bottom}>
+                                <Sequencer></Sequencer>
+                                {/* <div className={styles.bottom}>
                                     <div className={styles.arrangerColumn}>
                                         <div className={styles.patterns}></div>
                                     </div>
@@ -451,7 +442,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                             <Playground></Playground>
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                             {/* <Arranger></Arranger>
                                                         <Transport></Transport> */}

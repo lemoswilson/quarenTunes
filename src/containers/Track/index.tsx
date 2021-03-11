@@ -1,9 +1,6 @@
 import React, { FunctionComponent, useContext, useEffect, useRef } from 'react';
-import triggContext from '../../context/triggState';
+import { useSelector, useDispatch } from 'react-redux'
 import { addInstrumentToSequencer, removeInstrumentFromSequencer } from '../../store/Sequencer';
-import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/toneRefsEmitter';
-import { Instrument } from './Instruments'
-import Effect from './Effects/Effect'
 import {
     addInstrument,
     changeEffectIndex,
@@ -17,78 +14,125 @@ import {
     xolombrisxInstruments,
     effectTypes
 } from '../../store/Track';
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../Xolombrisx';
+import triggContext from '../../context/triggState';
+
+import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/toneRefsEmitter';
+// import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/myCustomToneRefsEmitter';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
+
+import { Instrument } from './Instruments'
+import Effect from './Effects/Effect'
+import { RootState } from '../Xolombrisx';
+
+import styles from './style.module.scss';
+
+import { getInitials } from './defaults';
+import ContinuousIndicator from '../../components/Layout/ContinuousIndicator';
 
 const Track: FunctionComponent = () => {
 
     const dispatch = useDispatch();
-
     const triggRef = useContext(triggContext);
-
-    const patternKeys: number[] = useSelector(
-        (state: RootState) => Object.keys(state.sequencer.present.patterns).map(key => parseInt(key))
-    );
-
-    const trackNumber: number = useSelector(
-        (state: RootState) => state.track.present.trackCount
-    );
-
-    const selectedTrack = useSelector(
-        (state: RootState) => state.track.present.selectedTrack
-    );
-
+    const patternKeys: number[] = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).map(key => parseInt(key)));
+    const trackNumber: number = useSelector((state: RootState) => state.track.present.trackCount);
+    const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack);
     const Tracks = useSelector((state: RootState) => state.track.present.tracks);
 
-    const chgInstrument = (instrument: xolombrisxInstruments, index: number): void => {
+    const dispatchChangeInstrument = (instrument: xolombrisxInstruments, index: number): void => {
         dispatch(changeInstrument(index, instrument));
     };
 
-
-    const addInstr = (instrument: xolombrisxInstruments): void => {
+    const dispatchAddInstrument = (instrument: xolombrisxInstruments): void => {
         dispatch(addInstrumentToSequencer());
         dispatch(addInstrument(instrument));
         triggEmitter.emit(triggEventTypes.ADD_TRACK, {})
     };
 
-    const remInstr = (index: number): void => {
+    const dispatchRemoveInstrument = (index: number): void => {
         dispatch(removeInstrument(index));
         dispatch(removeInstrumentFromSequencer(index));
         triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { track: index })
         toneRefsEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackId: index })
     };
 
-    const showInstr = (index: number): void => {
+    const dispatchShowInstrument = (index: number): void => {
         dispatch(showInstrument(index));
     };
 
-    const selMIDIDevice = (index: number, device: string): void => {
+    const dispatchSelectMIDIDevice = (index: number, device: string): void => {
         dispatch(selectMidiDevice(index, device));
     };
 
-    const selMIDIChannel = (index: number, channel: number): void => {
+    const dispatchSelectMIDIChannel = (index: number, channel: number): void => {
         dispatch(selectMidiChannel(index, channel));
     };
 
-    const insEffect = (effect: effectTypes, chainIndex: number): void => {
+    const dispatchInsertEffect = (effect: effectTypes, chainIndex: number): void => {
         dispatch(insertEffect(chainIndex, effect, selectedTrack));
     };
 
-    const chgEffectIndex = (from: number, to: number): void => {
+    const dispatchChangeEffectIdx = (from: number, to: number): void => {
         dispatch(changeEffectIndex(from, to, selectedTrack));
         toneRefsEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackId: selectedTrack })
     };
 
-    const delEffect = (index: number, trackId: number): void => {
+    const dispatchDeleteEffect = (index: number, trackId: number): void => {
         dispatch(deleteEffect(index, selectedTrack));
         toneRefsEmitter.emit(trackEventTypes.REMOVE_EFFECT, { effectsIndex: index, trackId: trackId })
     };
 
     return (
-        <div>
-            { Tracks.map((track, tidx, arr) => {
-                return (
+        <div className={styles.trackWrapper}>
+            <div className={styles.instrumentColumn}>
+                <div className={styles.tabs}></div>
+                <div className={styles.box}>
+                    {/* <Playground></Playground> */}
+                    <ContinuousIndicator
+                        ccMouseCalculationCallback={() => { }}
+                        curveFunction={() => 10}
+                        label={'Attack'}
+                        max={100}
+                        min={0}
+                        midiLearn={() => { }}
+                        value={100}
+                        valueUpdateCallback={() => { }}
+                        type={'knob'}
+                    ></ContinuousIndicator>
+                    <ContinuousIndicator
+                        ccMouseCalculationCallback={() => { }}
+                        curveFunction={() => 10}
+                        label={'Attack'}
+                        max={100}
+                        min={0}
+                        midiLearn={() => { }}
+                        value={37}
+                        valueUpdateCallback={() => { }}
+                        type={'slider'}
+                    ></ContinuousIndicator>
+                    {/* <Instrument id={0} index={0} midi={{ channel: undefined, device: undefined }} options={getInitials(xolombrisxInstruments.FMSYNTH)} voice={xolombrisxInstruments.FMSYNTH} ></Instrument> */}
+                </div>
+            </div>
+            <div className={styles.effectsColumn}>
+                <div className={styles.wrapper}>
+                    <div className={styles.fx}>
+                        <div className={styles.box}></div>
+                        <div className={styles.tabs}></div>
+                    </div>
+                    <div className={styles.fx}>
+                        <div className={styles.box}></div>
+                        <div className={styles.tabs}></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+};
+
+export default Track;
+
+{/* <div>
+             { Tracks.map((track, tidx, arr) => {
+                 return (
                     <React.Fragment key={`xablau${track}.${track.id}`}>
                         <Instrument
                             dummy={0}
@@ -117,9 +161,6 @@ const Track: FunctionComponent = () => {
                     // <div>
                     // </div>
                 )
-            })}
-        </div>
-    )
-};
 
-export default Track;
+            })}
+        </div> */}

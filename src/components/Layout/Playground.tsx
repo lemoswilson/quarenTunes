@@ -123,7 +123,7 @@ const Playground: React.FC = () => {
 
     return (
         <div className={styles.box}>
-            <InputKeys keyState={keys}></InputKeys>
+            {/* <InputKeys keyState={keys}></InputKeys> */}
             {/* <StepLayout onClick={toggleStepState} onTime={true} selected={stepState}></StepLayout> */}
             {/* <StepLayout onTime={ toggleStepState} selected={false}></StepLayout> */}
             {/* <StepsEditor

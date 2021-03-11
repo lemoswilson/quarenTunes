@@ -7,7 +7,7 @@ import React, {
     ChangeEvent,
     useRef,
     KeyboardEvent as kEvent,
-    useCallback, RefObject
+    useCallback, RefObject, MouseEvent
 } from 'react';
 import useQuickRef from '../../hooks/useQuickRef';
 import usePrevious from '../../hooks/usePrevious';
@@ -20,7 +20,7 @@ import {
     changeTrackLength,
     deleteEvents,
     removePattern,
-    Sequencer,
+    Sequencer as SequencerType,
     selectPattern,
     selectStep,
     setNote,
@@ -42,15 +42,21 @@ import { timeObjFromEvent } from '../../lib/utility';
 import Tone from '../../lib/tone';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 
-import Steps from '../../components/Steps/Steps'
-import StepsEdit from '../../components/StepsEdit/StepsEdit'
+import Steps from '../../components/Steps/Steps';
+import Patterns from '../../components/Patterns/Patterns';
+import Playground from '../../components/Layout/Playground';
+import InputKeys from '../../components/Layout/InputKeys';
 
 import { bbsFromSixteenth } from '../Arranger'
 import { RootState } from '../Xolombrisx';
 
+import styles from './style.module.scss';
+import toneRefsContext from '../../context/toneRefsContext';
+
 
 const Sequencer: FunctionComponent = () => {
     const triggRef = useContext(triggCtx);
+    const toneRefs = useContext(toneRefsContext);
     const dispatch = useDispatch()
 
     const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
@@ -60,16 +66,12 @@ const Sequencer: FunctionComponent = () => {
     const counter = useSelector((state: RootState) => state.sequencer.present.counter);
     const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
     const trackCount = useSelector((state: RootState) => state.track.present.trackCount)
-    const activePatternObj = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern])
     const patternAmount = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).length)
-    const events = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].events);
-    const patternLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].patternLength)
-    const patternNoteLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength)
-    const trackLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].length)
 
     const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
     const activePatternRef = useRef(activePattern);
     useEffect(() => { activePatternRef.current = activePattern }, [activePattern])
+
 
     const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack)
     const selected = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].selected);
@@ -84,6 +86,28 @@ const Sequencer: FunctionComponent = () => {
     const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].page);
     const activePageRef = useRef(activePage);
     useEffect(() => { activePageRef.current = activePage }, [activePage])
+
+    const keyboardRange = useSelector((state: RootState) => state.midi.onboardRange);
+    const keyboardRangeRef = useRef(keyboardRange)
+    useEffect(() => { keyboardRangeRef.current = keyboardRange }, [keyboardRange])
+
+    const patternLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].patternLength)
+    const patternNoteLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength)
+    const trackLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].length)
+    const events = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].events);
+    const activePatternObj = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern])
+    const selectedDevice = useSelector((state: RootState) => {
+        if (state.track.present.tracks[selectedTrack].midi.device
+            && state.track.present.tracks[selectedTrack].midi.channel
+        ) return state.track.present.tracks[selectedTrack].midi.device
+        else return undefined;
+    })
+    const keys = useSelector((state: RootState) => {
+        // if (selectedDevice) {
+        //     return state.midi.devices[selectedDevice]
+        // }
+        return state.midi.devices.onboardKey;
+    });
 
 
     const dispatchRemovePattern = (): void => {
@@ -225,7 +249,7 @@ const Sequencer: FunctionComponent = () => {
         })
     };
 
-    const dispatchSetNote = (note: string[]): void => {
+    const dispatchSetNote = (note: string): void => {
         selectedRef.current.forEach(s => {
             dispatch(
                 setNote(
@@ -316,15 +340,16 @@ const Sequencer: FunctionComponent = () => {
     };
 
     // keyboard shortcuts event listeners
-    useEffect(() => {
-        document.addEventListener('keydown', keydown)
-        document.addEventListener('keydown', keyup)
+    // activate when finished testing keyboard
+    // useEffect(() => {
+    //     document.addEventListener('keydown', keydown)
+    //     document.addEventListener('keydown', keyup)
 
-        return () => {
-            document.removeEventListener('keydown', keydown)
-            document.removeEventListener('keydown', keyup)
-        }
-    }, [])
+    //     return () => {
+    //         document.removeEventListener('keydown', keydown)
+    //         document.removeEventListener('keydown', keyup)
+    //     }
+    // }, [])
 
 
     const dispatchUpOctaveKey = () => { dispatch(upOctaveKey()) };
@@ -362,48 +387,73 @@ const Sequencer: FunctionComponent = () => {
     function keyup(e: KeyboardEvent): void {
         let char = e.key.toLowerCase();
         // colocar o condicional pra ver se não tem foco em um input box
-        if (Object.keys(keyDict).includes(char)) {
-            if (e.repeat) { return }
-            let index = (activePageRef.current + 1) * keyDict[char];
-            if (index <= selLenRef.current) {
-                dispatchSelectStep(index);
-            }
-        }
+        // if (Object.keys(keyDict).includes(char)) {
+        //     if (e.repeat) { return }
+        //     let index = (activePageRef.current + 1) * keyDict[char];
+        //     if (index <= selLenRef.current) {
+        //         dispatchSelectStep(index);
+        //     }
+        // }
     };
 
+    function keyboardOnClick(noteName: string): void {
+        if (selectedRef.current.length > 0) {
+            dispatchSetNote(noteName);
+        } else {
+            toneRefs?.current[selectedTrack].instrument?.triggerAttack(noteName, patternNoteLength)
+        }
+    }
+
+
+
     return (
-        <div>
-            <StepsEdit
-                activePattern={activePattern}
-                addPattern={dispatchAddPattern}
-                changePage={dispatchChangePage}
-                changePatternLength={dispatchChangePatternLength}
-                changePatternName={dispatchChangePatternName}
-                changeTrackLength={dispatchChangeTrackLength}
-                events={events}
-                page={activePage}
-                patternAmount={patternAmount}
-                patternLength={patternLength}
-                patternNoteLength={patternNoteLength}
-                patternTrackVelocity={patternTrackVelocity}
-                removePattern={dispatchRemovePattern}
-                selectPattern={dispatchSelectPattern}
-                selected={selected}
-                setNote={dispatchSetNote}
-                setNoteLength={dispatchSetNoteLength}
-                setPatternNoteLength={dispatchSetPatternNoteLength}
-                setVelocity={dispatchSetVelocity}
-                trackLength={trackLength}
-            ></StepsEdit>
-            <Steps
-                activePattern={activePattern}
-                events={events}
-                length={trackLength}
-                page={activePage}
-                selected={selected}
-                selectedTrack={selectedTrack}
-            ></Steps>
+        <div className={styles.bottom}>
+            <div className={styles.arrangerColumn}>
+                <div className={styles.patterns}></div>
+            </div>
+            <div className={styles.sequencerColumn}>
+                <div className={styles.box}>
+                    <div className={styles.stepSequencer}></div>
+                    <div className={styles.keyInput}>
+                        <InputKeys keyState={keys} noteCallback={keyboardOnClick}></InputKeys>
+                    </div>
+                    {/* <Playground></Playground> */}
+                </div>
+            </div>
         </div>
+        // <div>
+        //     <Patterns
+        //         activePattern={activePattern}
+        //         addPattern={dispatchAddPattern}
+        //         changePage={dispatchChangePage}
+        //         changePatternLength={dispatchChangePatternLength}
+        //         changePatternName={dispatchChangePatternName}
+        //         changeTrackLength={dispatchChangeTrackLength}
+        //         events={events}
+        //         page={activePage}
+        //         patternAmount={patternAmount}
+        //         patternLength={patternLength}
+        //         patternNoteLength={patternNoteLength}
+        //         patternTrackVelocity={patternTrackVelocity}
+        //         removePattern={dispatchRemovePattern}
+        //         selectPattern={dispatchSelectPattern}
+        //         selected={selected}
+        //         setNote={dispatchSetNote}
+        //         setNoteLength={dispatchSetNoteLength}
+        //         setPatternNoteLength={dispatchSetPatternNoteLength}
+        //         setVelocity={dispatchSetVelocity}
+        //         trackLength={trackLength}
+        //     ></Patterns>
+        //     <Steps
+        //         activePattern={activePattern}
+        //         events={events}
+        //         length={trackLength}
+        //         page={activePage}
+        //         selected={selected}
+        //         selectedTrack={selectedTrack}
+        //     ></Steps>
+
+        // </div>
     )
 }
 

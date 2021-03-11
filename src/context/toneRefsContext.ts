@@ -5,7 +5,7 @@ import Chain from '../lib/fxChain';
 
 export interface toneRefs {
     [track: number]: {
-        instrument?: PolySynth,
+        instrument?: any,
         effects: toneEffects[]
         chain: Chain;
     }

@@ -4,11 +4,12 @@ import usePrevious from '../../../hooks/usePrevious';
 import { useEffectProperty } from '../../../hooks/useProperty';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { effectTypes } from '../../../store/Track';
+import { effectTypes, toneEffects } from '../../../store/Track';
 import { updateEffectState } from '../../../store/Track/actions'
 import { parameterLockEffect } from '../../../store/Sequencer/actions'
 
 import triggContext from '../../../context/triggState';
+import toneRefsContext from '../../../context/toneRefsContext';
 
 import WebMidi, { InputEventControlchange, Input } from 'webmidi';
 
@@ -82,6 +83,7 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
 
 const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track, trackId }) => {
     const triggRefs = useContext(triggContext);
+    const toneObjRef = useContext(toneRefsContext);
     const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
     const properties = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
@@ -397,13 +399,37 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         // patternTracker,
     ])
 
+
     // change effect logic
     useEffect(() => {
         effectRef.current = returnEffect(type, optionsRef.current);
-        toneRefEmitter.emit(
-            trackEventTypes.CHANGE_EFFECT,
-            { effect: effectRef.current, trackId: trackId, effectsIndex: index }
-        );
+        // toneRefEmitter.emit(
+        //     trackEventTypes.CHANGE_EFFECT,
+        //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
+        // );
+
+        if (toneObjRef?.current) {
+            const chain = toneObjRef.current[trackId].chain
+            const effects = toneObjRef.current[trackId].effects;
+            let prev, next: Tone.Gain | toneEffects;
+            if (index === toneObjRef.current[trackId].effects.length - 1) {
+                next = chain.out
+                if (index === 0) prev = chain.in;
+                else prev = effects[index - 1];
+            } else {
+                next = effects[index + 1]
+                if (index === 0) prev = chain.in
+                else prev = effects[index - 1]
+            }
+
+            effects[index].disconnect();
+            prev.disconnect()
+            prev.connect(effectRef.current);
+            effectRef.current.connect(next)
+            effects[index].dispose();
+            effects[index] = effectRef.current;
+        }
+
         Object.keys(triggRefs.current).forEach(key => {
             let k = parseInt(key);
             triggRefs.current[k][track].effects[index].callback = effectCallback
@@ -419,13 +445,40 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         optionsRef
     ]);
 
+
     // add effect first render logic 
     useEffect(() => {
         if (firstRender) {
-            toneRefEmitter.emit(
-                trackEventTypes.ADD_EFFECT,
-                { effect: effectRef.current, trackId: trackId, effectIndex: index }
-            );
+            // toneRefEmitter.emit(
+            //     trackEventTypes.ADD_EFFECT,
+            //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
+            // );
+            if (toneObjRef?.current) {
+                let lgth = toneObjRef.current[trackId].effects.length;
+                let chain = toneObjRef.current[trackId].chain;
+
+                if (lgth > 0) {
+                    let from, to;
+                    if (index === lgth - 1) {
+                        from = toneObjRef.current[trackId].effects[lgth - 1];
+                        to = chain.out
+                    } else {
+                        from = toneObjRef.current[trackId].effects[index]
+                        to = toneObjRef.current[trackId].effects[index + 1]
+                    }
+                    if (from && to) {
+                        from.disconnect();
+                        from.connect(effectRef.current);
+                        effectRef.current.connect(to);
+                    }
+                } else {
+                    chain.in.disconnect();
+                    chain.in.connect(effectRef.current);
+                    effectRef.current.connect(chain.out);
+                }
+                toneObjRef.current[trackId].effects.push(effectRef.current);
+            }
+
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key);
                 triggRefs.current[k][track].effects[index].callback = effectCallback

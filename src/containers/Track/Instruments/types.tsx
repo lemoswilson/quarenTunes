@@ -10,7 +10,6 @@ interface instrumentProps {
     midi: midi,
     voice: xolombrisxInstruments
     index: number
-    dummy: number,
 }
 
 export type newProps = instrumentProps & initialsArray

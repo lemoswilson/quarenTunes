@@ -5,7 +5,7 @@ import React, {
     useState,
     useContext,
     useCallback,
-    MutableRefObject
+    MutableRefObject,
 } from 'react';
 import usePrevious from '../../../hooks/usePrevious';
 import { useProperty } from '../../../hooks/useProperty';
@@ -35,12 +35,15 @@ import {
     deleteProperty,
     copyToNew
 } from '../../../lib/objectDecompose'
-import Tone from '../../../lib/tone';
+// import Tone from '../../../lib/tone';
+import * as Tone from 'tone';
 import valueFromCC, { valueFromMouse, optionFromCC } from '../../../lib/curves';
 import { timeObjFromEvent, extendObj, typeMovement } from '../../../lib/utility';
 import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
+// import toneRefEmitter, { trackEventTypes } from '../../../lib/myCustomToneRefsEmitter';
 
 import triggCtx from '../../../context/triggState';
+import toneRefsContext from '../../../context/toneRefsContext';
 import { InstrumentProps, initials } from './index'
 import { eventOptions, initialsArray } from './types';
 
@@ -72,7 +75,7 @@ export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArra
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
-export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, dummy }: InstrumentProps<T>) => {
+export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options }: InstrumentProps<T>) => {
 
     const instrumentRef = useRef(returnInstrument(voice, options));
     const properties: string[] = useMemo(() => propertiesToArray(getInitials(voice)), [voice]);
@@ -85,6 +88,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const onHoldNotes = useRef<{ [key: string]: any }>({});
 
     const triggRefs = useContext(triggCtx);
+    const refsContext = useContext(toneRefsContext);
     // const previousMidi = usePrevious(midi);
 
     const lockedParameters: MutableRefObject<initials> = useRef({});
@@ -356,15 +360,17 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     useProperty(instrumentRef, options, 'resonance');
     useProperty(instrumentRef, options, 'volume')
 
+
+
     // reset to normal state after playback stopped
     useEffect(() => {
         if (!isPlaying && previousPlaying) {
-            let p = propertiesToArray(lockedParameters.current);
-            p.forEach((property) => {
-                const d = copyToNew(lockedParameters.current, property)
-                // instrumentRef.current.set(d);
-                dispatch(updateInstrumentState(index, d));
+            let lockedProperties = propertiesToArray(lockedParameters.current);
+            lockedProperties.forEach((lockedProperty) => {
+                const data = copyToNew(lockedParameters.current, lockedProperty)
+                dispatch(updateInstrumentState(index, data));
             });
+            // instrumentRef.current.set(d);
         }
         isPlayingRef.current = isPlaying;
     }, [
@@ -403,23 +409,23 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             })
         }
 
-        const p = propertiesToArray(value);
+        const eventProperties = propertiesToArray(value);
 
-        p.forEach(property => {
+        eventProperties.forEach(eventProperty => {
             if (
-                property !== 'velocity'
-                && property !== 'length'
-                && property !== 'note'
+                eventProperty !== 'velocity'
+                && eventProperty !== 'length'
+                && eventProperty !== 'note'
             ) {
-                const currVal = getNested(optionsRef.current, property);
-                const callbackVal = getNested(value, property);
-                const lockVal = getNested(lockedParameters.current, property);
+                const currVal = getNested(optionsRef.current, eventProperty);
+                const callbackVal = getNested(value, eventProperty);
+                const lockVal = getNested(lockedParameters.current, eventProperty);
                 if (callbackVal && callbackVal !== currVal[0]) {
-                    propertyValueUpdateCallback[property](callbackVal);
-                    setNestedValue(property, callbackVal, lockedParameters);
+                    propertyValueUpdateCallback[eventProperty](callbackVal);
+                    setNestedValue(eventProperty, callbackVal, lockedParameters);
                 } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-                    propertyValueUpdateCallback[property](lockVal);
-                    deleteProperty(lockedParameters.current, property);
+                    propertyValueUpdateCallback[eventProperty](lockVal);
+                    deleteProperty(lockedParameters.current, eventProperty);
                     // setNestedValue(property, undefined, lockedParameters.current)
                 }
             }
@@ -659,6 +665,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     );
 
     const instrumentKeyDown = useCallback(function dd(this: Document, ev: KeyboardEvent) {
+        if (ev.repeat) { return }
         const time = Date.now() / 1000;
         const key = ev.key.toLowerCase()
         if (Object.keys(noteDict).includes(key)) {
@@ -684,16 +691,103 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
     }, [dispatch, noteOffCallback])
 
+
+
+    const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
+        const functRect = (e: InputEventControlchange) => {
+            if (e.controller.number === cc) {
+                f(e)
+            }
+        }
+        return functRect
+    }
+
+    const bindCCtoParameter = (
+        device: string,
+        channel: number,
+        cc: number,
+        property: string
+    ) => {
+        const f = wrapBind(
+            getNested(
+                propertyCalculationCallbacks,
+                property
+            ), cc);
+        setNestedValue(CCMaps.current, {
+            func: f,
+            device: device,
+            channel: channel,
+            cc: cc,
+        })
+        if (device && channel) {
+            let i = WebMidi.getInputByName(device)
+            if (i) {
+                i.addListener(
+                    'controlchange',
+                    channel,
+                    f
+                );
+            }
+        }
+    }
+
+    const midiLearn = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => {
+        event.preventDefault()
+        let locked = false;
+        const mappedProperty = getNested(CCMaps.current, property);
+        if (mappedProperty) {
+            locked = true;
+            let device = WebMidi.getInputByName(mappedProperty.device);
+            if (device) {
+                device.removeListener(
+                    'controlchange',
+                    mappedProperty.channel,
+                    mappedProperty.func,
+                )
+                deleteProperty(CCMaps.current, property);
+            }
+        }
+        if (!locked) {
+            listenCC.current = (e: InputEventControlchange): void => {
+                return bindCCtoParameter(
+                    e.target.name,
+                    e.channel,
+                    e.controller.number,
+                    property,
+                )
+            }
+            WebMidi.inputs.forEach(input => {
+                if (listenCC.current) {
+                    input.addListener(
+                        'controlchange',
+                        'all',
+                        listenCC.current
+                    )
+                }
+            });
+        }
+    }
+
+
+
+
     // change instrument logic 
     useEffect(() => {
         instrumentRef.current = returnInstrument(voice, optionsRef.current);
-        toneRefEmitter.emit(
-            trackEventTypes.CHANGE_INSTRUMENT,
-            { instrument: instrumentRef.current, trackId: id }
-        );
+        // toneRefEmitter.emit(
+        //     trackEventTypes.CHANGE_INSTRUMENT,
+        //     { instrument: instrumentRef.current, trackId: id }
+        // );
+        if (refsContext && refsContext.current[id].instrument) {
+            const chain = refsContext.current[id].chain;
+            refsContext.current[id].instrument.disconnect();
+            refsContext.current[id].instrument.dispose();
+            instrumentRef.current.connect(chain.in);
+            refsContext.current[id].instrument = instrumentRef.current;
+        }
         Object.keys(triggRefs.current).forEach(key => {
-            let k = parseInt(key);
-            triggRefs.current[k][index].instrument.callback = instrumentCallback;
+            let keyNumber = parseInt(key);
+            triggRefs.current[keyNumber][index].instrument.callback = instrumentCallback;
         });
     }, [
         voice,
@@ -736,150 +830,82 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
     }, [])
 
+
     // adding instrument to context in first render
     useEffect(() => {
         // talvez pode dar problema pq add instrument vai ser async ?¿
         // e ai quando for colocar o instrumentCallback ainda não vai ter o instrumento no objeto?¿
         // se isso for o caso, passar instrumentCallback pro emissor de evento também (aliás, pq não foi esse o caso?)
         if (firstRender) {
-            toneRefEmitter.emit(
-                trackEventTypes.ADD_INSTRUMENT,
-                { instrument: instrumentRef.current, trackId: id }
-            );
+            // console.log('this is the first render, and should be emitting an event')
+            // toneRefEmitter.emit(
+            //     trackEventTypes.ADD_INSTRUMENT,
+            //     { instrument: instrumentRef.current, trackId: id }
+            // );
+
+            if (refsContext && !refsContext.current[id].instrument) {
+                refsContext.current[id].instrument = instrumentRef.current;
+                instrumentRef.current.connect(refsContext.current[id].chain.in);
+            }
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key)
                 triggRefs.current[k][index].instrument.callback = instrumentCallback;
             })
             setRender(false);
         }
+
     }, []);
 
-    const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
-        const functRect = (e: InputEventControlchange) => {
-            if (e.controller.number === cc) {
-                f(e)
-            }
-        }
-        return functRect
-    }
-
-    const bindCCtoParameter = (
-        device: string,
-        channel: number,
-        cc: number,
-        property: string
-    ) => {
-        const f = wrapBind(
-            getNested(
-                propertyCalculationCallbacks,
-                property
-            ), cc);
-        setNestedValue(CCMaps.current, {
-            func: f,
-            device: device,
-            channel: channel,
-            cc: cc,
-        })
-        if (device && channel) {
-            let i = WebMidi.getInputByName(device)
-            if (i) {
-                i.addListener(
-                    'controlchange',
-                    channel,
-                    f
-                );
-            }
-        }
-    }
-
-    const midiLearn = (property: string) => {
-        let locked = false;
-        const p = getNested(CCMaps.current, property);
-        if (p) {
-            locked = true;
-            let device = WebMidi.getInputByName(p.device);
-            if (device) {
-                device.removeListener(
-                    'controlchange',
-                    p.channel,
-                    p.func,
-                )
-                deleteProperty(CCMaps.current, property);
-            }
-        }
-        if (!locked) {
-            listenCC.current = (e: InputEventControlchange): void => {
-                return bindCCtoParameter(
-                    e.target.name,
-                    e.channel,
-                    e.controller.number,
-                    property,
-                )
-            }
-            WebMidi.inputs.forEach(input => {
-                if (listenCC.current) {
-                    input.addListener(
-                        'controlchange',
-                        'all',
-                        listenCC.current
-                    )
-                }
-            });
-        }
-    }
-
-
     return (
-        <div>
-            {properties.map(property => {
+        <div style={{ width: '100%', height: '100%' }}>
+            {/* {properties.map(property => {
                 // vai passar () => midiLearn(property) como funcão 
                 const [value, r, indicatorType, curve] = getNested(options, property)
                 switch (indicatorType) {
                     case indicators.DROPDOWN:
                         return (
-                            // <Dropdown 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Dropdown>
+                            <Dropdown 
+                                property={property} 
+                                value={value} 
+                                option={r} 
+                                calc={accessNested(calcCallback, property)}>
+                            </Dropdown>
                             console.log()
                         )
                     case indicators.KNOB:
                         return (
-                            // <Knob 
-                            //     property={property} 
-                            //     value={value} 
-                            //     range={r} 
-                            //     curve={curve}
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Knob>
+                            <Knob 
+                                property={property} 
+                                value={value} 
+                                range={r} 
+                                curve={curve}
+                                calc={accessNested(calcCallback, property)}>
+                            </Knob>
                             console.log()
                         )
                     case indicators.RADIO:
                         return (
-                            // <Radio 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Radio>
+                            <Radio 
+                                property={property} 
+                                value={value} 
+                                option={r} 
+                                calc={accessNested(calcCallback, property)}>
+                            </Radio>
                             console.log()
                         )
                     case indicators.VERTICAL_SLIDER:
                         return (
-                            // <VSlider 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </VSlider>
+                            <VSlider 
+                                property={property} 
+                                value={value} 
+                                option={r} 
+                                calc={accessNested(calcCallback, property)}>
+                            </VSlider>
                             console.log()
                         )
-
                 };
                 return ''
-            })}
+            })} */}
         </div>
     )
 }

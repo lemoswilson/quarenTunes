@@ -2,7 +2,7 @@ import React, { ChangeEvent, FormEvent, useRef, RefObject, MutableRefObject } fr
 import { event } from '../../store/Sequencer'
 
 
-interface StepsEditProps {
+interface Patterns {
     activePattern: number,
     selected: number[],
     patternLength: string | number,
@@ -25,7 +25,7 @@ interface StepsEditProps {
     setVelocity: (velocity: number) => void
 }
 
-const StepsEdit: React.FC<StepsEditProps> = ({
+const Patterns: React.FC<Patterns> = ({
     activePattern,
     addPattern,
     changePage,
@@ -163,4 +163,4 @@ const StepsEdit: React.FC<StepsEditProps> = ({
     )
 }
 
-export default StepsEdit;
+export default Patterns;
