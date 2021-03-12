@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 36 35">
+  <title>grayButton</title>
+  <g style="isolation: isolate">
+    <g>
+      <g>
+        <image width="36" height="35" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAkCAYAAAAOwvOmAAAACXBIWXMAAAsSAAALEgHS3X78AAACfUlEQVRYR9WY7ZKbMAxFD0s2332avP8j5Gl2G0LCkv6wFC7GBjbttFQzGg/Gjs9cy7JI8Xg8WJq9TQ34F7aaGpCy8/lcTI0BOJ1OL21DMXf7EiBTYL0f/g7gLCgByrWxPVLtXLBRqAxMQYjFHJiCtNZ+Cy4LFQEpjHsM56YwrfhDfBQsCZUAcpBS2pI+IPRBvsxbaXvK5cDGTp8COcQqcu9XKIdpxAvrgwDmY5M2UEpUUnVK4N18be7Prhh0qtzNb+b+rOq1kFYrp1SsksNsgK20azrFoFPoBlztXRx3vn0FGbV6SplKCrQiAG3M98DO2r31relD3YAauJhX1tbmdwL4M75itcaU8u1TsB1wND/Y84budxrCwhWdStAP+C/r11TRs6nt03hyqAPww/xA2EaFuhLU84U9xhprS+vLJd4kVJwG/KT5FsZgO/pQlc1rCRC1zatt3F3eJ+PqWSVk7rYU2JYQTwfzIx3gUfr3dIfC58d5DRiuHSsVJ80UmKaGrfm7zSsJCtQyLgXkDgm15pYuKcg4u0MA0ncpiEmbC6X3ll4j3qZOWfLOm2MxlCa1GMKvDM3WVwKQXyF369Ms7vNykPlAT6T7FFBNWPQC/DT/BD7MP6X/YmNr0mBPm5M8cwp5Rq4IAezH2o86dHnKwSqZl1NsYLmY8gmegT3fVHRVQUvYplxGj8H0Qh6NsTEoVcoTnp4yzd5Td1985w22UC1XuvjR9xrq1SqhltaDv6E7nYPLGKa3z4+39rtKN16rp0bjCRJKQbKE+d3Ks5H+J9Qr5bBPaOXZF234AzV6zv6frxm3xX33qS3qC1ltcf8lxLaYf13+pr2xQFsk1C+1XK21f+IWswAAAABJRU5ErkJggg==" style="opacity: 0.5;mix-blend-mode: multiply"/>
+        <circle cx="15.6" cy="16.55" r="5.12" style="fill: #fff"/>
+      </g>
+      <circle cx="15.6" cy="16.55" r="3.6" style="fill: #d5dbdb"/>
+    </g>
+  </g>
+</svg>

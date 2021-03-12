@@ -87,6 +87,9 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const inputRef = useRef<false | Input>(false);
     const onHoldNotes = useRef<{ [key: string]: any }>({});
 
+    const instrumentHTMLRef = useRef<HTMLDivElement>(null)
+    const tempRef = useRef<HTMLDivElement>(null);
+
     const triggRefs = useContext(triggCtx);
     const refsContext = useContext(toneRefsContext);
     // const previousMidi = usePrevious(midi);
@@ -856,8 +859,44 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     }, []);
 
+    // dom manipulation 
+    useEffect(() => {
+        switch (voice) {
+            case xolombrisxInstruments.AMSYNTH:
+                // tempRef.current?.getElementsByClassName('property.label')
+                // pass
+                break
+            case xolombrisxInstruments.DRUMRACK:
+                // pass
+                break
+            case xolombrisxInstruments.FMSYNTH:
+                // pass
+                break
+            case xolombrisxInstruments.MEMBRANESYNTH:
+                // pass
+                break
+            case xolombrisxInstruments.METALSYNTH:
+                // pass 
+                break
+            case xolombrisxInstruments.NOISESYNTH:
+                // pass 
+                break
+            case xolombrisxInstruments.PLUCKSYNTH:
+                // pass 
+                break
+        }
+    }, [instrumentHTMLRef])
+
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div ref={instrumentHTMLRef} style={{ width: '100%', height: '100%' }}>
+            {/* <div ref={tempRef}>
+                {properties.map(property => {
+                    const [value, r, indicatorType, curve] = getNested(options, property)
+                    switch(indicatorType) {
+                        // case indicators.
+                    }
+                })}
+            </div> */}
             {/* {properties.map(property => {
                 // vai passar () => midiLearn(property) como funcão 
                 const [value, r, indicatorType, curve] = getNested(options, property)

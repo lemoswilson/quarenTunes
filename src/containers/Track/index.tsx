@@ -23,11 +23,14 @@ import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 import { Instrument } from './Instruments'
 import Effect from './Effects/Effect'
 import { RootState } from '../Xolombrisx';
+import WaveformSelector from '../../components/Layout/WaveformSelector';
 
 import styles from './style.module.scss';
 
 import { getInitials } from './defaults';
 import ContinuousIndicator from '../../components/Layout/ContinuousIndicator';
+
+import grayTriangle from '../../assets/grayTriangle.svg';
 
 const Track: FunctionComponent = () => {
 
@@ -86,8 +89,10 @@ const Track: FunctionComponent = () => {
             <div className={styles.instrumentColumn}>
                 <div className={styles.tabs}></div>
                 <div className={styles.box}>
+                    <WaveformSelector selectWaveform={() => { }} selected={'sine'}></WaveformSelector>
+                    {/* <img src={grayTriangle} alt="" /> */}
                     {/* <Playground></Playground> */}
-                    <ContinuousIndicator
+                    {/* <ContinuousIndicator
                         ccMouseCalculationCallback={() => { }}
                         curveFunction={() => 10}
                         label={'Attack'}
@@ -108,7 +113,7 @@ const Track: FunctionComponent = () => {
                         value={37}
                         valueUpdateCallback={() => { }}
                         type={'slider'}
-                    ></ContinuousIndicator>
+                    ></ContinuousIndicator> */}
                     {/* <Instrument id={0} index={0} midi={{ channel: undefined, device: undefined }} options={getInitials(xolombrisxInstruments.FMSYNTH)} voice={xolombrisxInstruments.FMSYNTH} ></Instrument> */}
                 </div>
             </div>

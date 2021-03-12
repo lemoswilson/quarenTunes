@@ -3,9 +3,11 @@ import styles from './knob.module.scss';
 import { indicatorProps } from './index';
 
 
-const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData }) => {
+const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData, className }) => {
+    const c = `${styles.wrapper} ${className}`
+
     return (
-        <div className={styles.wrapper} onWheel={wheelMove}>
+        <div className={c} onWheel={wheelMove}>
             <svg className={styles.svg} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
                 <defs>
                     <linearGradient id="a" x1="18.39" y1="10.37" x2="53.26" y2="63.58" gradientUnits="userSpaceOnUse">

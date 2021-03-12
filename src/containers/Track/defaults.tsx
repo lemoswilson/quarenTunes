@@ -8,7 +8,9 @@ export enum indicators {
     VERTICAL_SLIDER = 'slider',
     DROPDOWN = 'dropdown',
     RADIO = 'radio',
-    HORIZONTAL_SLIDER = 'horizontal_slider'
+    HORIZONTAL_SLIDER = 'horizontal_slider',
+    WAVEFORM = "WAVEFORM",
+    CURVE_TYPE = "CURVE_TYPE"
 }
 
 export enum curveTypes {
@@ -20,16 +22,16 @@ export enum curveTypes {
 
 // Instruments options 
 // format [defaultValue, [min, max], typeofHandler, extraInfo]
-const noiseTypeIndicator = indicators.RADIO;
-const attackNoiseIndicator = indicators.VERTICAL_SLIDER // exponential 
+const noiseTypeIndicator = indicators.STEPPED_KNOB;
+const attackNoiseIndicator = indicators.KNOB // exponential 
 const volumeIndicator = indicators.VERTICAL_SLIDER; // exponential 
-const detuneIndicator = indicators.HORIZONTAL_SLIDER; // linear  
+const detuneIndicator = indicators.KNOB; // linear  
 const portamentoIndicator = indicators.KNOB; // exponential 
-const harmonicityIndicator = indicators.KNOB; // exponential 
-const oscillatorTypeIndicator = indicators.DROPDOWN;
+const harmonicityIndicator = indicators.VERTICAL_SLIDER; // exponential 
+const oscillatorTypeIndicator = indicators.WAVEFORM;
 const envelopeTimeIndicator = indicators.KNOB; // exponential 
 const envelopeCurveIndicator = indicators.RADIO;
-const modulationIndicator = indicators.KNOB; // exponential
+const modulationIndicator = indicators.VERTICAL_SLIDER; // exponential
 const frequencyIndicator = indicators.KNOB; // exponential 
 const resonanceIndicator = indicators.KNOB; // exponential
 
@@ -85,32 +87,32 @@ const envelope = {
 };
 
 const metalSynthEnvelope = {
-    attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
     decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    release: [0.2, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
+    release: [0.2, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     sustain: [0, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 }
 
 const membraneSynthEnvelope = {
-    attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     attackCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decay: [0.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    release: [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    decay: [0.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    release: [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     sustain: [0.01, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 }
 
 const modulationEnvelope = {
-    attack: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decay: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attack: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    decay: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     sustain: [1, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 };
 
@@ -131,7 +133,7 @@ const modulation = {
 const noise = {
     fadeIn: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     fadeOut: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    playbackRate: [1, modulationRange, modulationUnit, modulationRange, curveTypes.EXPONENTIAL],
+    playbackRate: [1, modulationRange, modulationUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     type: ['white', noiseTypeOptions, undefined, noiseTypeIndicator]
 }
 
@@ -167,10 +169,10 @@ export function getInitials(type: xolombrisxInstruments) {
                 detune: detune,
                 portamento: portamento,
                 harmonicity: modSynthHarmonicity,
-                oscillator: oscillator,
-                envelope: envelope,
-                modulation: modulation,
-                modulationEnvelope: modulationEnvelope,
+                oscillator: oscillator, // oscillator.type
+                envelope: envelope, // envelope.attack, decay, sustain, release, and curves
+                modulation: modulation, // modulation.type
+                modulationEnvelope: modulationEnvelope, // modulationEnvelope.attack, decay, sustain
             }
         case xolombrisxInstruments.FMSYNTH:
             return {
@@ -178,10 +180,10 @@ export function getInitials(type: xolombrisxInstruments) {
                 detune: detune,
                 portamento: portamento,
                 harmonicity: modSynthHarmonicity,
-                oscillator: oscillator,
-                envelope: envelope,
-                modulation: modulation,
-                modulationEnvelope: modulationEnvelope,
+                oscillator: oscillator, // oscillator.type
+                envelope: envelope, // envelope.attack, decay, sustain, release, and curves
+                modulation: modulation, // modulation.type
+                modulationEnvelope: modulationEnvelope, // modulationEnvelope.attack, decay, sustain...
                 modulationIndex: modSynthModulationIndex
             }
         case xolombrisxInstruments.MEMBRANESYNTH:
@@ -189,8 +191,8 @@ export function getInitials(type: xolombrisxInstruments) {
                 volume: volume,
                 detune: detune,
                 portamento: portamento,
-                envelope: membraneSynthEnvelope,
-                oscillator: oscillator,
+                envelope: membraneSynthEnvelope, // envelope.attack, decay, sustain, release, and curves
+                oscillator: oscillator, // oscilator.type
                 octaves: membraneSynthOctaves,
                 pitchDecay: membraneSynthPitchDecay,
             }
@@ -199,7 +201,7 @@ export function getInitials(type: xolombrisxInstruments) {
                 volume: volume,
                 detune: detune,
                 portamento: portamento,
-                envelope: metalSynthEnvelope,
+                envelope: metalSynthEnvelope, // envelope.attack, decay, sustain, release, and curves
                 harmonicity: metalSynthHarmonicity,
                 modulationIndex: metalSynthModulationIndex,
                 octaves: metalSynthOctaves,
@@ -208,8 +210,8 @@ export function getInitials(type: xolombrisxInstruments) {
         case xolombrisxInstruments.NOISESYNTH:
             return {
                 volume: volume,
-                envelope: envelope,
-                noise: noise,
+                envelope: envelope, // envelope.attack, decay, sustain, release, and curves
+                noise: noise, //noise.fadeIn, fadeOut, playbackRate, type
             }
         case xolombrisxInstruments.PLUCKSYNTH:
             return {
@@ -219,15 +221,15 @@ export function getInitials(type: xolombrisxInstruments) {
                 resonance: pluckResonance,
                 release: pluckRelease
             }
-        case xolombrisxInstruments.SAMPLER:
-            return {
-                volume: volume,
-                attack: samplerAttack,
-                baseUrl: " ",
-                curve: curve,
-                release: samplerRelase,
-                urls: {},
-            }
+        // case xolombrisxInstruments.SAMPLER:
+        //     return {
+        //         volume: volume,
+        //         attack: samplerAttack,
+        //         baseUrl: " ",
+        //         curve: curve,
+        //         release: samplerRelase,
+        //         urls: {},
+        //     }
         case xolombrisxInstruments.DRUMRACK:
             return {
                 volume: volume,
