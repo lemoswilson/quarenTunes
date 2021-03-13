@@ -1,0 +1,6 @@
+@import '../../../style/variables';
+
+.svg {
+    border-radius: 50%;
+    @include shadow(0.1rem, 0.1rem, 0.2rem);
+}

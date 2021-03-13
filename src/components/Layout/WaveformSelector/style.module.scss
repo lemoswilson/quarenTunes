@@ -2,60 +2,39 @@
 
 .wrapper {
         
-    border: 1px solid black;
     width: 8rem;
     height: 8rem;
 
-    img {
-        border: 1px solid black;
+    .title {
+        display: flex;
+        @include center;
+        width: 8rem;
+        font-family: $jost;
+        font-weight: 500;
+        color: $textColor;
+        text-shadow: 0 0 1px $textShadow;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.9rem;
     }
 
-    svg {
-        border: 1px solid black;
+    .options {
+        display: grid;
+        grid-template-columns: 4rem 4rem;
+
+        .box {
+            display: grid;
+            grid-template-columns: 20% 80%;
+
+            .button {
+                display: flex;
+                @include center;
+            }
+
+            .waveform {
+                display: flex;
+                @include center;
+            }
+        }
     }
-
-    // .title {
-    //     display: flex;
-    //     @include center;
-    //     width: 8rem;
-    //     font-family: $jost;
-    //     font-weight: 500;
-    //     color: $textColor;
-    //     text-shadow: 0 0 1px $textShadow;
-    //     justify-content: center;
-    //     text-align: center;
-    //     font-size: 0.9rem;
-    //     // font-size: 0.9rem;
-    //     // line-height: 1.4rem;
-    //     border: 1px solid black;
-    // }
-
-    // .options {
-    //     display: grid;
-    //     grid-template-columns: 4rem 4rem;
-    //     // grid-template-rows: 1.5rem 1.5rem;
-
-    //     .box {
-    //         display: grid;
-    //         grid-template-columns: 20% 80%;
-    //         border: 1px solid black;
-
-    //         .button {
-    //             display: flex;
-    //             @include center;
-    //             border-right: 1px solid black;
-    //         }
-
-    //         .waveform {
-    //             display: flex;
-    //             @include center;
-
-    //             // svg {
-    //             //     width: 150%;
-    //             //     height: 150%;
-    //             // }
-
-    //         }
-    //     }
-    // }
 }

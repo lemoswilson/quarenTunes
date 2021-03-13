@@ -24,6 +24,7 @@ import { Instrument } from './Instruments'
 import Effect from './Effects/Effect'
 import { RootState } from '../Xolombrisx';
 import WaveformSelector from '../../components/Layout/WaveformSelector';
+import CurveSelector from '../../components/Layout/CurveSelector';
 
 import styles from './style.module.scss';
 
@@ -89,7 +90,8 @@ const Track: FunctionComponent = () => {
             <div className={styles.instrumentColumn}>
                 <div className={styles.tabs}></div>
                 <div className={styles.box}>
-                    <WaveformSelector selectWaveform={() => { }} selected={'sine'}></WaveformSelector>
+                    <CurveSelector display={'horizontal'} selected={'exponential'} selectCurve={() => { }}></CurveSelector>
+                    {/* <WaveformSelector selectWaveform={() => { }} selected={'sine'}></WaveformSelector> */}
                     {/* <img src={grayTriangle} alt="" /> */}
                     {/* <Playground></Playground> */}
                     {/* <ContinuousIndicator
