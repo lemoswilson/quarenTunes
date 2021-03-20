@@ -1,34 +1,40 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import styles from './style.module.scss';
+import regular from './style.module.scss';
+import smalls from './small.module.scss';
 import Polygon from './Polygon';
 
 interface Dropdown {
     keys: string[];
     selected: string;
-    select: any;
+    select: (key: string) => void;
     lookup: (key: string) => string;
     className?: string;
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+    small?: boolean;
 }
+
 const Dropdown: React.FC<Dropdown> = ({
     keys,
     select,
     selected,
     lookup,
     className,
-    onSubmit
+    onSubmit,
+    small
 }) => {
     const [isOpen, toggleState] = useState(false);
     const [renderCount, increaseCounter] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const state = isOpen
+    const styles = small ? smalls : regular
+
+    const styleToggle = isOpen
         ? `${styles.closed} ${styles.animate}`
         : !isOpen && renderCount > 0
             ? `${styles.closed} ${styles.off}`
             : styles.closed
 
-    const polygonState = isOpen
+    const polygonToggleStyle = isOpen
         ? `${styles.turnOpen}`
         : !isOpen && renderCount > 0
             ? `${styles.turnClose}`
@@ -65,13 +71,13 @@ const Dropdown: React.FC<Dropdown> = ({
     </div>
 
     return (
-        <div className={`${state} ${className}`}>
+        <div className={`${styleToggle} ${className}`}>
             <div className={styles.selected}>
                 <div className={styles.whitespace}></div>
                 <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
                     <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} />
                 </form>
-                <div onClick={openClose} className={styles.arrow}><Polygon className={polygonState} /></div>
+                <div onClick={openClose} className={styles.arrow}><Polygon className={polygonToggleStyle} /></div>
             </div>
             {isOpen ? optionsList : null}
         </div>

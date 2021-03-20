@@ -17,11 +17,14 @@ import InputKeys from './InputKeys';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../containers/Xolombrisx';
 import { noteOn, noteOff, noteDict, numberToNote, upOctaveKey, downOctaveKey } from '../../store/MidiInput';
+import SteppedIndicator from './SteppedIndicator';
+import { optionFromCC, steppedCalc } from '../../lib/curves';
 
 const Playground: React.FC = () => {
     const [selected, select] = useState('1')
     const Options = useRef(['1', '2', '3', '4'])
     const [counter, setCounter] = useState(16);
+    const [optionsState, setOptions] = useState('1');
     const [stepState, setStepState] = useState(true);
     const keys = useSelector((state: RootState) => state.midi.devices.onboardKey);
     const range = useSelector((state: RootState) => state.midi.onboardRange);
@@ -121,6 +124,15 @@ const Playground: React.FC = () => {
         setStepState((state) => !state);
     };
 
+    const ccMouseCalculationCallback = (e: any) => {
+        let val = e.controller && e.controller.number
+            ? optionFromCC(e.value, Options.current)
+            : steppedCalc(e.movementY, Options.current, optionsState)
+        if (val != optionsState) {
+            setOptions(val);
+        }
+    }
+
     return (
         <div className={styles.box}>
             {/* <InputKeys keyState={keys}></InputKeys> */}
@@ -137,6 +149,15 @@ const Playground: React.FC = () => {
             {/* <Record className={styles.estopin} onClick={() => { }}></Record> */}
             {/* <PrevNext onClick={() => { }} direction='next'></PrevNext> */}
             {/* <Dropdrown onSubmit={onSubmit} className={styles.mamao} selected={selected} lookup={lookup} keys={Options.current} select={select}></Dropdrown> */}
+            <SteppedIndicator
+                options={Options.current}
+                ccMouseCalculationCallback={ccMouseCalculationCallback}
+                label={'Attack'}
+                midiLearn={() => { }}
+                selected={'2'}
+                valueUpdateCallback={() => { }}
+                unit={''}
+            ></SteppedIndicator>
             {/* <Plus className={styles.mamao}></Plus>
                 <Minus className={styles.estopin}></Minus> */}
             {/* <Save className={styles.estopin}></Save> */}

@@ -37,7 +37,7 @@ import {
 } from '../../../lib/objectDecompose'
 // import Tone from '../../../lib/tone';
 import * as Tone from 'tone';
-import valueFromCC, { valueFromMouse, optionFromCC } from '../../../lib/curves';
+import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../../lib/curves';
 import { timeObjFromEvent, extendObj, typeMovement } from '../../../lib/utility';
 import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
 // import toneRefEmitter, { trackEventTypes } from '../../../lib/myCustomToneRefsEmitter';
@@ -236,6 +236,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 const [
                     stateValue,
                     parameterOptions,
+                    unit,
                     indicatorType,
                     parameterPayload
                 ] = [...getNested(optionsRef.current, property)]
@@ -243,7 +244,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
                 const isContinuous = indicatorType === indicators.KNOB
                     || indicatorType === indicators.VERTICAL_SLIDER
-                    || indicatorType === indicators.HORIZONTAL_SLIDER
 
                 if (selectedStepsRef.current.length >= 1) {
 
@@ -268,9 +268,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                                 );
                             data = setNestedValue(property, propVal);
                         } else {
+                            // has to change e.target.value with a logic to the next or prior option
                             propVal = e.controller && e.controller.number
                                 ? optionFromCC(e.value, parameterOptions)
-                                : e.target.value
+                                : steppedCalc(e.movementY, parameterOptions, stateValue)
+                            // : e.target.value
                             if (propVal !== stateValue) {
                                 data = setNestedValue(property, propVal);
                             }
@@ -318,7 +320,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     } else {
                         let val = e.controller && e.controller.number
                             ? optionFromCC(e.value, parameterOptions)
-                            : e.target.value
+                            : steppedCalc(e.movementY, parameterOptions, stateValue)
                         if (val !== stateValue) {
                             let data = setNestedValue(property, val);
                             // instrumentRef.current.set(data);

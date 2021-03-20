@@ -208,7 +208,6 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
 
                 const isContinuous = indicatorType === indicators.KNOB
                     || indicatorType === indicators.VERTICAL_SLIDER
-                    || indicatorType === indicators.HORIZONTAL_SLIDER
 
                 if (selectedStepsRef.current.length >= 1) {
 

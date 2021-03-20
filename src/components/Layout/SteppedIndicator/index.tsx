@@ -1,20 +1,18 @@
 import React, { useState, useEffect, WheelEvent } from 'react';
 import { propertiesToArray } from '../../../lib/objectDecompose';
+// import {} from '../../'
 // import styles from './knob.module.scss';
 import Knob from './Knob';
-import Slider from './Slider';
 
-interface continuousIndicator {
+interface SteppedIndicator {
     className?: string;
-    value: number;
-    min: number;
-    max: number;
+    selected: string;
+    options: string[];
     ccMouseCalculationCallback: (e: any) => void;
     valueUpdateCallback: (value: any) => void;
-    curveFunction: (input: number) => number;
+    // curveFunction: (input: number) => number;
     label: string;
     midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
-    type: 'knob' | 'slider';
     unit: string;
 }
 
@@ -24,29 +22,29 @@ export interface indicatorProps {
     captureStartDiv?: (e: React.MouseEvent) => void,
     label: string,
     indicatorData: string,
+    options: string[],
     className?: string,
     unit?: string,
-    value: number;
+    selected: string;
     display: boolean;
     setDisplay: () => void;
 }
 
-const ContinuousIndicator: React.FC<continuousIndicator> = ({
+const SteppedIndicator: React.FC<SteppedIndicator> = ({
     className,
     ccMouseCalculationCallback,
     valueUpdateCallback,
-    curveFunction,
     label,
-    max,
-    min,
-    value,
+    selected,
+    options,
     midiLearn,
-    type,
     unit
 }) => {
     const [isMoving, setMovement] = useState(false)
     const [display, setDisplay] = useState(true);
+    // const [selectedOption, setOption] = useState('xola');
     let shouldRemove = false;
+
 
     useEffect(() => {
         if (isMoving && !shouldRemove) {
@@ -86,69 +84,48 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         e.persist();
         e.preventDefault();
         if (e.deltaY >= 7) {
-            value + 7 * curveFunction(value) < max
-                ? valueUpdateCallback(value + 7 * curveFunction(value))
-                : valueUpdateCallback(max);
+            //
         } else if (e.deltaY <= -7) {
-            value - 7 * curveFunction(value) > min
-                ? valueUpdateCallback(value - 7 * curveFunction(value))
-                : valueUpdateCallback(min)
+            //
         } else if (e.deltaY < 0 && e.deltaY > -7) {
-            value + e.deltaY * curveFunction(value) < max
-                ? valueUpdateCallback(value + e.deltaY * curveFunction(value))
-                : valueUpdateCallback(max)
+            //
         } else if (e.deltaY < 0 && e.deltaY > -7) {
-            value - e.deltaY * curveFunction(value) > min
-                ? valueUpdateCallback(value - e.deltaY * curveFunction(value))
-                : valueUpdateCallback(min)
+            //
         }
     };
 
     function keyHandle(this: Document, e: KeyboardEvent): void {
         let char: string = e.key.toLowerCase();
         if (char === 'arrowdown') {
-            valueUpdateCallback(value - curveFunction(value));
+            //
         } else if (char === 'arrowup') {
-            valueUpdateCallback(value + curveFunction(value));
+            //
         }
     }
 
     const rotate = (angle: number) => `rotate(${angle} 33.64 33.64)`
-    const mid = (max - min) / 2
-    const rotateBy = rotate(140 * (value - (mid)) / mid);
-    const heightPercentage = `${(86 / (max - min)) * value + 3}%`
+    // const mid = (max - min) / 2
+    // const rotateBy = rotate(140 * (value - (mid)) / mid);
+    // const heightPercentage = `${(86 / (max - min)) * value + 3}%`
 
     const knob = <Knob
         captureStart={captureStart}
-        indicatorData={rotateBy}
+        indicatorData={selected}
+        options={options}
         label={label}
         wheelMove={wheelMove}
         className={className}
-        value={value}
+        selected={selected}
         unit={unit}
         display={display}
         setDisplay={() => setDisplay(state => !state)}
     ></Knob>
 
-    const slider = <Slider
-        value={value}
-        unit={unit}
-        display={display}
-        className={className}
-        captureStartDiv={captureStartDiv}
-        indicatorData={heightPercentage}
-        label={label}
-        setDisplay={() => setDisplay(state => !state)}
-        wheelMove={wheelMove}>
-        {/* value={value} */}
-        {/* unit={unit} */}
-    </Slider>
 
-    const indicator = type === 'knob' ? knob : slider;
 
-    return indicator
+    return knob;
 }
 
 
-export default ContinuousIndicator;
+export default SteppedIndicator;
 

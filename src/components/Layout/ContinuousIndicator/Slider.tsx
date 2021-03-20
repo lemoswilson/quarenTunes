@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './slider.module.scss';
 import { indicatorProps } from './index';
 
-const Slider: React.FC<indicatorProps> = ({ captureStart, indicatorData, label, wheelMove, className }) => {
-    const c = `${styles.wrapper} ${className}`
+const Slider: React.FC<indicatorProps> = ({ captureStartDiv, indicatorData, label, wheelMove, className, unit, value, setDisplay, display }) => {
+    const c = `${styles.wrapper} ${className}`;
 
     return (
         <div className={c}>
-            <div className={styles.text}>{label}</div>
-            <div className={styles.indicatorWrapper}>
+            <div onClick={setDisplay} className={styles.text}>{display ? label : `${value} ${unit}`}</div>
+            <div onPointerDown={captureStartDiv} className={styles.indicatorWrapper}>
                 <div style={{ height: indicatorData }} className={styles.value}></div>
             </div>
         </div>

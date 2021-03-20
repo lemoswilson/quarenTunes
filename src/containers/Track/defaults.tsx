@@ -8,7 +8,7 @@ export enum indicators {
     VERTICAL_SLIDER = 'slider',
     DROPDOWN = 'dropdown',
     RADIO = 'radio',
-    HORIZONTAL_SLIDER = 'horizontal_slider',
+    // HORIZONTAL_SLID
     WAVEFORM = "WAVEFORM",
     CURVE_TYPE = "CURVE_TYPE"
 }

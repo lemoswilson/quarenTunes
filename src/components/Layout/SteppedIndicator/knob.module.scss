@@ -1,0 +1,45 @@
+@import '../../../style/variables';
+
+.wrapper {
+    width: 5rem;
+    height: 7rem;
+    // border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    // align-items: flex-end;
+    justify-content: flex-end;
+
+    .indicator {
+        position: absolute;
+        // border: 1px solid black;
+        width: 5rem;
+        height: 5rem;
+        top: 11%;
+        align-self: center;
+    }
+
+    .svg {
+        padding-left: 0.15rem;
+        width: 4rem;
+        height: 4rem;
+        align-self: center;
+        // order: 1;
+    }
+
+    .title {
+        // border: 1px solid green;
+        // line-height: 0.5rem;
+        // order: 0;
+        width: 100%;
+        height: auto; 
+        padding-bottom: 0.2rem;
+        font-family: $jost;
+        font-weight: 500;
+        color: $textColor;
+        text-shadow: 0 0 1px $textShadow;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+}

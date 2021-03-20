@@ -1,0 +1,185 @@
+@import '../../../style/variables';
+
+html {
+
+    .closed {
+        overflow: hidden;
+        border-radius: 0.8rem;
+        background-color: white;
+        @include shadow(2px, 4px, 4px);
+        width: 3rem; // diferente
+        height: 1.14rem; // diferente
+        // margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+
+        .selected {
+            width: 100%;
+            height: 1.14rem; // diferente
+            position: relative;
+            display: grid;
+            grid-template-columns: 15% 60% auto;
+            // cursor: pointer;
+
+            .whitespace {
+                height: 70%;
+            }
+            .text {
+                text-align: center;
+                vertical-align: middle;
+                line-height: 1.02rem; // diferente
+                font-family: $jost;
+                height: 65%;
+                border-bottom: 0.5px solid $textColor;
+                font-size: 0.6rem; // diferente
+                color: $textColor;
+                text-shadow: 0 0 1px $textShadow;
+
+                input {
+                    // width: 3.51rem;
+                    width: 1.5rem; // diferent
+                    height: 0.6rem; // diferent
+                    border: none;
+                    outline: none;
+                    font-size: 0.6rem; // diferent
+                    text-align: center;
+                    background-color: none;
+                    border-bottom: 0.5px solid $textColor;
+                    font-family: $jost;
+                    text-shadow: 0 0 1px $textShadow;
+                    &::placeholder {
+                        color: $textColor;
+                    }
+                }
+
+                textarea, input {
+                    color: $textColor;
+                }
+            }
+
+            .arrow {
+                display: flex;
+                @include center;
+                cursor: pointer;
+
+                .filter {
+                    filter: drop-shadow(0.1rem 0.2rem 3rem $dark);
+                    -webkit-filter: drop-shadow(0.1rem 0.2rem 3rem $dark);
+                }
+
+                svg {
+                    width:  75%;
+                    height: 75%;
+                    transform-origin: center;
+                    // filter: drop-shadow(1rem 2rem 3rem $dark);
+                }
+            }
+        }
+
+        .list {
+            height: 3.6rem; // diferente
+            overflow: scroll;
+            font-family: $jost;
+            color: $textColor;
+            display: flex;
+            flex-direction: column;
+            // position: relative; 
+            // top: -0.2rem;
+
+            .row {
+                width: 100%;
+                height: 1.14rem; // diferente
+                display: grid;
+                grid-template-columns: 15% 60% auto;
+
+                .hh {
+                    height: 100%;
+                }
+
+                &:hover{
+                    cursor: pointer;
+                    background-color: $light;
+                }
+
+                .text {
+                    text-align: center;
+                    vertical-align: middle;
+                    line-height: 1.02rem; // diferente
+                    // padding-left: 0.5rem;
+                    font-family: $jost;
+                    height: 65%;
+                    border-bottom: 0.5px solid $textColor;
+                    font-size: 0.6rem; // diferente
+                    color: $textColor;
+                    text-shadow: 0 0 1px $textShadow;
+                    overflow: hidden;
+
+                }
+            }
+
+            ul {
+                margin: 0;
+                padding: 0;
+                // padding-left: ;
+                li {
+                    list-style: none;
+                    text-align: center;
+                }
+            }
+        }
+    }
+
+    .animate {
+        // animation: openTab 0.5s ease-in-out 0s 1 forwards;
+        animation: openTab 0.2s ease-in 0s 1 forwards;
+    }
+
+    .off {
+        animation: closeTab 0.2s ease-out 0s 1 forwards;
+    }
+
+    .turnOpen {
+        animation: rotateOpen 0.2s ease-out 0s 1 forwards;
+    }
+
+    .turnClose {
+        animation: rotateClose 0.2s ease-out 0s 1 forwards;
+    }
+
+    @keyframes rotateOpen {
+        from {
+            transform: rotate(0)
+        } to {
+            transform: rotate(-90deg)
+        }
+    }
+
+    @keyframes rotateClose { 
+        from {
+            transform: rotate(-90deg);
+        } to {
+            transform: rotate(0);
+        }
+    }
+
+    @keyframes closeTab {
+        from {
+            height: 4.8rem;
+        } to {
+            height: 1.2rem;
+        }
+    }
+
+    @keyframes openTab {
+        from {
+            height: 1.2rem;
+        } to {
+            height: 4.8rem;
+        }
+        
+    }
+
+    .noshow {
+        display: none;
+    }
+}

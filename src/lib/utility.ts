@@ -19,10 +19,7 @@ export function extendObj(entry: any, extension: any): any {
 };
 
 export function typeMovement(ind: indicators, e: any): number {
-    if (ind === indicators.HORIZONTAL_SLIDER)
-        return - e.movementX
-    else
-        return e.movementY
+    return e.movementY
 };
 
 // let time = {

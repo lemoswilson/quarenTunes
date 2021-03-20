@@ -27,6 +27,7 @@
             border-bottom-left-radius: 0;
             display: grid;
             grid-template-columns: 62% 38%;
+            position: relative;
 
             .text {
                 text-align: center;
@@ -47,7 +48,12 @@
 
             .select {
                 display: flex;
-                @include center;
+                justify-content: flex-start;
+                align-items: center;
+                position: absolute;
+                left: 58%;
+                top: 10%;
+                // @include center;
             }
         }
 

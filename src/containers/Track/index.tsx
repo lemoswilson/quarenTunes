@@ -25,13 +25,16 @@ import Effect from './Effects/Effect'
 import { RootState } from '../Xolombrisx';
 import WaveformSelector from '../../components/Layout/WaveformSelector';
 import CurveSelector from '../../components/Layout/CurveSelector';
+import ContinuousIndicator from '../../components/Layout/ContinuousIndicator';
+import grayTriangle from '../../assets/grayTriangle.svg';
+import Dropdown from '../../components/Layout/Dropdown';
+import Playground from '../../components/Layout/Playground';
+import SteppedIndicator from '../../components/Layout/SteppedIndicator';
 
 import styles from './style.module.scss';
 
 import { getInitials } from './defaults';
-import ContinuousIndicator from '../../components/Layout/ContinuousIndicator';
 
-import grayTriangle from '../../assets/grayTriangle.svg';
 
 const Track: FunctionComponent = () => {
 
@@ -90,11 +93,11 @@ const Track: FunctionComponent = () => {
             <div className={styles.instrumentColumn}>
                 <div className={styles.tabs}></div>
                 <div className={styles.box}>
-                    <CurveSelector display={'horizontal'} selected={'exponential'} selectCurve={() => { }}></CurveSelector>
+                    {/* <CurveSelector display={'horizontal'} selected={'exponential'} selectCurve={() => { }}></CurveSelector> */}
                     {/* <WaveformSelector selectWaveform={() => { }} selected={'sine'}></WaveformSelector> */}
                     {/* <img src={grayTriangle} alt="" /> */}
-                    {/* <Playground></Playground> */}
-                    {/* <ContinuousIndicator
+                    <Playground></Playground>
+                    <ContinuousIndicator
                         ccMouseCalculationCallback={() => { }}
                         curveFunction={() => 10}
                         label={'Attack'}
@@ -104,6 +107,7 @@ const Track: FunctionComponent = () => {
                         value={100}
                         valueUpdateCallback={() => { }}
                         type={'knob'}
+                        unit={'unit'}
                     ></ContinuousIndicator>
                     <ContinuousIndicator
                         ccMouseCalculationCallback={() => { }}
@@ -115,7 +119,17 @@ const Track: FunctionComponent = () => {
                         value={37}
                         valueUpdateCallback={() => { }}
                         type={'slider'}
-                    ></ContinuousIndicator> */}
+                        unit={'unit'}
+                    ></ContinuousIndicator>
+                    {/* <SteppedIndicator
+                        options={['alameda', 'xola', 'jirafa']}
+                        ccMouseCalculationCallback={() => { }}
+                        label={'Attack'}
+                        midiLearn={() => { }}
+                        selected={'xola'}
+                        valueUpdateCallback={() => { }}
+                        unit={'unit'}
+                    ></SteppedIndicator> */}
                     {/* <Instrument id={0} index={0} midi={{ channel: undefined, device: undefined }} options={getInitials(xolombrisxInstruments.FMSYNTH)} voice={xolombrisxInstruments.FMSYNTH} ></Instrument> */}
                 </div>
             </div>

@@ -11,6 +11,17 @@ export function optionFromCC(value: number, options: any[]): string {
     return options[Math.round(value * l)];
 };
 
+export function steppedCalc(mouseMovement: number, parameterOptions: string[], stateValue: string) {
+    const idx = parameterOptions.findIndex(p => p === stateValue);
+    if (mouseMovement <= 0 && idx !== parameterOptions.length - 1) {
+        return parameterOptions[idx + 1];
+    } else if (mouseMovement >= 0 && idx !== 0) {
+        return parameterOptions[idx - 1];
+    } else {
+        return parameterOptions[idx];
+    }
+}
+
 export function valueFromMouse(
     prevValue: number,
     mouseMovement: number,

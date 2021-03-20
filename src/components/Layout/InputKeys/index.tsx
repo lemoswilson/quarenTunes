@@ -4,6 +4,7 @@ import { range as withRange } from '../../../lib/utility';
 
 import Keyboard from './Keyboard';
 import PrevNext from '../PrevNext';
+import Dropdown from '../Dropdown';
 
 import styles from './style.module.scss'
 
@@ -90,6 +91,7 @@ const InputKeys: React.FC<InputKeys> = ({ keyState, noteCallback }) => {
                         <span className={styles.move}>Note Length</span>
                     </div>
                     <div className={styles.select}>
+                        <Dropdown small={true} onSubmit={() => { }} className={''} selected={'1'} lookup={(key) => key} keys={['1', '2', '3', '4', '5', '6', '7', '8', '9']} select={() => { }}></Dropdown>
                         {/* dropdown here */}
                     </div>
                 </div>

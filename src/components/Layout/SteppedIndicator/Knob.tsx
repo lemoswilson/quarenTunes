@@ -3,11 +3,36 @@ import styles from './knob.module.scss';
 import { indicatorProps } from './index';
 
 
-const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData, className, unit, display, value, setDisplay }) => {
+const Knob: React.FC<indicatorProps> = ({ captureStart,
+    label,
+    wheelMove,
+    indicatorData,
+    className,
+    unit,
+    display,
+    selected,
+    setDisplay,
+    options
+}) => {
     const c = `${styles.wrapper} ${className}`
+
+    const circle = (angle: number) => (
+        <svg onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
+            <g transform={`rotate(${angle} 34.4 35.2)`}>
+                <image width="17" height="17" transform="translate(25.28 -3)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAACXBIWXMAAAsSAAALEgHS3X78AAABH0lEQVQ4T63UTUoDQRAF4G/yh0RBMSK4ELLKwu3c/wi5g+BCEBVFDZI4GRddSXomiQuTgoLuflVvXlV1T1HXtWNY7y9wOp0W+b4sy71fLdqKsuQOGkSosWSbtEEUJAW6ktperKHCT3iFOidbE2UkfZxgGD6I2Dlm4d9Y5GTtHnWD5BxXGOE0sC+84Dn2S0kdmkSd2A8lkjFucRn4Kx5ivZAULqUyddgqaygpucUEd+GTOBtFTB/Fajjt0jpST84kJde4yfDnwAYR20g8irUVLaXaP6WePGXYU5x92vRnbfn4u5LkC6mcsd3Nvscj3jAvy7KiqWg1zpnNiD/sHv8sYteq2qVV0mUjjfjd/gtZ5YnHfyItMg55tG076DfyX/sFxYCEfvkEjmsAAAAASUVORK5CYII=" style={{ opacity: 0.5, mixBlendMode: "multiply" }} />
+                <circle cx="34.4" cy="3.66" r="2.5" style={{ fill: "#dce0e2" }} />
+            </g>
+            {/* <circle cx="34.4" cy="35.2" r="2.5" style={{ fill: "transparent", stroke: 'green' }} /> */}
+            {/* center */}
+        </svg>)
 
     return (
         <div className={c} onWheel={wheelMove}>
+            <div className={styles.indicator}>
+                <svg onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
+
+                </svg>
+            </div>
             <svg className={styles.svg} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
                 <defs>
                     <linearGradient id="a" x1="18.39" y1="10.37" x2="53.26" y2="63.58" gradientUnits="userSpaceOnUse">
@@ -46,13 +71,19 @@ const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indica
                                     <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "#dce0e2" }} transform={indicatorData} /> {/* smaller 1 */}
                                 </g>
                                 <circle cx="33.64" cy="18.96" r="2.97" style={{ fill: "#ededed" }} transform={indicatorData} /> {/* smaller 2 */}
+                                <g>
+
+                                    {/* <circle cx="33.67" cy="0" r="2.5" style={{ fill: "#dce0e2" }} /> */}
+                                </g>
                             </g>
                         </g>
                     </g>
                 </g>
+                {/* <circle cx="33.64" cy="33.64" r="3" style={{ fill: "transparent", stroke: 'red' }} /> */}
+                {/* center */}
             </svg>
             <div onPointerDown={setDisplay} className={styles.title}>
-                {display ? label : `${value} ${unit}`}
+                {display ? label : `${selected} ${unit}`}
             </div>
         </div>
     )
