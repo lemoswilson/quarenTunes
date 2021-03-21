@@ -13,6 +13,7 @@ export function optionFromCC(value: number, options: any[]): string {
 
 export function steppedCalc(mouseMovement: number, parameterOptions: string[], stateValue: string) {
     const idx = parameterOptions.findIndex(p => p === stateValue);
+    console.log('mouseMovement', mouseMovement);
     if (mouseMovement <= 0 && idx !== parameterOptions.length - 1) {
         return parameterOptions[idx + 1];
     } else if (mouseMovement >= 0 && idx !== 0) {

@@ -5,11 +5,13 @@ import undoable, { newHistory, includeAction } from 'redux-undo';
 import Div100vh from 'react-div-100vh';
 
 import Chain from '../../lib/fxChain';
-import TriggContext, { triggContext } from '../../context/triggState';
 import { trackActions } from '../../store/Track'
-import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/toneRefsEmitter';
+
+import TriggContext, { triggContext } from '../../context/triggState';
+import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
+import AppContext from '../../context/AppContext';
 // import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/myCustomToneRefsEmitter';
 
 import Tone from '../../lib/tone'
@@ -97,6 +99,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     token,
     updateUser
 }) => {
+
+    const appRef = useRef<HTMLDivElement>(null);
 
     let triggRef = useRef<triggContext>({
         0: [{
@@ -416,44 +420,48 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
     return (
         <React.Fragment>
-            <toneRefsContext.Provider value={toneObjRef}>
-                <TriggContext.Provider value={triggRef}>
-                    <Provider store={store}>
-                        <Div100vh className={styles.app}>
-                            <div className={styles.content}>
-                                <div className={styles.top}>
-                                    <div className={styles.transport}></div>
-                                </div>
-                                <div className={styles.mid}>
-                                    <div className={styles.arrangerColumn}>
-                                        <div className={styles.box}>
+            <AppContext.Provider value={appRef}>
+                <toneRefsContext.Provider value={toneObjRef}>
+                    <TriggContext.Provider value={triggRef}>
+                        <Provider store={store}>
+                            <Div100vh className={styles.app}>
+                                <div ref={appRef} className={styles.wrapson}>
+                                    <div className={styles.content}>
+                                        <div className={styles.top}>
+                                            <div className={styles.transport}></div>
                                         </div>
-                                    </div>
-                                    <Track></Track>
-                                </div>
-                                <Sequencer></Sequencer>
-                                {/* <div className={styles.bottom}>
-                                    <div className={styles.arrangerColumn}>
-                                        <div className={styles.patterns}></div>
-                                    </div>
-                                    <div className={styles.sequencerColumn}>
-                                        <div className={styles.box}>
-                                            <div className={styles.stepSequencer}></div>
-                                            <Playground></Playground>
+                                        <div className={styles.mid}>
+                                            <div className={styles.arrangerColumn}>
+                                                <div className={styles.box}>
+                                                </div>
+                                            </div>
+                                            <Track></Track>
                                         </div>
+                                        <Sequencer></Sequencer>
+                                        {/* <div className={styles.bottom}>
+                                            <div className={styles.arrangerColumn}>
+                                                <div className={styles.patterns}></div>
+                                            </div>
+                                            <div className={styles.sequencerColumn}>
+                                                <div className={styles.box}>
+                                                    <div className={styles.stepSequencer}></div>
+                                                    <Playground></Playground>
+                                                </div>
+                                            </div>
+                                        </div> */}
                                     </div>
-                                </div> */}
-                            </div>
-                            {/* <Arranger></Arranger>
-                                                        <Transport></Transport> */}
-                            {/* <Dummy></Dummy> */}
-                            {/* <Track></Track>
-                                                        <Sequencer></Sequencer> */}
-                            {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
-                        </Div100vh>
-                    </Provider>
-                </TriggContext.Provider>
-            </toneRefsContext.Provider>
+                                </div>
+                                {/* <Arranger></Arranger>
+                                                            <Transport></Transport> */}
+                                {/* <Dummy></Dummy> */}
+                                {/* <Track></Track>
+                                                            <Sequencer></Sequencer> */}
+                                {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
+                            </Div100vh>
+                        </Provider>
+                    </TriggContext.Provider>
+                </toneRefsContext.Provider>
+            </AppContext.Provider>
         </React.Fragment >
     );
 }

@@ -586,7 +586,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                             // </Knob>
                             console.log()
                         )
-                    case indicators.RADIO:
+                    case indicators.CURVE_TYPE:
                         return (
                             // <Radio 
                             //     property={property} 
@@ -616,7 +616,11 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                             // </STEPKNOB>
                             console.log()
                         )
-
+                    case indicators.WAVEFORM:
+                        return (
+                            // asjd
+                            console.log()
+                        )
                 };
                 return ''
             })}

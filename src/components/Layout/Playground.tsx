@@ -19,10 +19,11 @@ import { RootState } from '../../containers/Xolombrisx';
 import { noteOn, noteOff, noteDict, numberToNote, upOctaveKey, downOctaveKey } from '../../store/MidiInput';
 import SteppedIndicator from './SteppedIndicator';
 import { optionFromCC, steppedCalc } from '../../lib/curves';
+import { range as inRange } from '../../lib/utility';
 
 const Playground: React.FC = () => {
-    const [selected, select] = useState('1')
-    const Options = useRef(['1', '2', '3', '4'])
+    const [selected, select] = useState('7')
+    const Options = useRef(inRange(24).map(n => String(n)))
     const [counter, setCounter] = useState(16);
     const [optionsState, setOptions] = useState('1');
     const [stepState, setStepState] = useState(true);
@@ -124,13 +125,24 @@ const Playground: React.FC = () => {
         setStepState((state) => !state);
     };
 
+    const tralalala = <T extends unknown>(opt: T[], curr: T, p: number): T => {
+        if (p < 0 && curr != opt[opt.length - 1]) {
+            return opt[opt.indexOf(curr) + 1];
+        } else if (p > 0 && curr != opt[0]) {
+            return opt[opt.indexOf(curr) - 1]
+        } else return curr
+    }
+
     const ccMouseCalculationCallback = (e: any) => {
+        // console.log('calculating');
         let val = e.controller && e.controller.number
             ? optionFromCC(e.value, Options.current)
-            : steppedCalc(e.movementY, Options.current, optionsState)
-        if (val != optionsState) {
-            setOptions(val);
-        }
+            // : e.movementY <= 0 ? 
+            // : steppedCalc(e.movementY, Options.current, optionsState)
+            : setOptions(val => tralalala(Options.current, val, e.movementY))
+        // if (val != optionsState) {
+        //     setOptions(val);
+        // }
     }
 
     return (
@@ -154,7 +166,7 @@ const Playground: React.FC = () => {
                 ccMouseCalculationCallback={ccMouseCalculationCallback}
                 label={'Attack'}
                 midiLearn={() => { }}
-                selected={'2'}
+                selected={optionsState}
                 valueUpdateCallback={() => { }}
                 unit={''}
             ></SteppedIndicator>

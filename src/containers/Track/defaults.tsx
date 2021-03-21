@@ -7,8 +7,6 @@ export enum indicators {
     STEPPED_KNOB = 'STEPPED_KNOB',
     VERTICAL_SLIDER = 'slider',
     DROPDOWN = 'dropdown',
-    RADIO = 'radio',
-    // HORIZONTAL_SLID
     WAVEFORM = "WAVEFORM",
     CURVE_TYPE = "CURVE_TYPE"
 }
@@ -30,7 +28,7 @@ const portamentoIndicator = indicators.KNOB; // exponential
 const harmonicityIndicator = indicators.VERTICAL_SLIDER; // exponential 
 const oscillatorTypeIndicator = indicators.WAVEFORM;
 const envelopeTimeIndicator = indicators.KNOB; // exponential 
-const envelopeCurveIndicator = indicators.RADIO;
+const envelopeCurveIndicator = indicators.CURVE_TYPE;
 const modulationIndicator = indicators.VERTICAL_SLIDER; // exponential
 const frequencyIndicator = indicators.KNOB; // exponential 
 const resonanceIndicator = indicators.KNOB; // exponential
@@ -247,7 +245,7 @@ export function getInitials(type: xolombrisxInstruments) {
 const drywetRange = normalRange
 export const timeIndicator = (type: 'frequency' | 'subdivision' | 'ms' = 'subdivision') => {
     if (type === "frequency" || type === 'ms') return indicators.KNOB
-    else return indicators.STEPPED_KNOB
+    else return indicators.DROPDOWN
 }
 export const timeOptions = (type: 'frequency' | 'subdivision' | 'ms' = 'subdivision') => {
     if (type === "frequency") return frequencySpectrum
@@ -263,19 +261,19 @@ export const timeUnit = (type: 'frequency' | 'subdivision' | 'ms' = 'subdivision
 const drywetIndicator = indicators.KNOB;
 const octavesIndicator = indicators.KNOB;
 const qIndicator = indicators.KNOB;
-const rolloffIndicators = indicators.RADIO;
+const rolloffIndicators = indicators.STEPPED_KNOB;
 const bitIndicator = indicators.KNOB;
-const filterTypeIndicator = indicators.RADIO;
+const filterTypeIndicator = indicators.STEPPED_KNOB;
 const baseFrequnecyIndicator = indicators.KNOB;
 const orderIndicator = indicators.KNOB;
-const oversampleIndicator = indicators.RADIO;
+const oversampleIndicator = indicators.STEPPED_KNOB;
 const feedbackIndicator = indicators.KNOB;
 const delayTimeIndicator = indicators.KNOB;
 const spreadIndicator = indicators.KNOB;
 const distortionIndicator = indicators.KNOB;
 const roomSizeIndicator = indicators.KNOB;
 const stageIndicator = indicators.KNOB;
-const pitchIndicator = indicators.STEPPED_KNOB;
+const pitchIndicator = indicators.DROPDOWN;
 const windowSizeIndicator = indicators.KNOB;
 const widthIndicator = indicators.KNOB
 const thresholdIndicator = indicators.KNOB;
@@ -315,7 +313,7 @@ const bitRange = [1, 16]
 const orderRange = [1, 100];
 const spreadRange = [0, 360];
 const stageRange = [1, 10]
-const pitchRange = range(48, -48)
+const pitchRange = range(24, -12)
 const windowSizeRange = [0.03, 0.1]
 const ratioRange = [1, 40];
 const thresholdRange = [-100, 0];
@@ -324,7 +322,7 @@ const gainRange = [-16, 16]
 
 const oversampleOptions = ['2x', '4x', 'none'];
 const filterTypeOptions = ["allpass", "bandpass", "highpass", "highshelf", "lowpass", "lowshelf", "notch", "peaking"]
-const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "4n.", "4t", "8n", "8n", "8t", "16n", "16n", "16t", "32n", "32n", "32t", "64n", "64n", "64t", "128n", "128n", "128t", "256n", "256n", "256t", '0']
+const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "4n.", "4t", "8n", "8n", "8t", "16n", "16n", "16t", "32n", "32n", "32t", "64n", "64n", "64t"]
 
 const wet = [1, drywetRange, drywetUnit, drywetIndicator, curveTypes.LINEAR];
 const halfwet = [0.5, drywetIndicator, drywetUnit, drywetIndicator, curveTypes.LINEAR]

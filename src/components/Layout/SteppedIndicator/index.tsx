@@ -1,8 +1,9 @@
-import React, { useState, useEffect, WheelEvent } from 'react';
+import React, { useState, useEffect, WheelEvent, useContext } from 'react';
 import { propertiesToArray } from '../../../lib/objectDecompose';
 // import {} from '../../'
 // import styles from './knob.module.scss';
 import Knob from './Knob';
+import AppContext from '../../../context/AppContext';
 
 interface SteppedIndicator {
     className?: string;
@@ -21,7 +22,7 @@ export interface indicatorProps {
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
     captureStartDiv?: (e: React.MouseEvent) => void,
     label: string,
-    indicatorData: string,
+    // indicatorData: string,
     options: string[],
     className?: string,
     unit?: string,
@@ -40,6 +41,7 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
     midiLearn,
     unit
 }) => {
+    const appRef = useContext(AppContext);
     const [isMoving, setMovement] = useState(false)
     const [display, setDisplay] = useState(true);
     // const [selectedOption, setOption] = useState('xola');
@@ -48,12 +50,16 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
 
     useEffect(() => {
         if (isMoving && !shouldRemove) {
-            document.addEventListener('mousemove', mouseMove);
-            document.addEventListener('mouseup', stopDrag);
+            // document.addEventListener('mousemove', mouseMove);
+            // document.addEventListener('mouseup', stopDrag);
+            appRef.current.addEventListener('mousemove', mouseMove);
+            appRef.current.addEventListener('mouseup', stopDrag);
 
             return () => {
-                document.removeEventListener('mousemove', mouseMove);
-                document.removeEventListener('mouseup', stopDrag);
+                // document.removeEventListener('mousemove', mouseMove);
+                // document.removeEventListener('mouseup', stopDrag);
+                appRef.current.removeEventListener('mousemove', mouseMove);
+                appRef.current.removeEventListener('mouseup', stopDrag);
             }
         }
     }, [isMoving])
@@ -66,6 +72,9 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         if (e.button === 0) {
             setMovement(true);
             setDisplay(false);
+            appRef.current.requestPointerLock = appRef.current.requestPointerLock || appRef.current.mozRequestPointerLock;
+            appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
+            appRef.current.requestPointerLock();
         }
     };
 
@@ -74,10 +83,11 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         setDisplay(false);
     }
     const stopDrag = (e: MouseEvent) => {
-        document.exitPointerLock();
+        console.log('should be stopping drag');
         setMovement(false);
         setDisplay(true);
         shouldRemove = true;
+        document.exitPointerLock();
     };
 
     const wheelMove = (e: WheelEvent) => {
@@ -110,7 +120,6 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
 
     const knob = <Knob
         captureStart={captureStart}
-        indicatorData={selected}
         options={options}
         label={label}
         wheelMove={wheelMove}
