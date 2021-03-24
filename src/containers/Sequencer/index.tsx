@@ -42,7 +42,7 @@ import { timeObjFromEvent } from '../../lib/utility';
 import Tone from '../../lib/tone';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 
-import Steps from '../../components/Steps/Steps';
+import StepSequencer from '../../components/StepSequencer';
 import Patterns from '../../components/Patterns/Patterns';
 import Playground from '../../components/Layout/Playground';
 import InputKeys from '../../components/Layout/InputKeys';
@@ -102,6 +102,7 @@ const Sequencer: FunctionComponent = () => {
         ) return state.track.present.tracks[selectedTrack].midi.device
         else return undefined;
     })
+
     const keys = useSelector((state: RootState) => {
         // if (selectedDevice) {
         //     return state.midi.devices[selectedDevice]
@@ -164,9 +165,11 @@ const Sequencer: FunctionComponent = () => {
         }
     }, [activePattern, arrangerMode, dispatch]);
 
-    const dispatchSelectPattern = (e: ChangeEvent<HTMLInputElement>): void => {
-        e.preventDefault();
-        let nextPattern: number = e.currentTarget.valueAsNumber;
+    // const dispatchSelectPattern = (e: ChangeEvent<HTMLInputElement>): void => {
+    const dispatchSelectPattern = (key: string): void => {
+        // e.preventDefault();
+        // let nextPattern: number = e.currentTarget.valueAsNumber;
+        let nextPattern: number = Number(key);
         let loopEnd = sequencer.patterns[nextPattern].patternLength;
 
         if (Tone.Transport.state === "started") {
@@ -409,49 +412,60 @@ const Sequencer: FunctionComponent = () => {
     return (
         <div className={styles.bottom}>
             <div className={styles.arrangerColumn}>
-                <div className={styles.patterns}></div>
+                <div className={styles.patterns}>
+                    <Patterns
+                        activePattern={activePattern}
+                        addPattern={dispatchAddPattern}
+                        changePage={dispatchChangePage}
+                        changePatternLength={dispatchChangePatternLength}
+                        changePatternName={dispatchChangePatternName}
+                        changeTrackLength={dispatchChangeTrackLength}
+                        events={events}
+                        page={activePage}
+                        patternAmount={patternAmount}
+                        patternLength={patternLength}
+                        patternNoteLength={patternNoteLength}
+                        patternTrackVelocity={patternTrackVelocity}
+                        removePattern={dispatchRemovePattern}
+                        selectPattern={dispatchSelectPattern}
+                        selected={selected}
+                        // selected={[1, 4]}
+                        setNote={dispatchSetNote}
+                        // setNoteLength={dispatchSetNoteLength}
+                        setPatternNoteLength={dispatchSetPatternNoteLength}
+                        setVelocity={dispatchSetVelocity}
+                        trackLength={trackLength}
+                    ></Patterns>
+                </div>
             </div>
             <div className={styles.sequencerColumn}>
                 <div className={styles.box}>
-                    <div className={styles.stepSequencer}></div>
-                    <div className={styles.keyInput}>
-                        <InputKeys keyState={keys} noteCallback={keyboardOnClick}></InputKeys>
+                    <div className={styles.border}>
+                        <div className={styles.stepSequencer}>
+                            <StepSequencer
+                                changePage={dispatchChangePage}
+                                activePattern={activePattern}
+                                events={events}
+                                length={trackLength}
+                                page={activePage}
+                                selected={selected}
+                                selectedTrack={selectedTrack}
+                            ></StepSequencer>
+                        </div>
+                        <div className={styles.keyInput}>
+                            <InputKeys
+                                setNoteLength={dispatchSetNoteLength}
+                                keyState={keys}
+                                noteCallback={keyboardOnClick}
+                                setNote={dispatchSetNote}></InputKeys>
+                        </div>
                     </div>
                     {/* <Playground></Playground> */}
                 </div>
             </div>
         </div>
         // <div>
-        //     <Patterns
-        //         activePattern={activePattern}
-        //         addPattern={dispatchAddPattern}
-        //         changePage={dispatchChangePage}
-        //         changePatternLength={dispatchChangePatternLength}
-        //         changePatternName={dispatchChangePatternName}
-        //         changeTrackLength={dispatchChangeTrackLength}
-        //         events={events}
-        //         page={activePage}
-        //         patternAmount={patternAmount}
-        //         patternLength={patternLength}
-        //         patternNoteLength={patternNoteLength}
-        //         patternTrackVelocity={patternTrackVelocity}
-        //         removePattern={dispatchRemovePattern}
-        //         selectPattern={dispatchSelectPattern}
-        //         selected={selected}
-        //         setNote={dispatchSetNote}
-        //         setNoteLength={dispatchSetNoteLength}
-        //         setPatternNoteLength={dispatchSetPatternNoteLength}
-        //         setVelocity={dispatchSetVelocity}
-        //         trackLength={trackLength}
-        //     ></Patterns>
-        //     <Steps
-        //         activePattern={activePattern}
-        //         events={events}
-        //         length={trackLength}
-        //         page={activePage}
-        //         selected={selected}
-        //         selectedTrack={selectedTrack}
-        //     ></Steps>
+
 
         // </div>
     )

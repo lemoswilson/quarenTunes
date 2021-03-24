@@ -12,7 +12,8 @@ const Lights: React.FC<Lights> = ({ active, className, width, height }) => {
     const col = active ? '#f1b7c9' : '#fff';
 
     return (
-        <svg width={width} height={height} className={className} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 43 44">
+        <svg width={'100%'} height={'1rem'} className={className} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="5 4 20 20">
+            {/* // <svg className={className} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 43 44"> */}
             <defs>
                 <linearGradient id="a" x1="14.62" y1="11.13" x2="20.45" y2="20.03" gradientUnits="userSpaceOnUse">
                     <stop offset="0" stopColor="#f0f0f0" stopOpacity="0.3" />
@@ -37,7 +38,6 @@ const Lights: React.FC<Lights> = ({ active, className, width, height }) => {
                 </g>
             </g>
         </svg>
-
     )
 }
 

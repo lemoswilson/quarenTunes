@@ -32,6 +32,10 @@ import {
 import { goToActive } from '../../store/Sequencer'
 import Tone from "../../lib/tone";
 import { RootState } from "../Xolombrisx";
+import styles from './style.module.scss';
+import Dropdown from '../../components/Layout/Dropdown';
+import Minus from '../../components/Layout/Icons/Minus';
+import Plus from '../../components/Layout/Icons/Plus';
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;
@@ -83,6 +87,7 @@ const Arranger: FunctionComponent = () => {
 	const arrangerRef = useRef(arrangerObj);
 	useEffect(() => { arrangerRef.current = arrangerObj }, [arrangerObj])
 
+	const currentSong = useSelector((state: RootState) => state.arranger.present.selectedSong);
 	const activeSongObject = useSelector((state: RootState) => state.arranger.present.songs[currentSong]);
 	const activeSongObjectRef = useRef(activeSongObject);
 	useEffect(() => { activeSongObjectRef.current = activeSongObject }, [activeSongObject])
@@ -91,7 +96,6 @@ const Arranger: FunctionComponent = () => {
 	const songPatterns = activeSongObject.events.map(v => v.pattern);
 	const songRepeats = activeSongObject.events.map(v => v.repeat);
 	const songMutes = activeSongObject.events.map(v => v.mute);
-	const currentSong = useSelector((state: RootState) => state.arranger.present.selectedSong);
 	const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
 	const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
 
@@ -529,12 +533,49 @@ const Arranger: FunctionComponent = () => {
 		else return "";
 	}
 
+	const onSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+		event.preventDefault();
+		const input = event.currentTarget.getElementsByTagName('input')[0];
+		// setCounter(Number(input.value));
+	}
 
 
 	return (
-		<div>
-			{trackCount}
-			<div></div>
+		<div className={styles.border}>
+			<div className={styles.top}>
+				<div className={styles.title}><h1>Songs</h1></div>
+				<div className={styles.songSelector}>
+					<div className={styles.selector}>
+						<Dropdown
+							keys={['1', '2']}
+							lookup={function (k) { return k }}
+							onSubmit={onSubmit}
+							select={() => { }}
+							// selected={String(activePattern)}
+							selected={String('monasterio')}
+							className={styles.dropdown}
+						/>
+					</div>
+					<div className={styles.increase}><Plus onClick={() => { }} /></div>
+					<div className={styles.decrease}><Minus onClick={() => { }} /></div>
+				</div>
+			</div>
+			<div className={styles.bottom}>
+				<div className={styles.tableTitle}>
+					<div className={styles.title}><h3>Patterns  |  Repeat </h3></div>
+				</div>
+				<div className={styles.dnd}>
+					<ul>
+						<li>
+							<div className={styles.delete}></div>
+							<div className={styles.selector}></div>
+							<div className={styles.repeat}></div>
+							<div className={styles.increase}></div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			{/* {trackCount} */}
 		</div>
 	);
 };

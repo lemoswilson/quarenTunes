@@ -15,10 +15,12 @@ interface InputKeys {
     // keyState: { [key: string]: boolean },
     keyState: boolean[],
     noteCallback: (noteName: string) => void,
+    setNoteLength: (noteLength: number | string) => void,
+    setNote: (note: string) => void,
 }
 
 
-const InputKeys: React.FC<InputKeys> = ({ keyState, noteCallback }) => {
+const InputKeys: React.FC<InputKeys> = ({ keyState, noteCallback, setNoteLength, setNote }) => {
     const initObj: { [noteNumber: number]: boolean } = {};
     [...Array(128).keys()].forEach((val, idx, arr) => { initObj[idx] = false })
     const onStyleWhite = { fill: "#e2cea7" }

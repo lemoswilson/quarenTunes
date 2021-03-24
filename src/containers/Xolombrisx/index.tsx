@@ -28,6 +28,7 @@ import styles from './xolombrisx.module.scss'
 import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
 import Playground from '../../components/Layout/Playground';
+import Arranger from "../Arranger";
 
 declare global {
     interface Window {
@@ -433,6 +434,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                         <div className={styles.mid}>
                                             <div className={styles.arrangerColumn}>
                                                 <div className={styles.box}>
+                                                    <Arranger />
                                                 </div>
                                             </div>
                                             <Track></Track>

@@ -1,5 +1,11 @@
 import React, { ChangeEvent, FormEvent, useRef, RefObject, MutableRefObject } from 'react';
 import { event } from '../../store/Sequencer'
+import styles from './style.module.scss';
+import Dropdown from '../Layout/Dropdown';
+import Plus from '../Layout/Icons/Plus';
+import Minus from '../Layout/Icons/Minus';
+import LengthEditor from '../Layout/LengthEditor';
+
 
 
 interface Patterns {
@@ -11,17 +17,18 @@ interface Patterns {
     changeTrackLength: (newLength: number, ref: RefObject<HTMLFormElement>) => void,
     changePatternLength: (newLength: number, ref: RefObject<HTMLFormElement>) => void,
     addPattern: () => void,
-    selectPattern: (e: ChangeEvent<HTMLInputElement>) => void,
+    // selectPattern: (e: ChangeEvent<HTMLInputElement>) => void,
+    selectPattern: (key: string) => void,
     changePatternName: (name: string) => void,
     removePattern: () => void,
     patternTrackVelocity: number,
     events: event[],
     patternNoteLength: string | number,
     page: number,
-    setNote: (note: string[]) => void,
+    setNote: (note: string) => void,
     setPatternNoteLength: (length: number | string) => void,
     changePage: (pageIndex: number) => void,
-    setNoteLength: (noteLength: number | string) => void,
+    // setNoteLength: (noteLength: number | string) => void,
     setVelocity: (velocity: number) => void
 }
 
@@ -42,7 +49,7 @@ const Patterns: React.FC<Patterns> = ({
     selectPattern,
     selected,
     setNote,
-    setNoteLength,
+    // setNoteLength,
     setPatternNoteLength,
     setVelocity,
     trackLength,
@@ -74,19 +81,19 @@ const Patterns: React.FC<Patterns> = ({
         changePatternLength(newLength, patternLengthRef)
     };
 
-    const inputNoteForm = (e: FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-        if (!selected) {
-            alert('noStepSelected')
-        } else {
-            let value: string | string[] = noteInputRef.current ? noteInputRef.current.value : '';
-            value = value.split(',');
-            let newValue = value.map(e => e.trim());
-            newValue = newValue[0] === '' ? [] : newValue;
-            setNote(newValue);
-        }
-        e.currentTarget.reset();
-    };
+    // const inputNoteForm = (e: FormEvent<HTMLFormElement>): void => {
+    //     e.preventDefault();
+    //     if (!selected) {
+    //         alert('noStepSelected')
+    //     } else {
+    //         let value: string | string[] = noteInputRef.current ? noteInputRef.current.value : '';
+    //         value = value.split(',');
+    //         let newValue = value.map(e => e.trim());
+    //         newValue = newValue[0] === '' ? [] : newValue;
+    //         setNote(newValue);
+    //     }
+    //     e.currentTarget.reset();
+    // };
 
     const inputVelocityForm = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
@@ -98,16 +105,16 @@ const Patterns: React.FC<Patterns> = ({
         }
     };
 
-    const noteLengthForm = (e: FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-        let value: string = noteLengthRef.current ? noteLengthRef.current.value : '';
-        value = value.trim();
-        if (selected.length < 1) {
-            setPatternNoteLength(value);
-        } else {
-            setNoteLength(value);
-        }
-    };
+    // const noteLengthForm = (e: FormEvent<HTMLFormElement>): void => {
+    //     e.preventDefault();
+    //     let value: string = noteLengthRef.current ? noteLengthRef.current.value : '';
+    //     value = value.trim();
+    //     if (selected.length < 1) {
+    //         setPatternNoteLength(value);
+    //     } else {
+    //         setNoteLength(value);
+    //     }
+    // };
 
     // Conditional elements logic
     const rPattern = patternAmount > 1 ? <span onClick={removePattern}>-</span> : null;
@@ -152,13 +159,57 @@ const Patterns: React.FC<Patterns> = ({
         }
     }
 
+    const onSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+        const input = event.currentTarget.getElementsByTagName('input')[0];
+        // setCounter(Number(input.value));
+    }
+
     return (
-        <div>
-            <form ref={trackLengthRef} action=""></form>
+        <div className={styles.border}>
+            <div className={styles.title}>
+                <h1>{selected.length > 0 ? "Note" : "Patterns"}</h1>
+            </div>
+            <div className={styles.overlay}>
+                <div className={styles.top} style={{ display: selected.length > 0 ? 'none' : 'grid' }}>
+                    <div className={styles.selector}>
+                        <Dropdown
+                            keys={['1', '2']}
+                            lookup={function (k) { return k }}
+                            onSubmit={onSubmit}
+                            select={selectPattern}
+                            // selected={String(activePattern)}
+                            selected={String('monasterio')}
+                            className={styles.dropdown}
+                        />
+                    </div>
+                    <div className={styles.increase}><Plus onClick={() => { }} /></div>
+                    <div className={styles.decrease}><Minus onClick={() => { }} /></div>
+                </div>
+                <div className={styles.mid} style={{ marginTop: selected.length > 0 ? '0' : '1rem' }}>
+                    <LengthEditor
+                        length={12}
+                        decrease={() => { }}
+                        increase={() => { }}
+                        label={selected.length > 0 ? "Vel" : 'Track'}
+                        onSubmit={() => { }}
+                    />
+                </div>
+                <div className={styles.bottom}>
+                    <LengthEditor
+                        length={12}
+                        decrease={() => { }}
+                        increase={() => { }}
+                        label={selected.length > 0 ? "Offset" : 'Pattern'}
+                        onSubmit={() => { }}
+                    />
+                </div>
+            </div>
+            {/* <form ref={trackLengthRef} action=""></form>
             <form ref={patternLengthRef} action=""></form>
             <input ref={trackLengthInputRef} type="text" />
             <input ref={patternLengthInputRef} type="text" />
-            <input ref={noteInputRef} type="text" />
+            <input ref={noteInputRef} type="text" /> */}
         </div>
     )
 }

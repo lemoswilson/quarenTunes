@@ -12,7 +12,7 @@ import Stop from '../Layout/Stop';
 import Play from '../Layout/Play';
 import Record from '../Layout/Record';
 import StepsEditor from '../Layout/StepsEditor';
-import StepLayout from '../Layout/Step';
+import StepLayout from './Step';
 import InputKeys from './InputKeys';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../containers/Xolombrisx';
