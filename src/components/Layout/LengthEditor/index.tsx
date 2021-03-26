@@ -7,9 +7,9 @@ interface LegnthEditorProps {
     increase: () => void;
     decrease: () => void;
     label: string;
-    onSubmit: () => void;
+    onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
     className?: string;
-    length: number;
+    length: number | string;
 }
 
 const LengthEditor: React.FC<LegnthEditorProps> = ({
@@ -21,8 +21,9 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
     length
 }) => {
 
-    const onBlur = () => {
-
+    const onBlur = (event: React.FocusEvent<HTMLFormElement>) => {
+        const input = event.currentTarget.getElementsByTagName('input')[0]
+        input.value = String(length);
     }
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +37,7 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
             <div className={styles.display}>
                 <div className={styles.box}>
                     <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                        <input type={"number"} defaultValue={length} placeholder={String(length)} />
+                        <input ref={inputRef} type={"text"} defaultValue={length} placeholder={String(length)} />
                     </form>
                 </div>
             </div>

@@ -36,6 +36,9 @@ import styles from './style.module.scss';
 import Dropdown from '../../components/Layout/Dropdown';
 import Minus from '../../components/Layout/Icons/Minus';
 import Plus from '../../components/Layout/Icons/Plus';
+import NumberBox from '../../components/Layout/NumberBox';
+
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;
@@ -539,6 +542,15 @@ const Arranger: FunctionComponent = () => {
 		// setCounter(Number(input.value));
 	}
 
+	const onDragEnd = (result: DropResult) => {
+		if (!result.destination) {
+			return;
+		}
+
+		const source = result.source.index;
+		const destination = result.destination.index;
+	}
+
 
 	return (
 		<div className={styles.border}>
@@ -551,6 +563,7 @@ const Arranger: FunctionComponent = () => {
 							lookup={function (k) { return k }}
 							onSubmit={onSubmit}
 							select={() => { }}
+							renamable={true}
 							// selected={String(activePattern)}
 							selected={String('monasterio')}
 							className={styles.dropdown}
@@ -565,14 +578,53 @@ const Arranger: FunctionComponent = () => {
 					<div className={styles.title}><h3>Patterns  |  Repeat </h3></div>
 				</div>
 				<div className={styles.dnd}>
-					<ul>
-						<li>
-							<div className={styles.delete}></div>
-							<div className={styles.selector}></div>
-							<div className={styles.repeat}></div>
-							<div className={styles.increase}></div>
-						</li>
-					</ul>
+					<DragDropContext onDragEnd={() => { }}>
+						<Droppable droppableId={'arranger'}>
+							{(provided) => (
+								<ul {...provided.droppableProps} ref={provided.innerRef}>
+									{/* {activeSongObject.events.map((songEvent, idx, arr) => { */}
+									{['xolombris', 'mamute'].map((songEvent, idx, arr) => {
+										return (
+											// <Draggable key={songEvent.id} draggableId={'arranger'} index={idx} >
+											<Draggable key={idx} draggableId={songEvent} index={idx} >
+												{(xaxa) => (
+													// <li key={songEvent.id} style={{ zIndex: arr.length - idx }}{...provided.dragHandleProps} ref={provided.innerRef}>
+													<li key={songEvent} style={{ zIndex: arr.length - idx }}{...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef}>
+														<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
+														{/* <div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={String(songEvent.pattern)} /></div> */}
+														<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={String("charmander")} /></div>
+														{/* <div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={songEvent.repeat} /></div> */}
+														<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={idx} /></div>
+														<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
+													</li>
+												)}
+											</Draggable>
+										)
+									})}
+									{/* <li style={{ zIndex: 2 }} className={styles.charmander}>
+									<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
+									<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={'pastel'} /></div>
+									<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={10} /></div>
+									<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
+								</li>
+								<li style={{ zIndex: 1 }}>
+									<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
+									<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={'pastel'} /></div>
+									<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={10} /></div>
+									<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
+								</li>
+								<li>
+									<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
+									<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={'pastel'} /></div>
+									<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={10} /></div>
+									<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
+								</li> */}
+									{provided.placeholder}
+								</ul>
+							)}
+						</Droppable>
+
+					</DragDropContext>
 				</div>
 			</div>
 			{/* {trackCount} */}

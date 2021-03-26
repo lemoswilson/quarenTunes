@@ -9,8 +9,9 @@ interface Dropdown {
     select: (key: string) => void;
     lookup: (key: string) => string;
     className?: string;
-    onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+    onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
     small?: boolean;
+    renamable?: boolean;
 }
 
 const Dropdown: React.FC<Dropdown> = ({
@@ -20,6 +21,7 @@ const Dropdown: React.FC<Dropdown> = ({
     lookup,
     className,
     onSubmit,
+    renamable,
     small
 }) => {
     const [isOpen, toggleState] = useState(false);
@@ -70,13 +72,25 @@ const Dropdown: React.FC<Dropdown> = ({
         })}
     </div>
 
+    const form = renamable
+        ? (
+            <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
+                <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} />
+            </form>
+        ) : (
+            <form className={styles.text}>
+                <input readOnly={true} ref={inputRef} value={lookup(selected)} type='text' placeholder={lookup(selected)} />
+            </form>
+        )
+
     return (
         <div className={`${styleToggle} ${className}`}>
             <div className={styles.selected}>
                 <div className={styles.whitespace}></div>
-                <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
+                {form}
+                {/* <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
                     <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} />
-                </form>
+                </form> */}
                 <div onClick={openClose} className={styles.arrow}><Polygon className={polygonToggleStyle} /></div>
             </div>
             {isOpen ? optionsList : null}

@@ -4,22 +4,22 @@ import styles from './style.module.scss';
 import minus from '../../../../assets/minus.svg';
 
 interface Minus {
-    width?: string | number;
-    height?: string | number;
+    // width?: string | number;
+    // height?: string | number;
     className?: string;
     onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    small?: boolean;
 }
 
 
 
-const Minus: React.FC<Minus> = ({ className, onClick, width, height }) => {
+const Minus: React.FC<Minus> = ({ className, onClick, small }) => {
 
-    const w = width ? width : '100%';
-    const h = height ? height : '100%';
+    const sty = small ? { marginLeft: '0.075rem', marginTop: '0.08rem' } : {};
 
     return (
-        <ButtonBackground onClick={onClick} className={`${className} ${styles.hover}`}>
-            <img className={styles.svg} src={minus} alt='plus' width={width} height={height} />
+        <ButtonBackground smallCircle={small} onClick={onClick} className={`${className} ${styles.hover}`}>
+            <img style={sty} className={styles.svg} src={minus} alt='plus' width={'100%'} height={"100%"} />
         </ButtonBackground>
     )
 }

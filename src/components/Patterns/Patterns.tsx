@@ -12,10 +12,10 @@ interface Patterns {
     activePattern: number,
     selected: number[],
     patternLength: string | number,
-    trackLength: string | number,
+    trackLength: number,
     patternAmount: number,
-    changeTrackLength: (newLength: number, ref: RefObject<HTMLFormElement>) => void,
-    changePatternLength: (newLength: number, ref: RefObject<HTMLFormElement>) => void,
+    changeTrackLength: (newLength: number) => void,
+    changePatternLength: (newLength: number) => void,
     addPattern: () => void,
     // selectPattern: (e: ChangeEvent<HTMLInputElement>) => void,
     selectPattern: (key: string) => void,
@@ -26,7 +26,7 @@ interface Patterns {
     patternNoteLength: string | number,
     page: number,
     setNote: (note: string) => void,
-    setPatternNoteLength: (length: number | string) => void,
+    setPatternNoteLength: (length: string) => void,
     changePage: (pageIndex: number) => void,
     // setNoteLength: (noteLength: number | string) => void,
     setVelocity: (velocity: number) => void
@@ -64,22 +64,22 @@ const Patterns: React.FC<Patterns> = ({
     const velocityRef = useRef<HTMLInputElement>(null);
     const noteLengthRef = useRef<HTMLInputElement>(null);
 
-    const changePatternNameHandler = (e: FormEvent<HTMLFormElement | undefined>): void => {
-        e.preventDefault();
-        patternNameInput.current && changePatternName(patternNameInput.current.value);
-    };
+    // const changePatternNameHandler = (e: FormEvent<HTMLFormElement | undefined>): void => {
+    //     e.preventDefault();
+    //     patternNameInput.current && changePatternName(patternNameInput.current.value);
+    // };
 
-    const changeTrackLengthHandler = (e: FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-        let newLength = trackLengthInputRef.current ? trackLengthInputRef.current.valueAsNumber : 0;
-        trackLengthRef.current && changeTrackLength(newLength, trackLengthRef);
-    };
+    // const changeTrackLengthHandler = (e: FormEvent<HTMLFormElement>): void => {
+    //     e.preventDefault();
+    //     let newLength = trackLengthInputRef.current ? trackLengthInputRef.current.valueAsNumber : 0;
+    //     trackLengthRef.current && changeTrackLength(newLength, trackLengthRef);
+    // };
 
-    const changePatternLengthHandler = (e: FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-        let newLength = patternLengthInputRef.current ? patternLengthInputRef.current.valueAsNumber : 0;
-        changePatternLength(newLength, patternLengthRef)
-    };
+    // const changePatternLengthHandler = (e: FormEvent<HTMLFormElement>): void => {
+    //     e.preventDefault();
+    //     let newLength = patternLengthInputRef.current ? patternLengthInputRef.current.valueAsNumber : 0;
+    //     changePatternLength(newLength, patternLengthRef)
+    // };
 
     // const inputNoteForm = (e: FormEvent<HTMLFormElement>): void => {
     //     e.preventDefault();
@@ -95,15 +95,15 @@ const Patterns: React.FC<Patterns> = ({
     //     e.currentTarget.reset();
     // };
 
-    const inputVelocityForm = (e: FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-        if (!selected) {
-            alert('noStepSelected');
-        } else {
-            let value = velocityRef.current ? velocityRef.current.valueAsNumber : 0;
-            setVelocity(value);
-        }
-    };
+    // const inputVelocityForm = (e: FormEvent<HTMLFormElement>): void => {
+    //     e.preventDefault();
+    //     if (!selected) {
+    //         alert('noStepSelected');
+    //     } else {
+    //         let value = velocityRef.current ? velocityRef.current.valueAsNumber : 0;
+    //         setVelocity(value);
+    //     }
+    // };
 
     // const noteLengthForm = (e: FormEvent<HTMLFormElement>): void => {
     //     e.preventDefault();
@@ -117,53 +117,107 @@ const Patterns: React.FC<Patterns> = ({
     // };
 
     // Conditional elements logic
-    const rPattern = patternAmount > 1 ? <span onClick={removePattern}>-</span> : null;
+    // const rPattern = patternAmount > 1 ? <span onClick={removePattern}>-</span> : null;
 
-    const pageStyle = (index: number): { backgroundColor: string } | undefined => {
-        return index === page ? { backgroundColor: 'red' } : undefined;
-    };
+    // const pageStyle = (index: number): { backgroundColor: string } | undefined => {
+    //     return index === page ? { backgroundColor: 'red' } : undefined;
+    // };
 
-    const TrkLengthPlaceHolder = trackLength;
+    // const TrkLengthPlaceHolder = trackLength;
 
-    const notePlaceHolder = () => {
-        if (selected.length > 1) {
-            return '*';
-        } else if (selected.length === 1) {
-            return events[selected[0]].instrument['note']
-                ? events[selected[0]].instrument.note?.join(',')
-                : 'noNote';
-        } else {
-            return 'Input Note';
-        }
-    };
+    // const notePlaceHolder = () => {
+    //     if (selected.length > 1) {
+    //         return '*';
+    //     } else if (selected.length === 1) {
+    //         return events[selected[0]].instrument['note']
+    //             ? events[selected[0]].instrument.note?.join(',')
+    //             : 'noNote';
+    //     } else {
+    //         return 'Input Note';
+    //     }
+    // };
 
-    const velocityPaceholder = (): string | number => {
-        if (selected.length > 1) {
-            return 'mais do que um selecionado'
-        } else if (selected.length === 1) {
-            const v = events[selected[0]].instrument.velocity
-            return v ? v : patternTrackVelocity
-        } else {
-            return patternTrackVelocity;
-        }
-    }
+    // const velocityPaceholder = (): string | number => {
+    //     if (selected.length > 1) {
+    //         return 'mais do que um selecionado'
+    //     } else if (selected.length === 1) {
+    //         const v = events[selected[0]].instrument.velocity
+    //         return v ? v : patternTrackVelocity
+    //     } else {
+    //         return patternTrackVelocity;
+    //     }
+    // }
 
-    const noteLengthPlaceholder = (): string | number => {
-        if (selected.length > 1) {
-            return 'mais do que um selecionado'
-        } else if (selected.length === 1) {
-            const l = events[selected[0]].instrument.length
-            return l ? l : patternNoteLength
-        } else {
-            return patternNoteLength;
-        }
-    }
+    // const noteLengthPlaceholder = (): string | number => {
+    //     if (selected.length > 1) {
+    //         return 'mais do que um selecionado'
+    //     } else if (selected.length === 1) {
+    //         const l = events[selected[0]].instrument.length
+    //         return l ? l : patternNoteLength
+    //     } else {
+    //         return patternNoteLength;
+    //     }
+    // }
 
-    const onSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+    const patternSelectorSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
         // setCounter(Number(input.value));
-    }
+    };
+
+    const trackLengthSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+        const input = event.currentTarget.getElementsByTagName('input')[0];
+        let data = Number(trackLength);
+        if (Number(input.value) >= 0 && Number(input.value) <= 64) {
+            data = Number(input.value);
+            changeTrackLength(data);
+        };
+        input.value = String(data);
+    };
+
+    const patternLengthSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+        const input = event.currentTarget.getElementsByTagName('input')[0];
+        let data = Number(patternLength);
+        if (Number(input.value) >= 0 && Number(input.value) <= 64) {
+            data = Number(input.value);
+            changePatternLength(data);
+        };
+        input.value = String(data);
+    };
+
+    const velocitySubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+        const input = event.currentTarget.getElementsByTagName('input')[0];
+        let data =
+            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+                ? Number(events[selected[0]].instrument.velocity)
+                : selected.length === 0
+                    ? trackLength
+                    : '*'
+        if (Number(input.value) >= 0 && Number(input.value) <= 127) {
+            data = Number(input.value);
+            changeTrackLength(data);
+        };
+        input.value = String(data);
+    };
+
+    const offsetSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+        const input = event.currentTarget.getElementsByTagName('input')[0];
+        let data =
+            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
+                ? Number(events[selected[0]].instrument.offset)
+                : selected.length === 0
+                    ? patternLength
+                    : '*'
+        if (Number(input.value) >= -100 && Number(input.value) <= 100) {
+            data = Number(input.value);
+            changeTrackLength(data);
+        };
+        input.value = String(data);
+    };
 
     return (
         <div className={styles.border}>
@@ -176,8 +230,9 @@ const Patterns: React.FC<Patterns> = ({
                         <Dropdown
                             keys={['1', '2']}
                             lookup={function (k) { return k }}
-                            onSubmit={onSubmit}
+                            onSubmit={patternSelectorSubmit}
                             select={selectPattern}
+                            renamable={true}
                             // selected={String(activePattern)}
                             selected={String('monasterio')}
                             className={styles.dropdown}
@@ -188,20 +243,32 @@ const Patterns: React.FC<Patterns> = ({
                 </div>
                 <div className={styles.mid} style={{ marginTop: selected.length > 0 ? '0' : '1rem' }}>
                     <LengthEditor
-                        length={12}
+                        length={
+                            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+                                ? Number(events[selected[0]].instrument.velocity)
+                                : selected.length === 0
+                                    ? trackLength
+                                    : '*'
+                        }
                         decrease={() => { }}
                         increase={() => { }}
                         label={selected.length > 0 ? "Vel" : 'Track'}
-                        onSubmit={() => { }}
+                        onSubmit={selected.length > 0 ? velocitySubmit : trackLengthSubmit}
                     />
                 </div>
                 <div className={styles.bottom}>
                     <LengthEditor
-                        length={12}
+                        length={
+                            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
+                                ? Number(events[selected[0]].instrument.offset)
+                                : selected.length === 0
+                                    ? patternLength
+                                    : '*'
+                        }
                         decrease={() => { }}
                         increase={() => { }}
                         label={selected.length > 0 ? "Offset" : 'Pattern'}
-                        onSubmit={() => { }}
+                        onSubmit={selected.length ? offsetSubmit : patternLengthSubmit}
                     />
                 </div>
             </div>

@@ -139,7 +139,6 @@ const Sequencer: FunctionComponent = () => {
 
     const dispatchChangeTrackLength = (
         newLength: number,
-        Ref: RefObject<HTMLFormElement>
     ): void => {
         if (newLength <= 64 && newLength >= 1) {
             const nl = bbsFromSixteenth(newLength)
@@ -154,8 +153,7 @@ const Sequencer: FunctionComponent = () => {
     };
 
     const dispatchChangePatternLength = useCallback((
-        newLength: number,
-        ref: RefObject<HTMLFormElement>
+        newLength: number
     ): void => {
         if (newLength >= 1) {
             if (arrangerMode === "pattern") {
@@ -265,7 +263,7 @@ const Sequencer: FunctionComponent = () => {
         });
     };
 
-    const dispatchSetPatternNoteLength = (length: number | string) => {
+    const dispatchSetPatternNoteLength = (length: string) => {
         dispatch(
             setPatternNoteLength(
                 activePattern,
@@ -455,6 +453,10 @@ const Sequencer: FunctionComponent = () => {
                         <div className={styles.keyInput}>
                             <InputKeys
                                 setNoteLength={dispatchSetNoteLength}
+                                setPatternNoteLength={dispatchSetPatternNoteLength}
+                                patternNoteLength={patternNoteLength}
+                                selected={selected}
+                                events={events}
                                 keyState={keys}
                                 noteCallback={keyboardOnClick}
                                 setNote={dispatchSetNote}></InputKeys>

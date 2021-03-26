@@ -11,16 +11,33 @@ import styles from './style.module.scss'
 import { numberToNote, blackOrWhite } from '../../../store/MidiInput';
 import toneRefEmitter, { trackEventTypes, ExtractTrackPayload } from '../../../lib/toneRefsEmitter';
 
+import { subdivisionOptions } from '../../../containers/Track/defaults';
+
+import { event } from '../../../store/Sequencer/'
+
 interface InputKeys {
     // keyState: { [key: string]: boolean },
     keyState: boolean[],
     noteCallback: (noteName: string) => void,
-    setNoteLength: (noteLength: number | string) => void,
+    setNoteLength: (noteLength: string) => void,
+    setPatternNoteLength: (noteLength: string) => void,
     setNote: (note: string) => void,
+    patternNoteLength: string | number,
+    selected: number[],
+    events: event[]
 }
 
 
-const InputKeys: React.FC<InputKeys> = ({ keyState, noteCallback, setNoteLength, setNote }) => {
+const InputKeys: React.FC<InputKeys> = ({
+    keyState,
+    noteCallback,
+    setNoteLength,
+    setNote,
+    setPatternNoteLength,
+    events,
+    patternNoteLength,
+    selected,
+}) => {
     const initObj: { [noteNumber: number]: boolean } = {};
     [...Array(128).keys()].forEach((val, idx, arr) => { initObj[idx] = false })
     const onStyleWhite = { fill: "#e2cea7" }
@@ -73,6 +90,14 @@ const InputKeys: React.FC<InputKeys> = ({ keyState, noteCallback, setNoteLength,
             setRange((state) => state - 1);
     }
 
+    const selectedNoteLength =
+        selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.length).every((val, i, arr) => val === arr[0])
+            ? events[selected[0]].instrument.length
+            : selected.length === 0
+                ? patternNoteLength
+                : '*'
+
+
     return (
         <div className={styles.wrapper}>
             {/* <div onClick={justEmit} className={styles.wrapper}> */}
@@ -93,7 +118,7 @@ const InputKeys: React.FC<InputKeys> = ({ keyState, noteCallback, setNoteLength,
                         <span className={styles.move}>Note Length</span>
                     </div>
                     <div className={styles.select}>
-                        <Dropdown small={true} onSubmit={() => { }} className={''} selected={'1'} lookup={(key) => key} keys={['1', '2', '3', '4', '5', '6', '7', '8', '9']} select={() => { }}></Dropdown>
+                        <Dropdown small={true} onSubmit={() => { }} className={''} selected={String(selectedNoteLength)} lookup={(key) => key} keys={subdivisionOptions} select={(length) => { setPatternNoteLength(length) }}></Dropdown>
                         {/* dropdown here */}
                     </div>
                 </div>

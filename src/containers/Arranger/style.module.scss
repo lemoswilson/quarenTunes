@@ -140,7 +140,7 @@
             // justify-content: flex-end;
             
             ul {
-                border: 1px solid black;
+                // border: 1px solid black;
                 // margin: 0;
                 width: 100%;
                 height: 90%;
@@ -149,38 +149,59 @@
                 flex-direction: column;
                 align-items: center;
                 padding: 0;
+                margin: 0;
 
                 li {
+                    margin-top: 0.8rem;
                     height: 2.1rem;
                     width: 100%;
                     list-style: none;
-                    border: 1px solid black;
+                    // border: 1px solid black;
                     display: grid;
                     grid-gap: 0.19rem;
-                    grid-template-columns: 14% 7.1rem 2rem 14%;
+                    grid-template-columns: 14% 7.1rem 2.4rem auto;
                     // margin: 0;
                     // margin-right: 1rem;
 
                     .delete {
-                        border-right: 1px solid green;
+                        // border-right: 1px solid green;
+                        display: flex;
                         @include center;
                     }
 
                     .selector {
-                        border-right: 1px solid black;
-                        @include center;
+                        // border-right: 1px solid black;
+                        display: flex;
+                        align-items: flex-start;
+                        justify-content: center;
+                        position: relative;
+
+                        .out {
+                            position: absolute;
+                            top: 0.05rem;
+                        }
                     }
 
                     .repeat {
-                        border-right: 1px solid black;
+                        // border-right: 1px solid black;
+                        display: flex;
                         @include center;
                     }
 
-                    .increase {
-                        border-right: 1px solid red;
+                    .add {
+                        // border-right: 1px solid red;
+                        display: flex;
                         @include center;
                     }
                 }
+
+                // &:first-child {
+                //     margin-top: 0.5rem;
+                // }
+
+                // .charmander {
+                //     margin-top: 0.02rem;
+                // }
             }
         }
     }

@@ -56,7 +56,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                     <div className={styles.pages}>
                         {range(Math.ceil(length / 16)).map(p => {
                             return (
-                                <div onClick={() => { changePage(p) }} className={styles.pageSelector}>
+                                <div key={p} onClick={() => { changePage(p) }} className={styles.pageSelector}>
                                     <div style={{ backgroundColor: p == page ? "#ea8686" : "white" }} className={styles.indicator}></div>
                                 </div>
                             )

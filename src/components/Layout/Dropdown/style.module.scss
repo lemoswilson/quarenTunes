@@ -1,5 +1,7 @@
 @import '../../../style/variables';
 
+$hei: 1.9rem;
+
 html {
 
     .closed {
@@ -15,7 +17,7 @@ html {
 
         .selected {
             width: 100%;
-            height: 1.9rem;
+            height: $hei;
             position: relative;
             display: grid;
             grid-template-columns: 15% 60% auto;
