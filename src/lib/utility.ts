@@ -4,6 +4,10 @@ export function range(size: number, startAt: number = 0): number[] {
     return [...Array(size).keys()].map(i => i + startAt);
 };
 
+export function startEndRange(start: number, end: number): number[] {
+    return Array(end - start + 1).fill(null).map((_, idx) => start + idx)
+}
+
 export function timeObjFromEvent(step: number, event: any, isEvent: boolean = true): any {
     return {
         '16n': step,

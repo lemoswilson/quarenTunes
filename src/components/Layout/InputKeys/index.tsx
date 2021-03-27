@@ -91,7 +91,7 @@ const InputKeys: React.FC<InputKeys> = ({
     }
 
     const selectedNoteLength =
-        selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.length).every((val, i, arr) => val === arr[0])
+        selected.length >= 1 && selected.map(id => events[id].instrument.length).every((val, i, arr) => val === arr[0])
             ? events[selected[0]].instrument.length
             : selected.length === 0
                 ? patternNoteLength
@@ -118,7 +118,7 @@ const InputKeys: React.FC<InputKeys> = ({
                         <span className={styles.move}>Note Length</span>
                     </div>
                     <div className={styles.select}>
-                        <Dropdown small={true} onSubmit={() => { }} className={''} selected={String(selectedNoteLength)} lookup={(key) => key} keys={subdivisionOptions} select={(length) => { setPatternNoteLength(length) }}></Dropdown>
+                        <Dropdown renamable={false} keyValue={subdivisionOptions.map(value => [value, value])} small={true} onSubmit={() => { }} className={''} selected={String(selectedNoteLength)} lookup={(key) => key} keys={subdivisionOptions} select={(length) => { setPatternNoteLength(length) }}></Dropdown>
                         {/* dropdown here */}
                     </div>
                 </div>

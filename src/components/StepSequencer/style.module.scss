@@ -97,6 +97,7 @@
                     @include shadow(0.3rem, 0.3rem, 0.5rem);
                     display: flex;
                     @include center;
+                    margin-left: 0.3rem;
 
                     .indicator {
                         // margin-left: 0.05Vjrem;

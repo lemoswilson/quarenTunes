@@ -12,13 +12,18 @@ export enum sequencerActions {
 	GO_TO_ACTIVE = "GO_TO_ACTIVE",
 	TOGGLE_OVERRIDE = "TOGGLE_OVERRIDE",
 	TOGGLE_RECORDING_QUANTIZATION = "TOGGLE_RECORDING_QUANTIZATION",
+	RENAME_PATTERN = "RENAME_PATTERN",
 	DUPLICATE_PATTERN = "DUPLICATE_PATTERN",
 	ADD_PATTERN = "ADD_PATTERN",
 	CHANGE_TRACK_LENGTH = "CHANGE_TRACK_LENGTH",
+	INC_DEC_TRACK_LENGTH = "INC_DEC_TRACK_LENGTH",
+	INC_DEC_VELOCITY = "INC_DEC_VELOCITY",
+	INC_DEC_OFFSET = "INC_DEC_OFFSET",
 	SET_NOTE_LENGTH = "SET_NOTE_LENGTH",
 	DELETE_EVENTS = "DELTE_EVENTS",
 	SELECT_STEP = "SELECT_STEP",
 	CHANGE_PATTERN_LENGTH = "CHANGE_PATTERN_LENGTH",
+	INC_DEC_PAT_LENGTH = "INC_DEC_PAT_LENGTH",
 	SELECT_PATTERN = "SELECT_PATTERN",
 	CHANGE_PAGE = "CHANGE_PAGE",
 	CHANGE_PATTERN_NAME = "CHANGE_PATTERN_NAME",
@@ -71,6 +76,51 @@ export interface Sequencer {
 	override: boolean;
 	quantizeRecording: boolean;
 };
+
+export interface renamePatternAction {
+	type: sequencerActions.RENAME_PATTERN,
+	payload: {
+		pattern: number,
+		name: string,
+	}
+}
+
+export interface increaseDecreaseVelocityAction {
+	type: sequencerActions.INC_DEC_VELOCITY,
+	payload: {
+		pattern: number,
+		track: number,
+		step: number,
+		amount: number,
+	}
+}
+
+export interface increaseDecreaseOffsetAction {
+	type: sequencerActions.INC_DEC_OFFSET,
+	payload: {
+		pattern: number,
+		track: number,
+		step: number,
+		amount: number,
+	}
+}
+
+export interface increaseDecreaesePatternLengthAction {
+	type: sequencerActions.INC_DEC_PAT_LENGTH,
+	payload: {
+		pattern: number,
+		amount: number,
+	}
+}
+
+export interface increaseDecreaeseTrackLengthAction {
+	type: sequencerActions.INC_DEC_TRACK_LENGTH,
+	payload: {
+		pattern: number,
+		track: number,
+		amount: number,
+	}
+}
 
 export interface setPatternTrackVelocityAction {
 	type: sequencerActions.SET_PATTERN_TRACK_VELOCITY,
@@ -347,4 +397,9 @@ export type sequencerActionTypes =
 	| addEffectAction
 	| removeEffectAction
 	| changeEffectIndexAction
+	| increaseDecreaeseTrackLengthAction
+	| increaseDecreaesePatternLengthAction
+	| increaseDecreaseOffsetAction
+	| increaseDecreaseVelocityAction
+	| renamePatternAction
 	| removeInstrumentFromSequencerAction;

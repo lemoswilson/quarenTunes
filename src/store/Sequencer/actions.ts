@@ -1,5 +1,61 @@
 import { sequencerActions, sequencerActionTypes } from "./types";
 
+export function renamePattern(pattern: number, name: string): sequencerActionTypes {
+	return {
+		type: sequencerActions.RENAME_PATTERN,
+		payload: {
+			pattern: pattern,
+			name: name,
+		}
+	}
+}
+
+export function incDecVelocity(amount: number, pattern: number, track: number, step: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.INC_DEC_VELOCITY,
+		payload: {
+			amount: amount,
+			pattern: pattern,
+			step: step,
+			track: track,
+		}
+	}
+}
+
+export function incDecOffset(amount: number, pattern: number, track: number, step: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.INC_DEC_OFFSET,
+		payload: {
+			amount: amount,
+			pattern: pattern,
+			step: step,
+			track: track,
+		}
+	}
+}
+
+export function incDecPatLength(amount: number, pattern: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.INC_DEC_PAT_LENGTH,
+		payload: {
+			amount: amount,
+			pattern: pattern
+		}
+	}
+}
+
+
+export function incDecTrackLength(amount: number, pattern: number, track: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.INC_DEC_TRACK_LENGTH,
+		payload: {
+			track: track,
+			amount: amount,
+			pattern: pattern
+		}
+	}
+}
+
 export function removePattern(patternKey: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_PATTERN,

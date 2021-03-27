@@ -560,6 +560,7 @@ const Arranger: FunctionComponent = () => {
 					<div className={styles.selector}>
 						<Dropdown
 							keys={['1', '2']}
+							keyValue={[['1', '2'], ['3', '4']]}
 							lookup={function (k) { return k }}
 							onSubmit={onSubmit}
 							select={() => { }}
@@ -589,11 +590,9 @@ const Arranger: FunctionComponent = () => {
 											<Draggable key={idx} draggableId={songEvent} index={idx} >
 												{(xaxa) => (
 													// <li key={songEvent.id} style={{ zIndex: arr.length - idx }}{...provided.dragHandleProps} ref={provided.innerRef}>
-													<li key={songEvent} style={{ zIndex: arr.length - idx }}{...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef}>
+													<li key={songEvent}  {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }}>
 														<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
-														{/* <div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={String(songEvent.pattern)} /></div> */}
-														<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={String("charmander")} /></div>
-														{/* <div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={songEvent.repeat} /></div> */}
+														<div className={styles.selector}><Dropdown keyValue={[['char', 'ksar'], ['karj', 'jsfd']]} className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={String("charmander")} /></div>
 														<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={idx} /></div>
 														<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
 													</li>

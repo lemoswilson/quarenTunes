@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styles from './style.module.scss';
 import Plus from '../../Layout/Icons/Plus';
 import Minus from '../../Layout/Icons/Minus';
@@ -25,6 +25,13 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
         const input = event.currentTarget.getElementsByTagName('input')[0]
         input.value = String(length);
     }
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.value = String(length);
+        }
+
+    }, [length])
 
     const inputRef = useRef<HTMLInputElement>(null);
 

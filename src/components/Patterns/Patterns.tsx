@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FormEvent, useRef, RefObject, MutableRefObject } from 'react';
-import { event } from '../../store/Sequencer'
+import React, { ChangeEvent, FormEvent, useRef, RefObject, MutableRefObject, useEffect } from 'react';
+import { event, Pattern } from '../../store/Sequencer'
 import styles from './style.module.scss';
 import Dropdown from '../Layout/Dropdown';
 import Plus from '../Layout/Icons/Plus';
@@ -12,6 +12,7 @@ interface Patterns {
     activePattern: number,
     selected: number[],
     patternLength: string | number,
+    patterns: { [key: number]: Pattern }
     trackLength: number,
     patternAmount: number,
     changeTrackLength: (newLength: number) => void,
@@ -21,6 +22,12 @@ interface Patterns {
     selectPattern: (key: string) => void,
     changePatternName: (name: string) => void,
     removePattern: () => void,
+    incDecTrackLength: (amount: number) => void,
+    incDecPatLength: (amount: number) => void,
+    incDecVelocity: (amount: number) => void,
+    incDecOffset: (amount: number) => void,
+    lookup: (key: string) => string,
+    renamePattern: (name: string) => void,
     patternTrackVelocity: number,
     events: event[],
     patternNoteLength: string | number,
@@ -35,12 +42,19 @@ interface Patterns {
 const Patterns: React.FC<Patterns> = ({
     activePattern,
     addPattern,
+    renamePattern,
     changePage,
+    incDecPatLength,
+    incDecTrackLength,
+    incDecOffset,
+    lookup,
+    incDecVelocity,
     changePatternLength,
     changePatternName,
     changeTrackLength,
     patternAmount,
     page,
+    patterns,
     patternLength,
     patternTrackVelocity,
     patternNoteLength,
@@ -162,6 +176,7 @@ const Patterns: React.FC<Patterns> = ({
     const patternSelectorSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
+        renamePattern(input.value);
         // setCounter(Number(input.value));
     };
 
@@ -191,7 +206,7 @@ const Patterns: React.FC<Patterns> = ({
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
         let data =
-            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+            selected.length >= 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
                 ? Number(events[selected[0]].instrument.velocity)
                 : selected.length === 0
                     ? trackLength
@@ -207,7 +222,7 @@ const Patterns: React.FC<Patterns> = ({
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
         let data =
-            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
+            selected.length >= 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
                 ? Number(events[selected[0]].instrument.offset)
                 : selected.length === 0
                     ? patternLength
@@ -219,6 +234,7 @@ const Patterns: React.FC<Patterns> = ({
         input.value = String(data);
     };
 
+
     return (
         <div className={styles.border}>
             <div className={styles.title}>
@@ -228,30 +244,31 @@ const Patterns: React.FC<Patterns> = ({
                 <div className={styles.top} style={{ display: selected.length > 0 ? 'none' : 'grid' }}>
                     <div className={styles.selector}>
                         <Dropdown
-                            keys={['1', '2']}
-                            lookup={function (k) { return k }}
+                            keyValue={Object.keys(patterns).map(k => [String(k), patterns[Number(k)].name])}
+                            keys={Object.keys(patterns)}
+                            lookup={lookup}
                             onSubmit={patternSelectorSubmit}
                             select={selectPattern}
                             renamable={true}
                             // selected={String(activePattern)}
-                            selected={String('monasterio')}
+                            selected={String(activePattern)}
                             className={styles.dropdown}
                         />
                     </div>
-                    <div className={styles.increase}><Plus onClick={() => { }} /></div>
+                    <div className={styles.increase}><Plus onClick={() => { addPattern() }} /></div>
                     <div className={styles.decrease}><Minus onClick={() => { }} /></div>
                 </div>
                 <div className={styles.mid} style={{ marginTop: selected.length > 0 ? '0' : '1rem' }}>
                     <LengthEditor
                         length={
-                            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+                            selected.length >= 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
                                 ? Number(events[selected[0]].instrument.velocity)
                                 : selected.length === 0
                                     ? trackLength
                                     : '*'
                         }
-                        decrease={() => { }}
-                        increase={() => { }}
+                        decrease={() => { selected.length > 0 ? incDecVelocity(-1) : incDecTrackLength(-1) }}
+                        increase={() => { selected.length > 0 ? incDecVelocity(1) : incDecTrackLength(1) }}
                         label={selected.length > 0 ? "Vel" : 'Track'}
                         onSubmit={selected.length > 0 ? velocitySubmit : trackLengthSubmit}
                     />
@@ -259,14 +276,14 @@ const Patterns: React.FC<Patterns> = ({
                 <div className={styles.bottom}>
                     <LengthEditor
                         length={
-                            selected.length === 1 || selected.length > 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
+                            selected.length >= 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
                                 ? Number(events[selected[0]].instrument.offset)
                                 : selected.length === 0
                                     ? patternLength
                                     : '*'
                         }
-                        decrease={() => { }}
-                        increase={() => { }}
+                        decrease={() => { selected.length > 0 ? incDecOffset(-1) : incDecPatLength(-1) }}
+                        increase={() => { selected.length > 0 ? incDecOffset(1) : incDecPatLength(1) }}
                         label={selected.length > 0 ? "Offset" : 'Pattern'}
                         onSubmit={selected.length ? offsetSubmit : patternLengthSubmit}
                     />

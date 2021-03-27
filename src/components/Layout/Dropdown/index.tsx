@@ -5,6 +5,7 @@ import Polygon from './Polygon';
 
 interface Dropdown {
     keys: string[];
+    keyValue: string[][],
     selected: string;
     select: (key: string) => void;
     lookup: (key: string) => string;
@@ -16,6 +17,7 @@ interface Dropdown {
 
 const Dropdown: React.FC<Dropdown> = ({
     keys,
+    keyValue,
     select,
     selected,
     lookup,
@@ -43,7 +45,7 @@ const Dropdown: React.FC<Dropdown> = ({
             : '';
 
     const openClose = () => {
-        if (renderCount == 0) {
+        if (renderCount === 0) {
             increaseCounter(1);
         }
         toggleState(!isOpen)
@@ -62,24 +64,47 @@ const Dropdown: React.FC<Dropdown> = ({
         input.value = lookup(selected);
     }
 
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.value = defaultValue();
+        }
+    }, [selected])
+
     const optionsList = <div className={styles.list}>
-        {keys.map(key => {
+        {/* {keys.map(key => {
             return (<div className={styles.row} key={key} onClick={() => { selectAndToggle(key) }}>
                 <div className={styles.hh}></div>
                 <div className={styles.text}>{lookup(key)}</div>
                 <div className={styles.hh}></div>
             </div>)
+        })} */}
+        {keyValue.map(([key, name], idx, arr) => {
+            return (
+                <div className={styles.row} key={key} onClick={() => { selectAndToggle(key) }}>
+                    <div className={styles.hh}></div>
+                    <div className={styles.text}>{name}</div>
+                    <div className={styles.hh}></div>
+                </div>)
         })}
     </div>
+
+    const defaultValue = () => {
+        const f = keyValue.find(k => k[0] === selected)
+        if (f) {
+            return f[1]
+        } else return ''
+    }
 
     const form = renamable
         ? (
             <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} />
+                {/* <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} /> */}
+                <input ref={inputRef} defaultValue={defaultValue()} type='text' placeholder={lookup(selected)} />
             </form>
         ) : (
             <form className={styles.text}>
-                <input readOnly={true} ref={inputRef} value={lookup(selected)} type='text' placeholder={lookup(selected)} />
+                {/* <input readOnly={true} ref={inputRef} value={lookup(selected)} type='text' placeholder={lookup(selected)} /> */}
+                <input readOnly={true} ref={inputRef} value={defaultValue()} type='text' placeholder={lookup(selected)} />
             </form>
         )
 

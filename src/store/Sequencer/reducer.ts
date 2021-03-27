@@ -51,6 +51,7 @@ export function sequencerReducer(
 			note: string[] | string,
 			offset: number,
 			name: string,
+			amount: number,
 			velocity: number,
 			fxIndex: number,
 			step: number,
@@ -116,6 +117,82 @@ export function sequencerReducer(
 				];
 				draft.patterns[pattern].tracks[track].length = patternLength;
 				break;
+			case sequencerActions.INC_DEC_OFFSET:
+				[track, pattern, step, amount] =
+					[
+						action.payload.track,
+						action.payload.pattern,
+						action.payload.step,
+						action.payload.amount,
+					]
+				const totalOffset = draft.patterns[pattern].tracks[track].events[step].offset + amount
+				draft.patterns[pattern].tracks[track].events[step].offset =
+					(amount > 0 && totalOffset <= 100) || (amount < 0 && totalOffset >= -100)
+						? totalOffset
+						: amount > 0 && totalOffset > 100
+							? 100
+							: -100
+				break
+			case sequencerActions.INC_DEC_VELOCITY:
+				[track, pattern, step, amount] =
+					[
+						action.payload.track,
+						action.payload.pattern,
+						action.payload.step,
+						action.payload.amount,
+					]
+				if (step > 0) {
+					const totalVelocity = Number(draft.patterns[pattern].tracks[track].events[step].instrument.velocity) + amount
+					draft.patterns[pattern].tracks[track].events[step].offset =
+						(amount > 0 && totalVelocity <= 127) || (amount < 0 && totalVelocity >= 0)
+							? totalVelocity
+							: amount > 0 && totalVelocity > 127
+								? 127
+								: 0
+				} else {
+					const totalVelocity = Number(draft.patterns[pattern].tracks[track].velocity)
+					draft.patterns[pattern].tracks[track].velocity =
+						(amount > 0 && totalVelocity < 127) || (amount < 0 && totalVelocity > 0)
+							? totalVelocity + amount
+							: amount > 0 && totalVelocity === 127
+								? 127
+								: -10
+				}
+				break
+			case sequencerActions.INC_DEC_PAT_LENGTH:
+				[amount, pattern] = [
+					action.payload.amount,
+					action.payload.pattern,
+				];
+				const totalPat = draft.patterns[pattern].patternLength + amount
+				draft.patterns[pattern].patternLength =
+					(amount > 0 && totalPat <= 64) || (amount < 0 && totalPat >= 1)
+						? totalPat
+						: amount > 0 && totalPat > 64
+							? 64
+							: 1
+				break;
+			case sequencerActions.INC_DEC_TRACK_LENGTH:
+				[amount, pattern, track] = [
+					action.payload.amount,
+					action.payload.pattern,
+					action.payload.track
+				];
+				const totalTrack = draft.patterns[pattern].tracks[track].length + amount
+				draft.patterns[pattern].tracks[track].length =
+					(amount > 0 && totalTrack <= 64) || (amount < 0 && totalTrack >= 1)
+						? totalTrack
+						: amount > 0 && totalTrack > 64
+							? 64
+							: 1
+				break;
+			case sequencerActions.RENAME_PATTERN:
+				[name, pattern] = [
+					action.payload.name,
+					action.payload.pattern
+				]
+				draft.patterns[pattern].name = name
+				break;
 			case sequencerActions.DELETE_EVENTS:
 				[pattern, track, step] = [action.payload.pattern, action.payload.track, action.payload.step];
 				draft.patterns[pattern].tracks[track].events[step] = { fx: [], instrument: [], offset: 0 };
@@ -151,6 +228,7 @@ export function sequencerReducer(
 				delete draft.patterns[pattern];
 				break;
 			case sequencerActions.SELECT_PATTERN:
+				console.log('selecting patterns');
 				pattern = action.payload.pattern;
 				draft.activePattern = pattern;
 				break;

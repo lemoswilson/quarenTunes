@@ -2,7 +2,7 @@ import React from 'react';
 import Step from './Step/Step'
 import { eventOptions } from '../../containers/Track/Instruments';
 import { event } from '../../store/Sequencer'
-import { range } from '../../lib/utility';
+import { range, startEndRange } from '../../lib/utility';
 import styles from './style.module.scss';
 import PrevNext from '../Layout/PrevNext';
 import StepLayout from '../Layout/Step';
@@ -40,9 +40,12 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
             return 31
         } else if (page === 2 && length > 48) {
             return 47
-        } else if (page === 2 && length > 16) {
+        } else {
             return 15
         }
+        // } else if (page === 2 && length > 16) {
+        //     return 15
+        // }
     };
 
     return (
@@ -51,7 +54,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                 <h1>Sequencer</h1>
             </div>
             <div className={styles.overlay}>
-                <div className={styles.prev}><PrevNext direction="previous" onClick={() => { }} width='125%' height='125%' /></div>
+                <div className={styles.prev}><PrevNext direction="previous" onClick={() => { page != 0 && changePage(page - 1) }} width='125%' height='125%' /></div>
                 <div className={styles.stepsWrapper}>
                     <div className={styles.pages}>
                         {range(Math.ceil(length / 16)).map(p => {
@@ -63,16 +66,16 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                         })}
                     </div>
                     <div className={styles.steps}>
-                        {range(16).map((___, idx, __) => {
+                        {startEndRange(page * 16, finalStep()).map((step, idx, __) => {
                             return (
                                 <div key={idx} className={styles.step}>
-                                    <StepLayout onClick={() => { }} onTime={false} selected={false}></StepLayout>
+                                    <StepLayout onClick={() => { }} onTime={false} selected={selected.includes(step)}></StepLayout>
                                 </div>
                             )
                         })}
                     </div>
                 </div>
-                <div className={styles.next}><PrevNext direction="next" onClick={() => { }} width='125%' height='125%' /></div>
+                <div className={styles.next}><PrevNext direction="next" onClick={() => { page != 3 && changePage(page + 1) }} width='125%' height='125%' /></div>
             </div>
             {/* insert step component here
              will also send events.offset pra cada um deles como offset props */}

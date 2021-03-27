@@ -33,7 +33,7 @@ import {
     toggleRecordingQuantization,
     changePatternName,
 } from '../../store/Sequencer';
-import { setPatternTrackVelocity } from '../../store/Sequencer/actions';
+import { incDecPatLength, incDecTrackLength, incDecVelocity, renamePattern, setPatternTrackVelocity } from '../../store/Sequencer/actions';
 import { noteOff, noteOn, upOctaveKey, downOctaveKey, keyDict, noteDict } from '../../store/MidiInput';
 
 import triggCtx from '../../context/triggState';
@@ -58,6 +58,7 @@ const Sequencer: FunctionComponent = () => {
     const triggRef = useContext(triggCtx);
     const toneRefs = useContext(toneRefsContext);
     const dispatch = useDispatch()
+    const newPatternRef = useRef(false);
 
     const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
     const sequencer = useSelector((state: RootState) => state.sequencer.present);
@@ -90,6 +91,8 @@ const Sequencer: FunctionComponent = () => {
     const keyboardRange = useSelector((state: RootState) => state.midi.onboardRange);
     const keyboardRangeRef = useRef(keyboardRange)
     useEffect(() => { keyboardRangeRef.current = keyboardRange }, [keyboardRange])
+
+    const patterns = useSelector((state: RootState) => state.sequencer.present.patterns);
 
     const patternLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].patternLength)
     const patternNoteLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength)
@@ -132,6 +135,7 @@ const Sequencer: FunctionComponent = () => {
     const dispatchAddPattern = useCallback(() => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
         dispatch(addPattern());
+        newPatternRef.current = true;
     }, [
         dispatch,
         counter
@@ -144,7 +148,8 @@ const Sequencer: FunctionComponent = () => {
             const nl = bbsFromSixteenth(newLength)
             triggRef.current[activePattern][selectedTrack].instrument.loopEnd = nl;
             let i = 0;
-            while (i < 4) {
+            // while (i < 4) {
+            while (i < trackCount - 1) {
                 triggRef.current[activePattern][selectedTrack].effects[i].loopEnd = nl;
                 i++
             }
@@ -152,16 +157,31 @@ const Sequencer: FunctionComponent = () => {
         }
     };
 
+    useEffect(() => {
+        if (arrangerMode === "pattern") {
+            Tone.Transport.loopEnd = patternLength;
+        }
+    }, [arrangerMode, patternLength])
+
     const dispatchChangePatternLength = useCallback((
         newLength: number
     ): void => {
         if (newLength >= 1) {
-            if (arrangerMode === "pattern") {
-                Tone.Transport.loopEnd = bbsFromSixteenth(newLength);
-            }
             dispatch(changePatternLength(activePattern, newLength))
         }
     }, [activePattern, arrangerMode, dispatch]);
+
+    const dispatchIncDecPatLength = useCallback((
+        amount: number
+    ) => {
+        dispatch(incDecPatLength(amount, activePattern))
+    }, [activePattern])
+
+    const dispatchIncDecTrackLength = useCallback((
+        amount: number
+    ) => {
+        dispatch(incDecTrackLength(amount, activePattern, selectedTrack))
+    }, [activePattern])
 
     // const dispatchSelectPattern = (e: ChangeEvent<HTMLInputElement>): void => {
     const dispatchSelectPattern = (key: string): void => {
@@ -340,6 +360,28 @@ const Sequencer: FunctionComponent = () => {
         );
     };
 
+    const dispatchIncDecVelocity = (amount: number): void => {
+        if (selected.length > 0) {
+            selected.forEach(step => {
+                dispatch(
+                    incDecVelocity(amount, activePattern, selectedTrack, step)
+                )
+            })
+        } else {
+            dispatch(
+                incDecVelocity(amount, activePattern, selectedTrack, -1)
+            )
+        }
+    }
+
+    const dispatchIncDecOffset = (amount: number): void => {
+        selected.forEach(step => {
+            dispatch(
+                incDecVelocity(amount, activePattern, selectedTrack, step)
+            )
+        })
+    }
+
     // keyboard shortcuts event listeners
     // activate when finished testing keyboard
     // useEffect(() => {
@@ -405,13 +447,35 @@ const Sequencer: FunctionComponent = () => {
         }
     }
 
+    const lookup = (key: string) => {
+        if (patterns[Number(key)]) return patterns[Number(key)].name;
+        else return ''
+    }
 
+    const dispatchRenamePattern = (name: string) => {
+        dispatch(renamePattern(activePattern, name));
+    };
+
+    useEffect(() => {
+        if (newPatternRef.current) {
+            const patternNumbers = Object.keys(patterns).map(k => Number(k))
+            const maxn = Math.max(...patternNumbers);
+            newPatternRef.current = false;
+            dispatch(selectPattern(Math.max(...patternNumbers)))
+        }
+    }, [patternAmount])
 
     return (
         <div className={styles.bottom}>
             <div className={styles.arrangerColumn}>
                 <div className={styles.patterns}>
                     <Patterns
+                        renamePattern={dispatchRenamePattern}
+                        lookup={lookup}
+                        incDecOffset={dispatchIncDecOffset}
+                        incDecVelocity={dispatchIncDecVelocity}
+                        incDecPatLength={dispatchIncDecPatLength}
+                        incDecTrackLength={dispatchIncDecTrackLength}
                         activePattern={activePattern}
                         addPattern={dispatchAddPattern}
                         changePage={dispatchChangePage}
@@ -427,6 +491,7 @@ const Sequencer: FunctionComponent = () => {
                         removePattern={dispatchRemovePattern}
                         selectPattern={dispatchSelectPattern}
                         selected={selected}
+                        patterns={patterns}
                         // selected={[1, 4]}
                         setNote={dispatchSetNote}
                         // setNoteLength={dispatchSetNoteLength}

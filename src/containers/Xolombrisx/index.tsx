@@ -121,11 +121,18 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     // context manager actions 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
         let patN = payload.pattern
+        const selectedTrack = store.getState().track.present.selectedTrack;
         triggRef.current[patN] = [];
         [...Array(store.getState().track.present.trackCount).keys()].forEach(track => {
+            triggRef.current[patN][track] = {
+                effects: [],
+                instrument: new Tone.Part(),
+            }
             triggRef.current[patN][track].instrument = new Tone.Part();
             let i = 0;
-            while (i < 4) {
+            // while (i < 4) {
+            // while (i < triggRef.current[patN][track].effects.length) {
+            while (i < store.getState().track.present.tracks[selectedTrack].fx.length) {
                 triggRef.current[patN][track].effects[i] = new Tone.Part();
                 i++
             }
