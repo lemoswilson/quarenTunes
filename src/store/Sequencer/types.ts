@@ -53,7 +53,7 @@ export interface event {
 export interface trackSeqData {
 	length: number;
 	velocity: number;
-	noteLength: string | number;
+	noteLength: string | number | undefined;
 	// events: RecursivePartial<eventOptions>[];
 	events: event[];
 	page: number;
@@ -167,7 +167,7 @@ export interface changePatternNameAction {
 export interface removePatternAction {
 	type: sequencerActions.REMOVE_PATTERN;
 	payload: {
-		patternKey: number;
+		pattern: number;
 	};
 };
 
@@ -325,7 +325,7 @@ export interface setPatternNoteLengthAction {
 	type: sequencerActions.SET_PATTERN_NOTE_LENGTH;
 	payload: {
 		pattern: number;
-		noteLength: number | string;
+		noteLength: number | string | undefined;
 		track: number;
 	};
 };

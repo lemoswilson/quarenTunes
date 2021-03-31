@@ -5,6 +5,7 @@ import Dropdown from '../Layout/Dropdown';
 import Plus from '../Layout/Icons/Plus';
 import Minus from '../Layout/Icons/Minus';
 import LengthEditor from '../Layout/LengthEditor';
+import usePrevious from '../../hooks/usePrevious';
 
 
 
@@ -30,7 +31,7 @@ interface Patterns {
     renamePattern: (name: string) => void,
     patternTrackVelocity: number,
     events: event[],
-    patternNoteLength: string | number,
+    patternNoteLength: string | number | undefined,
     page: number,
     setNote: (note: string) => void,
     setPatternNoteLength: (length: string) => void,
@@ -77,6 +78,7 @@ const Patterns: React.FC<Patterns> = ({
     const noteInputRef = useRef<HTMLInputElement>(null); // maybe don't need it, because of keyboard UI implementation
     const velocityRef = useRef<HTMLInputElement>(null);
     const noteLengthRef = useRef<HTMLInputElement>(null);
+    const previousSelected = usePrevious(selected.length > 0)
 
     // const changePatternNameHandler = (e: FormEvent<HTMLFormElement | undefined>): void => {
     //     e.preventDefault();
@@ -234,6 +236,15 @@ const Patterns: React.FC<Patterns> = ({
         input.value = String(data);
     };
 
+    const selectedVelocities = selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+    const selectedOffset = selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
+
+    useEffect(() => {
+        if (selected.length > 0) {
+            console.log('patterns update, offset first selected is', events[selected[0]].offset)
+            console.log('patterns update, selectedOffset is', selectedOffset);
+        }
+    }, [events, selected])
 
     return (
         <div className={styles.border}>
@@ -244,9 +255,8 @@ const Patterns: React.FC<Patterns> = ({
                 <div className={styles.top} style={{ display: selected.length > 0 ? 'none' : 'grid' }}>
                     <div className={styles.selector}>
                         <Dropdown
+                            forceClose={selected.length === 0 && previousSelected ? true : false}
                             keyValue={Object.keys(patterns).map(k => [String(k), patterns[Number(k)].name])}
-                            keys={Object.keys(patterns)}
-                            lookup={lookup}
                             onSubmit={patternSelectorSubmit}
                             select={selectPattern}
                             renamable={true}
@@ -256,16 +266,19 @@ const Patterns: React.FC<Patterns> = ({
                         />
                     </div>
                     <div className={styles.increase}><Plus onClick={() => { addPattern() }} /></div>
-                    <div className={styles.decrease}><Minus onClick={() => { }} /></div>
+                    <div className={styles.decrease}>{Object.keys(patterns).length > 1 ? < Minus onClick={() => { removePattern() }} /> : null}</div>
                 </div>
                 <div className={styles.mid} style={{ marginTop: selected.length > 0 ? '0' : '1rem' }}>
                     <LengthEditor
                         length={
-                            selected.length >= 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+                            // selected.length >= 1 && selected.map(id => events[id].instrument.velocity).every((val, i, arr) => val === arr[0])
+                            selected.length >= 1 && selectedVelocities && events[selected[0]].instrument.velocity
                                 ? Number(events[selected[0]].instrument.velocity)
-                                : selected.length === 0
-                                    ? trackLength
-                                    : '*'
+                                : selected.length >= 1 && selectedVelocities && !events[selected[0]].instrument.velocity
+                                    ? patternTrackVelocity
+                                    : selected.length === 0
+                                        ? trackLength
+                                        : '*'
                         }
                         decrease={() => { selected.length > 0 ? incDecVelocity(-1) : incDecTrackLength(-1) }}
                         increase={() => { selected.length > 0 ? incDecVelocity(1) : incDecTrackLength(1) }}
@@ -276,11 +289,13 @@ const Patterns: React.FC<Patterns> = ({
                 <div className={styles.bottom}>
                     <LengthEditor
                         length={
-                            selected.length >= 1 && selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
-                                ? Number(events[selected[0]].instrument.offset)
-                                : selected.length === 0
-                                    ? patternLength
-                                    : '*'
+                            selected.length >= 1 && selectedOffset && events[selected[0]].offset
+                                ? Number(events[selected[0]].offset)
+                                : selected.length >= 1 && selectedOffset && !events[selected[0]].offset
+                                    ? 0
+                                    : selected.length === 0
+                                        ? patternLength
+                                        : '*'
                         }
                         decrease={() => { selected.length > 0 ? incDecOffset(-1) : incDecPatLength(-1) }}
                         increase={() => { selected.length > 0 ? incDecOffset(1) : incDecPatLength(1) }}

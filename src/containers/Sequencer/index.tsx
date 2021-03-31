@@ -33,7 +33,7 @@ import {
     toggleRecordingQuantization,
     changePatternName,
 } from '../../store/Sequencer';
-import { incDecPatLength, incDecTrackLength, incDecVelocity, renamePattern, setPatternTrackVelocity } from '../../store/Sequencer/actions';
+import { incDecOffset, incDecPatLength, incDecTrackLength, incDecVelocity, renamePattern, setPatternTrackVelocity } from '../../store/Sequencer/actions';
 import { noteOff, noteOn, upOctaveKey, downOctaveKey, keyDict, noteDict } from '../../store/MidiInput';
 
 import triggCtx from '../../context/triggState';
@@ -79,7 +79,8 @@ const Sequencer: FunctionComponent = () => {
     const selectedRef = useRef(selected);
     useEffect(() => { selectedRef.current = selected }, [selected])
 
-    const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
+    // const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
+    const selLen = selected.length
     const patternTrackVelocity = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].velocity);
     const selLenRef = useRef(selLen);
     useEffect(() => { selLenRef.current = selLen }, [selLen])
@@ -149,7 +150,7 @@ const Sequencer: FunctionComponent = () => {
             triggRef.current[activePattern][selectedTrack].instrument.loopEnd = nl;
             let i = 0;
             // while (i < 4) {
-            while (i < trackCount - 1) {
+            while (i < triggRef.current[activePattern][selectedTrack].effects.length) {
                 triggRef.current[activePattern][selectedTrack].effects[i].loopEnd = nl;
                 i++
             }
@@ -169,19 +170,19 @@ const Sequencer: FunctionComponent = () => {
         if (newLength >= 1) {
             dispatch(changePatternLength(activePattern, newLength))
         }
-    }, [activePattern, arrangerMode, dispatch]);
+    }, [activePattern, dispatch]);
 
     const dispatchIncDecPatLength = useCallback((
         amount: number
     ) => {
         dispatch(incDecPatLength(amount, activePattern))
-    }, [activePattern])
+    }, [activePattern, dispatch])
 
     const dispatchIncDecTrackLength = useCallback((
         amount: number
     ) => {
         dispatch(incDecTrackLength(amount, activePattern, selectedTrack))
-    }, [activePattern])
+    }, [activePattern, dispatch, selectedTrack])
 
     // const dispatchSelectPattern = (e: ChangeEvent<HTMLInputElement>): void => {
     const dispatchSelectPattern = (key: string): void => {
@@ -284,22 +285,27 @@ const Sequencer: FunctionComponent = () => {
     };
 
     const dispatchSetPatternNoteLength = (length: string) => {
-        dispatch(
-            setPatternNoteLength(
-                activePattern,
-                length,
-                selectedTrack
-            )
-        );
+        const d = length === '###PT' ? undefined : length
+        if (selected.length === 0) {
+            dispatch(
+                setPatternNoteLength(
+                    activePattern,
+                    d,
+                    selectedTrack
+                )
+            );
+        } else {
+            dispatchSetNoteLength(d)
+        }
     };
 
-    const dispatchSetNoteLength = (noteLength: number | string): void => {
+    const dispatchSetNoteLength = (noteLength: number | string | undefined): void => {
         selectedRef.current.forEach(step => {
             dispatch(
                 setNoteLength(
                     activePattern,
                     selectedTrack,
-                    noteLength,
+                    noteLength ? noteLength : 0,
                     step
                 )
             );
@@ -363,6 +369,7 @@ const Sequencer: FunctionComponent = () => {
     const dispatchIncDecVelocity = (amount: number): void => {
         if (selected.length > 0) {
             selected.forEach(step => {
+                // console.log('dispatching')
                 dispatch(
                     incDecVelocity(amount, activePattern, selectedTrack, step)
                 )
@@ -377,7 +384,7 @@ const Sequencer: FunctionComponent = () => {
     const dispatchIncDecOffset = (amount: number): void => {
         selected.forEach(step => {
             dispatch(
-                incDecVelocity(amount, activePattern, selectedTrack, step)
+                incDecOffset(amount, activePattern, selectedTrack, step)
             )
         })
     }
@@ -409,6 +416,8 @@ const Sequencer: FunctionComponent = () => {
     function keydown(this: Document, e: KeyboardEvent): void {
         let char: string = e.key.toLowerCase();
         // colocar o condicional pra ver se não tem foco em um input box
+        // passar todas as input refs pra um context
+        // e checar com hasFocus?
         if (Object.keys(keyDict).includes(char)) {
             if (e.repeat) { return }
             let n: number = keyDict[char]
@@ -441,6 +450,7 @@ const Sequencer: FunctionComponent = () => {
 
     function keyboardOnClick(noteName: string): void {
         if (selectedRef.current.length > 0) {
+            // console.log('dispatching note', noteName);
             dispatchSetNote(noteName);
         } else {
             toneRefs?.current[selectedTrack].instrument?.triggerAttack(noteName, patternNoteLength)
@@ -463,7 +473,7 @@ const Sequencer: FunctionComponent = () => {
             newPatternRef.current = false;
             dispatch(selectPattern(Math.max(...patternNumbers)))
         }
-    }, [patternAmount])
+    }, [patternAmount, dispatch, patterns])
 
     return (
         <div className={styles.bottom}>
@@ -506,6 +516,7 @@ const Sequencer: FunctionComponent = () => {
                     <div className={styles.border}>
                         <div className={styles.stepSequencer}>
                             <StepSequencer
+                                selectStep={dispatchSelectStep}
                                 changePage={dispatchChangePage}
                                 activePattern={activePattern}
                                 events={events}

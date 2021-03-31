@@ -28,6 +28,7 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
 
     useEffect(() => {
         if (inputRef.current) {
+            // console.log('just updated, length is now', length);
             inputRef.current.value = String(length);
         }
 

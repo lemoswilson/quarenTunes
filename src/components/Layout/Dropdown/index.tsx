@@ -2,45 +2,47 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import regular from './style.module.scss';
 import smalls from './small.module.scss';
 import Polygon from './Polygon';
+import usePrevious from '../../../hooks/usePrevious';
 
 interface Dropdown {
-    keys: string[];
     keyValue: string[][],
     selected: string;
     select: (key: string) => void;
-    lookup: (key: string) => string;
     className?: string;
     onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
     small?: boolean;
     renamable?: boolean;
+    forceClose?: boolean;
 }
 
 const Dropdown: React.FC<Dropdown> = ({
-    keys,
     keyValue,
     select,
     selected,
-    lookup,
     className,
     onSubmit,
     renamable,
-    small
+    small,
+    forceClose
 }) => {
-    const [isOpen, toggleState] = useState(false);
+    const [Open, toggleState] = useState(false);
     const [renderCount, increaseCounter] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null);
+    const [clicked, setClick] = useState(false);
+    const clickedRef = useRef(false)
+    const previousOpen = usePrevious(Open)
 
     const styles = small ? smalls : regular
 
-    const styleToggle = isOpen
+    const styleToggle = Open
         ? `${styles.closed} ${styles.animate}`
-        : !isOpen && renderCount > 0
+        : !Open && renderCount > 0 && (!forceClose || clickedRef.current)
             ? `${styles.closed} ${styles.off}`
             : styles.closed
 
-    const polygonToggleStyle = isOpen
+    const polygonToggleStyle = Open
         ? `${styles.turnOpen}`
-        : !isOpen && renderCount > 0
+        : !Open && renderCount > 0 && (!forceClose || clickedRef.current)
             ? `${styles.turnClose}`
             : '';
 
@@ -48,36 +50,45 @@ const Dropdown: React.FC<Dropdown> = ({
         if (renderCount === 0) {
             increaseCounter(1);
         }
-        toggleState(!isOpen)
+        // setClick(!Open);
+        if (!Open)
+            clickedRef.current = true
+        toggleState(!Open)
+        // setClick(true)
+
     }
 
     const selectAndToggle = (key: string) => {
         select(key);
-        if (inputRef.current) {
-            inputRef.current.value = lookup(key);
-        }
         openClose();
     }
 
     const onBlur = (event: React.FocusEvent<HTMLFormElement>) => {
         const input = event.currentTarget.getElementsByTagName('input')[0]
-        input.value = lookup(selected);
+        input.value = defaultValue();
     }
+
+    const defaultValue = useCallback(() => {
+        const f = keyValue.find(k => k[0] === selected)
+        if (f) {
+            return f[1]
+        } else return selected
+    }, [selected, keyValue])
 
     useEffect(() => {
         if (inputRef.current) {
             inputRef.current.value = defaultValue();
         }
-    }, [selected])
+    }, [selected, defaultValue])
+
+    useEffect(() => {
+        if (previousOpen && !Open) {
+            clickedRef.current = false;
+        }
+    }, [Open])
+
 
     const optionsList = <div className={styles.list}>
-        {/* {keys.map(key => {
-            return (<div className={styles.row} key={key} onClick={() => { selectAndToggle(key) }}>
-                <div className={styles.hh}></div>
-                <div className={styles.text}>{lookup(key)}</div>
-                <div className={styles.hh}></div>
-            </div>)
-        })} */}
         {keyValue.map(([key, name], idx, arr) => {
             return (
                 <div className={styles.row} key={key} onClick={() => { selectAndToggle(key) }}>
@@ -88,23 +99,15 @@ const Dropdown: React.FC<Dropdown> = ({
         })}
     </div>
 
-    const defaultValue = () => {
-        const f = keyValue.find(k => k[0] === selected)
-        if (f) {
-            return f[1]
-        } else return ''
-    }
 
     const form = renamable
         ? (
             <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                {/* <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} /> */}
-                <input ref={inputRef} defaultValue={defaultValue()} type='text' placeholder={lookup(selected)} />
+                <input ref={inputRef} defaultValue={defaultValue()} type='text' placeholder={defaultValue()} />
             </form>
         ) : (
             <form className={styles.text}>
-                {/* <input readOnly={true} ref={inputRef} value={lookup(selected)} type='text' placeholder={lookup(selected)} /> */}
-                <input readOnly={true} ref={inputRef} value={defaultValue()} type='text' placeholder={lookup(selected)} />
+                <input readOnly={true} ref={inputRef} value={defaultValue()} type='text' placeholder={defaultValue()} />
             </form>
         )
 
@@ -113,12 +116,9 @@ const Dropdown: React.FC<Dropdown> = ({
             <div className={styles.selected}>
                 <div className={styles.whitespace}></div>
                 {form}
-                {/* <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                    <input ref={inputRef} defaultValue={lookup(selected)} type='text' placeholder={lookup(selected)} />
-                </form> */}
                 <div onClick={openClose} className={styles.arrow}><Polygon className={polygonToggleStyle} /></div>
             </div>
-            {isOpen ? optionsList : null}
+            {Open ? optionsList : null}
         </div>
     )
 }

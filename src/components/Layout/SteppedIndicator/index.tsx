@@ -1,4 +1,4 @@
-import React, { useState, useEffect, WheelEvent, useContext } from 'react';
+import React, { useState, useEffect, WheelEvent, useContext, useCallback } from 'react';
 import { propertiesToArray } from '../../../lib/objectDecompose';
 // import {} from '../../'
 // import styles from './knob.module.scss';
@@ -47,26 +47,32 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
     // const [selectedOption, setOption] = useState('xola');
     let shouldRemove = false;
 
+    const mouseMove = useCallback((e: MouseEvent) => {
+        ccMouseCalculationCallback(e);
+    }, [ccMouseCalculationCallback]);
 
     useEffect(() => {
+        const main = appRef.current
         if (isMoving && !shouldRemove) {
             // document.addEventListener('mousemove', mouseMove);
             // document.addEventListener('mouseup', stopDrag);
-            appRef.current.addEventListener('mousemove', mouseMove);
-            appRef.current.addEventListener('mouseup', stopDrag);
+            // appRef.current.addEventListener('mousemove', mouseMove);
+            // appRef.current.addEventListener('mouseup', stopDrag);
+            main.addEventListener('mousemove', mouseMove);
+            main.addEventListener('mouseup', stopDrag);
 
             return () => {
                 // document.removeEventListener('mousemove', mouseMove);
                 // document.removeEventListener('mouseup', stopDrag);
-                appRef.current.removeEventListener('mousemove', mouseMove);
-                appRef.current.removeEventListener('mouseup', stopDrag);
+                // appRef.current.removeEventListener('mousemove', mouseMove);
+                // appRef.current.removeEventListener('mouseup', stopDrag);
+                main.removeEventListener('mousemove', mouseMove);
+                main.removeEventListener('mouseup', stopDrag);
             }
         }
-    }, [isMoving])
+    }, [isMoving, appRef, mouseMove, shouldRemove])
 
-    const mouseMove = (e: MouseEvent) => {
-        ccMouseCalculationCallback(e);
-    };
+
 
     const captureStart = (e: React.PointerEvent<SVGSVGElement>) => {
         if (e.button === 0) {

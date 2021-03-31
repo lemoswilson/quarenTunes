@@ -190,11 +190,13 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
 
     const removePattern = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_PATTERN>): void => {
-        let patN: number = payload.pattern;
+        const patN: number = payload.pattern;
+        const selectedTrack: number = store.getState().track.present.selectedTrack;
         triggRef.current[patN].forEach(part => {
             part.instrument.dispose();
             let i = 0;
-            while (i < 4) {
+            // while (i < 4) {
+            while (i < store.getState().track.present.tracks[selectedTrack].fxCounter) {
                 part.effects[i].dispose();
                 i++
             }

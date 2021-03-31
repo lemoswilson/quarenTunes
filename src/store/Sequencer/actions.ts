@@ -60,7 +60,7 @@ export function removePattern(patternKey: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_PATTERN,
 		payload: {
-			patternKey: patternKey,
+			pattern: patternKey,
 		},
 	};
 }
@@ -388,7 +388,7 @@ export function setNote(
 
 export function setPatternNoteLength(
 	pattern: number,
-	noteLength: number | string,
+	noteLength: number | string | undefined,
 	track: number,
 ): sequencerActionTypes {
 	return {

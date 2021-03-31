@@ -12,11 +12,12 @@ interface StepLayout {
 const StepLayout: React.FC<StepLayout> = ({ onTime, selected, onClick, className }) => {
 
     const selectedStyle = selected ? styles.selected : null;
+
     return (
         <div className={`${styles.box} ${className}`}>
             <div className={styles.buttonWrapper}>
                 <div className={styles.outer}>
-                    <div onClick={onClick} className={`${styles.inner} `}></div>
+                    <div onClick={onClick} className={`${styles.inner} ${selectedStyle}`}></div>
                 </div>
             </div>
             <div className={styles.wrapper}>

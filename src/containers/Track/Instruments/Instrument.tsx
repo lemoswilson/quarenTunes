@@ -150,7 +150,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const patternNoteLength = useSelector(
         (state: RootState) => {
-            let o: { [key: number]: string | number } = {}
+            let o: { [key: number]: string | number | undefined } = {}
             Object.entries(state.sequencer.present.patterns).forEach(([key, pattern]) => {
                 let k = parseInt(key);
                 o[k] = pattern.tracks[index].noteLength;
@@ -393,7 +393,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             : arrangerModeRef.current === "pattern"
                 ? patternVelocitiesRef.current[activePatternRef.current]
                 : patternVelocitiesRef.current[patternTrackerRef.current[0]]
-        let length: string | number = value.length
+        let length: string | number | undefined = value.length
             ? value.length
             : arrangerModeRef.current === "pattern"
                 ? patternNoteLengthRef.current[activePatternRef.current]
@@ -406,7 +406,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 if (note) {
                     instrumentRef.current.triggerAttackRelease(
                         note,
-                        length,
+                        length ? length : 0,
                         time,
                         velocity
                     );

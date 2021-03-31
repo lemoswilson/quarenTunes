@@ -115,8 +115,9 @@ export const numberNoteDict: { [key: number]: string } = {
 }
 
 export const numberToNote = (note: number) => {
-    const octave = (note / 12) - 1;
-    const noteName = numberNoteDict[(note)]
+    const octave = Math.floor(note / 12) - 1;
+    const noteName = numberNoteDict[note % 12]
+    console.log(`${noteName}${octave}`);
     return `${noteName}${octave}`;
 }
 
