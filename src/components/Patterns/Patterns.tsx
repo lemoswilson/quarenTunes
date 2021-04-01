@@ -240,10 +240,7 @@ const Patterns: React.FC<Patterns> = ({
     const selectedOffset = selected.map(id => events[id].instrument.offset).every((val, i, arr) => val === arr[0])
 
     useEffect(() => {
-        if (selected.length > 0) {
-            console.log('patterns update, offset first selected is', events[selected[0]].offset)
-            console.log('patterns update, selectedOffset is', selectedOffset);
-        }
+
     }, [events, selected])
 
     return (

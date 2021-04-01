@@ -131,7 +131,6 @@ const InputKeys: React.FC<InputKeys> = ({
             else
                 return `${patternNoteLength} (pat)`;
         } else {
-            console.log('madmfadmf', patternNoteLength)
             return `${patternNoteLength} (pat)`;
         }
     }

@@ -1,4 +1,5 @@
 import produce from "immer";
+import { startEndRange } from "../../lib/utility";
 import {
 	arrangerActions,
 	arrangerMode,
@@ -17,8 +18,8 @@ export const initialState: Arranger = {
 			name: "song 1",
 			events: [
 				{
-					pattern: -1,
-					repeat: 0,
+					pattern: 0,
+					repeat: 1,
 					mute: [],
 					id: 0,
 				},
@@ -40,8 +41,8 @@ export function arrangerReducer(
 					action.payload.index + 1,
 					0,
 					{
-						pattern: -1,
-						repeat: 0,
+						pattern: draft.songs[draft.selectedSong].events[action.payload.index].pattern,
+						repeat: 1,
 						mute: [],
 						id: draft.songs[draft.selectedSong]["counter"],
 					}
@@ -54,8 +55,8 @@ export function arrangerReducer(
 					name: `song ${draft.counter + 1}`,
 					events: [
 						{
-							pattern: -1,
-							repeat: 0,
+							pattern: draft.songs[Number(Object.keys(draft.songs)[0])].events[0].pattern,
+							repeat: 1,
 							mute: [],
 							id: 0,
 						},
@@ -63,6 +64,7 @@ export function arrangerReducer(
 					timer: [0],
 					counter: 1,
 				};
+				draft.selectedSong = draft.counter
 				draft.counter = draft.counter + 1;
 				break;
 			case arrangerActions.PREPEND_ROW:
@@ -80,16 +82,10 @@ export function arrangerReducer(
 				break;
 			case arrangerActions.REMOVE_SONG:
 				delete draft.songs[draft.selectedSong];
-				Object.keys(draft.songs).some((key) => {
-					let songIndex: number = parseInt(key);
-					if (draft.songs[songIndex]) {
-						draft.selectedSong = songIndex;
-						return true;
-					} else return false;
-				});
+				draft.selectedSong = Number(Object.keys(draft.songs)[0])
 				break;
 			case arrangerActions.SELECT_SONG:
-				draft.selectedSong = action.payload.songIndex;
+				draft.selectedSong = action.payload.song;
 				break;
 			case arrangerActions.SET_FOLLOW:
 				draft.following = action.payload.follow;
@@ -102,12 +98,31 @@ export function arrangerReducer(
 					action.payload.mutes;
 				break;
 			case arrangerActions.SET_PATTERN:
+				console.log('setting pattern')
 				draft.songs[draft.selectedSong].events[action.payload.eventIndex].pattern =
 					action.payload.pattern;
 				break;
 			case arrangerActions.SET_REPEAT:
 				draft.songs[draft.selectedSong].events[action.payload.eventIndex].repeat =
 					action.payload.repeat;
+				break;
+			case arrangerActions.INC_DEC_REPEAT:
+				console.log('inside arranger reducer, inc dec')
+				const [amount, songId, eventIndex] = [
+					action.payload.amount,
+					action.payload.song,
+					action.payload.eventIndex
+				]
+				const total = draft.songs[songId].events[eventIndex].repeat + amount
+				draft.songs[songId].events[eventIndex].repeat =
+					total >= 1 && total <= 100
+						? total
+						: total < 1
+							? 1
+							: 100
+				break;
+			case arrangerActions.RENAME_SONG:
+				draft.songs[action.payload.song].name = action.payload.name;
 				break;
 			case arrangerActions.REMOVE_PATTERN:
 				let index = action.payload.index;
@@ -125,6 +140,8 @@ export function arrangerReducer(
 				const timer = action.payload.timer;
 				const song = action.payload.song;
 				draft.songs[song].timer = timer;
+				break;
+
 		}
 	});
 }

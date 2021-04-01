@@ -46,7 +46,7 @@ export function selectSong(songIndex: number): arrangerActionTypes {
 	return {
 		type: arrangerActions.SELECT_SONG,
 		payload: {
-			songIndex: songIndex,
+			song: songIndex,
 		},
 	};
 }
@@ -86,6 +86,34 @@ export function removeSong(songIndex: number): arrangerActionTypes {
 			songIndex: songIndex,
 		},
 	};
+}
+
+export function renameSong(
+	song: number,
+	name: string
+): arrangerActionTypes {
+	return {
+		type: arrangerActions.RENAME_SONG,
+		payload: {
+			song: song,
+			name: name,
+		}
+	}
+};
+
+export function increaseDecreaseRepeat(
+	song: number,
+	eventIndex: number,
+	amount: number
+): arrangerActionTypes {
+	return {
+		type: arrangerActions.INC_DEC_REPEAT,
+		payload: {
+			amount: amount,
+			song: song,
+			eventIndex: eventIndex
+		}
+	}
 }
 
 export function setPattern(

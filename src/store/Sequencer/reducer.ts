@@ -55,6 +55,7 @@ export function sequencerReducer(
 			velocity: number,
 			fxIndex: number,
 			step: number,
+			trackCount: number,
 			counter: number = draft.counter
 		switch (action.type) {
 			case sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER:
@@ -115,10 +116,14 @@ export function sequencerReducer(
 					action.payload.track,
 					action.payload.pattern,
 				];
+				let j = draft.patterns[pattern].tracks[track].events.length;
+				while (j < patternLength) {
+					draft.patterns[pattern].tracks[track].events.push({ instrument: { note: [] }, fx: [], offset: 0 })
+					j++
+				}
 				draft.patterns[pattern].tracks[track].length = patternLength;
 				break;
 			case sequencerActions.INC_DEC_OFFSET:
-				console.log('increasing and decreasing offset');
 				[track, pattern, step, amount] =
 					[
 						action.payload.track,
@@ -127,14 +132,12 @@ export function sequencerReducer(
 						action.payload.amount,
 					]
 				const totalOffset = Number(draft.patterns[pattern].tracks[track].events[step].offset) + amount
-				console.log('total offset', totalOffset);
 				draft.patterns[pattern].tracks[track].events[step].offset =
 					(amount > 0 && totalOffset <= 100) || (amount < 0 && totalOffset >= -100)
 						? totalOffset
 						: amount > 0 && totalOffset > 100
 							? 100
 							: -100
-				console.log('post update', draft.patterns[pattern].tracks[track].events[step].offset)
 				break
 			case sequencerActions.INC_DEC_VELOCITY:
 				[track, pattern, step, amount] =
@@ -145,7 +148,6 @@ export function sequencerReducer(
 						action.payload.amount,
 					]
 				if (step >= 0) {
-					console.log('valid step')
 					const currVel = draft.patterns[pattern].tracks[track].events[step].instrument.velocity
 					const totalVelocity = currVel ? currVel + amount : draft.patterns[pattern].tracks[track].velocity + amount
 					draft.patterns[pattern].tracks[track].events[step].instrument.velocity =
@@ -184,12 +186,17 @@ export function sequencerReducer(
 					action.payload.track
 				];
 				const totalTrack = draft.patterns[pattern].tracks[track].length + amount
+				let k = draft.patterns[pattern].tracks[track].events.length;
 				draft.patterns[pattern].tracks[track].length =
 					(amount > 0 && totalTrack <= 64) || (amount < 0 && totalTrack >= 1)
 						? totalTrack
 						: amount > 0 && totalTrack > 64
 							? 64
 							: 1
+				while (k < draft.patterns[pattern].tracks[track].length) {
+					draft.patterns[pattern].tracks[track].events.push({ instrument: { note: [] }, fx: [], offset: 0 })
+					k++
+				}
 				break;
 			case sequencerActions.RENAME_PATTERN:
 				[name, pattern] = [
@@ -234,7 +241,6 @@ export function sequencerReducer(
 				draft.activePattern = Number(Object.keys(draft.patterns)[0])
 				break;
 			case sequencerActions.SELECT_PATTERN:
-				console.log('selecting patterns');
 				pattern = action.payload.pattern;
 				draft.activePattern = pattern;
 				break;

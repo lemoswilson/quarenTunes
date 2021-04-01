@@ -43,12 +43,31 @@ export enum arrangerActions {
 	REMOVE_PATTERN = "REMOVE_PATTERN",
 	SET_TRACKER = "SET_TRACKER",
 	SET_TIMER = "SET_TIMER",
+	RENAME_SONG = "RENAME_SONG",
+	INC_DEC_REPEAT = "INC_DEC_REPEAT"
+}
+
+export interface renameSongAction {
+	type: arrangerActions.RENAME_SONG,
+	payload: {
+		song: number,
+		name: string,
+	}
 }
 
 export interface setTrackerAction {
 	type: arrangerActions.SET_TRACKER,
 	payload: {
 		tracker: number[],
+	}
+}
+
+export interface increaseDecreaseRepeatAction {
+	type: arrangerActions.INC_DEC_REPEAT,
+	payload: {
+		song: number,
+		eventIndex: number,
+		amount: number,
 	}
 }
 
@@ -88,7 +107,7 @@ export interface addRowAction {
 export interface selectSongAction {
 	type: arrangerActions.SELECT_SONG;
 	payload: {
-		songIndex: number;
+		song: number;
 	};
 }
 
@@ -155,4 +174,6 @@ export type arrangerActionTypes =
 	| setRepeatAction
 	| setTrackerAction
 	| setTimerAction
+	| increaseDecreaseRepeatAction
+	| renameSongAction
 	| removePatternAction;

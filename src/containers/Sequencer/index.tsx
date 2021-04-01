@@ -369,7 +369,6 @@ const Sequencer: FunctionComponent = () => {
     const dispatchIncDecVelocity = (amount: number): void => {
         if (selected.length > 0) {
             selected.forEach(step => {
-                // console.log('dispatching')
                 dispatch(
                     incDecVelocity(amount, activePattern, selectedTrack, step)
                 )
@@ -450,7 +449,6 @@ const Sequencer: FunctionComponent = () => {
 
     function keyboardOnClick(noteName: string): void {
         if (selectedRef.current.length > 0) {
-            // console.log('dispatching note', noteName);
             dispatchSetNote(noteName);
         } else {
             toneRefs?.current[selectedTrack].instrument?.triggerAttack(noteName, patternNoteLength)

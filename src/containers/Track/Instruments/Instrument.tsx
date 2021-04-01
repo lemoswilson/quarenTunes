@@ -206,7 +206,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const propertyValueUpdateCallback: any = useMemo(() => {
         let o = {}
-        console.log('re calculating propertyUpdate');
         let callArray = properties.map((property) => {
             return (value: any) => {
                 if (getNested(instrumentRef.current.get(), property)

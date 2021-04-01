@@ -17,6 +17,7 @@ import {
 	setTracker,
 	addSong,
 	prependRow,
+	renameSong,
 	removeRow,
 	removeSong,
 	selectSong,
@@ -28,6 +29,7 @@ import {
 	setTimer,
 	arrangerMode,
 	songEvent,
+	increaseDecreaseRepeat
 } from "../../store/Arranger";
 import { goToActive } from '../../store/Sequencer'
 import Tone from "../../lib/tone";
@@ -39,6 +41,8 @@ import Plus from '../../components/Layout/Icons/Plus';
 import NumberBox from '../../components/Layout/NumberBox';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { current } from "immer";
+import Div100vh from "react-div-100vh";
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;
@@ -86,7 +90,7 @@ const Arranger: FunctionComponent = () => {
 	useEffect(() => { patternsRef.current = patternsObj }, [patternsObj])
 	const activePatternObj = patternsObj[activePattern];
 
-	const arrangerObj = useSelector((state: RootState) => state.arranger)
+	const arrangerObj = useSelector((state: RootState) => state.arranger.present)
 	const arrangerRef = useRef(arrangerObj);
 	useEffect(() => { arrangerRef.current = arrangerObj }, [arrangerObj])
 
@@ -101,6 +105,7 @@ const Arranger: FunctionComponent = () => {
 	const songMutes = activeSongObject.events.map(v => v.mute);
 	const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
 	const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
+	const songs = useSelector((state: RootState) => state.arranger.present.songs);
 
 	const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
 	const previousMode = usePrevious(arrangerMode);
@@ -110,6 +115,7 @@ const Arranger: FunctionComponent = () => {
 			if (idx === 0) return 0
 			else {
 				const repeat = repeats[idx] < 2 ? 1 : repeats[idx]
+				console.log('pat', pat, 'patternsRef', patternsRef.current);
 				const length = patternsRef.current[pat].patternLength * repeat
 				return bbsFromSixteenth(length)
 			}
@@ -142,7 +148,7 @@ const Arranger: FunctionComponent = () => {
 							[...Array(trackCountRef.current).keys()].forEach(track => {
 								const trackLength: number | string = patternsRef.current[v.pattern].tracks[track].length;
 								const b = bbsFromSixteenth(trackLength)
-								const instrumentTrigg: Tone.Part = triggRef.current[v.pattern][track].instrument;
+								const instrumentTrigg = triggRef.current[v.pattern][track].instrument;
 								const fxTriggs = triggRef.current[v.pattern][track].effects
 								const l = fxTriggs.length
 								if (!v.mute.includes(track)) {
@@ -457,12 +463,11 @@ const Arranger: FunctionComponent = () => {
 		// scheduleFromIndex(index - 1, edummy);
 	}
 
-	const dispatchSelectSong = (e: ChangeEvent<HTMLSelectElement>): void => {
-		const songIndex: number = parseInt(e.currentTarget.value);
+	const dispatchSelectSong = (value: number): void => {
 		if (arrangerMode === "arranger") Tone.Transport.cancel(0);
-		dispatch(selectSong(songIndex));
+		dispatch(selectSong(value));
 		// Tone.Transport.cancel();
-		// scheduleFromIndex(0, arranger.current.songs[songIndex]);
+		// scheduleFromIndex(0);
 	};
 
 
@@ -473,18 +478,16 @@ const Arranger: FunctionComponent = () => {
 		dispatch(removeSong(currentSong));
 	};
 
-	const dispatchSendPattern = (e: ChangeEvent<HTMLInputElement>, eventIndex: number): void => {
-		const pIdx: number = e.currentTarget.valueAsNumber;
+	const dispatchSendPattern = (eventIndex: number, pattern: number): void => {
 		// const dummye: event[] = [...activeSongObject.current.events]
 		// dummye[eventIndex] = { ...dummye[eventIndex] };
 		// dummye[eventIndex].pattern = pIdx;
-		dispatch(setPattern(pIdx, eventIndex));
+		dispatch(setPattern(pattern, eventIndex));
 		// Tone.Transport.cancel(0);
 		// scheduleFromIndex(0, dummye);
 	};
 
-	const dispatchSetRepeat = (e: ChangeEvent<HTMLInputElement>, eventIndex: number): void => {
-		const repeat: number = e.currentTarget.valueAsNumber;
+	const dispatchSetRepeat = (repeat: number, eventIndex: number): void => {
 		// const dummye: event[] = [...activeSongObject.current.events];
 		// dummye[eventIndex] = { ...dummye[eventIndex] };
 		// dummye[eventIndex].repeat = repeat;
@@ -492,6 +495,11 @@ const Arranger: FunctionComponent = () => {
 		// Tone.Transport.cancel();
 		// scheduleFromIndex(0, dummye);
 	};
+
+	const dispatchIncDecRepeat = (amount: number, song: number, eventIndex: number): void => {
+		console.log('dispatching set repeat')
+		dispatch(increaseDecreaseRepeat(song, eventIndex, amount))
+	}
 
 	const dispatchRemoveRow = (index: number): void => {
 		const dummye: songEvent[] = [...activeSongObjectRef.current.events];
@@ -536,11 +544,17 @@ const Arranger: FunctionComponent = () => {
 		else return "";
 	}
 
-	const onSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+	const dispatchRenameSong = (event: React.FormEvent<HTMLFormElement>): void => {
 		event.preventDefault();
 		const input = event.currentTarget.getElementsByTagName('input')[0];
+		if (input.value.length >= 1) {
+			dispatch(renameSong(currentSong, input.value))
+		} else {
+			input.value = songs[currentSong].name;
+		}
 		// setCounter(Number(input.value));
 	}
+
 
 	const onDragEnd = (result: DropResult) => {
 		if (!result.destination) {
@@ -551,6 +565,10 @@ const Arranger: FunctionComponent = () => {
 		const destination = result.destination.index;
 	}
 
+	const increaseDecrase = (value: number): void => {
+		console.log(value);
+	}
+
 
 	return (
 		<div className={styles.border}>
@@ -559,17 +577,18 @@ const Arranger: FunctionComponent = () => {
 				<div className={styles.songSelector}>
 					<div className={styles.selector}>
 						<Dropdown
-							keyValue={[['1', '2'], ['3', '4']]}
-							onSubmit={onSubmit}
-							select={() => { }}
+							// keyValue={[['1', '2'], ['3', '4']]}
+							keyValue={Object.keys(songs).map(song => [song, songs[Number(song)].name])}
+							onSubmit={dispatchRenameSong}
+							select={(value) => { dispatchSelectSong(Number(value)) }}
 							renamable={true}
 							// selected={String(activePattern)}
-							selected={String('monasterio')}
+							selected={String(currentSong)}
 							className={styles.dropdown}
 						/>
 					</div>
-					<div className={styles.increase}><Plus onClick={() => { }} /></div>
-					<div className={styles.decrease}><Minus onClick={() => { }} /></div>
+					<div className={styles.increase}><Plus onClick={dispatchAddSong} /></div>
+					<div className={styles.decrease}>{Object.keys(songs).length > 1 ? <Minus onClick={dispatchRemoveSong} /> : null}</div>
 				</div>
 			</div>
 			<div className={styles.bottom}>
@@ -581,18 +600,20 @@ const Arranger: FunctionComponent = () => {
 						<Droppable droppableId={'arranger'}>
 							{(provided) => (
 								<ul {...provided.droppableProps} ref={provided.innerRef}>
-									{/* {activeSongObject.events.map((songEvent, idx, arr) => { */}
-									{['xolombris', 'mamute'].map((songEvent, idx, arr) => {
+									{/* {['xolombris', 'mamute'].map((songEvent, idx, arr) => { */}
+									{activeSongObject.events.map((songEvent, idx, arr) => {
+										{/* <Draggable key={idx} draggableId={songEvent} index={idx} > */ }
 										return (
-											// <Draggable key={songEvent.id} draggableId={'arranger'} index={idx} >
-											<Draggable key={idx} draggableId={songEvent} index={idx} >
+											<Draggable key={songEvent.id} draggableId={String(songEvent.id)} index={idx} >
 												{(xaxa) => (
-													// <li key={songEvent.id} style={{ zIndex: arr.length - idx }}{...provided.dragHandleProps} ref={provided.innerRef}>
-													<li key={songEvent}  {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }}>
-														<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
-														<div className={styles.selector}><Dropdown keyValue={[['char', 'ksar'], ['karj', 'jsfd']]} className={styles.out} select={() => { }} selected={String("charmander")} /></div>
-														<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={idx} /></div>
-														<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
+													<li key={songEvent.id}  {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }}>
+														{/* <li key={songEvent}  {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }> */}
+														{activeSongObject.events.length > 1 ? <div className={styles.delete}> <Minus onClick={() => { dispatchRemoveRow(idx) }} small={true} /></div> : <div></div>}
+														{/* <div className={styles.selector}><Dropdown keyValue={[['char', 'ksar'], ['karj', 'jsfd']]} className={styles.out} select={() => { }} selected={String("charmander")} /></div> */}
+														<div className={styles.selector}><Dropdown keyValue={Object.keys(patternsObj).map(k => [String(k), patternsObj[Number(k)].name])} className={styles.out} select={(key) => { dispatchSendPattern(idx, Number(key)) }} selected={String(songEvent.pattern)} /></div>
+														<div className={styles.repeat}> <NumberBox increaseDecrease={(value) => dispatchIncDecRepeat(value, songEvent.id, idx)} updateValue={(value) => dispatchSetRepeat(value, idx)} value={songEvent.repeat} /></div>
+														{/* <div className={styles.repeat}> <NumberBox increaseDecrease={increaseDecrase} updateValue={(value) => dispatchSetRepeat(value, idx)} value={songEvent.repeat} /></div> */}
+														<div className={styles.add}><Plus onClick={() => { dispatchAddRow(idx) }} small={true} /></div>
 													</li>
 												)}
 											</Draggable>
