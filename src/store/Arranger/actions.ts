@@ -42,6 +42,21 @@ export function addRow(index: number): arrangerActionTypes {
 	};
 }
 
+export function swapEvents(
+	song: number,
+	from: number,
+	to: number
+): arrangerActionTypes {
+	return {
+		type: arrangerActions.SWAP_EVENTS,
+		payload: {
+			from: from,
+			song: song,
+			to: to,
+		}
+	}
+}
+
 export function selectSong(songIndex: number): arrangerActionTypes {
 	return {
 		type: arrangerActions.SELECT_SONG,

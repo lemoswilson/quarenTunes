@@ -258,6 +258,7 @@ const Patterns: React.FC<Patterns> = ({
                             select={selectPattern}
                             renamable={true}
                             // selected={String(activePattern)}
+                            dropdownId='patterns'
                             selected={String(activePattern)}
                             className={styles.dropdown}
                         />

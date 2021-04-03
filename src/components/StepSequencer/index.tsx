@@ -45,9 +45,6 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
         } else {
             return 15
         }
-        // } else if (page === 2 && length > 16) {
-        //     return 15
-        // }
     };
 
     return (
@@ -56,7 +53,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                 <h1>Sequencer</h1>
             </div>
             <div className={styles.overlay}>
-                <div className={styles.prev}><PrevNext direction="previous" onClick={() => { page !== 0 && changePage(page - 1) }} width='125%' height='125%' /></div>
+                <div className={styles.prev}>{page > 0 ? <PrevNext direction="previous" onClick={() => { page !== 0 && changePage(page - 1) }} width='125%' height='125%' /> : null}</div>
                 <div className={styles.stepsWrapper}>
                     <div className={styles.pages}>
                         {range(Math.ceil(length / 16)).map(p => {
@@ -77,7 +74,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                         })}
                     </div>
                 </div>
-                <div className={styles.next}><PrevNext direction="next" onClick={() => { page !== 3 && changePage(page + 1) }} width='125%' height='125%' /></div>
+                <div className={styles.next}>{(page === 0 && length > 16 || page === 1 && length > 32 || page === 2 && length > 48) ? <PrevNext direction="next" onClick={() => { true && changePage(page + 1) }} width='125%' height='125%' /> : null}</div>
             </div>
             {/* insert step component here
              will also send events.offset pra cada um deles como offset props */}

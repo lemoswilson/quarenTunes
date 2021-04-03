@@ -322,7 +322,7 @@ const gainRange = [-16, 16]
 
 const oversampleOptions = ['2x', '4x', 'none'];
 const filterTypeOptions = ["allpass", "bandpass", "highpass", "highshelf", "lowpass", "lowshelf", "notch", "peaking"]
-export const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "4n.", "4t", "8n", "8n", "8t", "16n", "16n", "16t", "32n", "32n", "32t", "64n", "64n", "64t"]
+export const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "4n.", "4t", "8n", "8n.", "8t", "16n", "16n.", "16t", "32n", "32n.", "32t", "64n", "64n.", "64t"]
 
 const wet = [1, drywetRange, drywetUnit, drywetIndicator, curveTypes.LINEAR];
 const halfwet = [0.5, drywetIndicator, drywetUnit, drywetIndicator, curveTypes.LINEAR]

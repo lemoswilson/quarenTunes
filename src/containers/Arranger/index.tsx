@@ -22,6 +22,7 @@ import {
 	removeSong,
 	selectSong,
 	setFollow,
+	swapEvents,
 	setMode,
 	setMute,
 	setPattern,
@@ -563,6 +564,7 @@ const Arranger: FunctionComponent = () => {
 
 		const source = result.source.index;
 		const destination = result.destination.index;
+		dispatch(swapEvents(currentSong, source, destination))
 	}
 
 	const increaseDecrase = (value: number): void => {
@@ -584,6 +586,7 @@ const Arranger: FunctionComponent = () => {
 							renamable={true}
 							// selected={String(activePattern)}
 							selected={String(currentSong)}
+							dropdownId={`song ${currentSong} selector`}
 							className={styles.dropdown}
 						/>
 					</div>
@@ -596,47 +599,44 @@ const Arranger: FunctionComponent = () => {
 					<div className={styles.title}><h3>Patterns  |  Repeat </h3></div>
 				</div>
 				<div className={styles.dnd}>
-					<DragDropContext onDragEnd={() => { }}>
+					<DragDropContext onDragEnd={onDragEnd}>
 						<Droppable droppableId={'arranger'}>
 							{(provided) => (
+								// <ul {...provided.droppableProps} ref={provided.innerRef}>
+								// 	{['lala', 'lele', 'lolo'].map((v, idx, arr) => {
+								// 		return (
+								// 			<Draggable draggableId={v} index={idx} key={v}>
+								// 				{(xaxa) => (
+								// 					<li {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef}>
+								// 						{v}
+								// 					</li>
+								// 				)}
+								// 			</Draggable>
+								// 		)
+								// 	})}
+								// 	{provided.placeholder}
+								// </ul>
 								<ul {...provided.droppableProps} ref={provided.innerRef}>
-									{/* {['xolombris', 'mamute'].map((songEvent, idx, arr) => { */}
 									{activeSongObject.events.map((songEvent, idx, arr) => {
-										{/* <Draggable key={idx} draggableId={songEvent} index={idx} > */ }
 										return (
-											<Draggable key={songEvent.id} draggableId={String(songEvent.id)} index={idx} >
+											<Draggable key={`song ${currentSong} event ${songEvent.id}`} draggableId={`song ${currentSong} event ${songEvent.id}`} index={idx}>
 												{(xaxa) => (
-													<li key={songEvent.id}  {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }}>
-														{/* <li key={songEvent}  {...xaxa.draggableProps} {...xaxa.dragHandleProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }> */}
+													// <li {...xaxa.dragHandleProps} {...xaxa.draggableProps} ref={xaxa.innerRef} style={{ zIndex: arr.length - idx }}>
+													// 	{activeSongObject.events.length > 1 ? <div className={styles.delete}> <Minus onClick={() => { dispatchRemoveRow(idx) }} small={true} /></div> : <div></div>}
+													// 	<div className={styles.selector}><Dropdown keyValue={Object.keys(patternsObj).map(k => [String(k), patternsObj[Number(k)].name])} className={styles.out} select={(key) => { dispatchSendPattern(idx, Number(key)) }} selected={String(songEvent.pattern)} /></div>
+													// 	<div className={styles.repeat}> <NumberBox increaseDecrease={(value) => dispatchIncDecRepeat(value, songEvent.id, idx)} updateValue={(value) => dispatchSetRepeat(value, idx)} value={songEvent.repeat} /></div>
+													// 	<div className={styles.add}><Plus onClick={() => { dispatchAddRow(idx) }} small={true} /></div>
+													// </li>
+													<div {...xaxa.dragHandleProps} {...xaxa.draggableProps} ref={xaxa.innerRef} className={styles.div} >
 														{activeSongObject.events.length > 1 ? <div className={styles.delete}> <Minus onClick={() => { dispatchRemoveRow(idx) }} small={true} /></div> : <div></div>}
-														{/* <div className={styles.selector}><Dropdown keyValue={[['char', 'ksar'], ['karj', 'jsfd']]} className={styles.out} select={() => { }} selected={String("charmander")} /></div> */}
-														<div className={styles.selector}><Dropdown keyValue={Object.keys(patternsObj).map(k => [String(k), patternsObj[Number(k)].name])} className={styles.out} select={(key) => { dispatchSendPattern(idx, Number(key)) }} selected={String(songEvent.pattern)} /></div>
+														<div style={{ zIndex: arr.length - idx }} className={styles.selector}><Dropdown dropdownId={`song ${currentSong} event ${songEvent.id}`} keyValue={Object.keys(patternsObj).map(k => [String(k), patternsObj[Number(k)].name])} className={styles.out} select={(key) => { dispatchSendPattern(idx, Number(key)) }} selected={String(songEvent.pattern)} /></div>
 														<div className={styles.repeat}> <NumberBox increaseDecrease={(value) => dispatchIncDecRepeat(value, songEvent.id, idx)} updateValue={(value) => dispatchSetRepeat(value, idx)} value={songEvent.repeat} /></div>
-														{/* <div className={styles.repeat}> <NumberBox increaseDecrease={increaseDecrase} updateValue={(value) => dispatchSetRepeat(value, idx)} value={songEvent.repeat} /></div> */}
 														<div className={styles.add}><Plus onClick={() => { dispatchAddRow(idx) }} small={true} /></div>
-													</li>
+													</div>
 												)}
 											</Draggable>
 										)
 									})}
-									{/* <li style={{ zIndex: 2 }} className={styles.charmander}>
-									<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
-									<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={'pastel'} /></div>
-									<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={10} /></div>
-									<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
-								</li>
-								<li style={{ zIndex: 1 }}>
-									<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
-									<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={'pastel'} /></div>
-									<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={10} /></div>
-									<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
-								</li>
-								<li>
-									<div className={styles.delete}> <Minus onClick={() => { }} small={true} /></div>
-									<div className={styles.selector}><Dropdown className={styles.out} keys={['charmander', 'charizard']} lookup={(f) => f} onSubmit={() => { }} select={() => { }} selected={'pastel'} /></div>
-									<div className={styles.repeat}> <NumberBox onSubmit={() => { }} value={10} /></div>
-									<div className={styles.add}><Plus onClick={() => { }} small={true} /></div>
-								</li> */}
 									{provided.placeholder}
 								</ul>
 							)}

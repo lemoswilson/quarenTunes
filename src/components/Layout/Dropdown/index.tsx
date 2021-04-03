@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, MutableRefObject } from 'react';
 import regular from './style.module.scss';
 import smalls from './small.module.scss';
 import Polygon from './Polygon';
 import usePrevious from '../../../hooks/usePrevious';
+import dropdownEmitter, { dropdownEventTypes } from '../../../lib/dropdownEmitter';
 
 interface Dropdown {
     keyValue: string[][],
@@ -13,6 +14,8 @@ interface Dropdown {
     small?: boolean;
     renamable?: boolean;
     forceClose?: boolean;
+    dropdownId: string,
+    // ref: MutableRefObject<() => void>
 }
 
 const Dropdown: React.FC<Dropdown> = ({
@@ -23,7 +26,9 @@ const Dropdown: React.FC<Dropdown> = ({
     onSubmit,
     renamable,
     small,
-    forceClose
+    forceClose,
+    dropdownId
+    // ref
 }) => {
     const [Open, toggleState] = useState(false);
     const [renderCount, increaseCounter] = useState(0)
@@ -51,8 +56,13 @@ const Dropdown: React.FC<Dropdown> = ({
             increaseCounter(1);
         }
         // setClick(!Open);
-        if (!Open)
+        if (!Open) {
             clickedRef.current = true
+            dropdownEmitter.emit(dropdownEventTypes.ESCAPE, {})
+            dropdownEmitter.emit(dropdownEventTypes.OPEN, { id: dropdownId, openClose: () => { toggleState(state => !state) } })
+        } else {
+            dropdownEmitter.emit(dropdownEventTypes.REMOVE, { id: dropdownId })
+        }
         toggleState(!Open)
         // setClick(true)
 
@@ -85,6 +95,7 @@ const Dropdown: React.FC<Dropdown> = ({
         if (previousOpen && !Open) {
             clickedRef.current = false;
         }
+
     }, [Open])
 
 

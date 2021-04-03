@@ -35,6 +35,7 @@ export function arrangerReducer(
 	action: arrangerActionTypes
 ): Arranger {
 	return produce(state, (draft) => {
+		let song;
 		switch (action.type) {
 			case arrangerActions.ADD_ROW:
 				draft.songs[draft.selectedSong]["events"].splice(
@@ -138,10 +139,20 @@ export function arrangerReducer(
 				break;
 			case arrangerActions.SET_TIMER:
 				const timer = action.payload.timer;
-				const song = action.payload.song;
+				song = action.payload.song;
 				draft.songs[song].timer = timer;
 				break;
-
+			case arrangerActions.SWAP_EVENTS:
+				song = action.payload.song;
+				const from = action.payload.from;
+				const to = action.payload.to;
+				[draft.songs[song].events[from],
+				draft.songs[song].events[to]
+				] = [
+						draft.songs[song].events[to],
+						draft.songs[song].events[from]
+					]
+				break;
 		}
 	});
 }

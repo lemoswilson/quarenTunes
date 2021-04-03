@@ -44,7 +44,17 @@ export enum arrangerActions {
 	SET_TRACKER = "SET_TRACKER",
 	SET_TIMER = "SET_TIMER",
 	RENAME_SONG = "RENAME_SONG",
-	INC_DEC_REPEAT = "INC_DEC_REPEAT"
+	INC_DEC_REPEAT = "INC_DEC_REPEAT",
+	SWAP_EVENTS = "SWAP_EVENTS"
+}
+
+export interface swapEventsAction {
+	type: arrangerActions.SWAP_EVENTS,
+	payload: {
+		song: number,
+		from: number,
+		to: number,
+	}
 }
 
 export interface renameSongAction {
@@ -176,4 +186,5 @@ export type arrangerActionTypes =
 	| setTimerAction
 	| increaseDecreaseRepeatAction
 	| renameSongAction
+	| swapEventsAction
 	| removePatternAction;

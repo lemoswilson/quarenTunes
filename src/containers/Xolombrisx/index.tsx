@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, RefObject, MutableRefObject } from "react";
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
 import undoable, { newHistory, includeAction } from 'redux-undo';
@@ -8,6 +8,7 @@ import Chain from '../../lib/fxChain';
 import { trackActions } from '../../store/Track'
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/toneRefsEmitter';
+import dropdownEmitter, { dropdownEventTypes, ExtractDropdownPayload } from '../../lib/dropdownEmitter';
 
 import TriggContext, { triggContext } from '../../context/triggState';
 import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
@@ -93,6 +94,12 @@ interface XolombrisxProps extends userProps {
     children?: React.ReactNode,
 }
 
+interface dropDownContext {
+    [key: string]: () => void
+}
+
+const DropdownContext = React.createContext<any>({})
+
 const Xolombrisx: React.FC<XolombrisxProps> = ({
     children,
     errorMessage,
@@ -117,6 +124,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             instrument: undefined,
         }
     });
+
+    let dropdownContextRef = useRef<dropDownContext>({})
 
     // context manager actions 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
@@ -390,6 +399,21 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         }
     };
 
+    const escapeDropdown = (payload: ExtractDropdownPayload<dropdownEventTypes.ESCAPE>): void => {
+        Object.keys(dropdownContextRef.current).forEach(k => {
+            dropdownContextRef.current[k]();
+            delete dropdownContextRef.current[k]
+        })
+    }
+
+    const openDropdown = (payload: ExtractDropdownPayload<dropdownEventTypes.OPEN>): void => {
+        console.log('hsould be openig');
+        dropdownContextRef.current[payload.id] = payload.openClose;
+    }
+
+    const removeDropdown = (payload: ExtractDropdownPayload<dropdownEventTypes.REMOVE>): void => {
+        delete dropdownContextRef.current[payload.id];
+    }
 
     useEffect(() => {
         console.log('setting event emitter');
@@ -408,6 +432,10 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         // toneRefsEmitter.on(trackEventTypes.CHANGE_INSTRUMENT, changeInstrument);
         toneRefsEmitter.on(trackEventTypes.REMOVE_EFFECT, removeEffect);
         toneRefsEmitter.on(trackEventTypes.REMOVE_INSTRUMENT, removeInstrument);
+
+        dropdownEmitter.on(dropdownEventTypes.ESCAPE, escapeDropdown)
+        dropdownEmitter.on(dropdownEventTypes.OPEN, openDropdown)
+        dropdownEmitter.on(dropdownEventTypes.REMOVE, removeDropdown)
         return () => {
             triggEmitter.off(triggEventTypes.ADD_PATTERN, addPattern);
             triggEmitter.off(triggEventTypes.REMOVE_PATTERN, removePattern);
@@ -425,54 +453,60 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             // toneRefsEmitter.off(trackEventTypes.CHANGE_INSTRUMENT, changeInstrument);
             toneRefsEmitter.off(trackEventTypes.REMOVE_EFFECT, removeEffect);
             toneRefsEmitter.off(trackEventTypes.REMOVE_INSTRUMENT, removeInstrument);
+
+            dropdownEmitter.off(dropdownEventTypes.ESCAPE, escapeDropdown)
+            dropdownEmitter.off(dropdownEventTypes.OPEN, openDropdown)
+            dropdownEmitter.off(dropdownEventTypes.REMOVE, removeDropdown)
         }
     }, [])
 
     return (
         <React.Fragment>
-            <AppContext.Provider value={appRef}>
-                <toneRefsContext.Provider value={toneObjRef}>
-                    <TriggContext.Provider value={triggRef}>
-                        <Provider store={store}>
-                            <Div100vh className={styles.app}>
-                                <div ref={appRef} className={styles.wrapson}>
-                                    <div className={styles.content}>
-                                        <div className={styles.top}>
-                                            <div className={styles.transport}></div>
-                                        </div>
-                                        <div className={styles.mid}>
-                                            <div className={styles.arrangerColumn}>
-                                                <div className={styles.box}>
-                                                    <Arranger />
+            <DropdownContext.Provider value={dropdownContextRef}>
+                <AppContext.Provider value={appRef}>
+                    <toneRefsContext.Provider value={toneObjRef}>
+                        <TriggContext.Provider value={triggRef}>
+                            <Provider store={store}>
+                                <Div100vh className={styles.app}>
+                                    <div ref={appRef} className={styles.wrapson}>
+                                        <div className={styles.content}>
+                                            <div className={styles.top}>
+                                                <div className={styles.transport}></div>
+                                            </div>
+                                            <div className={styles.mid}>
+                                                <div className={styles.arrangerColumn}>
+                                                    <div className={styles.box}>
+                                                        <Arranger />
+                                                    </div>
                                                 </div>
+                                                <Track></Track>
                                             </div>
-                                            <Track></Track>
-                                        </div>
-                                        <Sequencer></Sequencer>
-                                        {/* <div className={styles.bottom}>
-                                            <div className={styles.arrangerColumn}>
-                                                <div className={styles.patterns}></div>
-                                            </div>
-                                            <div className={styles.sequencerColumn}>
-                                                <div className={styles.box}>
-                                                    <div className={styles.stepSequencer}></div>
-                                                    <Playground></Playground>
+                                            <Sequencer></Sequencer>
+                                            {/* <div className={styles.bottom}>
+                                                <div className={styles.arrangerColumn}>
+                                                    <div className={styles.patterns}></div>
                                                 </div>
-                                            </div>
-                                        </div> */}
+                                                <div className={styles.sequencerColumn}>
+                                                    <div className={styles.box}>
+                                                        <div className={styles.stepSequencer}></div>
+                                                        <Playground></Playground>
+                                                    </div>
+                                                </div>
+                                            </div> */}
+                                        </div>
                                     </div>
-                                </div>
-                                {/* <Arranger></Arranger>
-                                                            <Transport></Transport> */}
-                                {/* <Dummy></Dummy> */}
-                                {/* <Track></Track>
-                                                            <Sequencer></Sequencer> */}
-                                {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
-                            </Div100vh>
-                        </Provider>
-                    </TriggContext.Provider>
-                </toneRefsContext.Provider>
-            </AppContext.Provider>
+                                    {/* <Arranger></Arranger>
+                                                                <Transport></Transport> */}
+                                    {/* <Dummy></Dummy> */}
+                                    {/* <Track></Track>
+                                                                <Sequencer></Sequencer> */}
+                                    {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
+                                </Div100vh>
+                            </Provider>
+                        </TriggContext.Provider>
+                    </toneRefsContext.Provider>
+                </AppContext.Provider>
+            </DropdownContext.Provider>
         </React.Fragment >
     );
 }
