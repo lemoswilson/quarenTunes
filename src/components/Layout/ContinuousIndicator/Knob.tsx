@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './knob.module.scss';
 import { indicatorProps } from './index';
 
 
-const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData, className, unit, display, value, setDisplay }) => {
+// const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData, className, unit, display, value, setDisplay }) => {
+const Knob: React.FC<indicatorProps> = ({ captureStart, label, indicatorData, className, unit, display, value, setDisplay }) => {
     const c = `${styles.wrapper} ${className}`
+    useEffect(() => {
+        console.log('label', label, 'indicatorData', indicatorData);
+    }, [])
 
     return (
-        <div className={c} onWheel={wheelMove}>
+        // <div className={c} onWheel={wheelMove}>
+        <div className={c}>
             <svg className={styles.svg} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
                 <defs>
                     <linearGradient id="a" x1="18.39" y1="10.37" x2="53.26" y2="63.58" gradientUnits="userSpaceOnUse">

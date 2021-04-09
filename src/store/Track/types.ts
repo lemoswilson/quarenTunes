@@ -165,7 +165,9 @@ export interface trackInfo {
 	fx: effectsInfo[];
 	fxCounter: number;
 	// options: any;
-	options: initialsArray;
+	// options: initialsArray;
+	options: any;
+	env?: number,
 }
 
 export interface Track {
@@ -187,7 +189,10 @@ export enum trackActions {
 	CHANGE_EFFECT = "CHANGE_EFFECT",
 	CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
 	UPDATE_INSTRUMENT_STATE = "UPDATE_INSTRUMENT_STATE",
+	INC_DEC_INST_PROP = "INC_DEC_STATE_INST_PROP",
+	INC_DEC_EFFECT_PROP = "INC_DEC_STATE__EFFECT_PROP",
 	UPDATE_EFFECT_STATE = "UPDATE_EFFECT_STATE",
+	ENVELOPE_ATTACK = "ENVELOPE_ATTACK"
 }
 
 
@@ -197,6 +202,14 @@ export interface changeInstrumentAction {
 		index: number;
 		instrument: xolombrisxInstruments;
 	};
+}
+
+export interface envelopeAttackAction {
+	type: trackActions.ENVELOPE_ATTACK,
+	payload: {
+		index: number,
+		amount: number,
+	}
 }
 
 export interface updateEffectStateAction {
@@ -219,10 +232,33 @@ export type generalInstrumentOptions = RecursivePartial<MembraneSynthOptions |
 	PluckSynthOptions
 >
 
+export interface increaseDecreaseInstrumentPropertyAction {
+	type: trackActions.INC_DEC_INST_PROP,
+	payload: {
+		track: number,
+		property: string,
+		movement: number,
+		cc?: boolean,
+		isContinuous?: boolean,
+	}
+}
+
+export interface increaseDecreaseEffectPropertyAction {
+	type: trackActions.INC_DEC_EFFECT_PROP,
+	payload: {
+		track: number,
+		fx: number,
+		property: string,
+		movement: number,
+		cc?: boolean,
+		isContinuous?: boolean,
+	}
+}
+
 export interface updateInstrumentStateAction {
 	type: trackActions.UPDATE_INSTRUMENT_STATE,
 	payload: {
-		index: number,
+		track: number,
 		options: generalInstrumentOptions,
 	}
 }
@@ -311,4 +347,7 @@ export type trackActionTypes =
 	| changeEffectAction
 	| updateEffectStateAction
 	| updateInstrumentStateAction
+	| increaseDecreaseEffectPropertyAction
+	| increaseDecreaseInstrumentPropertyAction
+	| envelopeAttackAction
 	| changeEffectIndexAction;

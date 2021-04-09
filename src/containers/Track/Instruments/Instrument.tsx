@@ -11,13 +11,14 @@ import usePrevious from '../../../hooks/usePrevious';
 import { useProperty } from '../../../hooks/useProperty';
 import useQuickRef from '../../../hooks/useQuickRef';
 
-import { xolombrisxInstruments, updateInstrumentState } from '../../../store/Track';
+import { xolombrisxInstruments, updateInstrumentState, increaseDecreaseEffectProperty, increaseDecreaseInstrumentProperty } from '../../../store/Track';
 import { noteOn, noteOff, noteDict, numberToNote } from '../../../store/MidiInput';
 import {
     parameterLock,
     setNoteMidi,
     noteInput,
-    setNoteLengthPlayback
+    setNoteLengthPlayback,
+    parameterLockIncreaseDecrease
 } from '../../../store/Sequencer';
 
 import WebMidi, {
@@ -52,6 +53,12 @@ import { getInitials, indicators } from '../defaults';
 import { RootState } from '../../Xolombrisx';
 import { sixteenthFromBBS } from '../../Arranger';
 
+import styles from './style.module.scss';
+
+import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
+
+import FMSynth from '../../../components/Layout/Instruments/FMSynth';
+
 export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
     let options = onlyValues(opt);
 
@@ -75,7 +82,7 @@ export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArra
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
-export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options }: InstrumentProps<T>) => {
+export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, selected }: InstrumentProps<T>) => {
 
     const instrumentRef = useRef(returnInstrument(voice, options));
     const properties: string[] = useMemo(() => propertiesToArray(getInitials(voice)), [voice]);
@@ -109,6 +116,9 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const indexRef = useRef(index);
     useEffect(() => { indexRef.current = index }, [index])
+
+    const idRef = useRef(id);
+    useEffect(() => { idRef.current = id }, [id])
 
     const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
     const patternTrackerRef = useRef(patternTracker);
@@ -245,6 +255,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     || indicatorType === indicators.VERTICAL_SLIDER
 
                 if (selectedStepsRef.current.length >= 1) {
+                    // parameter lock logic
 
                     for (let step of selectedStepsRef.current) {
                         let data, propVal;
@@ -253,7 +264,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                         const trigg = triggRefs.current[activePatternRef.current][indexRef.current].instrument
                         const evp = getNested(event, property);
 
-                        // parameter lock logic
                         if (isContinuous) {
                             const currentValue = evp ? evp : stateValue;
                             propVal = e.controller && e.controler.number
@@ -344,6 +354,59 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         index,
         properties,
         triggRefs
+    ]);
+
+    const propertyIncreaseDecrease: any = useMemo(() => {
+        const callArray = properties.map((property) => {
+            return (e: any) => {
+
+                const indicatorType = getNested(optionsRef.current, property)[3]
+                const stateValue = getNested(optionsRef.current, property)[0]
+
+                const isContinuous = indicatorType === indicators.KNOB
+                    || indicatorType === indicators.VERTICAL_SLIDER
+
+                const cc = e.controller && e.controller.number
+
+                if (selectedStepsRef.current.length >= 1) {
+                    selectedStepsRef.current.forEach(step => {
+                        dispatch(parameterLockIncreaseDecrease(
+                            activePatternRef.current,
+                            idRef.current,
+                            step,
+                            cc ? e.value : e.movementY,
+                            property,
+                            cc,
+                            isContinuous
+                        ))
+                    })
+                    // } else if (stateValue === getNested(
+                    //     instrumentRef.current.get(),
+                    //     property
+                    // )) {
+                } else {
+                    dispatch(increaseDecreaseInstrumentProperty(
+                        indexRef.current,
+                        property,
+                        cc ? e.value : e.movementY,
+                        cc,
+                        isContinuous
+                    ))
+                }
+            }
+        })
+        let o = {};
+        properties.forEach((_, idx, __) => {
+            setNestedValue(properties[idx], callArray[idx], o);
+        });
+        return o;
+    }, [
+        dispatch,
+        activePatternRef,
+        indexRef,
+        optionsRef,
+        selectedStepsRef,
+        properties,
     ]);
 
     useProperty(instrumentRef, options, 'harmonicity');
@@ -888,64 +951,30 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
     }, [instrumentHTMLRef])
 
+    const Component = voice === xolombrisxInstruments.FMSYNTH
+        ? <FMSynth
+            calcCallbacks={propertyIncreaseDecrease}
+            options={options}
+            propertyUpdateCallbacks={propertyValueUpdateCallback} />
+        : null;
+
     return (
-        <div ref={instrumentHTMLRef} style={{ width: '100%', height: '100%' }}>
-            {/* <div ref={tempRef}>
-                {properties.map(property => {
-                    const [value, r, indicatorType, curve] = getNested(options, property)
-                    switch(indicatorType) {
-                        // case indicators.
-                    }
-                })}
-            </div> */}
-            {/* {properties.map(property => {
-                // vai passar () => midiLearn(property) como funcão 
-                const [value, r, indicatorType, curve] = getNested(options, property)
-                switch (indicatorType) {
-                    case indicators.DROPDOWN:
-                        return (
-                            <Dropdown 
-                                property={property} 
-                                value={value} 
-                                option={r} 
-                                calc={accessNested(calcCallback, property)}>
-                            </Dropdown>
-                            console.log()
-                        )
-                    case indicators.KNOB:
-                        return (
-                            <Knob 
-                                property={property} 
-                                value={value} 
-                                range={r} 
-                                curve={curve}
-                                calc={accessNested(calcCallback, property)}>
-                            </Knob>
-                            console.log()
-                        )
-                    case indicators.RADIO:
-                        return (
-                            <Radio 
-                                property={property} 
-                                value={value} 
-                                option={r} 
-                                calc={accessNested(calcCallback, property)}>
-                            </Radio>
-                            console.log()
-                        )
-                    case indicators.VERTICAL_SLIDER:
-                        return (
-                            <VSlider 
-                                property={property} 
-                                value={value} 
-                                option={r} 
-                                calc={accessNested(calcCallback, property)}>
-                            </VSlider>
-                            console.log()
-                        )
-                };
-                return ''
-            })} */}
+        <div
+            ref={instrumentHTMLRef}
+            className={styles.border}
+            style={{ display: !selected ? 'none' : 'flex' }}>
+            <div className={styles.deviceManager}>
+                <DevicePresetManager
+                    deviceId={''}
+                    keyValue={[]}
+                    onSubmit={() => { }}
+                    remove={() => { }}
+                    save={() => { }}
+                    select={() => { }}
+                    selected={''}
+                ></DevicePresetManager>
+            </div>
+            { Component}
         </div>
     )
 }

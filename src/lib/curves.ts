@@ -13,7 +13,7 @@ export function optionFromCC(value: number, options: any[]): string {
 
 export function steppedCalc(mouseMovement: number, parameterOptions: string[], stateValue: string) {
     const idx = parameterOptions.findIndex(p => p === stateValue);
-    console.log('mouseMovement', mouseMovement);
+    // console.log('mouseMovement', mouseMovement);
     if (mouseMovement <= 0 && idx !== parameterOptions.length - 1) {
         return parameterOptions[idx + 1];
     } else if (mouseMovement >= 0 && idx !== 0) {
@@ -30,34 +30,26 @@ export function valueFromMouse(
     max: number,
     curveType: curveTypes
 ): number {
-    if (curveType === curveTypes.EXPONENTIAL) {
-        let c = getBaseLog(127, max - min);
-        let x = (prevValue - min) ** (-c);
-        let s = (c - 1) * x ** (c - 1)
+    let c;
+    let k = prevValue === 0 ? 0.001 : prevValue
 
-        if (prevValue > max) {
-            return max
-        } else if (prevValue < min) {
-            return min
-        }
-
-        if (mouseMovement === 0) {
-            return prevValue
-        } else if (mouseMovement > 0) {
-            mouseMovement = mouseMovement - 1
-            return valueFromMouse(prevValue - s, mouseMovement, min, max, curveType)
-        } else {
-            mouseMovement = mouseMovement + 1
-            return valueFromMouse(prevValue + s, mouseMovement, min, max, curveType)
-        }
+    if (curveType == curveTypes.EXPONENTIAL) {
+        c = k * (1 / 10) * mouseMovement;
     } else {
-        let c = (max - min) / 127
-        return prevValue - c * mouseMovement
+        c = ((max - min) / 127) * mouseMovement;
     }
+
+    let r = prevValue - c
+    return r < max && r > min
+        ? r
+        : r >= max
+            ? max
+            : min
+
 }
 
-function getBaseLog(x: number, y: number): number {
-    return Math.log(y) / Math.log(x)
+function getBaseLog(base: number, number: number): number {
+    return Math.log(number) / Math.log(base)
 };
 
 function linearScale(value: number, min: number, max: number): number {

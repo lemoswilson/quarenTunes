@@ -401,6 +401,54 @@ export function setPatternNoteLength(
 	};
 }
 
+export function parameterLockIncreaseDecrease(
+	pattern: number,
+	track: number,
+	step: number,
+	movement: number,
+	property: string,
+	cc?: boolean,
+	isContinuous?: boolean,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.PARAMETER_LOCK_INC_DEC,
+		payload: {
+			pattern: pattern,
+			movement: movement,
+			property: property,
+			step: step,
+			track: track,
+			cc: cc,
+			isContinuous: isContinuous,
+		}
+	}
+};
+
+export function parameterLockEffectIncreaseDecrease(
+	pattern: number,
+	track: number,
+	step: number,
+	fxIndex: number,
+	movement: number,
+	property: string,
+	cc?: boolean,
+	isContinuous?: boolean,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.PARAMETER_LOCK_INC_DEC_EFFECT,
+		payload: {
+			pattern: pattern,
+			movement: movement,
+			property: property,
+			step: step,
+			track: track,
+			fxIndex: fxIndex,
+			cc: cc,
+			isContinuous: isContinuous,
+		}
+	}
+};
+
 export function setVelocity(
 	pattern: number,
 	track: number,

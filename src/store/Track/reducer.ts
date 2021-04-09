@@ -1,13 +1,15 @@
-import { getNested, propertiesToArray, setNestedArray } from '../../lib/objectDecompose'
-import { getInitials } from '../../containers/Track/defaults'
+import { getNested, propertiesToArray, setNestedArray, setNestedValue } from '../../lib/objectDecompose'
+import { curveTypes, getInitials } from '../../containers/Track/defaults'
 import { getEffectsInitials } from '../../containers/Track/defaults'
 import {
 	trackActionTypes,
 	trackActions,
 	Track,
-	xolombrisxInstruments, effectTypes
+	xolombrisxInstruments, effectTypes, generalInstrumentOptions
 } from "./types";
+import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../lib/curves';
 import produce from "immer";
+import { DRAFT_STATE } from 'immer/dist/internal';
 
 export const initialState: Track = {
 	instrumentCounter: 0,
@@ -20,6 +22,7 @@ export const initialState: Track = {
 			id: 0,
 			fx: [],
 			fxCounter: 0,
+			env: 0.001,
 			midi: {
 				device: undefined,
 				channel: undefined,
@@ -33,6 +36,13 @@ export function trackReducer(
 	action: trackActionTypes
 ): Track {
 	return produce(state, (draft) => {
+		let index: number;
+		let options: generalInstrumentOptions;
+		let movement: number;
+		let cc: boolean | undefined;
+		let property: string;
+		let isContinuous: boolean | undefined;
+
 		switch (action.type) {
 			case trackActions.ADD_INSTRUMENT:
 				console.log(state, draft.trackCount);
@@ -97,7 +107,7 @@ export function trackReducer(
 				draft.tracks[trackId].fx[effectIndex].fx = effect;
 				break;
 			case trackActions.UPDATE_INSTRUMENT_STATE:
-				const [index, options] = [action.payload.index, action.payload.options];
+				[index, options] = [action.payload.track, action.payload.options];
 				const props = propertiesToArray(options);
 				props.forEach(
 					prop => {
@@ -106,6 +116,42 @@ export function trackReducer(
 						console.log('setting proeperty, ', props, v);
 					}
 				);
+				break;
+			case trackActions.INC_DEC_INST_PROP:
+				[index, movement, cc, property, isContinuous] = [
+					action.payload.track,
+					action.payload.movement,
+					action.payload.cc,
+					action.payload.property,
+					action.payload.isContinuous
+				]
+				const v = getNested(draft.tracks[index].options, property);
+				// console.log('updating instrument property', property, 'pre v', v, v[0]);
+				let val;
+				if (isContinuous) {
+					val = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4]);
+					if (val >= v[1][0] && val <= v[1][1]) {
+						// console.log('val type', typeof val)
+						setNestedArray(draft.tracks[index].options, property, Number(val.toFixed(4)))
+					}
+					// v[0] = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4])
+				} else {
+					val = cc ? optionFromCC(movement, v[1]) : steppedCalc(movement, v[1], v[0])
+					console.log('valval', val)
+					setNestedArray(draft.tracks[index].options, property, val)
+				}
+				// console.log('updated property', property, 'post v', getNested(draft.tracks[index].options, property)[0]);
+				break;
+			case trackActions.ENVELOPE_ATTACK:
+				[index, movement] = [action.payload.index, action.payload.amount]
+				// if (draft.tracks[index].options.envelope.attack[0]) {
+				// console.log('nananana[')
+				let vi = state.tracks[index].options.envelope.attack;
+				draft.tracks[index].options.envelope.attack[0] = Number(valueFromMouse(vi[0], movement, vi[1][0], vi[1][1], curveTypes.EXPONENTIAL).toFixed(4))
+				// let vi = Number(state.tracks[index].env);
+				// draft.tracks[index].env = Number(valueFromMouse(vi, movement, 0.001, 10, curveTypes.EXPONENTIAL).toFixed(4))
+				// }
+				break;
 		}
 	});
 }

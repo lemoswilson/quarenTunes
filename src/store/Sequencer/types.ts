@@ -40,6 +40,8 @@ export enum sequencerActions {
 	REMOVE_EFFECT_SEQUENCER = "REMOVE_EFFECT_SEQUENCER",
 	CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
 	PARAMETER_LOCK_EFFECT = "PARAMETER_LOCK_EFFECT",
+	PARAMETER_LOCK_INC_DEC = "PARAMETER_LOCK_INC_DEC",
+	PARAMETER_LOCK_INC_DEC_EFFECT = "PARAMETER_LOCK_INC_DEC_EFFECT"
 };
 
 export type fxOptions = effectsInitials;
@@ -350,6 +352,33 @@ export interface parameterLockAction {
 	};
 };
 
+export interface parameterLockIncreaseDecreaseAction {
+	type: sequencerActions.PARAMETER_LOCK_INC_DEC;
+	payload: {
+		pattern: number;
+		track: number;
+		step: number;
+		property: string;
+		movement: number;
+		cc?: boolean;
+		isContinuous?: boolean,
+	}
+};
+
+export interface parameterLockEffectIncreaseDecreaseAction {
+	type: sequencerActions.PARAMETER_LOCK_INC_DEC_EFFECT,
+	payload: {
+		pattern: number,
+		track: number,
+		fxIndex: number,
+		step: number,
+		property: string,
+		movement: number,
+		cc?: boolean,
+		isContinuous?: boolean,
+	}
+};
+
 export interface duplicatePatternAction {
 	type: sequencerActions.DUPLICATE_PATTERN;
 	payload: {
@@ -402,4 +431,6 @@ export type sequencerActionTypes =
 	| increaseDecreaseOffsetAction
 	| increaseDecreaseVelocityAction
 	| renamePatternAction
+	| parameterLockEffectIncreaseDecreaseAction
+	| parameterLockIncreaseDecreaseAction
 	| removeInstrumentFromSequencerAction;

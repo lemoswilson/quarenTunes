@@ -7,6 +7,59 @@ import {
 	generalInstrumentOptions,
 } from "./types";
 
+export function increaseDecreaseInstrumentProperty(
+	index: number,
+	property: string,
+	movement: number,
+	cc?: boolean,
+	isContinuous?: boolean
+): trackActionTypes {
+	return {
+		type: trackActions.INC_DEC_INST_PROP,
+		payload: {
+			track: index,
+			movement: movement,
+			property: property,
+			cc: cc,
+			isContinuous: isContinuous
+		}
+	}
+}
+
+export function envelopeAttack(
+	index: number,
+	movement: number,
+): trackActionTypes {
+	return {
+		type: trackActions.ENVELOPE_ATTACK,
+		payload: {
+			amount: movement,
+			index: index
+		}
+	}
+};
+
+export function increaseDecreaseEffectProperty(
+	track: number,
+	fx: number,
+	property: string,
+	movement: number,
+	cc?: boolean,
+	isContinuous?: boolean
+): trackActionTypes {
+	return {
+		type: trackActions.INC_DEC_EFFECT_PROP,
+		payload: {
+			track: track,
+			fx: fx,
+			movement: movement,
+			property: property,
+			cc: cc,
+			isContinuous: isContinuous
+		}
+	}
+}
+
 export function updateInstrumentState(
 	index: number,
 	options: generalInstrumentOptions
@@ -14,7 +67,7 @@ export function updateInstrumentState(
 	return {
 		type: trackActions.UPDATE_INSTRUMENT_STATE,
 		payload: {
-			index: index,
+			track: index,
 			options: options
 		}
 	};

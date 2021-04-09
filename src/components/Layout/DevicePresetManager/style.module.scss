@@ -3,16 +3,16 @@
 .box {
     background-color: $light;
     width: 38%;
-    height: 9%;
+    height: 2.6rem;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     flex-direction: row;
     border-radius: 1rem;
-    margin-top: 2rem;
+    // margin-top: 2rem;
 
     .dropdown {
-        margin-top: 0.35rem;
+        margin-top: 0.25rem;
     }
 
     .buttons {

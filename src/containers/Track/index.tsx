@@ -93,10 +93,21 @@ const Track: FunctionComponent = () => {
             <div className={styles.instrumentColumn}>
                 <div className={styles.tabs}></div>
                 <div className={styles.box}>
+                    {Tracks.map((trackInfo, idx, arr) => {
+                        return <Instrument
+                            key={`instrument ${trackInfo.id}`}
+                            id={trackInfo.id}
+                            index={idx}
+                            midi={trackInfo.midi}
+                            options={trackInfo.options}
+                            selected={selectedTrack === trackInfo.id}
+                            voice={trackInfo.instrument}
+                        ></Instrument>
+                    })}
                     {/* <CurveSelector display={'horizontal'} selected={'exponential'} selectCurve={() => { }}></CurveSelector> */}
                     {/* <WaveformSelector selectWaveform={() => { }} selected={'sine'}></WaveformSelector> */}
                     {/* <img src={grayTriangle} alt="" /> */}
-                    <Playground></Playground>
+                    {/* <Playground></Playground>
                     <ContinuousIndicator
                         ccMouseCalculationCallback={() => { }}
                         curveFunction={() => 10}
@@ -120,7 +131,7 @@ const Track: FunctionComponent = () => {
                         valueUpdateCallback={() => { }}
                         type={'slider'}
                         unit={'unit'}
-                    ></ContinuousIndicator>
+                    ></ContinuousIndicator> */}
                     {/* <SteppedIndicator
                         options={['alameda', 'xola', 'jirafa']}
                         ccMouseCalculationCallback={() => { }}
@@ -130,7 +141,6 @@ const Track: FunctionComponent = () => {
                         valueUpdateCallback={() => { }}
                         unit={'unit'}
                     ></SteppedIndicator> */}
-                    {/* <Instrument id={0} index={0} midi={{ channel: undefined, device: undefined }} options={getInitials(xolombrisxInstruments.FMSYNTH)} voice={xolombrisxInstruments.FMSYNTH} ></Instrument> */}
                 </div>
             </div>
             <div className={styles.effectsColumn}>

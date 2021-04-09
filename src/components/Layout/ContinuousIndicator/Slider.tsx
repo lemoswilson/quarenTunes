@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styles from './slider.module.scss';
 import { indicatorProps } from './index';
 
-const Slider: React.FC<indicatorProps> = ({ captureStartDiv, indicatorData, label, wheelMove, className, unit, value, setDisplay, display }) => {
+// const Slider: React.FC<indicatorProps> = ({ captureStartDiv, indicatorData, label, wheelMove, className, unit, value, setDisplay, display }) => {
+const Slider: React.FC<indicatorProps> = ({ captureStartDiv, indicatorData, label, className, unit, value, setDisplay, display }) => {
     const c = `${styles.wrapper} ${className}`;
 
     return (

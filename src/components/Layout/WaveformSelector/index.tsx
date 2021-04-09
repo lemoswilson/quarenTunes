@@ -17,9 +17,10 @@ type wave = 'sine' | 'saw' | 'square' | 'triangle';
 interface WaveformSelectorProps {
     selected: wave;
     selectWaveform: (wave: wave) => void;
+    className?: string
 }
 
-const WaveformSelector: React.FC<WaveformSelectorProps> = ({ selectWaveform, selected }) => {
+const WaveformSelector: React.FC<WaveformSelectorProps> = ({ selectWaveform, selected, className }) => {
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
@@ -29,7 +30,7 @@ const WaveformSelector: React.FC<WaveformSelectorProps> = ({ selectWaveform, sel
     const triangle = selected === 'triangle' ? [<RedTriangle></RedTriangle>, redButton] : [<GrayTriangle></GrayTriangle>, grayButton];
 
     return (
-        <div className={styles.wrapper}>
+        <div className={`${styles.wrapper} ${className}`}>
             <div className={styles.title}> Waveform</div>
             <div className={styles.options}>
                 <div className={styles.box}>

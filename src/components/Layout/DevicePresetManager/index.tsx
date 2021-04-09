@@ -8,19 +8,21 @@ interface DevicePresetManager {
     className?: string,
     save: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
     remove: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
-    keys: string[],
+    // keys: string[],
+    keyValue: string[][],
     selected: string,
-    select: any,
-    lookup: (key: string) => string
+    select: (key: string) => void,
+    // lookup: (key: string) => string
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-    onBlur: (event: React.FocusEvent<HTMLFormElement>) => void;
+    deviceId: string,
+    // onBlur: (event: React.FocusEvent<HTMLFormElement>) => void;
 };
 
-const DevicePresetManager: React.FC<DevicePresetManager> = ({ keys, lookup, save, select, selected, className, remove, onSubmit, onBlur }) => {
+const DevicePresetManager: React.FC<DevicePresetManager> = ({ deviceId, keyValue, save, select, selected, className, remove, onSubmit }) => {
 
     return (
         <div className={`${styles.box} ${className}`}>
-            <Dropdrown dropdownId={'s'} keyValue={keys.map(key => [key, lookup(key)])} onSubmit={onSubmit} className={styles.dropdown} selected={selected} select={select}></Dropdrown>
+            <Dropdrown dropdownId={deviceId} keyValue={keyValue} onSubmit={onSubmit} className={styles.dropdown} selected={selected} select={select}></Dropdrown>
             <Save onClick={save} className={styles.buttons}></Save>
             <TrashCan onClick={remove} className={styles.buttons}></TrashCan>
         </div>

@@ -4,12 +4,14 @@ import { xolombrisxInstruments, midi } from '../../../store/Track'
 export interface InstrumentProps<T extends xolombrisxInstruments> extends instrumentProps {
     options: initialsArray,
 }
+
 interface instrumentProps {
     id: number,
     maxPolyphony?: number,
     midi: midi,
-    voice: xolombrisxInstruments
-    index: number
+    voice: xolombrisxInstruments,
+    index: number,
+    selected: boolean,
 }
 
 export type newProps = instrumentProps & initialsArray
@@ -26,6 +28,7 @@ export type eventOptions = {
     velocity: number,
     offset: number,
     note: string[]
+    // } & RecursivePartial<anyFromObject<ReturnType<typeof getInitials>>>
 } & RecursivePartial<anyFromObject<ReturnType<typeof getInitials>>>
 
 

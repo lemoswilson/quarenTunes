@@ -54,7 +54,10 @@ export function sequencerReducer(
 			amount: number,
 			velocity: number,
 			fxIndex: number,
+			movement: number,
+			property: string,
 			step: number,
+			cc: boolean | undefined,
 			trackCount: number,
 			counter: number = draft.counter
 		switch (action.type) {
@@ -424,6 +427,22 @@ export function sequencerReducer(
 				const p = propertiesToArray(data)[0]
 				const v = getNested(data, p)
 				setNestedValue(p, v, draft.patterns[pattern].tracks[track].events[step].fx[fxIndex]);
+				break;
+			case sequencerActions.PARAMETER_LOCK_INC_DEC:
+				[step, track, pattern, movement, property, cc] =
+					[
+						action.payload.step,
+						action.payload.track,
+						action.payload.pattern,
+						action.payload.movement,
+						action.payload.property,
+						action.payload.cc,
+					]
+				if (cc) {
+
+				} else {
+
+				}
 
 		}
 	});

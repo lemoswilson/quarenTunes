@@ -12,9 +12,10 @@ interface CurveSelectorProps {
     selected: curveType;
     display: 'vertical' | 'horizontal';
     selectCurve: (curve: curveType) => void;
+    className?: string;
 }
 
-const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, selectCurve }) => {
+const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, selectCurve, className }) => {
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
@@ -23,7 +24,7 @@ const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, select
 
     const displayClass = display === 'horizontal' ? styles.horizontal : styles.vertical;
     return (
-        <div className={`${displayClass}`}>
+        <div className={`${displayClass} ${className}`}>
             <div className={styles.title}> Curve </div>
             <div className={styles.options}>
                 <div className={styles.box}>

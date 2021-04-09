@@ -1,4 +1,5 @@
 import React, { useState, useEffect, WheelEvent } from 'react';
+import { curveTypes } from '../../../containers/Track/defaults';
 import { propertiesToArray } from '../../../lib/objectDecompose';
 // import styles from './knob.module.scss';
 import Knob from './Knob';
@@ -11,15 +12,16 @@ interface continuousIndicator {
     max: number;
     ccMouseCalculationCallback: (e: any) => void;
     valueUpdateCallback: (value: any) => void;
-    curveFunction: (input: number) => number;
     label: string;
     midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
     type: 'knob' | 'slider';
     unit: string;
+    curve?: curveTypes;
 }
 
 export interface indicatorProps {
-    wheelMove: (e: WheelEvent) => void,
+    // wheelMove: (e: WheelEvent) => void,
+    curve?: curveTypes,
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
     captureStartDiv?: (e: React.MouseEvent) => void,
     label: string,
@@ -33,9 +35,9 @@ export interface indicatorProps {
 
 const ContinuousIndicator: React.FC<continuousIndicator> = ({
     className,
+    curve,
     ccMouseCalculationCallback,
     valueUpdateCallback,
-    curveFunction,
     label,
     max,
     min,
@@ -82,67 +84,69 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         shouldRemove = true;
     };
 
-    const wheelMove = (e: WheelEvent) => {
-        e.persist();
-        e.preventDefault();
-        if (e.deltaY >= 7) {
-            value + 7 * curveFunction(value) < max
-                ? valueUpdateCallback(value + 7 * curveFunction(value))
-                : valueUpdateCallback(max);
-        } else if (e.deltaY <= -7) {
-            value - 7 * curveFunction(value) > min
-                ? valueUpdateCallback(value - 7 * curveFunction(value))
-                : valueUpdateCallback(min)
-        } else if (e.deltaY < 0 && e.deltaY > -7) {
-            value + e.deltaY * curveFunction(value) < max
-                ? valueUpdateCallback(value + e.deltaY * curveFunction(value))
-                : valueUpdateCallback(max)
-        } else if (e.deltaY < 0 && e.deltaY > -7) {
-            value - e.deltaY * curveFunction(value) > min
-                ? valueUpdateCallback(value - e.deltaY * curveFunction(value))
-                : valueUpdateCallback(min)
-        }
-    };
+    // const wheelMove = (e: WheelEvent) => {
+    //     e.persist();
+    //     e.preventDefault();
+    //     if (e.deltaY >= 7) {
+    //         value + 7 * curveFunction(value) < max
+    //             ? valueUpdateCallback(value + 7 * curveFunction(value))
+    //             : valueUpdateCallback(max);
+    //     } else if (e.deltaY <= -7) {
+    //         value - 7 * curveFunction(value) > min
+    //             ? valueUpdateCallback(value - 7 * curveFunction(value))
+    //             : valueUpdateCallback(min)
+    //     } else if (e.deltaY < 0 && e.deltaY > -7) {
+    //         value + e.deltaY * curveFunction(value) < max
+    //             ? valueUpdateCallback(value + e.deltaY * curveFunction(value))
+    //             : valueUpdateCallback(max)
+    //     } else if (e.deltaY < 0 && e.deltaY > -7) {
+    //         value - e.deltaY * curveFunction(value) > min
+    //             ? valueUpdateCallback(value - e.deltaY * curveFunction(value))
+    //             : valueUpdateCallback(min)
+    //     }
+    // };
 
     function keyHandle(this: Document, e: KeyboardEvent): void {
         let char: string = e.key.toLowerCase();
         if (char === 'arrowdown') {
-            valueUpdateCallback(value - curveFunction(value));
+            // valueUpdateCallback(value - curveFunction(value));
         } else if (char === 'arrowup') {
-            valueUpdateCallback(value + curveFunction(value));
+            // valueUpdateCallback(value + curveFunction(value));
         }
     }
 
     const rotate = (angle: number) => `rotate(${angle} 33.64 33.64)`
     const mid = (max - min) / 2
-    const rotateBy = rotate(140 * (value - (mid)) / mid);
+    const rotateBy = curve === curveTypes.LINEAR || !curve
+        ? rotate(140 * (value - (mid)) / mid)
+        : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
+    // const rotateBy = rotate(0)
     const heightPercentage = `${(86 / (max - min)) * value + 3}%`
 
     const knob = <Knob
         captureStart={captureStart}
         indicatorData={rotateBy}
         label={label}
-        wheelMove={wheelMove}
+        // wheelMove={wheelMove}
         className={className}
         value={value}
         unit={unit}
         display={display}
+        curve={curve}
         setDisplay={() => setDisplay(state => !state)}
     ></Knob>
 
+    // wheelMove={wheelMove}>
     const slider = <Slider
         value={value}
+        curve={curve}
         unit={unit}
         display={display}
         className={className}
         captureStartDiv={captureStartDiv}
         indicatorData={heightPercentage}
         label={label}
-        setDisplay={() => setDisplay(state => !state)}
-        wheelMove={wheelMove}>
-        {/* value={value} */}
-        {/* unit={unit} */}
-    </Slider>
+        setDisplay={() => setDisplay(state => !state)} />
 
     const indicator = type === 'knob' ? knob : slider;
 
