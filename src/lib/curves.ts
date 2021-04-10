@@ -28,24 +28,56 @@ export function valueFromMouse(
     mouseMovement: number,
     min: number,
     max: number,
-    curveType: curveTypes
+    curveType: curveTypes,
+    extra?: 'volume' | 'detune',
 ): number {
-    let c;
-    let k = prevValue === 0 ? 0.001 : prevValue
+    let r;
+    if (extra === 'volume') {
 
-    if (curveType == curveTypes.EXPONENTIAL) {
-        c = k * (1 / 10) * mouseMovement;
+        if (prevValue === -Infinity) {
+            if (mouseMovement >= 0) {
+                return prevValue
+            } else if (mouseMovement < 0) {
+                return -100 + (mouseMovement + 1) * 0.3
+            }
+        } else if (prevValue === -100) {
+            console.log(' to infinity infinity')
+            if (mouseMovement > 0) {
+                return -Infinity
+            }
+        }
+
+        let volumeDelta = prevValue >= -20 && prevValue <= 6
+            ? 0.1
+            : 0.3
+        // let volumeDelta = 0.1;
+
+        r = prevValue - volumeDelta * mouseMovement
+    } else if (extra === 'detune') {
+        r = prevValue - 3 * mouseMovement
     } else {
-        c = ((max - min) / 127) * mouseMovement;
+        let c;
+        let k = prevValue === 0 ? 0.001 : prevValue
+
+        if (curveType == curveTypes.EXPONENTIAL) {
+            c = k * (1 / 10) * mouseMovement;
+        } else {
+            c = ((max - min) / 127) * mouseMovement;
+        }
+
+        r = prevValue - c
+        // return r < max && r > min
+        //     ? r
+        //     : r >= max
+        //         ? max
+        //         : min
     }
 
-    let r = prevValue - c
     return r < max && r > min
         ? r
         : r >= max
             ? max
             : min
-
 }
 
 function getBaseLog(base: number, number: number): number {

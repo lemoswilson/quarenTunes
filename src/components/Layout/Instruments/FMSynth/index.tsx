@@ -103,6 +103,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                     max={normalRange[1]}
                                     midiLearn={() => { }}
                                     min={normalRange[0]}
+                                    detail={'envelopeZero'}
                                     type={'knob'}
                                     curve={getNested(options, 'envelope.sustain')[4]}
                                     unit={normalUnit}
@@ -152,6 +153,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                     unit={detuneUnit}
                                     value={getNested(options, 'detune')[0]}
                                     valueUpdateCallback={getNested(propertyUpdateCallbacks, 'detune')}
+                                    detail={'detune'}
                                     className={styles.decay}
                                 />
                                 <ContinuousIndicator
@@ -162,6 +164,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                     midiLearn={() => { }}
                                     min={portamentoRange[0]}
                                     type={'knob'}
+                                    detail={'port'}
                                     unit={portamentoUnit}
                                     curve={getNested(options, 'portamento')[4]}
                                     value={getNested(options, 'portamento')[0]}
@@ -177,6 +180,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                 midiLearn={() => { }}
                                 min={volumeRange[0]}
                                 type={'slider'}
+                                detail={'volume'}
                                 curve={getNested(options, 'volume')[4]}
                                 unit={volumeUnit}
                                 value={getNested(options, 'volume')[0]}

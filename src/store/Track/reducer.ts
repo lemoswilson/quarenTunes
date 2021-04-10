@@ -129,11 +129,16 @@ export function trackReducer(
 				// console.log('updating instrument property', property, 'pre v', v, v[0]);
 				let val;
 				if (isContinuous) {
-					val = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4]);
-					if (val >= v[1][0] && val <= v[1][1]) {
-						// console.log('val type', typeof val)
+					val = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4], property === 'volume' ? 'volume' : property === 'detune' ? 'detune' : undefined);
+					if (val === -Infinity) {
+						setNestedArray(draft.tracks[index].options, property, -Infinity)
+					} else if (val >= v[1][0] && val <= v[1][1]) {
+						// if (val >= v[1][0] && val <= v[1][1]) {
 						setNestedArray(draft.tracks[index].options, property, Number(val.toFixed(4)))
+
+						// }
 					}
+					// console.log('val type', typeof val)
 					// v[0] = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4])
 				} else {
 					val = cc ? optionFromCC(movement, v[1]) : steppedCalc(movement, v[1], v[0])

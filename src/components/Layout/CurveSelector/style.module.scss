@@ -16,6 +16,12 @@
         font-weight: 500;
         color: $textColor;
         text-shadow: 0 0 1px $textShadow;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; 
         justify-content: center;
         text-align: center;
         font-size: 0.9rem;
@@ -63,6 +69,13 @@
         @include center;
         width: 100%;
         font-family: $jost;
+        // -webkit-touch-callout: none; /* iOS Safari */
+        // -webkit-user-select: none; /* Safari */
+        // -khtml-user-select: none; /* Konqueror HTML */
+        // -moz-user-select: none; /* Old versions of Firefox */
+        // -ms-user-select: none; /* Internet Explorer/Edge */
+        // user-select: none; 
+        @include notselectable;
         font-weight: 500;
         color: $textColor;
         text-shadow: 0 0 1px $textShadow;

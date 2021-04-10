@@ -6,6 +6,7 @@ import { indicatorProps } from './index';
 // const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData, className, unit, display, value, setDisplay }) => {
 const Knob: React.FC<indicatorProps> = ({ captureStart, label, indicatorData, className, unit, display, value, setDisplay }) => {
     const c = `${styles.wrapper} ${className}`
+    const valueDisplay = value === -Infinity ? '-&infin;' : value;
     useEffect(() => {
         console.log('label', label, 'indicatorData', indicatorData);
     }, [])

@@ -30,6 +30,7 @@
 
             .title {
                 // width: 100%;
+
                 margin-right: 1rem;
                 height: 1rem;
                 @include center;
@@ -40,6 +41,13 @@
                 text-shadow: 0 0 1px $textShadow;
                 // font-family: 'Times New Roman', Times, serif;
                 font-family: $jost;         
+                // -webkit-touch-callout: none; /* iOS Safari */
+                // -webkit-user-select: none; /* Safari */
+                // -khtml-user-select: none; /* Konqueror HTML */
+                // -moz-user-select: none; /* Old versions of Firefox */
+                // -ms-user-select: none; /* Internet Explorer/Edge */
+                // user-select: none; 
+                @include notselectable;
                 // border: 1px solid black;
             }
 
@@ -139,6 +147,13 @@
                 font-weight: 500;
                 color: rgb(194, 194, 194);
                 text-shadow: 0 0 1px $textShadow;
+                // -webkit-touch-callout: none; /* iOS Safari */
+                // -webkit-user-select: none; /* Safari */
+                // -khtml-user-select: none; /* Konqueror HTML */
+                // -moz-user-select: none; /* Old versions of Firefox */
+                // -ms-user-select: none; /* Internet Explorer/Edge */
+                // user-select: none; 
+                @include notselectable;
                 // font-family: 'Times New Roman', Times, serif;
                 font-family: $jost;         
                 // border: 1px solid black;

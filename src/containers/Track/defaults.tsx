@@ -51,7 +51,7 @@ export const detuneRange = [-1200, 1200];
 export const portamentoRange = [0.01, 3];
 export const harmonicityRange = [0.1, 10];
 export const envelopeTimeRange = [0.001, 10];
-export const normalRange = [0.01, 1];
+export const normalRange = [0, 1];
 const audioRange = [0, 1];
 export const modulationRange = [0.01, 100];
 const membraneSynthOctaveRange = [0.5, 8];
@@ -77,11 +77,11 @@ const envelopeCurveOptions = ['linear', 'exponential'];
 const envelope = {
     attack: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decay: [0.01, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
+    decay: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
     release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    sustain: [1, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
+    sustain: [1, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.LINEAR]
 };
 
 const metalSynthEnvelope = {
@@ -91,7 +91,7 @@ const metalSynthEnvelope = {
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
     release: [0.2, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    sustain: [0, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
+    sustain: [0, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.LINEAR]
 }
 
 const membraneSynthEnvelope = {
@@ -101,7 +101,7 @@ const membraneSynthEnvelope = {
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decay: [0.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     release: [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    sustain: [0.01, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
+    sustain: [0.01, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR]
 }
 
 const modulationEnvelope = {
@@ -111,7 +111,7 @@ const modulationEnvelope = {
     attack: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decay: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    sustain: [1, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
+    sustain: [1, normalRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR]
 };
 
 const oscillator = {
@@ -135,9 +135,9 @@ const noise = {
     type: ['white', noiseTypeOptions, undefined, noiseTypeIndicator]
 }
 
-const volume = [0, volumeRange, volumeUnit, volumeIndicator, curveTypes.EXPONENTIAL];
+const volume = [0, volumeRange, volumeUnit, volumeIndicator, curveTypes.LINEAR];
 const detune = [0, detuneRange, detuneUnit, detuneIndicator, curveTypes.LINEAR];
-const portamento = [0, portamentoRange, portamentoUnit, portamentoIndicator, curveTypes.EXPONENTIAL];
+const portamento = [0, portamentoRange, portamentoUnit, portamentoIndicator, curveTypes.LINEAR];
 const modSynthHarmonicity = [3, harmonicityRange, harmonicityUnit, harmonicityIndicator, curveTypes.LINEAR];
 const metalSynthHarmonicity = [5.1, harmonicityRange, harmonicityUnit, harmonicityIndicator, curveTypes.LINEAR];
 const modSynthModulationIndex = [10, modulationRange, modulationUnit, modulationIndicator, curveTypes.LINEAR];

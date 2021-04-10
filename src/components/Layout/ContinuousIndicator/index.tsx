@@ -1,9 +1,10 @@
-import React, { useState, useEffect, WheelEvent } from 'react';
+import React, { useState, useEffect, WheelEvent, useContext, MutableRefObject } from 'react';
 import { curveTypes } from '../../../containers/Track/defaults';
 import { propertiesToArray } from '../../../lib/objectDecompose';
 // import styles from './knob.module.scss';
 import Knob from './Knob';
 import Slider from './Slider';
+import appContext from '../.././../context/AppContext';
 
 interface continuousIndicator {
     className?: string;
@@ -15,6 +16,7 @@ interface continuousIndicator {
     label: string;
     midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
     type: 'knob' | 'slider';
+    detail?: 'port' | 'detune' | 'envelopeZero' | 'volume'
     unit: string;
     curve?: curveTypes;
 }
@@ -42,12 +44,14 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     max,
     min,
     value,
+    detail,
     midiLearn,
     type,
     unit
 }) => {
     const [isMoving, setMovement] = useState(false)
     const [display, setDisplay] = useState(true);
+    const appRef = useContext<MutableRefObject<HTMLDivElement>>(appContext);
     let shouldRemove = false;
 
     useEffect(() => {
@@ -68,6 +72,8 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const captureStart = (e: React.PointerEvent<SVGSVGElement>) => {
         if (e.button === 0) {
+            // appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
+            appRef.current.requestPointerLock();
             setMovement(true);
             setDisplay(false);
         }
@@ -75,6 +81,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const captureStartDiv = (e: React.MouseEvent) => {
         setMovement(true);
+        appRef.current.requestPointerLock();
         setDisplay(false);
     }
     const stopDrag = (e: MouseEvent) => {
@@ -115,6 +122,29 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         }
     }
 
+    const rrr = () => {
+        let ccc = min === 0 ? 0.01 : min
+
+        if (curve === curveTypes.LINEAR && (detail === 'detune' && type === 'knob')) {
+            return rotate(140 * ((value + 1200) - (mid + 1200) / (mid + 1200)))
+        } else if (curve === curveTypes.EXPONENTIAL && (detail === 'envelopeZero' || detail === 'port')) {
+            // return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5))
+            return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+        } else if (label === 'volume') {
+            return value === -Infinity
+                ? '3%'
+                : `${(86 / (max - ccc) * value + 101)}`;
+        } else if (detail === 'port') {
+            return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+        } else if ((curve === curveTypes.LINEAR || !curve) && type === 'knob') {
+            return rotate(140 * (value - (mid)) / mid)
+        } else if ((curve === curveTypes.LINEAR || !curve) && type === 'slider') {
+            return `${(86 / (max - ccc)) * value + 3}%`;
+        } else {
+            return rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+        }
+    }
+
     const rotate = (angle: number) => `rotate(${angle} 33.64 33.64)`
     const mid = (max - min) / 2
     const rotateBy = curve === curveTypes.LINEAR || !curve
@@ -125,7 +155,13 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const knob = <Knob
         captureStart={captureStart}
-        indicatorData={rotateBy}
+        // indicatorData={rotateBy}
+        indicatorData={
+            detail === 'detune'
+                ? rotate((value / 1200) * 140)
+                : rotateBy}
+        // indicatorData={detail === 'detune' ? rotate((0) * 140) : rotateBy}
+        // indicatorData={rrr()}
         label={label}
         // wheelMove={wheelMove}
         className={className}
@@ -144,7 +180,9 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         display={display}
         className={className}
         captureStartDiv={captureStartDiv}
-        indicatorData={heightPercentage}
+        // indicatorData={detail === 'volume' ? rrr() : heightPercentage}
+        indicatorData={detail === 'volume' ? `${(1 / 106) * ((83 * value) + 8618)}%` : heightPercentage}
+        // indicatorData={rrr()}
         label={label}
         setDisplay={() => setDisplay(state => !state)} />
 
