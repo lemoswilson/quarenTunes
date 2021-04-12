@@ -17,6 +17,7 @@
         height: 5rem;
         top: 11%;
         align-self: center;
+        // order: 2;
     }
 
     .svg {
@@ -24,13 +25,13 @@
         width: 4rem;
         height: 4rem;
         align-self: center;
-        // order: 1;
+        // order: 3;
     }
 
     .title {
         // border: 1px solid green;
         // line-height: 0.5rem;
-        // order: 0;
+        // order: 1;
         width: 100%;
         height: auto; 
         padding-bottom: 0.2rem;

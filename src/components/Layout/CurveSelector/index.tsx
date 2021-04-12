@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './style.module.scss';
 import Button from '../WaveformSelector/Button';
 import RedLinear from './RedLinear';
 import RedExponential from './RedExponential';
 import GrayLinear from './GrayLinear';
 import GrayExponential from './GrayExponential';
+import { curveTypes } from '../../../containers/Track/defaults';
 
-type curveType = 'linear' | 'exponential';
 
 interface CurveSelectorProps {
-    selected: curveType;
+    selected: curveTypes;
     display: 'vertical' | 'horizontal';
-    selectCurve: (curve: curveType) => void;
+    selectCurve: (curve: curveTypes) => void;
     className?: string;
 }
 
@@ -19,8 +19,12 @@ const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, select
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
-    const linear = selected === 'linear' ? [<RedLinear></RedLinear>, redButton] : [<GrayLinear></GrayLinear>, grayButton];
-    const exponential = selected === 'exponential' ? [<RedExponential></RedExponential>, redButton] : [<GrayExponential></GrayExponential>, grayButton];
+    useEffect(() => {
+        console.log(selected)
+    }, [selected])
+
+    const linear = selected === curveTypes.LINEAR ? [<RedLinear></RedLinear>, redButton] : [<GrayLinear></GrayLinear>, grayButton];
+    const exponential = selected === curveTypes.EXPONENTIAL ? [<RedExponential></RedExponential>, redButton] : [<GrayExponential></GrayExponential>, grayButton];
 
     const displayClass = display === 'horizontal' ? styles.horizontal : styles.vertical;
     return (
@@ -28,12 +32,12 @@ const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, select
             <div className={styles.title}> Curve </div>
             <div className={styles.options}>
                 <div className={styles.box}>
-                    <div onClick={() => selectCurve('linear')} className={styles.button}>{linear[1]}</div>
-                    <div onClick={() => selectCurve('linear')} className={styles.curve}>{linear[0]}</div>
+                    <div onClick={() => selectCurve(curveTypes.LINEAR)} className={styles.button}>{linear[1]}</div>
+                    <div onClick={() => selectCurve(curveTypes.LINEAR)} className={styles.curve}>{linear[0]}</div>
                 </div>
                 <div className={styles.box}>
-                    <div onClick={() => selectCurve('exponential')} className={styles.button}>{exponential[1]}</div>
-                    <div onClick={() => selectCurve('exponential')} className={styles.curve}>{exponential[0]}</div>
+                    <div onClick={() => selectCurve(curveTypes.EXPONENTIAL)} className={styles.button}>{exponential[1]}</div>
+                    <div onClick={() => selectCurve(curveTypes.EXPONENTIAL)} className={styles.curve}>{exponential[0]}</div>
                 </div>
             </div>
         </div>

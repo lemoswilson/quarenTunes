@@ -58,9 +58,9 @@ const membraneSynthOctaveRange = [0.5, 8];
 const metalSynthOctaveRange = [0, 8]
 const dampeningRange = [0, 7000];
 const attackNoiseRange = [0.1, 20]
-const noiseTypeOptions = ['white', 'brown', 'pink']
-const oscillatorTypeOptions = ['sine', 'square', 'saw', 'triangle'];
-const envelopeCurveOptions = ['linear', 'exponential'];
+export const noiseTypeOptions = ['white', 'brown', 'pink']
+const oscillatorTypeOptions = ['sine', 'pulse', 'sawtooth', 'triangle'];
+const envelopeCurveOptions = [curveTypes.LINEAR, curveTypes.EXPONENTIAL];
 
 // data that will be used to generate the indicators/selectors
 // that will lay in the state of each track.
@@ -76,18 +76,18 @@ const envelopeCurveOptions = ['linear', 'exponential'];
 
 const envelope = {
     attack: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attackCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     decay: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    decayCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    releaseCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     sustain: [1, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.LINEAR]
 };
 
 const metalSynthEnvelope = {
-    attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attackCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    decayCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    releaseCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
     release: [0.2, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
@@ -95,9 +95,9 @@ const metalSynthEnvelope = {
 }
 
 const membraneSynthEnvelope = {
-    attackCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attackCurve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    decayCurve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    releaseCurve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decay: [0.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     release: [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
@@ -105,9 +105,9 @@ const membraneSynthEnvelope = {
 }
 
 const modulationEnvelope = {
-    attackCurve: ["linear", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    decayCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    releaseCurve: ["exponential", envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    attackCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    decayCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    releaseCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     attack: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     decay: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     release: [0.5, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
@@ -118,6 +118,7 @@ const oscillator = {
     // partialCount: [0, 0, 8, 'dropdown', [1,2,3,4,5,6,7,8]],
     // partials: [],
     // phase: 0,
+    width: [1, audioRange, audioRangeUnit, indicators.KNOB, curveTypes.LINEAR],
     type: ["sine", oscillatorTypeOptions, undefined, oscillatorTypeIndicator]
 };
 
@@ -125,7 +126,8 @@ const modulation = {
     // partialCount: 0,
     // partials: [],
     // phase: 0,
-    type: ["square", oscillatorTypeOptions, undefined, oscillatorTypeIndicator]
+    width: [1, audioRange, audioRangeUnit, indicators.KNOB, curveTypes.LINEAR],
+    type: ["pulse", oscillatorTypeOptions, undefined, oscillatorTypeIndicator]
 }
 
 const noise = {
@@ -234,7 +236,7 @@ export function getInitials(type: xolombrisxInstruments) {
                 volume: volume,
                 attack: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
                 baseUrl: " ",
-                curve: ['exponential', envelopeCurveOptions, undefined, envelopeCurveIndicator],
+                curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
                 release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
                 urls: {},
                 envelope: undefined,

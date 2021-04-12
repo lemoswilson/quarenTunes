@@ -16,7 +16,8 @@ const Knob: React.FC<indicatorProps> = ({ captureStart,
 }) => {
     const c = `${styles.wrapper} ${className}`
     const initialAngle = -140;
-    const sel = options.indexOf(selected) + 1;
+    // const sel = options.indexOf(selected) + 1;
+    const sel = options.indexOf(selected);
 
     const circle = (angle: number, key: string) => (
         <svg key={key} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">

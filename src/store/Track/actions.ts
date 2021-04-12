@@ -1,3 +1,4 @@
+import { curveTypes } from "../../containers/Track/defaults";
 import { effectsInitials } from "../../containers/Track/Instruments";
 import {
 	trackActions,
@@ -6,6 +7,21 @@ import {
 	effectTypes,
 	generalInstrumentOptions,
 } from "./types";
+
+export function updateEnvelopeCurve(
+	track: number,
+	target: 'envelope' | 'modulationEnvelope',
+	curve: curveTypes
+): trackActionTypes {
+	return {
+		type: trackActions.UPDATE_ENVELOPE_CURVE,
+		payload: {
+			track: track,
+			target: target,
+			curve: curve,
+		}
+	}
+};
 
 export function increaseDecreaseInstrumentProperty(
 	index: number,

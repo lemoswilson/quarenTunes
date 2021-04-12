@@ -17,8 +17,10 @@ export const initialState: Track = {
 	trackCount: 1,
 	tracks: [
 		{
-			instrument: xolombrisxInstruments.FMSYNTH,
-			options: getInitials(xolombrisxInstruments.FMSYNTH),
+			// instrument: xolombrisxInstruments.FMSYNTH,
+			// options: getInitials(xolombrisxInstruments.FMSYNTH),
+			instrument: xolombrisxInstruments.NOISESYNTH,
+			options: getInitials(xolombrisxInstruments.NOISESYNTH),
 			id: 0,
 			fx: [],
 			fxCounter: 0,
@@ -36,12 +38,14 @@ export function trackReducer(
 	action: trackActionTypes
 ): Track {
 	return produce(state, (draft) => {
-		let index: number;
-		let options: generalInstrumentOptions;
-		let movement: number;
-		let cc: boolean | undefined;
-		let property: string;
-		let isContinuous: boolean | undefined;
+		let index: number,
+			options: generalInstrumentOptions,
+			movement: number,
+			cc: boolean | undefined,
+			curve: curveTypes,
+			property: string,
+			target: 'modulationEnvelope' | 'envelope',
+			isContinuous: boolean | undefined;
 
 		switch (action.type) {
 			case trackActions.ADD_INSTRUMENT:
@@ -147,16 +151,17 @@ export function trackReducer(
 				}
 				// console.log('updated property', property, 'post v', getNested(draft.tracks[index].options, property)[0]);
 				break;
-			case trackActions.ENVELOPE_ATTACK:
-				[index, movement] = [action.payload.index, action.payload.amount]
-				// if (draft.tracks[index].options.envelope.attack[0]) {
-				// console.log('nananana[')
-				let vi = state.tracks[index].options.envelope.attack;
-				draft.tracks[index].options.envelope.attack[0] = Number(valueFromMouse(vi[0], movement, vi[1][0], vi[1][1], curveTypes.EXPONENTIAL).toFixed(4))
-				// let vi = Number(state.tracks[index].env);
-				// draft.tracks[index].env = Number(valueFromMouse(vi, movement, 0.001, 10, curveTypes.EXPONENTIAL).toFixed(4))
-				// }
+			case trackActions.UPDATE_ENVELOPE_CURVE:
+				[index, target, curve] = [action.payload.track, action.payload.target, action.payload.curve]
+				draft.tracks[index].options[target].decayCurve[0] = curve
+				draft.tracks[index].options[target].attackCurve[0] = curve
+				draft.tracks[index].options[target].releaseCurve[0] = curve
 				break;
+			// case trackActions.ENVELOPE_ATTACK:
+			// 	[index, movement] = [action.payload.index, action.payload.amount]
+			// 	let vi = state.tracks[index].options.envelope.attack;
+			// 	draft.tracks[index].options.envelope.attack[0] = Number(valueFromMouse(vi[0], movement, vi[1][0], vi[1][1], curveTypes.EXPONENTIAL).toFixed(4))
+			// 	break;
 		}
 	});
 }

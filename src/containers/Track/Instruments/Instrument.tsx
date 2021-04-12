@@ -58,6 +58,7 @@ import styles from './style.module.scss';
 import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
 
 import FMSynth from '../../../components/Layout/Instruments/FMSynth';
+import NoiseSynth from '../../../components/Layout/Instruments/NoiseSynth';
 
 export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
     let options = onlyValues(opt);
@@ -867,6 +868,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     // keyboard note/midi input listeners
     useEffect(() => {
+        // console.log(instrumentRef.current.get())
         if (midi.channel && midi.device && midi.device !== 'onboardKey') {
             inputRef.current = WebMidi.getInputByName(midi.device);
             if (
@@ -955,8 +957,15 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         ? <FMSynth
             calcCallbacks={propertyIncreaseDecrease}
             options={options}
+            index={index}
             propertyUpdateCallbacks={propertyValueUpdateCallback} />
-        : null;
+        : voice === xolombrisxInstruments.NOISESYNTH
+            ? <NoiseSynth
+                calcCallbacks={propertyIncreaseDecrease}
+                options={options}
+                index={index}
+                propertyUpdateCallbacks={propertyValueUpdateCallback} />
+            : null
 
     return (
         <div

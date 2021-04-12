@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { curveTypes, getInitials } from '../../../../containers/Track/defaults';
-import { xolombrisxInstruments, envelopeAttack } from '../../../../store/Track';
+import { xolombrisxInstruments, envelopeAttack, updateEnvelopeCurve } from '../../../../store/Track';
 import { getNested } from '../../../../lib/objectDecompose';
 import { initialsArray } from '../../../../containers/Track/Instruments';
 import styles from './style.module.scss';
@@ -32,31 +32,20 @@ export interface FMSynthProps {
     options: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
+    index: number,
 }
 
 const FMSynth: React.FC<FMSynthProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
+    index,
 }) => {
     const dispatch = useDispatch()
-    // const env = useSelector((state: RootState) => state.track.present.tracks[0].env);
-    const env = useSelector((state: RootState) => state.track.present.tracks[0].options.envelope.attack[0]);
-    const [testState, setTest] = useState(2)
-    const calculation = (e: any) => {
-        // setTest(state => Number(valueFromMouse(state, e.movementY, 0.001, 10, curveTypes.EXPONENTIAL).toFixed(4)))
-        // console.log('dispatchiing ')
-        dispatch(envelopeAttack(0, e.movementY))
-    }
-    const vv = options.envelope.attack[0]
-
-    // useEffect(() => {
-    //     console.log(calcCallbacks);
-    // })
 
     return (
         <div className={styles.wrapper}>
-            <div className={styles.sideTitle}></div>
+            <div className={styles.sideTitle}><h1>FMSynth</h1></div>
             <div className={styles.tweakers}>
                 <div className={styles.top}>
                     <div className={styles.title}>Oscillator</div>
@@ -130,13 +119,13 @@ const FMSynth: React.FC<FMSynthProps> = ({
                         <div className={styles.selectors}>
                             <CurveSelector
                                 display={'horizontal'}
-                                selectCurve={() => { }}
-                                selected={'exponential'}
+                                selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'envelope', curve))}
+                                selected={options.envelope.decayCurve[0]}
                                 className={styles.curve}
                             />
                             <WaveformSelector
-                                selectWaveform={() => { }}
-                                selected={'saw'}
+                                selectWaveform={(wave) => { propertyUpdateCallbacks.oscillator.type(wave) }}
+                                selected={options.oscillator.type[0]}
                             />
                         </div>
                         <div className={styles.voices}>
@@ -257,13 +246,13 @@ const FMSynth: React.FC<FMSynthProps> = ({
                         <div className={styles.selectors}>
                             <CurveSelector
                                 display={'horizontal'}
-                                selectCurve={() => { }}
-                                selected={'exponential'}
+                                selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'modulationEnvelope', curve))}
+                                selected={options.modulationEnvelope.decayCurve[0]}
                                 className={styles.curve}
                             />
                             <WaveformSelector
-                                selectWaveform={() => { }}
-                                selected={'saw'}
+                                selectWaveform={(wave) => { propertyUpdateCallbacks.modulation.type(wave) }}
+                                selected={options.modulation.type[0]}
                                 className={styles.waveform}
                             />
                         </div>

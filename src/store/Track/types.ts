@@ -47,6 +47,7 @@ import {
 	PluckSynthOptions,
 	AutoFilter
 } from 'tone';
+import { curveTypes } from '../../containers/Track/defaults';
 
 
 export type toneEffects =
@@ -192,8 +193,18 @@ export enum trackActions {
 	INC_DEC_INST_PROP = "INC_DEC_STATE_INST_PROP",
 	INC_DEC_EFFECT_PROP = "INC_DEC_STATE__EFFECT_PROP",
 	UPDATE_EFFECT_STATE = "UPDATE_EFFECT_STATE",
-	ENVELOPE_ATTACK = "ENVELOPE_ATTACK"
+	ENVELOPE_ATTACK = "ENVELOPE_ATTACK",
+	UPDATE_ENVELOPE_CURVE = "UPDATE_ENVELOPE_CURVE",
 }
+
+export interface updateEnvelopeCurveAction {
+	type: trackActions.UPDATE_ENVELOPE_CURVE,
+	payload: {
+		track: number,
+		target: 'envelope' | 'modulationEnvelope',
+		curve: curveTypes,
+	}
+};
 
 
 export interface changeInstrumentAction {
@@ -350,4 +361,5 @@ export type trackActionTypes =
 	| increaseDecreaseEffectPropertyAction
 	| increaseDecreaseInstrumentPropertyAction
 	| envelopeAttackAction
+	| updateEnvelopeCurveAction
 	| changeEffectIndexAction;
