@@ -51,6 +51,7 @@ export const detuneRange = [-1200, 1200];
 export const portamentoRange = [0.01, 3];
 export const harmonicityRange = [0.1, 10];
 export const envelopeTimeRange = [0.001, 10];
+export const fadeRange = [0, 10];
 export const normalRange = [0, 1];
 const audioRange = [0, 1];
 export const modulationRange = [0.01, 100];
@@ -131,8 +132,8 @@ const modulation = {
 }
 
 const noise = {
-    fadeIn: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    fadeOut: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    fadeIn: [0, fadeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
+    fadeOut: [0, fadeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
     playbackRate: [1, modulationRange, modulationUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     type: ['white', noiseTypeOptions, undefined, noiseTypeIndicator]
 }

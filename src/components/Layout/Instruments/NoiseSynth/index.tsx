@@ -28,6 +28,7 @@ import { valueFromMouse } from '../../../../lib/curves';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../containers/Xolombrisx';
 import SteppedIndicator from '../../SteppedIndicator';
+import { event } from '../../../../store/Sequencer';
 
 export interface NoiseSynthProps {
     // options: initialsArray,
@@ -35,6 +36,8 @@ export interface NoiseSynthProps {
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
     index: number,
+    selected: number[],
+    events: event[],
 }
 
 const FMSynth: React.FC<NoiseSynthProps> = ({
@@ -42,8 +45,15 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
     options,
     propertyUpdateCallbacks,
     index,
+    events,
+    selected,
 }) => {
     const dispatch = useDispatch()
+    const envelopeAttackBool = selected.length > 0 ? selected.map(s => events[s].instrument.envelope?.attack).every((v, idx, arr) => v && v === arr[0]) : false;
+    const envelopeAttackValue = envelopeAttackBool ? events[selected[0]].instrument.envelope?.attack : false;
+    const noiseTypeBool = selected.length > 0 ? selected.map(s => events[s].instrument.noise?.type).every((v, idx, arr) => v && v === arr[0]) : false;
+    const noiseTypeValue = noiseTypeBool ? events[selected[0]].instrument.noise?.type : false;
+
 
     return (
         <div className={styles.wrapper}>
@@ -56,6 +66,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.attack')}
+                                    selectedLock={false}
                                     // ccMouseCalculationCallback={calculation}
                                     label={'Attack'}
                                     max={envelopeTimeRange[1]}
@@ -63,7 +74,15 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                     min={envelopeTimeRange[0]}
                                     type={'knob'}
                                     unit={envelopeUnit}
-                                    value={getNested(options, 'envelope.attack')[0]}
+                                    // value={envelopeAttackBool ? envelopeAttackValue : getNested(options, 'envelope.attack')[0]}
+                                    value={
+                                        selected.length > 1 && !envelopeAttackBool
+                                            ? '*'
+                                            : envelopeAttackBool
+                                                ? envelopeAttackValue
+                                                : getNested(options, 'envelope.attack')[0]
+                                    }
+                                    // value={getNested(options, 'envelope.attack')[0]}
                                     // value={Number(env)}
                                     // value={vv}
                                     // value={testState}
@@ -73,6 +92,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.decay')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Decay'}
                                     max={envelopeTimeRange[1]}
@@ -89,6 +109,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.sustain')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Sustain'}
                                     max={normalRange[1]}
@@ -104,6 +125,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.release')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Release'}
                                     max={envelopeTimeRange[1]}
@@ -128,6 +150,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.fade}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'noise.fadeIn')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'FadeIn'}
                                     max={envelopeTimeRange[1]}
@@ -143,6 +166,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'noise.fadeOut')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'FadeOut'}
                                     max={envelopeTimeRange[1]}
@@ -165,6 +189,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                         <div className={styles.voices}>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={getNested(calcCallbacks, 'volume')}
+                                selectedLock={false}
                                 // curveFunction={(number) => number * 0.2}
                                 label={'Volume'}
                                 max={volumeRange[1]}
@@ -181,6 +206,7 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.rateType}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'noise.playbackRate')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Rate'}
                                     max={modulationRange[1]}
@@ -199,10 +225,17 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                     label={'Type'}
                                     midiLearn={() => { }}
                                     options={noiseTypeOptions}
-                                    selected={getNested(options, 'noise.type')[0]}
+                                    // selected={getNested(options, 'noise.type')[0]}
+                                    selected={
+                                        selected.length > 1 && !noiseTypeBool
+                                            ? '*'
+                                            : noiseTypeBool
+                                                ? noiseTypeValue
+                                                : getNested(options, 'noise.type')[0]
+                                    }
                                     unit={''}
                                     className={styles.type}
-                                    valueUpdateCallback={getNested(propertyUpdateCallbacks, 'noise.playbackRate')}
+                                    valueUpdateCallback={getNested(propertyUpdateCallbacks, 'noise.type')}
                                 />
                             </div>
                         </div>

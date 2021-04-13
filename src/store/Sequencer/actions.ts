@@ -407,6 +407,7 @@ export function parameterLockIncreaseDecrease(
 	step: number,
 	movement: number,
 	property: string,
+	trackValues: any[],
 	cc?: boolean,
 	isContinuous?: boolean,
 ): sequencerActionTypes {
@@ -420,6 +421,7 @@ export function parameterLockIncreaseDecrease(
 			track: track,
 			cc: cc,
 			isContinuous: isContinuous,
+			trackValues: trackValues,
 		}
 	}
 };

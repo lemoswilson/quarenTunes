@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.box {
+  background-color: #ededed;
+  width: 38%;
+  height: 2.6rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  border-radius: 1rem;
+}
+
+.box .dropdown {
+  margin-top: 0.25rem;
+}
+
+.box .buttons {
+  margin-top: 0.35rem;
+  margin-left: 0.3rem;
+}
+/*# sourceMappingURL=style.module.css.map */

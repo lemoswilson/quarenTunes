@@ -44,7 +44,7 @@ export const useEffectProperty = (
     useEffect(() => {
         if (a) {
             let v: any;
-            // console.log('updating property', t);
+            console.log('updating property', t);
             if (isObject) {
                 v = {
                     [t]: onlyValues(a),
@@ -88,6 +88,7 @@ export const useTrigg = (
     }, [instrumentOptions, trig, un, prevUn, off])
 
     useEffect(() => {
+        console.log('updating stuff')
         if (un === prevUn && off !== previousOffset) {
             const now = timeObjFromEvent(step, off)
             const pastTime = timeObjFromEvent(step, previousOffset, false)

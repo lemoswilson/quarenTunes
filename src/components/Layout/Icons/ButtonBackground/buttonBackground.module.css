@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.box {
+  background-color: white;
+  width: 1.85rem;
+  height: 1.85rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border-radius: 0.7rem;
+  -webkit-box-shadow: 0.4rem 0.4rem 0.2rem rgba(204, 204, 204, 0.5);
+          box-shadow: 0.4rem 0.4rem 0.2rem rgba(204, 204, 204, 0.5);
+}
+
+.transportBox {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+}
+/*# sourceMappingURL=buttonBackground.module.css.map */

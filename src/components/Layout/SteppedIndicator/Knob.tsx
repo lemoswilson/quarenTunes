@@ -4,7 +4,9 @@ import { indicatorProps } from './index';
 import { createSourceFile } from 'typescript';
 
 
-const Knob: React.FC<indicatorProps> = ({ captureStart,
+const Knob: React.FC<indicatorProps> = ({
+    captureStart,
+    valueUpdateCallback,
     label,
     wheelMove,
     className,
@@ -19,8 +21,9 @@ const Knob: React.FC<indicatorProps> = ({ captureStart,
     // const sel = options.indexOf(selected) + 1;
     const sel = options.indexOf(selected);
 
-    const circle = (angle: number, key: string) => (
-        <svg key={key} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
+    const circle = (angle: number, key: string, option: string) => (
+        // <svg key={key} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
+        <svg className={styles.back} onClick={() => valueUpdateCallback(option)} key={key} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
             <g transform={`rotate(${initialAngle + angle} 34.4 35.2)`}>
                 <image width="17" height="17" transform="translate(25.28 -3)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAACXBIWXMAAAsSAAALEgHS3X78AAABH0lEQVQ4T63UTUoDQRAF4G/yh0RBMSK4ELLKwu3c/wi5g+BCEBVFDZI4GRddSXomiQuTgoLuflVvXlV1T1HXtWNY7y9wOp0W+b4sy71fLdqKsuQOGkSosWSbtEEUJAW6ktperKHCT3iFOidbE2UkfZxgGD6I2Dlm4d9Y5GTtHnWD5BxXGOE0sC+84Dn2S0kdmkSd2A8lkjFucRn4Kx5ivZAULqUyddgqaygpucUEd+GTOBtFTB/Fajjt0jpST84kJde4yfDnwAYR20g8irUVLaXaP6WePGXYU5x92vRnbfn4u5LkC6mcsd3Nvscj3jAvy7KiqWg1zpnNiD/sHv8sYteq2qVV0mUjjfjd/gtZ5YnHfyItMg55tG076DfyX/sFxYCEfvkEjmsAAAAASUVORK5CYII=" style={{ opacity: 0.5, mixBlendMode: "multiply" }} />
                 <circle cx="34.4" cy="3.66" r="2.5" style={{ fill: "#dce0e2" }} />
@@ -30,13 +33,14 @@ const Knob: React.FC<indicatorProps> = ({ captureStart,
     return (
         <div className={c} onWheel={wheelMove}>
             <div className={styles.indicator}>
-                <svg onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
+                {/* <svg onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70"> */}
+                <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
                     {options.map((option, idx, arr) => {
-                        return circle((-2 * initialAngle / (options.length + 1)) * (idx + 1), String(idx))
+                        return circle((-2 * initialAngle / (options.length + 1)) * (idx + 1), String(idx), option)
                     })}
                 </svg>
             </div>
-            <svg className={styles.svg} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
+            <svg onPointerDown={captureStart} className={styles.svg} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
                 <defs>
                     <linearGradient id="a" x1="18.39" y1="10.37" x2="53.26" y2="63.58" gradientUnits="userSpaceOnUse">
                         <stop offset="0" stopColor="#f0f0f0" stopOpacity="0.3" />

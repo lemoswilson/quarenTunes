@@ -67,8 +67,17 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                     <div className={styles.steps}>
                         {startEndRange(page * 16, finalStep()).map((step, idx, __) => {
                             return (
-                                <div key={step} className={styles.step}>
-                                    <StepLayout onClick={() => { selectStep(step) }} onTime={false} selected={selected.includes(step)}></StepLayout>
+                                <div key={`${activePattern}:${selectedTrack}:${idx}`} className={styles.step}>
+                                    <StepLayout
+                                        onClick={() => { selectStep(step) }}
+                                        activePattern={activePattern}
+                                        event={events[idx]}
+                                        index={idx}
+                                        selectedTrack={selectedTrack}
+                                        un={`${activePattern}:${selectedTrack}:${idx}`}
+                                        onTime={false}
+                                        selected={selected.includes(step)}
+                                    />
                                 </div>
                             )
                         })}

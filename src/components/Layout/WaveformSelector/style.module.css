@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.wrapper {
+  width: 8rem;
+  height: 4rem;
+}
+
+.wrapper .title {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 8rem;
+  font-family: "Jost", serif;
+  font-weight: 500;
+  color: #c8c9c8;
+  text-shadow: 0 0 1px rgba(220, 223, 224, 0.75);
+  justify-content: center;
+  text-align: center;
+  font-size: 0.9rem;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+}
+
+.wrapper .options {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 4rem 4rem;
+      grid-template-columns: 4rem 4rem;
+}
+
+.wrapper .options .box {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 20% 80%;
+      grid-template-columns: 20% 80%;
+}
+
+.wrapper .options .box .button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.wrapper .options .box .waveform {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+/*# sourceMappingURL=style.module.css.map */

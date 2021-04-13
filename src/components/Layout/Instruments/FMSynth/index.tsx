@@ -26,6 +26,7 @@ import {
 import { valueFromMouse } from '../../../../lib/curves';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../containers/Xolombrisx';
+import { event } from '../../../../store/Sequencer'
 
 export interface FMSynthProps {
     // options: initialsArray,
@@ -33,6 +34,8 @@ export interface FMSynthProps {
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
     index: number,
+    events: event[],
+    selected: number[],
 }
 
 const FMSynth: React.FC<FMSynthProps> = ({
@@ -53,6 +56,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                         <div className={styles.envelope}>
                             <div className={styles.box}>
                                 <ContinuousIndicator
+                                    selectedLock={false}
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.attack')}
                                     // ccMouseCalculationCallback={calculation}
                                     label={'Attack'}
@@ -71,6 +75,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.decay')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Decay'}
                                     max={envelopeTimeRange[1]}
@@ -87,6 +92,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.sustain')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Sustain'}
                                     max={normalRange[1]}
@@ -102,6 +108,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'envelope.release')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Release'}
                                     max={envelopeTimeRange[1]}
@@ -132,6 +139,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                             <div className={styles.detunePortamento}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'detune')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Detune'}
                                     max={detuneRange[1]}
@@ -147,6 +155,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'portamento')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Portamento'}
                                     max={portamentoRange[1]}
@@ -163,6 +172,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                             </div>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={getNested(calcCallbacks, 'volume')}
+                                selectedLock={false}
                                 // curveFunction={(number) => number * 0.2}
                                 label={'Volume'}
                                 max={volumeRange[1]}
@@ -186,6 +196,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'modulationEnvelope.attack')}
+                                    selectedLock={false}
                                     label={'Attack'}
                                     curve={getNested(options, 'modulationEnvelope.attack')[4]}
                                     max={envelopeTimeRange[1]}
@@ -199,6 +210,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'modulationEnvelope.decay')}
+                                    selectedLock={false}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Decay'}
                                     max={envelopeTimeRange[1]}
@@ -214,6 +226,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                             </div>
                             <div className={styles.box}>
                                 <ContinuousIndicator
+                                    selectedLock={false}
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'modulationEnvelope.sustain')}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Sustain'}
@@ -231,6 +244,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                                     ccMouseCalculationCallback={getNested(calcCallbacks, 'modulationEnvelope.release')}
                                     // curveFunction={(number) => number * 0.2}
                                     label={'Release'}
+                                    selectedLock={false}
                                     max={envelopeTimeRange[1]}
                                     midiLearn={() => { }}
                                     min={envelopeTimeRange[0]}
@@ -259,6 +273,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                         <div className={styles.voices}>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={getNested(calcCallbacks, 'harmonicity')}
+                                selectedLock={false}
                                 // curveFunction={(number) => number * 0.2}
                                 label={'Harm'}
                                 max={harmonicityRange[1]}
@@ -273,6 +288,7 @@ const FMSynth: React.FC<FMSynthProps> = ({
                             />
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={getNested(calcCallbacks, 'modulationIndex')}
+                                selectedLock={false}
                                 // curveFunction={(number) => number * 0.2}
                                 label={'ModIdx'}
                                 max={modulationRange[1]}

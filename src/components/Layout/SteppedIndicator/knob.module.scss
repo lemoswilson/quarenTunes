@@ -18,6 +18,7 @@
         top: 11%;
         align-self: center;
         // order: 2;
+        z-index: 1;
     }
 
     .svg {
@@ -25,7 +26,8 @@
         width: 4rem;
         height: 4rem;
         align-self: center;
-        // order: 3;
+        pointer-events: all;
+        z-index: 3;
     }
 
     .title {

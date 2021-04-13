@@ -1,0 +1,125 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.bottom {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 18.6rem auto;
+      grid-template-columns: 18.6rem auto;
+  height: 17rem;
+}
+
+.bottom .arrangerColumn {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+.bottom .arrangerColumn .patterns {
+  margin-top: 1rem;
+  margin-right: 1rem;
+  width: 89%;
+  height: 93%;
+  border-radius: 2rem;
+  background-color: white;
+  -webkit-box-shadow: 7px 9px 5px rgba(204, 204, 204, 0.5);
+          box-shadow: 7px 9px 5px rgba(204, 204, 204, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.bottom .sequencerColumn {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  height: 17rem;
+}
+
+.bottom .sequencerColumn .box {
+  margin-top: 1rem;
+  margin-left: 1rem;
+  border-radius: 2rem;
+  background-color: white;
+  width: 95%;
+  height: 93%;
+  -webkit-box-shadow: 7px 9px 5px rgba(204, 204, 204, 0.5);
+          box-shadow: 7px 9px 5px rgba(204, 204, 204, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.bottom .sequencerColumn .box .border {
+  width: 98%;
+  height: 90%;
+  border: 0.2rem solid #d4d4d4;
+  border-radius: 2rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.bottom .sequencerColumn .box .border .stepSequencer {
+  width: 53%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.bottom .sequencerColumn .box .border .keyInput {
+  width: 47%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  border-radius: 1rem;
+}
+/*# sourceMappingURL=style.module.css.map */

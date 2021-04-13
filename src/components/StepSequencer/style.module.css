@@ -1,0 +1,159 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.wrapper {
+  height: 100%;
+  width: 98%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+.wrapper .title {
+  width: 25%;
+  height: 10%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-right: 28.5rem;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.wrapper .title h1 {
+  font-size: 1.6rem;
+  text-align: end;
+  font-weight: 500;
+  color: #c2c2c2;
+  text-shadow: 0 0 1px rgba(220, 223, 224, 0.75);
+  font-family: "Jost", serif;
+  margin-bottom: 1.5rem;
+  margin-left: 1.3rem;
+}
+
+.wrapper .overlay {
+  background-color: #f5f8fa;
+  width: 97%;
+  height: 77%;
+  border-radius: 1rem;
+  display: -ms-grid;
+  display: grid;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  -ms-grid-columns: 5% 90% 5%;
+      grid-template-columns: 5% 90% 5%;
+  margin-bottom: 0.9rem;
+}
+
+.wrapper .overlay .prev {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.wrapper .overlay .next {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.wrapper .overlay .stepsWrapper {
+  height: 100%;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-rows: 10% 90%;
+      grid-template-rows: 10% 90%;
+  margin: auto;
+}
+
+.wrapper .overlay .stepsWrapper .pages {
+  width: 10rem;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  justify-self: center;
+}
+
+.wrapper .overlay .stepsWrapper .pages .pageSelector {
+  width: 0.8rem;
+  margin-top: 0.5rem;
+  height: 0.8rem;
+  background-color: white;
+  border-radius: 50%;
+  -webkit-box-shadow: 0.3rem 0.3rem 0.5rem rgba(204, 204, 204, 0.5);
+          box-shadow: 0.3rem 0.3rem 0.5rem rgba(204, 204, 204, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-left: 0.3rem;
+}
+
+.wrapper .overlay .stepsWrapper .pages .pageSelector .indicator {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+}
+
+.wrapper .overlay .stepsWrapper .steps {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: (4rem)[8];
+      grid-template-columns: repeat(8, 4rem);
+  -ms-grid-rows: (1fr)[2];
+      grid-template-rows: repeat(2, 1fr);
+}
+
+.wrapper .overlay .stepsWrapper .steps .step {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+/*# sourceMappingURL=style.module.css.map */

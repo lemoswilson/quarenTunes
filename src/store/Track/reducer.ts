@@ -117,7 +117,7 @@ export function trackReducer(
 					prop => {
 						let v = getNested(options, prop)
 						setNestedArray(draft.tracks[index].options, prop, getNested(options, prop))
-						console.log('setting proeperty, ', props, v);
+						// console.log('setting proeperty, ', props, v);
 					}
 				);
 				break;
@@ -130,26 +130,28 @@ export function trackReducer(
 					action.payload.isContinuous
 				]
 				const v = getNested(draft.tracks[index].options, property);
-				// console.log('updating instrument property', property, 'pre v', v, v[0]);
 				let val;
 				if (isContinuous) {
-					val = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4], property === 'volume' ? 'volume' : property === 'detune' ? 'detune' : undefined);
+					val = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4])
+						: valueFromMouse(
+							v[0],
+							movement,
+							v[1][0],
+							v[1][1],
+							v[4],
+							property === 'volume' || property === 'detune'
+								? property
+								: undefined
+						);
 					if (val === -Infinity) {
 						setNestedArray(draft.tracks[index].options, property, -Infinity)
 					} else if (val >= v[1][0] && val <= v[1][1]) {
-						// if (val >= v[1][0] && val <= v[1][1]) {
 						setNestedArray(draft.tracks[index].options, property, Number(val.toFixed(4)))
-
-						// }
 					}
-					// console.log('val type', typeof val)
-					// v[0] = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4]) : valueFromMouse(v[0], movement, v[1][0], v[1][1], v[4])
 				} else {
 					val = cc ? optionFromCC(movement, v[1]) : steppedCalc(movement, v[1], v[0])
-					console.log('valval', val)
 					setNestedArray(draft.tracks[index].options, property, val)
 				}
-				// console.log('updated property', property, 'post v', getNested(draft.tracks[index].options, property)[0]);
 				break;
 			case trackActions.UPDATE_ENVELOPE_CURVE:
 				[index, target, curve] = [action.payload.track, action.payload.target, action.payload.curve]

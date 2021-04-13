@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "ACCA,OAAO,CAAC,kFAAI;AACZ,OAAO,CAAC,sGAAI;ADAZ,AAAA,KAAK,CAAC;EACF,cAAc,EAAE,IAAI;CACvB;;AAED,AAAA,IAAI,CAAC;EACD,cAAc,EAAE,IAAI;CACvB",
+    "sources": [
+        "keyboard.module.scss",
+        "../../../style/_variables.scss"
+    ],
+    "names": [],
+    "file": "keyboard.module.css"
+}

@@ -1,0 +1,226 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.wrapper {
+  margin-top: 0.5rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+  height: 98%;
+}
+
+.wrapper .sideTitle {
+  width: 7%;
+  height: 100%;
+}
+
+.wrapper .sideTitle h1 {
+  margin-top: 6.2rem;
+  margin-left: 0.2rem;
+  padding: 0;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #c2c2c2;
+  text-shadow: 0 0 8px rgba(220, 223, 224, 0.75);
+  -webkit-writing-mode: vertical-lr;
+      -ms-writing-mode: tb-lr;
+          writing-mode: vertical-lr;
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+  text-orientation: mixed;
+  font-family: "Jost", serif;
+}
+
+.wrapper .tweakers {
+  width: 93%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.wrapper .tweakers .top {
+  height: 47%;
+  width: 100%;
+  margin-top: 4.2rem;
+  margin-left: 1rem;
+}
+
+.wrapper .tweakers .top .title {
+  margin-right: 1rem;
+  height: 1rem;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #c2c2c2;
+  text-shadow: 0 0 1px rgba(220, 223, 224, 0.75);
+  font-family: "Jost", serif;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+}
+
+.wrapper .tweakers .top .indicators {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  width: 100%;
+  height: 92.5%;
+}
+
+.wrapper .tweakers .top .indicators .envelope {
+  margin-left: 1rem;
+  width: 30%;
+}
+
+.wrapper .tweakers .top .indicators .envelope .box {
+  height: auto;
+  width: 100%;
+  margin: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.wrapper .tweakers .top .indicators .envelope .box .envelopeDecay {
+  margin-left: 0.4rem;
+}
+
+.wrapper .tweakers .top .indicators .envelope .box .envelopeRelease {
+  margin-left: 0.4rem;
+}
+
+.wrapper .tweakers .top .indicators .selectors {
+  width: 30%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+
+.wrapper .tweakers .top .indicators .selectors .curve {
+  margin-top: 1.3rem;
+}
+
+.wrapper .tweakers .top .indicators .selectors .fade {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.wrapper .tweakers .top .indicators .selectors .fade .in {
+  margin-left: 0;
+}
+
+.wrapper .tweakers .top .indicators .selectors .fade .out {
+  margin-left: 0.2rem;
+}
+
+.wrapper .tweakers .top .indicators .voices {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.wrapper .tweakers .top .indicators .voices .rateType {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+
+.wrapper .tweakers .top .indicators .voices .volume {
+  margin-left: 0;
+  margin-left: -0.8rem;
+}
+/*# sourceMappingURL=style.module.css.map */

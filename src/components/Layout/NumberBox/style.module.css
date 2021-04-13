@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.box {
+  width: 1.7rem;
+  height: 1.7rem;
+  background-color: white;
+  -webkit-box-shadow: 0.18rem 0.15rem 0.15rem rgba(204, 204, 204, 0.5);
+          box-shadow: 0.18rem 0.15rem 0.15rem rgba(204, 204, 204, 0.5);
+  border-radius: 0.7rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.box .form {
+  width: 90%;
+  height: 90%;
+}
+
+.box .form input::-webkit-inner-spin-button,
+.box .form input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  appearance: none;
+}
+
+.box .form .input {
+  margin-left: 0.15rem;
+  width: 65%;
+  height: 65%;
+  font-size: 0.9rem;
+  text-align: center;
+  background-color: none;
+  font-family: "Jost", serif;
+  text-shadow: 0 0 1px rgba(220, 223, 224, 0.75);
+  border: none;
+  border-bottom: 0.5px solid #c8c9c8;
+  outline: none;
+  color: #c8c9c8;
+}
+
+.box .form .input::-webkit-input-placeholder {
+  color: #c8c9c8;
+}
+
+.box .form .input:-ms-input-placeholder {
+  color: #c8c9c8;
+}
+
+.box .form .input::-ms-input-placeholder {
+  color: #c8c9c8;
+}
+
+.box .form .input::placeholder {
+  color: #c8c9c8;
+}
+/*# sourceMappingURL=style.module.css.map */

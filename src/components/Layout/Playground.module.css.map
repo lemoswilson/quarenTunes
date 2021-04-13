@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "ACCA,OAAO,CAAC,kFAAI;AACZ,OAAO,CAAC,sGAAI;ADAZ,AAAA,IAAI,CAAC;EAED,KAAK,EAAE,GAAG;EACV,MAAM,EAAE,IAAI;EACZ,OAAO,EAAE,IAAI;ECaT,eAAe,EAAE,MAAM;EACvB,WAAW,EAAE,MAAM;EDTvB,cAAc,EAAE,GAAG;EACnB,aAAa,EAAE,IAAI;EAEnB,UAAU,EAAE,MAAM;CAUrB;;AAtBD,AAcI,IAdA,CAcA,MAAM,CAAC;EACH,UAAU,EAAE,OAAO;CACtB;;AAhBL,AAkBI,IAlBA,CAkBA,QAAQ,CAAC;EACL,UAAU,EAAE,OAAO;EACnB,WAAW,EAAE,MAAM;CACtB",
+    "sources": [
+        "Playground.module.scss",
+        "../../style/_variables.scss"
+    ],
+    "names": [],
+    "file": "Playground.module.css"
+}

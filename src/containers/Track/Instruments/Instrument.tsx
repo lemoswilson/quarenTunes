@@ -371,14 +371,16 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
                 if (selectedStepsRef.current.length >= 1) {
                     selectedStepsRef.current.forEach(step => {
+                        console.log('dispatching parameter lock')
                         dispatch(parameterLockIncreaseDecrease(
                             activePatternRef.current,
                             idRef.current,
                             step,
                             cc ? e.value : e.movementY,
                             property,
+                            getNested(optionsRef.current, property),
                             cc,
-                            isContinuous
+                            isContinuous,
                         ))
                     })
                     // } else if (stateValue === getNested(
@@ -386,6 +388,13 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     //     property
                     // )) {
                 } else {
+                    // console.log(
+                    //     'increasing decreasing',
+                    //     'property:', property,
+                    //     'cc:', cc,
+                    //     'isContinuous:', isContinuous,
+                    //     'e', e,
+                    // )
                     dispatch(increaseDecreaseInstrumentProperty(
                         indexRef.current,
                         property,
@@ -958,10 +967,14 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             calcCallbacks={propertyIncreaseDecrease}
             options={options}
             index={index}
+            events={events[activePattern]}
+            selected={selectedSteps}
             propertyUpdateCallbacks={propertyValueUpdateCallback} />
         : voice === xolombrisxInstruments.NOISESYNTH
             ? <NoiseSynth
                 calcCallbacks={propertyIncreaseDecrease}
+                events={events[activePattern]}
+                selected={selectedSteps}
                 options={options}
                 index={index}
                 propertyUpdateCallbacks={propertyValueUpdateCallback} />

@@ -6,6 +6,7 @@ import {
 } from "./types";
 import { propertiesToArray, getNested, setNestedValue } from "../../lib/objectDecompose";
 import { eventOptions } from "../../containers/Track/Instruments";
+import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from "../../lib/curves";
 
 export const initialState: Sequencer = {
 	activePattern: 0,
@@ -58,6 +59,8 @@ export function sequencerReducer(
 			property: string,
 			step: number,
 			cc: boolean | undefined,
+			isContinuous: boolean | undefined,
+			trackValues: any[],
 			trackCount: number,
 			counter: number = draft.counter
 		switch (action.type) {
@@ -235,8 +238,8 @@ export function sequencerReducer(
 					action.payload.track,
 				];
 				const prop = propertiesToArray(data)[0];
-				const val = getNested(data, prop);
-				setNestedValue(prop, val, draft.patterns[pattern].tracks[track].events[step].instrument);
+				const valor = getNested(data, prop);
+				setNestedValue(prop, valor, draft.patterns[pattern].tracks[track].events[step].instrument);
 				break;
 			case sequencerActions.REMOVE_PATTERN:
 				pattern = action.payload.pattern;
@@ -429,7 +432,7 @@ export function sequencerReducer(
 				setNestedValue(p, v, draft.patterns[pattern].tracks[track].events[step].fx[fxIndex]);
 				break;
 			case sequencerActions.PARAMETER_LOCK_INC_DEC:
-				[step, track, pattern, movement, property, cc] =
+				[step, track, pattern, movement, property, cc, isContinuous, trackValues] =
 					[
 						action.payload.step,
 						action.payload.track,
@@ -437,13 +440,34 @@ export function sequencerReducer(
 						action.payload.movement,
 						action.payload.property,
 						action.payload.cc,
+						action.payload.isContinuous,
+						action.payload.trackValues
 					]
-				if (cc) {
+				const prevValue = getNested(draft.patterns[pattern].tracks[track].events[step].instrument, property)
+				let val;
 
+				if (isContinuous) {
+					val = cc ? valueFromCC(movement, trackValues[1][0], trackValues[1][1], trackValues[4])
+						: valueFromMouse(
+							prevValue ? prevValue : trackValues[0],
+							movement,
+							trackValues[1][0],
+							trackValues[1][1],
+							trackValues[4],
+							property === 'volume' || property === 'detune'
+								? property
+								: undefined
+						);
+					if (val === -Infinity) {
+						setNestedValue(property, val, draft.patterns[pattern].tracks[track].events[step].instrument)
+					} else if (val >= trackValues[1][0] && val <= trackValues[1][1]) {
+						setNestedValue(property, Number(val.toFixed(4)), draft.patterns[pattern].tracks[track].events[step].instrument)
+					}
 				} else {
-
+					val = cc ? optionFromCC(movement, trackValues[1]) : steppedCalc(movement, trackValues[1], prevValue ? prevValue : trackValues[0])
+					setNestedValue(property, val, draft.patterns[pattern].tracks[track].events[step].instrument)
 				}
-
+				break;
 		}
 	});
 }

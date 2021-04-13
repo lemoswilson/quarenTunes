@@ -362,6 +362,7 @@ export interface parameterLockIncreaseDecreaseAction {
 		movement: number;
 		cc?: boolean;
 		isContinuous?: boolean,
+		trackValues: any[],
 	}
 };
 

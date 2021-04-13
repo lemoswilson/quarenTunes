@@ -1,0 +1,162 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+.wrapper {
+  width: 89%;
+  height: 100%;
+  margin-left: 1.2rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.wrapper .label {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-left: 0.2rem;
+}
+
+.wrapper .label .box {
+  border-radius: 0.3rem;
+  width: 3rem;
+  height: 1.9rem;
+  background-color: white;
+  -webkit-box-shadow: 0.3rem 0.3rem 0.4rem rgba(204, 204, 204, 0.5);
+          box-shadow: 0.3rem 0.3rem 0.4rem rgba(204, 204, 204, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  font-size: 0.9rem;
+  text-align: center;
+  font-family: "Jost", serif;
+  text-shadow: 0 0 1px rgba(220, 223, 224, 0.75);
+  color: #c8c9c8;
+}
+
+.wrapper .decrease {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-left: 0.6rem;
+}
+
+.wrapper .display {
+  height: 100%;
+  width: 3rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-left: 0.3rem;
+}
+
+.wrapper .display .box {
+  width: 2.8rem;
+  height: 1.9rem;
+  background-color: white;
+  -webkit-box-shadow: 0.3rem 0.3rem 0.4rem rgba(204, 204, 204, 0.5);
+          box-shadow: 0.3rem 0.3rem 0.4rem rgba(204, 204, 204, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+  border-radius: 0.7rem;
+}
+
+.wrapper .display .box input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.wrapper .display .box input::-webkit-inner-spin-button,
+.wrapper .display .box input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  appearance: none;
+}
+
+.wrapper .display .box input {
+  margin-bottom: 0.3rem;
+  height: 1rem;
+  width: 60%;
+  font-size: 0.9rem;
+  text-align: center;
+  background-color: none;
+  font-family: "Jost", serif;
+  text-shadow: 0 0 1px rgba(220, 223, 224, 0.75);
+  border: none;
+  border-bottom: 0.5px solid #c8c9c8;
+  outline: none;
+  color: #c8c9c8;
+}
+
+.wrapper .display .box input::-webkit-input-placeholder {
+  color: #c8c9c8;
+}
+
+.wrapper .display .box input:-ms-input-placeholder {
+  color: #c8c9c8;
+}
+
+.wrapper .display .box input::-ms-input-placeholder {
+  color: #c8c9c8;
+}
+
+.wrapper .display .box input::placeholder {
+  color: #c8c9c8;
+}
+
+.wrapper .increase {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-left: 0.3rem;
+}
+/*# sourceMappingURL=style.module.css.map */

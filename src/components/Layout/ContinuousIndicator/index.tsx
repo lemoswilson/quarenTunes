@@ -8,7 +8,7 @@ import appContext from '../.././../context/AppContext';
 
 interface continuousIndicator {
     className?: string;
-    value: number;
+    value: number | '*';
     min: number;
     max: number;
     ccMouseCalculationCallback: (e: any) => void;
@@ -18,19 +18,21 @@ interface continuousIndicator {
     type: 'knob' | 'slider';
     detail?: 'port' | 'detune' | 'envelopeZero' | 'volume'
     unit: string;
+    selectedLock: boolean,
     curve?: curveTypes;
 }
 
 export interface indicatorProps {
-    // wheelMove: (e: WheelEvent) => void,
+    wheelMove: (e: WheelEvent) => void,
     curve?: curveTypes,
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
     captureStartDiv?: (e: React.MouseEvent) => void,
     label: string,
+    selectedLock: boolean,
     indicatorData: string,
     className?: string,
     unit?: string,
-    value: number;
+    value: number | '*';
     display: boolean;
     setDisplay: () => void;
 }
@@ -41,6 +43,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     ccMouseCalculationCallback,
     valueUpdateCallback,
     label,
+    selectedLock,
     max,
     min,
     value,
@@ -91,27 +94,21 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         shouldRemove = true;
     };
 
-    // const wheelMove = (e: WheelEvent) => {
-    //     e.persist();
-    //     e.preventDefault();
-    //     if (e.deltaY >= 7) {
-    //         value + 7 * curveFunction(value) < max
-    //             ? valueUpdateCallback(value + 7 * curveFunction(value))
-    //             : valueUpdateCallback(max);
-    //     } else if (e.deltaY <= -7) {
-    //         value - 7 * curveFunction(value) > min
-    //             ? valueUpdateCallback(value - 7 * curveFunction(value))
-    //             : valueUpdateCallback(min)
-    //     } else if (e.deltaY < 0 && e.deltaY > -7) {
-    //         value + e.deltaY * curveFunction(value) < max
-    //             ? valueUpdateCallback(value + e.deltaY * curveFunction(value))
-    //             : valueUpdateCallback(max)
-    //     } else if (e.deltaY < 0 && e.deltaY > -7) {
-    //         value - e.deltaY * curveFunction(value) > min
-    //             ? valueUpdateCallback(value - e.deltaY * curveFunction(value))
-    //             : valueUpdateCallback(min)
-    //     }
-    // };
+    const wheelMove = (e: WheelEvent) => {
+        e.persist();
+        // e.preventDefault();
+        const k = {
+            movementY: e.deltaY <= 7 && e.deltaY >= -7
+                ? e.deltaY
+                : e.deltaY < -7
+                    ? -7
+                    : 7
+        }
+        console.log('moving wheel', k)
+        if (k.movementY) {
+            ccMouseCalculationCallback(k)
+        }
+    };
 
     function keyHandle(this: Document, e: KeyboardEvent): void {
         let char: string = e.key.toLowerCase();
@@ -124,47 +121,54 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const rrr = () => {
         let ccc = min === 0 ? 0.01 : min
-
-        if (curve === curveTypes.LINEAR && (detail === 'detune' && type === 'knob')) {
-            return rotate(140 * ((value + 1200) - (mid + 1200) / (mid + 1200)))
-        } else if (curve === curveTypes.EXPONENTIAL && (detail === 'envelopeZero' || detail === 'port')) {
-            // return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5))
-            return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
-        } else if (label === 'volume') {
-            return value === -Infinity
-                ? '3%'
-                : `${(86 / (max - ccc) * value + 101)}`;
-        } else if (detail === 'port') {
-            return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
-        } else if ((curve === curveTypes.LINEAR || !curve) && type === 'knob') {
-            return rotate(140 * (value - (mid)) / mid)
-        } else if ((curve === curveTypes.LINEAR || !curve) && type === 'slider') {
-            return `${(86 / (max - ccc)) * value + 3}%`;
-        } else {
-            return rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+        if (typeof value === 'number') {
+            if (curve === curveTypes.LINEAR && (detail === 'detune' && type === 'knob')) {
+                return rotate(140 * ((value + 1200) - (mid + 1200) / (mid + 1200)))
+            } else if (curve === curveTypes.EXPONENTIAL && (detail === 'envelopeZero' || detail === 'port')) {
+                // return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5))
+                return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+            } else if (label === 'volume') {
+                return value === -Infinity
+                    ? '3%'
+                    : `${(86 / (max - ccc) * value + 101)}`;
+            } else if (detail === 'port') {
+                return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+            } else if ((curve === curveTypes.LINEAR || !curve) && type === 'knob') {
+                return rotate(140 * (value - (mid)) / mid)
+            } else if ((curve === curveTypes.LINEAR || !curve) && type === 'slider') {
+                return `${(86 / (max - ccc)) * value + 3}%`;
+            } else {
+                return rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
+            }
         }
+
     }
 
     const rotate = (angle: number) => `rotate(${angle} 33.64 33.64)`
     const mid = (max - min) / 2
-    const rotateBy = curve === curveTypes.LINEAR || !curve
-        ? rotate(140 * (value - (mid)) / mid)
-        : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
+    // const rotateBy = curve === curveTypes.LINEAR || !curve
+    //     ? rotate(140 * (value - (mid)) / mid)
+    //     : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
+    const rotateBy = value === '*' ? rotate(0) :
+        curve === curveTypes.LINEAR || !curve
+            ? rotate(140 * (value - (mid)) / mid)
+            : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
     // const rotateBy = rotate(0)
-    const heightPercentage = `${(86 / (max - min)) * value + 3}%`
+    const heightPercentage = value === "*" ? '40%' : `${(86 / (max - min)) * value + 3}%`
 
     const knob = <Knob
         captureStart={captureStart}
         // indicatorData={rotateBy}
         indicatorData={
             detail === 'detune'
-                ? rotate((value / 1200) * 140)
+                ? rotate((Number(value) / 1200) * 140)
                 : rotateBy}
         // indicatorData={detail === 'detune' ? rotate((0) * 140) : rotateBy}
         // indicatorData={rrr()}
         label={label}
-        // wheelMove={wheelMove}
+        wheelMove={wheelMove}
         className={className}
+        selectedLock={selectedLock}
         value={value}
         unit={unit}
         display={display}
@@ -177,11 +181,13 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         value={value}
         curve={curve}
         unit={unit}
+        selectedLock={selectedLock}
+        wheelMove={wheelMove}
         display={display}
         className={className}
         captureStartDiv={captureStartDiv}
         // indicatorData={detail === 'volume' ? rrr() : heightPercentage}
-        indicatorData={detail === 'volume' ? `${(1 / 106) * ((83 * value) + 8618)}%` : heightPercentage}
+        indicatorData={detail === 'volume' ? `${(1 / 106) * ((83 * Number(value)) + 8618)}%` : heightPercentage}
         // indicatorData={rrr()}
         label={label}
         setDisplay={() => setDisplay(state => !state)} />

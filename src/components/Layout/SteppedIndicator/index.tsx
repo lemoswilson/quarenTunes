@@ -20,6 +20,7 @@ interface SteppedIndicator {
 export interface indicatorProps {
     wheelMove: (e: WheelEvent) => void,
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
+    valueUpdateCallback: (value: any) => void,
     captureStartDiv?: (e: React.MouseEvent) => void,
     label: string,
     // indicatorData: string,
@@ -131,6 +132,7 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         wheelMove={wheelMove}
         className={className}
         selected={selected}
+        valueUpdateCallback={valueUpdateCallback}
         unit={unit}
         display={display}
         setDisplay={() => setDisplay(state => !state)}
