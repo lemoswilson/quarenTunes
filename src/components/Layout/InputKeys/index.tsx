@@ -9,12 +9,10 @@ import Dropdown from '../Dropdown';
 import styles from './style.module.scss'
 
 import { numberToNote, blackOrWhite } from '../../../store/MidiInput';
-import toneRefEmitter, { trackEventTypes, ExtractTrackPayload } from '../../../lib/toneRefsEmitter';
 
 import { subdivisionOptions } from '../../../containers/Track/defaults';
 
 import { event } from '../../../store/Sequencer/'
-import { mainModule } from 'process';
 
 interface InputKeys {
     // keyState: { [key: string]: boolean },
@@ -52,7 +50,9 @@ const InputKeys: React.FC<InputKeys> = ({
 
     const callbacksDown = withRange(25, range * 12).map(noteNumber => {
         return () => {
-            noteCallback(numberToNote(noteNumber));
+            const noteName = numberToNote(noteNumber)
+            console.log('clicking note', noteName);
+            noteCallback(noteName);
             setMouseNote((state) => {
                 return {
                     ...state,

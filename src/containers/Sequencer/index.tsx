@@ -39,7 +39,8 @@ import { noteOff, noteOn, upOctaveKey, downOctaveKey, keyDict, noteDict } from '
 import triggCtx from '../../context/triggState';
 
 import { timeObjFromEvent } from '../../lib/utility';
-import Tone from '../../lib/tone';
+// import Tone from '../../lib/tone';
+import * as Tone from 'tone';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 
 import StepSequencer from '../../components/StepSequencer';
@@ -52,6 +53,7 @@ import { RootState } from '../Xolombrisx';
 
 import styles from './style.module.scss';
 import toneRefsContext from '../../context/toneRefsContext';
+import { xolombrisxInstruments } from '../../store/Track';
 
 
 const Sequencer: FunctionComponent = () => {
@@ -77,6 +79,7 @@ const Sequencer: FunctionComponent = () => {
     const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack)
     const selected = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].selected);
     const selectedRef = useRef(selected);
+    const selectedInstrument = useSelector((state: RootState) => state.track.present.tracks[selectedTrack].instrument)
     useEffect(() => { selectedRef.current = selected }, [selected])
 
     // const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
@@ -191,7 +194,7 @@ const Sequencer: FunctionComponent = () => {
         let nextPattern: number = Number(key);
         let loopEnd = sequencer.patterns[nextPattern].patternLength;
 
-        if (Tone.Transport.state === "started") {
+        if (Tone.Transport.state === "started" && arrangerMode === 'pattern') {
 
             [...Array(trackCount).keys()].forEach(track => {
                 triggRef.current[activePattern][track].instrument.stop(0);
@@ -219,8 +222,9 @@ const Sequencer: FunctionComponent = () => {
                     dispatch(selectPattern(nextPattern));
                 }, time)
             }, 0);
-
-        } else {
+            return
+        }
+        if (arrangerMode === 'pattern') {
             [...Array(trackCount).keys()].forEach(track => {
                 triggRef.current[activePattern][track].instrument.stop();
                 const l = triggRef.current[activePattern][track].effects.length
@@ -228,9 +232,8 @@ const Sequencer: FunctionComponent = () => {
                     triggRef.current[activePattern][track].effects[j].stop();
                 }
             });
-            dispatch(selectPattern(nextPattern));
         }
-
+        dispatch(selectPattern(nextPattern));
     };
 
     const dispatchChangePatternName = useCallback((name: string): void => {
@@ -446,12 +449,22 @@ const Sequencer: FunctionComponent = () => {
         //     }
         // }
     };
+    const c = new Tone.FMSynth()
 
     function keyboardOnClick(noteName: string): void {
+        if (Tone.context.state !== "running") {
+            Tone.context.resume();
+            Tone.context.latencyHint = "playback";
+            Tone.context.lookAhead = 0;
+        }
         if (selectedRef.current.length > 0) {
             dispatchSetNote(noteName);
         } else {
-            toneRefs?.current[selectedTrack].instrument?.triggerAttack(noteName, patternNoteLength)
+            if (selectedInstrument === xolombrisxInstruments.NOISESYNTH) {
+                toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, activePatternObj.tracks[selectedTrack].velocity)
+            } else {
+                toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(noteName, patternNoteLength, activePatternObj.tracks[selectedTrack].velocity)
+            }
         }
     }
 

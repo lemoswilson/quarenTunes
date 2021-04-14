@@ -15,7 +15,8 @@ import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
 import AppContext from '../../context/AppContext';
 // import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/myCustomToneRefsEmitter';
 
-import Tone from '../../lib/tone'
+// import Tone from '../../lib/tone'
+import * as Tone from 'tone';
 
 import { arrangerActions } from '../../store/Arranger'
 import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";

@@ -1,45 +1,47 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { updateEnvelopeCurve } from '../../../../store/Track';
-import { getNested, setNestedValue } from '../../../../lib/objectDecompose';
+import { getNested } from '../../../../lib/objectDecompose';
 import styles from './style.module.scss';
 import ContinuousIndicator from '../../ContinuousIndicator';
 import CurveSelector from '../../CurveSelector';
+import WaveformSelector from '../../WaveformSelector';
+import { setNestedValue } from '../../../../lib/objectDecompose';
 import { useDispatch } from 'react-redux';
-import SteppedIndicator from '../../SteppedIndicator';
-import { event } from '../../../../store/Sequencer';
+import { event } from '../../../../store/Sequencer'
 
-export interface NoiseSynthProps {
+export interface MembraneSynthProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
     index: number,
-    selected: number[],
     events: event[],
-    properties: any[];
+    selected: number[],
+    properties: any[],
 }
 
-const FMSynth: React.FC<NoiseSynthProps> = ({
+const MembraneSynth: React.FC<MembraneSynthProps> = ({
     calcCallbacks,
     options,
-    propertyUpdateCallbacks,
-    index,
     events,
     properties,
     selected,
+    propertyUpdateCallbacks,
+    index,
 }) => {
-    const dispatch = useDispatch()
     const envelopeAttack = options.envelope.attack;
     const envelopeDecay = options.envelope.decay;
     const envelopeSustain = options.envelope.sustain;
     const envelopeRelease = options.envelope.release;
-    const fadeIn = options.noise.fadeIn;
-    const fadeOut = options.noise.fadeOut;
+    const octaves = options.octaves;
+    const detune = options.detune;
+    const portamento = options.portamento;
     const volume = options.volume;
-    const rate = options.noise.playbackRate;
-    const noiseType = options.noise.type;
+    const pitchDecay = options.pitchDecay;
 
+    const dispatch = useDispatch()
     const parameterLockValues = useMemo(() => {
+
         const o: any = {}
         properties.forEach(property => {
             const selectedPropertyArray = selected.map(s => getNested(events[s].instrument, property))
@@ -66,7 +68,6 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
         return o
     }, [properties, selected, events])
 
-
     const getPropertyValue = (property: string): number | '*' => {
         const pmValues: (number | boolean | string)[] = getNested(parameterLockValues, property)
         return selected.length > 1 && !pmValues[0] && !pmValues[2]
@@ -76,12 +77,18 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                 : getNested(options, property)[0]
     };
 
+    useEffect(() => {
+        console.log(options);
+    }, [])
+
+
+
     return (
         <div className={styles.wrapper}>
-            <div className={styles.sideTitle}><h1>NoiseSynth</h1></div>
+            <div className={styles.sideTitle}><h1>MembraneSynth</h1></div>
             <div className={styles.tweakers}>
                 <div className={styles.top}>
-                    <div className={styles.title}>Noise</div>
+                    <div className={styles.title}>Oscillator</div>
                     <div className={styles.indicators}>
                         <div className={styles.envelope}>
                             <div className={styles.box}>
@@ -153,40 +160,43 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                 selected={options.envelope.decayCurve[0]}
                                 className={styles.curve}
                             />
-                            <div className={styles.fade}>
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.noise.fadeIn}
-                                    selectedLock={false}
-                                    label={'FadeIn'}
-                                    max={fadeIn[1][1]}
-                                    midiLearn={() => { }}
-                                    min={fadeIn[1][0]}
-                                    type={'knob'}
-                                    curve={fadeIn[4]}
-                                    unit={fadeIn[2]}
-                                    value={getPropertyValue('noise.fadeIn')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.noise.fadeIn}
-                                    className={styles.in}
-                                    detail={'envelopeZero'}
-                                />
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.noise.fadeOut}
-                                    selectedLock={false}
-                                    label={'FadeOut'}
-                                    max={fadeOut[1][1]}
-                                    midiLearn={() => { }}
-                                    min={fadeOut[1][0]}
-                                    type={'knob'}
-                                    curve={fadeOut[4]}
-                                    unit={fadeOut[2]}
-                                    value={getPropertyValue('noise.fadeOut')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.noise.fadeOut}
-                                    className={styles.out}
-                                    detail={'envelopeZero'}
-                                />
-                            </div>
+                            <WaveformSelector
+                                selectWaveform={(wave) => { propertyUpdateCallbacks.oscillator.type(wave) }}
+                                selected={options.oscillator.type[0]}
+                            />
                         </div>
                         <div className={styles.voices}>
+                            <div className={styles.detunePortamento}>
+                                <ContinuousIndicator
+                                    ccMouseCalculationCallback={calcCallbacks.detune}
+                                    selectedLock={false}
+                                    label={'Detune'}
+                                    max={detune[1][1]}
+                                    midiLearn={() => { }}
+                                    min={detune[1][0]}
+                                    type={'knob'}
+                                    curve={detune[4]}
+                                    unit={detune[2]}
+                                    value={getPropertyValue('detune')}
+                                    valueUpdateCallback={propertyUpdateCallbacks.detune}
+                                    detail={'detune'}
+                                />
+                                <ContinuousIndicator
+                                    ccMouseCalculationCallback={calcCallbacks.portamento}
+                                    selectedLock={false}
+                                    label={'Portamento'}
+                                    max={portamento[1][1]}
+                                    midiLearn={() => { }}
+                                    min={portamento[1][0]}
+                                    type={'knob'}
+                                    detail={'port'}
+                                    unit={portamento[2]}
+                                    curve={portamento[4]}
+                                    value={getPropertyValue('portamento')}
+                                    valueUpdateCallback={propertyUpdateCallbacks.portamento}
+                                // className={styles.envelopeRelease}
+                                />
+                            </div>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
                                 selectedLock={false}
@@ -200,41 +210,40 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
                                 unit={volume[2]}
                                 value={getPropertyValue('volume')}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
-                                className={styles.volume}
+                            // className={styles.volume}
                             />
-                            <div className={styles.rateType}>
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.noise.playbackRate}
-                                    selectedLock={false}
-                                    label={'Rate'}
-                                    max={rate[1][1]}
-                                    midiLearn={() => { }}
-                                    min={rate[1][0]}
-                                    type={'knob'}
-                                    curve={rate[4]}
-                                    unit={rate[2]}
-                                    value={getPropertyValue('noise.playbackRate')}
-                                    valueUpdateCallback={getNested(propertyUpdateCallbacks, 'noise.playbackRate')}
-                                    className={styles.rate}
-                                />
-                                <SteppedIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.noise.type}
-                                    label={'Type'}
-                                    midiLearn={() => { }}
-                                    options={noiseType[1]}
-                                    selected={
-                                        selected.length > 1 && !parameterLockValues.noise.type[0] && !parameterLockValues.noise.type[2]
-                                            ? '*'
-                                            : parameterLockValues.noise.type[0]
-                                                ? parameterLockValues.noise.type[1]
-                                                : getNested(options, 'noise.type')[0]
-                                    }
-                                    unit={''}
-                                    valueUpdateCallback={propertyUpdateCallbacks.noise.type}
-                                    className={styles.type}
-                                />
-                            </div>
                         </div>
+                    </div>
+                </div>
+                <div className={styles.bottom}>
+                    {/* <div className={styles.title}></div> */}
+                    <div className={styles.indicators}>
+                        <ContinuousIndicator
+                            ccMouseCalculationCallback={calcCallbacks.octaves}
+                            selectedLock={false}
+                            label={'Octaves'}
+                            max={octaves[1][1]}
+                            midiLearn={() => { }}
+                            min={octaves[1][0]}
+                            type={'knob'}
+                            curve={octaves[4]}
+                            unit={octaves[2]}
+                            value={getPropertyValue('octaves')}
+                            valueUpdateCallback={propertyUpdateCallbacks.octaves}
+                        />
+                        <ContinuousIndicator
+                            ccMouseCalculationCallback={calcCallbacks.pitchDecay}
+                            selectedLock={false}
+                            label={'pitchDecay'}
+                            max={pitchDecay[1][1]}
+                            midiLearn={() => { }}
+                            min={pitchDecay[1][0]}
+                            type={'knob'}
+                            curve={pitchDecay[4]}
+                            unit={pitchDecay[2]}
+                            value={getPropertyValue('pitchDecay')}
+                            valueUpdateCallback={propertyUpdateCallbacks.pitchDecay}
+                        />
                     </div>
                 </div>
             </div>
@@ -242,4 +251,4 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
     )
 }
 
-export default FMSynth;
+export default MembraneSynth;

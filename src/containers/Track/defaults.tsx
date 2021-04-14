@@ -57,7 +57,7 @@ const audioRange = [0, 1];
 export const modulationRange = [0.01, 100];
 const membraneSynthOctaveRange = [0.5, 8];
 const metalSynthOctaveRange = [0, 8]
-const dampeningRange = [0, 7000];
+const dampeningRange = [20, 7000];
 const attackNoiseRange = [0.1, 20]
 export const noiseTypeOptions = ['white', 'brown', 'pink']
 const oscillatorTypeOptions = ['sine', 'pulse', 'sawtooth', 'triangle'];
@@ -90,7 +90,7 @@ const metalSynthEnvelope = {
     decayCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     releaseCurve: [curveTypes.LINEAR, envelopeCurveOptions, undefined, envelopeCurveIndicator],
     attack: [0.001, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeCurveIndicator, curveTypes.EXPONENTIAL],
+    decay: [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     release: [0.2, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
     sustain: [0, normalRange, normalUnit, envelopeTimeIndicator, curveTypes.LINEAR]
 }
@@ -145,9 +145,9 @@ const modSynthHarmonicity = [3, harmonicityRange, harmonicityUnit, harmonicityIn
 const metalSynthHarmonicity = [5.1, harmonicityRange, harmonicityUnit, harmonicityIndicator, curveTypes.LINEAR];
 const modSynthModulationIndex = [10, modulationRange, modulationUnit, modulationIndicator, curveTypes.LINEAR];
 const metalSynthModulationIndex = [32, modulationRange, modulationUnit, modulationIndicator, curveTypes.EXPONENTIAL];
-const membraneSynthOctaves = [10, membraneSynthOctaveRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
-const membraneSynthPitchDecay = [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
-const metalSynthOctaves = [1.5, metalSynthOctaveRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+export const membraneSynthOctaves = [10, membraneSynthOctaveRange, '', envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+export const membraneSynthPitchDecay = [1.4, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+const metalSynthOctaves = [1.5, metalSynthOctaveRange, '', envelopeTimeIndicator, curveTypes.LINEAR];
 const metalSynthResonance = [4000, dampeningRange, dampeningUnit, resonanceIndicator, curveTypes.EXPONENTIAL];
 const attackNoise = [1, attackNoiseRange, attackNoiseUnit, attackNoiseIndicator, curveTypes.EXPONENTIAL];
 const dampening = [4000, dampeningRange, dampeningUnit, frequencyIndicator, curveTypes.EXPONENTIAL];

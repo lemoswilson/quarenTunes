@@ -6,13 +6,15 @@ import { onlyValues } from '../lib/objectDecompose'
 import { Part } from 'tone';
 import { timeObjFromEvent } from '../lib/utility';
 import { returnEffect } from '../containers/Track/Effects';
+import { xolombrisxInstruments } from '../store/Track';
 
 export const useProperty = (
     // ref: any,
     ref: MutableRefObject<ReturnType<typeof returnInstrument>>,
     obj: initialsArray,
     t: keyof initialsArray,
-    isObject: boolean = false
+    isObject: boolean = false,
+    // voice?: xolombrisxInstruments,
 ) => {
     let a = obj[t]
     useEffect(() => {
@@ -82,13 +84,13 @@ export const useTrigg = (
 
     useEffect(() => {
         if (un === prevUn) {
+            console.log('updating stuff')
             const now = timeObjFromEvent(step, off)
             trig.at(now, instrumentOptions)
         }
     }, [instrumentOptions, trig, un, prevUn, off])
 
     useEffect(() => {
-        console.log('updating stuff')
         if (un === prevUn && off !== previousOffset) {
             const now = timeObjFromEvent(step, off)
             const pastTime = timeObjFromEvent(step, previousOffset, false)

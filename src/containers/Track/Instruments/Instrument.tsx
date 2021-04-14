@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import usePrevious from '../../../hooks/usePrevious';
 import { useProperty } from '../../../hooks/useProperty';
-import useQuickRef from '../../../hooks/useQuickRef';
 
 import { xolombrisxInstruments, updateInstrumentState, increaseDecreaseEffectProperty, increaseDecreaseInstrumentProperty } from '../../../store/Track';
 import { noteOn, noteOff, noteDict, numberToNote } from '../../../store/MidiInput';
@@ -36,12 +35,10 @@ import {
     deleteProperty,
     copyToNew
 } from '../../../lib/objectDecompose'
-// import Tone from '../../../lib/tone';
+
 import * as Tone from 'tone';
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../../lib/curves';
-import { timeObjFromEvent, extendObj, typeMovement } from '../../../lib/utility';
-import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
-// import toneRefEmitter, { trackEventTypes } from '../../../lib/myCustomToneRefsEmitter';
+import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
 
 import triggCtx from '../../../context/triggState';
 import toneRefsContext from '../../../context/toneRefsContext';
@@ -57,8 +54,10 @@ import styles from './style.module.scss';
 
 import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
 
-import FMSynth from '../../../components/Layout/Instruments/FMSynth';
+import ModulationSynth from '../../../components/Layout/Instruments/ModulationSynth';
 import NoiseSynth from '../../../components/Layout/Instruments/NoiseSynth';
+import MembraneSynth from '../../../components/Layout/Instruments/MembraneSynth';
+import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
 
 export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
     let options = onlyValues(opt);
@@ -189,6 +188,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const patternLengthsRef = useRef(patternLengths);
     useEffect(() => { patternLengthsRef.current = patternLengths }, [patternLengths])
 
+    // should delete this, there's no reference to it 
+    // anywhere else 
     const trackPatternLength = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
@@ -215,13 +216,25 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const eventsRef = useRef(events);
     useEffect(() => { eventsRef.current = events }, [events])
 
+
     const propertyValueUpdateCallback: any = useMemo(() => {
         let o = {}
         let callArray = properties.map((property) => {
             return (value: any) => {
-                if (getNested(instrumentRef.current.get(), property)
+                // parameter lock logic 
+                let temp = setNestedValue(property, value)
+                if (selectedStepsRef.current.length > 0) {
+                    selectedStepsRef.current.forEach(s => {
+                        dispatch(parameterLock(
+                            activePatternRef.current,
+                            idRef.current,
+                            s,
+                            temp,
+                            property
+                        ))
+                    })
+                } else if (getNested(instrumentRef.current.get(), property)
                     === getNested(optionsRef.current, property)[0]) {
-                    let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
                     dispatch(updateInstrumentState(indexRef.current, temp));
                 };
@@ -371,7 +384,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
                 if (selectedStepsRef.current.length >= 1) {
                     selectedStepsRef.current.forEach(step => {
-                        console.log('dispatching parameter lock')
+                        // console.log('dispatching parameter lock', 'value = ', cc ? e.value : e.movementY)
                         dispatch(parameterLockIncreaseDecrease(
                             activePatternRef.current,
                             idRef.current,
@@ -436,6 +449,24 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     useProperty(instrumentRef, options, 'portamento');
     useProperty(instrumentRef, options, 'resonance');
     useProperty(instrumentRef, options, 'volume')
+
+    // useProperty(instrumentRef, options, 'harmonicity', false, voice);
+    // useProperty(instrumentRef, options, 'attack', false, voice);
+    // useProperty(instrumentRef, options, 'attackNoise', false, voice);
+    // useProperty(instrumentRef, options, 'curve', false, voice);
+    // useProperty(instrumentRef, options, 'dampening', false, voice);
+    // useProperty(instrumentRef, options, 'detune', false, voice);
+    // useProperty(instrumentRef, options, 'envelope', true, voice);
+    // useProperty(instrumentRef, options, 'modulation', true, voice);
+    // useProperty(instrumentRef, options, 'modulationEnvelope', true, voice);
+    // useProperty(instrumentRef, options, 'noise', true,);
+    // useProperty(instrumentRef, options, 'octaves', false, voice);
+    // useProperty(instrumentRef, options, 'pitchDecay', false, voice);
+    // useProperty(instrumentRef, options, 'oscillator', true, voice);
+    // useProperty(instrumentRef, options, 'modulationIndex', false, voice)
+    // useProperty(instrumentRef, options, 'portamento', false, voice);
+    // useProperty(instrumentRef, options, 'resonance', false, voice);
+    // useProperty(instrumentRef, options, 'volume', false, voice)
 
 
 
@@ -845,9 +876,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
     }
 
-
-
-
     // change instrument logic 
     useEffect(() => {
         instrumentRef.current = returnInstrument(voice, optionsRef.current);
@@ -934,51 +962,58 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     }, []);
 
-    // dom manipulation 
-    useEffect(() => {
-        switch (voice) {
-            case xolombrisxInstruments.AMSYNTH:
-                // tempRef.current?.getElementsByClassName('property.label')
-                // pass
-                break
-            case xolombrisxInstruments.DRUMRACK:
-                // pass
-                break
-            case xolombrisxInstruments.FMSYNTH:
-                // pass
-                break
-            case xolombrisxInstruments.MEMBRANESYNTH:
-                // pass
-                break
-            case xolombrisxInstruments.METALSYNTH:
-                // pass 
-                break
-            case xolombrisxInstruments.NOISESYNTH:
-                // pass 
-                break
-            case xolombrisxInstruments.PLUCKSYNTH:
-                // pass 
-                break
-        }
-    }, [instrumentHTMLRef])
 
     const Component = voice === xolombrisxInstruments.FMSYNTH
-        ? <FMSynth
+        ? <ModulationSynth
             calcCallbacks={propertyIncreaseDecrease}
             options={options}
             index={index}
             events={events[activePattern]}
             selected={selectedSteps}
+            voice={voice}
+            properties={properties}
             propertyUpdateCallbacks={propertyValueUpdateCallback} />
         : voice === xolombrisxInstruments.NOISESYNTH
             ? <NoiseSynth
                 calcCallbacks={propertyIncreaseDecrease}
+                // parameterLockValues={parameterLockValues}
+                properties={properties}
                 events={events[activePattern]}
                 selected={selectedSteps}
                 options={options}
                 index={index}
                 propertyUpdateCallbacks={propertyValueUpdateCallback} />
-            : null
+            : voice === xolombrisxInstruments.AMSYNTH
+                ? <ModulationSynth
+                    calcCallbacks={propertyIncreaseDecrease}
+                    options={options}
+                    index={index}
+                    events={events[activePattern]}
+                    selected={selectedSteps}
+                    voice={voice}
+                    properties={properties}
+                    propertyUpdateCallbacks={propertyValueUpdateCallback} />
+                : voice === xolombrisxInstruments.MEMBRANESYNTH
+                    ? <MembraneSynth
+                        calcCallbacks={propertyIncreaseDecrease}
+                        events={events[activePattern]}
+                        index={index}
+                        options={options}
+                        properties={properties}
+                        propertyUpdateCallbacks={propertyValueUpdateCallback}
+                        selected={selectedSteps}
+                    />
+                    : voice === xolombrisxInstruments.METALSYNTH
+                        ? <MetalSynth
+                            calcCallbacks={propertyIncreaseDecrease}
+                            events={events[activePattern]}
+                            index={index}
+                            options={options}
+                            properties={properties}
+                            propertyUpdateCallbacks={propertyValueUpdateCallback}
+                            selected={selectedSteps}
+                        />
+                        : null;
 
     return (
         <div

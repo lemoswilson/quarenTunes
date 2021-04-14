@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useRef, RefObject, MutableRefObject, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { event, Pattern } from '../../store/Sequencer'
 import styles from './style.module.scss';
 import Dropdown from '../Layout/Dropdown';

@@ -9,7 +9,6 @@ import {
 } from "./types";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../lib/curves';
 import produce from "immer";
-import { DRAFT_STATE } from 'immer/dist/internal';
 
 export const initialState: Track = {
 	instrumentCounter: 0,
@@ -19,12 +18,18 @@ export const initialState: Track = {
 		{
 			// instrument: xolombrisxInstruments.FMSYNTH,
 			// options: getInitials(xolombrisxInstruments.FMSYNTH),
-			instrument: xolombrisxInstruments.NOISESYNTH,
-			options: getInitials(xolombrisxInstruments.NOISESYNTH),
+			// instrument: xolombrisxInstruments.AMSYNTH,
+			// options: getInitials(xolombrisxInstruments.AMSYNTH),
+			// instrument: xolombrisxInstruments.NOISESYNTH,
+			// options: getInitials(xolombrisxInstruments.NOISESYNTH),
+			// instrument: xolombrisxInstruments.MEMBRANESYNTH,
+			// options: getInitials(xolombrisxInstruments.MEMBRANESYNTH),
+			instrument: xolombrisxInstruments.METALSYNTH,
+			options: getInitials(xolombrisxInstruments.METALSYNTH),
 			id: 0,
 			fx: [],
 			fxCounter: 0,
-			env: 0.001,
+			// env: 0.001,
 			midi: {
 				device: undefined,
 				channel: undefined,
@@ -49,7 +54,7 @@ export function trackReducer(
 
 		switch (action.type) {
 			case trackActions.ADD_INSTRUMENT:
-				console.log(state, draft.trackCount);
+				// console.log(state, draft.trackCount);
 				draft.tracks.push({
 					instrument: action.payload.instrument,
 					options: getInitials(action.payload.instrument),

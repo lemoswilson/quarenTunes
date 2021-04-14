@@ -48,7 +48,7 @@ export function sequencerReducer(
 			page: number,
 			patternToGo: number | undefined,
 			pageToGo: number | undefined,
-			data: eventOptions,
+			data: any,
 			note: string[] | string,
 			offset: number,
 			name: string,
@@ -237,8 +237,8 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.track,
 				];
-				const prop = propertiesToArray(data)[0];
-				const valor = getNested(data, prop);
+				const prop = data.parameter;
+				const valor = getNested(data.value, prop);
 				setNestedValue(prop, valor, draft.patterns[pattern].tracks[track].events[step].instrument);
 				break;
 			case sequencerActions.REMOVE_PATTERN:

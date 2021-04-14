@@ -71,10 +71,10 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                                     <StepLayout
                                         onClick={() => { selectStep(step) }}
                                         activePattern={activePattern}
-                                        event={events[idx]}
-                                        index={idx}
+                                        event={events[step]}
+                                        index={step}
                                         selectedTrack={selectedTrack}
-                                        un={`${activePattern}:${selectedTrack}:${idx}`}
+                                        un={`${activePattern}:${selectedTrack}:${step}`}
                                         onTime={false}
                                         selected={selected.includes(step)}
                                     />
