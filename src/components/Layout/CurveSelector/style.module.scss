@@ -5,7 +5,7 @@
     flex-direction: column;
     // border: 1px solid black;
     width: 4rem;
-    height: 7.5rem;
+    height: 5rem;
 
     .title {
         // border: 1px solid red;
@@ -30,12 +30,13 @@
 
     .options {
         display: grid;
-        grid-template-rows: 3.1rem 3.1rem;
+        // grid-template-rows: 3.1rem 3.1rem;
 
         .box {
             display: grid;
             grid-template-columns: 20% 80%;
             // border: 1px solid black;
+
             .button {
                 display: flex;
                 @include center;
@@ -45,6 +46,7 @@
             .curve {
                 display: flex;
                 @include center;
+                // border: 1px solid black;
             }
         }
     }
@@ -53,7 +55,7 @@
 .horizontal {
     display: flex;
     flex-direction: row;
-    border: 1 px solid black;
+    // border: 1 px solid black;
     width: 6rem;
     height: 3rem;
 

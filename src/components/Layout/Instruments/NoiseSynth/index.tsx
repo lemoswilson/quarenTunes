@@ -19,7 +19,7 @@ export interface NoiseSynthProps {
     properties: any[];
 }
 
-const FMSynth: React.FC<NoiseSynthProps> = ({
+const NoiseSynth: React.FC<NoiseSynthProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
@@ -242,4 +242,4 @@ const FMSynth: React.FC<NoiseSynthProps> = ({
     )
 }
 
-export default FMSynth;
+export default NoiseSynth;

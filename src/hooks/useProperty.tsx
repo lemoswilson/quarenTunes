@@ -7,14 +7,18 @@ import { Part } from 'tone';
 import { timeObjFromEvent } from '../lib/utility';
 import { returnEffect } from '../containers/Track/Effects';
 import { xolombrisxInstruments } from '../store/Track';
+import DrumRack from '../lib/DrumRack';
+import { DrumRackSlotInitials } from '../containers/Track/defaults';
+
 
 export const useProperty = (
     // ref: any,
     ref: MutableRefObject<ReturnType<typeof returnInstrument>>,
-    obj: initialsArray,
+    // obj: initialsArray,
+    obj: any,
     t: keyof initialsArray,
     isObject: boolean = false,
-    // voice?: xolombrisxInstruments,
+    voice?: xolombrisxInstruments,
 ) => {
     let a = obj[t]
     useEffect(() => {
@@ -34,6 +38,93 @@ export const useProperty = (
         }
     }, [a, isObject, ref, t])
 };
+
+export const useProperties = (
+    instrumentRef: MutableRefObject<ReturnType<typeof returnInstrument>>,
+    options: any,
+) => {
+    useProperty(instrumentRef, options, 'harmonicity');
+    useProperty(instrumentRef, options, 'attack');
+    useProperty(instrumentRef, options, 'attackNoise');
+    useProperty(instrumentRef, options, 'curve');
+    useProperty(instrumentRef, options, 'dampening');
+    useProperty(instrumentRef, options, 'detune');
+    useProperty(instrumentRef, options, 'envelope', true);
+    useProperty(instrumentRef, options, 'modulation', true);
+    useProperty(instrumentRef, options, 'modulationEnvelope', true);
+    useProperty(instrumentRef, options, 'noise', true);
+    useProperty(instrumentRef, options, 'octaves');
+    useProperty(instrumentRef, options, 'pitchDecay');
+    useProperty(instrumentRef, options, 'oscillator', true);
+    useProperty(instrumentRef, options, 'modulationIndex')
+    useProperty(instrumentRef, options, 'portamento');
+    useProperty(instrumentRef, options, 'resonance');
+    useProperty(instrumentRef, options, 'volume')
+}
+
+export const useDrumRackProperty = (
+    // ref: MutableRefObject<DrumRack>,
+    ref: any,
+    obj: { [key: string]: any },
+    prop: keyof typeof DrumRackSlotInitials,
+    drumPad: string,
+    isObject: boolean = false,
+) => {
+    let a = obj[drumPad][prop]
+    // if (a) {
+
+    // }
+    useEffect(() => {
+        if (a) {
+            let v: any;
+            if (isObject) {
+                console.log()
+                v = {
+                    [prop]: onlyValues(a),
+                }
+            } else if (Array.isArray(a)) {
+                v = {
+                    [prop]: a[0]
+                }
+            } else {
+                v = {
+                    [prop]: a,
+                }
+            }
+            ref.current.set(v, Number(drumPad[4]))
+        }
+    }, [a, isObject, ref, prop])
+}
+
+export const useDrumRackProperties = (
+    instrumentRef: any,
+    options: any,
+) => {
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_0')
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_1')
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_2')
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_3')
+    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_0')
+    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_1')
+    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_2')
+    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_3')
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_0')
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_1')
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_2')
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_3')
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_0')
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_1')
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_2')
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_3')
+    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_0', true)
+    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_1', true)
+    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_2', true)
+    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_3', true)
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_0')
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_1')
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_2')
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_3')
+}
 
 export const useEffectProperty = (
     // ref: any,

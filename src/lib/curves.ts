@@ -29,11 +29,11 @@ export function valueFromMouse(
     min: number,
     max: number,
     curveType: curveTypes,
-    extra?: 'volume' | 'detune',
+    extra?: 'volume' | 'detune' | 'PAD_0.volume',
 ): number {
     let r;
-    if (extra === 'volume') {
-
+    if (extra === 'volume' || extra === 'PAD_0.volume') {
+        console.log('extra is volume');
         if (prevValue === -Infinity) {
             if (mouseMovement >= 0) {
                 return prevValue
@@ -41,7 +41,6 @@ export function valueFromMouse(
                 return -100 + (mouseMovement + 1) * 0.3
             }
         } else if (prevValue === -100) {
-            console.log(' to infinity infinity')
             if (mouseMovement > 0) {
                 return -Infinity
             }

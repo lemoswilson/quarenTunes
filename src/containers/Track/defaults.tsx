@@ -1,3 +1,4 @@
+import DrumRack from "../../components/Layout/Instruments/DrumRack";
 import { onlyValues } from "../../lib/objectDecompose";
 import { range } from "../../lib/utility";
 import { effectTypes, xolombrisxInstruments } from "../../store/Track";
@@ -51,8 +52,10 @@ export const detuneRange = [-1200, 1200];
 export const portamentoRange = [0.01, 3];
 export const harmonicityRange = [0.1, 10];
 export const envelopeTimeRange = [0.001, 10];
+const samplerEnvelopeTimeRange = [0, 3];
 export const fadeRange = [0, 10];
 export const normalRange = [0, 1];
+const pluckResonanceRange = [0, 0.9999]
 const audioRange = [0, 1];
 export const modulationRange = [0.01, 100];
 const membraneSynthOctaveRange = [0.5, 8];
@@ -151,7 +154,7 @@ const metalSynthOctaves = [1.5, metalSynthOctaveRange, '', envelopeTimeIndicator
 const metalSynthResonance = [4000, dampeningRange, dampeningUnit, resonanceIndicator, curveTypes.EXPONENTIAL];
 const attackNoise = [1, attackNoiseRange, attackNoiseUnit, attackNoiseIndicator, curveTypes.EXPONENTIAL];
 const dampening = [4000, dampeningRange, dampeningUnit, frequencyIndicator, curveTypes.EXPONENTIAL];
-const pluckResonance = [0.7, normalRange, normalUnit, frequencyIndicator, curveTypes.EXPONENTIAL]
+const pluckResonance = [0.7, pluckResonanceRange, normalUnit, frequencyIndicator, curveTypes.LINEAR]
 const pluckRelease = [1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 const samplerAttack = [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
 const curve = ['exponential', envelopeCurveOptions, envelopeCurveIndicator]
@@ -161,6 +164,17 @@ export function getInitialsValue(type: xolombrisxInstruments) {
     return onlyValues(getInitials(type))
 }
 
+export const DrumRackSlotInitials = {
+    volume: volume,
+    attack: [0, samplerEnvelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
+    baseUrl: [" "],
+    curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+    release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+    urls: {
+        C3: [''],
+    },
+    pitch: 0,
+}
 
 export function getInitials(type: xolombrisxInstruments) {
     switch (type) {
@@ -175,6 +189,7 @@ export function getInitials(type: xolombrisxInstruments) {
                 modulation: modulation, // modulation.type
                 modulationEnvelope: modulationEnvelope, // modulationEnvelope.attack, decay, sustain
             }
+        // return AMSynthInitials
         case xolombrisxInstruments.FMSYNTH:
             return {
                 volume: volume,
@@ -187,6 +202,7 @@ export function getInitials(type: xolombrisxInstruments) {
                 modulationEnvelope: modulationEnvelope, // modulationEnvelope.attack, decay, sustain...
                 modulationIndex: modSynthModulationIndex
             }
+        // return FMSynthInitials
         case xolombrisxInstruments.MEMBRANESYNTH:
             return {
                 volume: volume,
@@ -197,6 +213,7 @@ export function getInitials(type: xolombrisxInstruments) {
                 octaves: membraneSynthOctaves,
                 pitchDecay: membraneSynthPitchDecay,
             }
+        // return MembraneSynthInitials
         case xolombrisxInstruments.METALSYNTH:
             return {
                 volume: volume,
@@ -208,12 +225,14 @@ export function getInitials(type: xolombrisxInstruments) {
                 octaves: metalSynthOctaves,
                 resonance: metalSynthResonance
             }
+        // return MetalSynthInitials
         case xolombrisxInstruments.NOISESYNTH:
             return {
                 volume: volume,
                 envelope: envelope, // envelope.attack, decay, sustain, release, and curves
                 noise: noise, //noise.fadeIn, fadeOut, playbackRate, type
             }
+        // return NoiseSynthInitials
         case xolombrisxInstruments.PLUCKSYNTH:
             return {
                 volume: volume,
@@ -221,27 +240,45 @@ export function getInitials(type: xolombrisxInstruments) {
                 dampening: dampening,
                 resonance: pluckResonance,
                 release: pluckRelease,
-                envelope: undefined,
+                // envelope: undefined,
             }
-        // case xolombrisxInstruments.SAMPLER:
-        //     return {
-        //         volume: volume,
-        //         attack: samplerAttack,
-        //         baseUrl: " ",
-        //         curve: curve,
-        //         release: samplerRelase,
-        //         urls: {},
-        //     }
-        case xolombrisxInstruments.DRUMRACK:
+        // return PluckSynthInitials
+        case xolombrisxInstruments.SAMPLER:
             return {
                 volume: volume,
-                attack: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+                attack: samplerAttack,
                 baseUrl: " ",
-                curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
-                release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+                curve: curve,
+                release: samplerRelase,
                 urls: {},
-                envelope: undefined,
             }
+        case xolombrisxInstruments.DRUMRACK:
+            const DrumRack: { [key: number]: typeof DrumRackSlotInitials } = {};
+            [...Array(4).keys()].forEach(i => { DrumRack[i] = DrumRackSlotInitials })
+            return {
+                // drumRack: DrumRack
+                // drumRack: {
+                'PAD_0': DrumRackSlotInitials,
+                'PAD_1': DrumRackSlotInitials,
+                'PAD_2': DrumRackSlotInitials,
+                'PAD_3': DrumRackSlotInitials
+                // }
+            }
+        // return {
+        //     volume: volume,
+        //     attack: [0, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+        //     baseUrl: " ",
+        //     curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+        //     release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+        //     urls: {},
+        //     // envelope: undefined,
+        // }
+        // const DrumRack: DrumRack = {};
+        // [...Array(4).keys()].forEach(i => { DrumRack[i] = DrumRackSlotInitials })
+        // return {
+        //     drumRack: DrumRack
+        // }
+
         default:
             return {}
     }

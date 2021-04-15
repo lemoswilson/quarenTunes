@@ -24,8 +24,12 @@ export const initialState: Track = {
 			// options: getInitials(xolombrisxInstruments.NOISESYNTH),
 			// instrument: xolombrisxInstruments.MEMBRANESYNTH,
 			// options: getInitials(xolombrisxInstruments.MEMBRANESYNTH),
-			instrument: xolombrisxInstruments.METALSYNTH,
-			options: getInitials(xolombrisxInstruments.METALSYNTH),
+			// instrument: xolombrisxInstruments.METALSYNTH,
+			// options: getInitials(xolombrisxInstruments.METALSYNTH),
+			// instrument: xolombrisxInstruments.PLUCKSYNTH,
+			// options: getInitials(xolombrisxInstruments.PLUCKSYNTH),
+			instrument: xolombrisxInstruments.DRUMRACK,
+			options: getInitials(xolombrisxInstruments.DRUMRACK),
 			id: 0,
 			fx: [],
 			fxCounter: 0,
@@ -136,6 +140,7 @@ export function trackReducer(
 				]
 				const v = getNested(draft.tracks[index].options, property);
 				let val;
+				// console.log('property is', property);
 				if (isContinuous) {
 					val = cc ? valueFromCC(movement, v[1][0], v[1][1], v[4])
 						: valueFromMouse(
@@ -144,14 +149,16 @@ export function trackReducer(
 							v[1][0],
 							v[1][1],
 							v[4],
-							property === 'volume' || property === 'detune'
+							property === 'volume' || property === 'detune' || property === 'PAD_0.volume'
 								? property
 								: undefined
 						);
 					if (val === -Infinity) {
 						setNestedArray(draft.tracks[index].options, property, -Infinity)
 					} else if (val >= v[1][0] && val <= v[1][1]) {
-						setNestedArray(draft.tracks[index].options, property, Number(val.toFixed(4)))
+						// const updateValue = property === 'dampening' ? Math.round(val) : Number(val.toFixed(4))
+						const updateValue = Number(val.toFixed(4))
+						setNestedArray(draft.tracks[index].options, property, updateValue)
 					}
 				} else {
 					val = cc ? optionFromCC(movement, v[1]) : steppedCalc(movement, v[1], v[0])

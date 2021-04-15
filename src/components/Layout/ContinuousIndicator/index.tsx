@@ -149,10 +149,14 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     // const rotateBy = curve === curveTypes.LINEAR || !curve
     //     ? rotate(140 * (value - (mid)) / mid)
     //     : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
-    const rotateBy = value === '*' ? rotate(0) :
-        curve === curveTypes.LINEAR || !curve
-            ? rotate(140 * (value - (mid)) / mid)
-            : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
+    const rotateBy =
+        value === '*'
+            ? rotate(0)
+            : detail === 'volume'
+                ? rotate((((value + 101) - 54) / 53) * 140)
+                : curve === curveTypes.LINEAR || !curve
+                    ? rotate(140 * (value - (mid)) / mid)
+                    : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
     // const rotateBy = rotate(0)
     const heightPercentage = value === "*" ? '40%' : `${(86 / (max - min)) * value + 3}%`
 

@@ -8,7 +8,8 @@ import React, {
     MutableRefObject,
 } from 'react';
 import usePrevious from '../../../hooks/usePrevious';
-import { useProperty } from '../../../hooks/useProperty';
+import { useProperties, useDrumRackProperties } from '../../../hooks/useProperty';
+// import { useProperty, useProperties } from '../../../hooks/useProperty';
 
 import { xolombrisxInstruments, updateInstrumentState, increaseDecreaseEffectProperty, increaseDecreaseInstrumentProperty } from '../../../store/Track';
 import { noteOn, noteOff, noteDict, numberToNote } from '../../../store/MidiInput';
@@ -46,18 +47,23 @@ import { InstrumentProps, initials } from './index'
 import { eventOptions, initialsArray } from './types';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { getInitials, indicators } from '../defaults';
+import { DrumRackSlotInitials, getInitials, indicators } from '../defaults';
 import { RootState } from '../../Xolombrisx';
 import { sixteenthFromBBS } from '../../Arranger';
 
 import styles from './style.module.scss';
 
 import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
+import DrumRackInstrument from '../../../lib/DrumRack';
+
 
 import ModulationSynth from '../../../components/Layout/Instruments/ModulationSynth';
 import NoiseSynth from '../../../components/Layout/Instruments/NoiseSynth';
 import MembraneSynth from '../../../components/Layout/Instruments/MembraneSynth';
 import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
+import PluckSynth from '../../../components/Layout/Instruments/PluckSynth';
+import DrumRack from '../../../components/Layout/Instruments/DrumRack';
+// import DrumRack from '../../../lib/DrumRack';
 
 export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
     let options = onlyValues(opt);
@@ -75,6 +81,9 @@ export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArra
             return new Tone.NoiseSynth(options);
         case xolombrisxInstruments.PLUCKSYNTH:
             return new Tone.PluckSynth(options);
+        case xolombrisxInstruments.DRUMRACK:
+            // return new DrumRackInstrument(opt)
+            return new DrumRackInstrument(options)
         default:
             return new Tone.Sampler();
     }
@@ -85,7 +94,9 @@ export type controlChangeEvent = (e: InputEventControlchange) => void;
 export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, selected }: InstrumentProps<T>) => {
 
     const instrumentRef = useRef(returnInstrument(voice, options));
-    const properties: string[] = useMemo(() => propertiesToArray(getInitials(voice)), [voice]);
+    const properties: string[] = useMemo(() => {
+        return propertiesToArray(getInitials(voice))
+    }, [voice]);
     const dispatch = useDispatch()
     const [firstRender, setRender] = useState(true);
 
@@ -233,8 +244,9 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                             property
                         ))
                     })
-                } else if (getNested(instrumentRef.current.get(), property)
-                    === getNested(optionsRef.current, property)[0]) {
+                    // } else if (getNested(instrumentRef.current.get(), property)
+                    //     === getNested(optionsRef.current, property)[0]) {
+                } else {
                     // instrumentRef.current.set(temp);
                     dispatch(updateInstrumentState(indexRef.current, temp));
                 };
@@ -432,43 +444,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         properties,
     ]);
 
-    useProperty(instrumentRef, options, 'harmonicity');
-    useProperty(instrumentRef, options, 'attack');
-    useProperty(instrumentRef, options, 'attackNoise');
-    useProperty(instrumentRef, options, 'curve');
-    useProperty(instrumentRef, options, 'dampening');
-    useProperty(instrumentRef, options, 'detune');
-    useProperty(instrumentRef, options, 'envelope', true);
-    useProperty(instrumentRef, options, 'modulation', true);
-    useProperty(instrumentRef, options, 'modulationEnvelope', true);
-    useProperty(instrumentRef, options, 'noise', true);
-    useProperty(instrumentRef, options, 'octaves');
-    useProperty(instrumentRef, options, 'pitchDecay');
-    useProperty(instrumentRef, options, 'oscillator', true);
-    useProperty(instrumentRef, options, 'modulationIndex')
-    useProperty(instrumentRef, options, 'portamento');
-    useProperty(instrumentRef, options, 'resonance');
-    useProperty(instrumentRef, options, 'volume')
-
-    // useProperty(instrumentRef, options, 'harmonicity', false, voice);
-    // useProperty(instrumentRef, options, 'attack', false, voice);
-    // useProperty(instrumentRef, options, 'attackNoise', false, voice);
-    // useProperty(instrumentRef, options, 'curve', false, voice);
-    // useProperty(instrumentRef, options, 'dampening', false, voice);
-    // useProperty(instrumentRef, options, 'detune', false, voice);
-    // useProperty(instrumentRef, options, 'envelope', true, voice);
-    // useProperty(instrumentRef, options, 'modulation', true, voice);
-    // useProperty(instrumentRef, options, 'modulationEnvelope', true, voice);
-    // useProperty(instrumentRef, options, 'noise', true,);
-    // useProperty(instrumentRef, options, 'octaves', false, voice);
-    // useProperty(instrumentRef, options, 'pitchDecay', false, voice);
-    // useProperty(instrumentRef, options, 'oscillator', true, voice);
-    // useProperty(instrumentRef, options, 'modulationIndex', false, voice)
-    // useProperty(instrumentRef, options, 'portamento', false, voice);
-    // useProperty(instrumentRef, options, 'resonance', false, voice);
-    // useProperty(instrumentRef, options, 'volume', false, voice)
-
-
+    useProperties(instrumentRef, options);
+    useDrumRackProperties(instrumentRef, options)
 
     // reset to normal state after playback stopped
     useEffect(() => {
@@ -504,18 +481,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         let notes: string[] | undefined = value.note ? value.note : undefined;
 
         // note playback
-        if (notes) {
-            notes.forEach(note => {
-                if (note) {
-                    instrumentRef.current.triggerAttackRelease(
-                        note,
-                        length ? length : 0,
-                        time,
-                        velocity
-                    );
-                }
-            })
-        }
 
         const eventProperties = propertiesToArray(value);
 
@@ -538,6 +503,22 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 }
             }
         })
+
+        if (notes) {
+            notes.forEach(note => {
+                if (note) {
+                    instrumentRef.current.triggerAttackRelease(
+                        note,
+                        length ? length : 0,
+                        time,
+                        velocity / 127,
+                        voice === xolombrisxInstruments.DRUMRACK
+                            ? DrumRackInstrument.checkNote(note)
+                            : undefined
+                    );
+                }
+            })
+        }
 
         // parameter lock
         // properties.forEach(property => {
@@ -801,7 +782,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
 
 
-    const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
+    const wrapBind = (f: Function, cc: number): ((e: InputEventControlchange) => void) => {
         const functRect = (e: InputEventControlchange) => {
             if (e.controller.number === cc) {
                 f(e)
@@ -816,24 +797,28 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         cc: number,
         property: string
     ) => {
-        const f = wrapBind(
+        const calculationCallback = wrapBind(
             getNested(
                 propertyCalculationCallbacks,
                 property
             ), cc);
-        setNestedValue(CCMaps.current, {
-            func: f,
-            device: device,
-            channel: channel,
-            cc: cc,
-        })
+        setNestedValue(
+            property
+            , {
+                func: calculationCallback,
+                device: device,
+                channel: channel,
+                cc: cc,
+            },
+            CCMaps.current
+        )
         if (device && channel) {
             let i = WebMidi.getInputByName(device)
             if (i) {
                 i.addListener(
                     'controlchange',
                     channel,
-                    f
+                    calculationCallback
                 );
             }
         }
@@ -1013,7 +998,27 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                             propertyUpdateCallbacks={propertyValueUpdateCallback}
                             selected={selectedSteps}
                         />
-                        : null;
+                        : voice === xolombrisxInstruments.PLUCKSYNTH
+                            ? <PluckSynth
+                                calcCallbacks={propertyIncreaseDecrease}
+                                events={events[activePattern]}
+                                index={index}
+                                options={options}
+                                properties={properties}
+                                propertyUpdateCallbacks={propertyValueUpdateCallback}
+                                selected={selectedSteps}
+                            />
+                            : voice === xolombrisxInstruments.DRUMRACK
+                                ? <DrumRack
+                                    calcCallbacks={propertyIncreaseDecrease}
+                                    events={events[activePattern]}
+                                    index={index}
+                                    options={options}
+                                    properties={properties}
+                                    propertyUpdateCallbacks={propertyValueUpdateCallback}
+                                    selected={selectedSteps}
+                                />
+                                : null;
 
     return (
         <div
