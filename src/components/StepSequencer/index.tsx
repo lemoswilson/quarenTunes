@@ -83,7 +83,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                         })}
                     </div>
                 </div>
-                <div className={styles.next}>{(page === 0 && length > 16 || page === 1 && length > 32 || page === 2 && length > 48) ? <PrevNext direction="next" onClick={() => { true && changePage(page + 1) }} width='125%' height='125%' /> : null}</div>
+                <div className={styles.next}>{(page === 0 && length > 16) || (page === 1 && length > 32) || (page === 2 && length > 48) ? <PrevNext direction="next" onClick={() => { true && changePage(page + 1) }} width='125%' height='125%' /> : null}</div>
             </div>
             {/* insert step component here
              will also send events.offset pra cada um deles como offset props */}

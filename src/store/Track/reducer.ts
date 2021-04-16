@@ -5,7 +5,10 @@ import {
 	trackActionTypes,
 	trackActions,
 	Track,
-	xolombrisxInstruments, effectTypes, generalInstrumentOptions
+	xolombrisxInstruments,
+	effectTypes,
+	generalInstrumentOptions,
+	generalEffectOptions,
 } from "./types";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../lib/curves';
 import produce from "immer";
@@ -49,11 +52,13 @@ export function trackReducer(
 	return produce(state, (draft) => {
 		let index: number,
 			options: generalInstrumentOptions,
+			fxOptions: generalEffectOptions,
 			movement: number,
 			cc: boolean | undefined,
 			curve: curveTypes,
 			property: string,
 			target: 'modulationEnvelope' | 'envelope',
+			fxIndex: number,
 			isContinuous: boolean | undefined;
 
 		switch (action.type) {
@@ -130,6 +135,18 @@ export function trackReducer(
 					}
 				);
 				break;
+			case trackActions.UPDATE_EFFECT_STATE:
+				[index, options, fxIndex] = [
+					action.payload.track,
+					action.payload.options,
+					action.payload.fxIndex
+				]
+				const properties = propertiesToArray(options)
+				properties.forEach(prop => {
+					let v = getNested(options, prop)
+					setNestedArray(draft.tracks[index].fx[fxIndex].options, prop, getNested(options, prop))
+				})
+				break
 			case trackActions.INC_DEC_INST_PROP:
 				[index, movement, cc, property, isContinuous] = [
 					action.payload.track,
@@ -138,6 +155,7 @@ export function trackReducer(
 					action.payload.property,
 					action.payload.isContinuous
 				]
+				// const v = getNested(draft.tracks[index].options, property);
 				const v = getNested(draft.tracks[index].options, property);
 				let val;
 				// console.log('property is', property);
@@ -165,17 +183,47 @@ export function trackReducer(
 					setNestedArray(draft.tracks[index].options, property, val)
 				}
 				break;
-			case trackActions.UPDATE_ENVELOPE_CURVE:
-				[index, target, curve] = [action.payload.track, action.payload.target, action.payload.curve]
-				draft.tracks[index].options[target].decayCurve[0] = curve
-				draft.tracks[index].options[target].attackCurve[0] = curve
-				draft.tracks[index].options[target].releaseCurve[0] = curve
+			case trackActions.INC_DEC_EFFECT_PROP:
+				[index, movement, cc, property, isContinuous, fxIndex] = [
+					action.payload.track,
+					action.payload.movement,
+					action.payload.cc,
+					action.payload.property,
+					action.payload.isContinuous,
+					action.payload.fx
+				]
+				const fxV = getNested(draft.tracks[index].fx[fxIndex].options, property)
+				let fxVal;
+				if (isContinuous) {
+					fxVal = cc
+						? valueFromCC(movement, fxV[1][0], fxV[1][1], fxV[4])
+						: valueFromMouse(
+							fxV[0],
+							movement,
+							fxV[1][0],
+							fxV[1][1],
+							fxV[4],
+						)
+					if (fxVal >= fxV[1][0] && fxVal <= v[1][1]) {
+						const updateValue = Number(fxVal.toFixed(4))
+						setNestedArray(draft.tracks[index].fx[fxIndex].options, property, fxVal)
+					}
+				} else {
+					val = cc ? optionFromCC(movement, fxV[1]) : steppedCalc(movement, fxV[1], fxV[0])
+					setNestedArray(draft.tracks[index].fx[fxIndex].options, property, fxVal)
+				}
 				break;
 			// case trackActions.ENVELOPE_ATTACK:
 			// 	[index, movement] = [action.payload.index, action.payload.amount]
 			// 	let vi = state.tracks[index].options.envelope.attack;
 			// 	draft.tracks[index].options.envelope.attack[0] = Number(valueFromMouse(vi[0], movement, vi[1][0], vi[1][1], curveTypes.EXPONENTIAL).toFixed(4))
 			// 	break;
+			case trackActions.UPDATE_ENVELOPE_CURVE:
+				[index, target, curve] = [action.payload.track, action.payload.target, action.payload.curve]
+				draft.tracks[index].options[target].decayCurve[0] = curve
+				draft.tracks[index].options[target].attackCurve[0] = curve
+				draft.tracks[index].options[target].releaseCurve[0] = curve
+				break;
 		}
 	});
 }

@@ -263,125 +263,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         optionsRef,
     ]);
 
-    // preciso definir o state should be pra usar dentro dessa callback aqui tambem
-    const propertyCalculationCallbacks: any = useMemo(() => {
-        const callArray = properties.map((property) => {
-            return (e: any) => {
-
-                const [
-                    stateValue,
-                    parameterOptions,
-                    unit,
-                    indicatorType,
-                    parameterPayload
-                ] = [...getNested(optionsRef.current, property)]
-                const low = parameterOptions[0], high = parameterOptions[1]
-
-                const isContinuous = indicatorType === indicators.KNOB
-                    || indicatorType === indicators.VERTICAL_SLIDER
-
-                if (selectedStepsRef.current.length >= 1) {
-                    // parameter lock logic
-
-                    for (let step of selectedStepsRef.current) {
-                        let data, propVal;
-                        let event = { ...eventsRef.current[activePatternRef.current][step] }
-                        const time = timeObjFromEvent(step, event)
-                        const trigg = triggRefs.current[activePatternRef.current][indexRef.current].instrument
-                        const evp = getNested(event, property);
-
-                        if (isContinuous) {
-                            const currentValue = evp ? evp : stateValue;
-                            propVal = e.controller && e.controler.number
-                                ? valueFromCC(e.value, low, high, parameterPayload)
-                                : valueFromMouse(
-                                    currentValue,
-                                    typeMovement(indicatorType, e),
-                                    low,
-                                    high,
-                                    parameterPayload
-                                );
-                            data = setNestedValue(property, propVal);
-                        } else {
-                            // has to change e.target.value with a logic to the next or prior option
-                            propVal = e.controller && e.controller.number
-                                ? optionFromCC(e.value, parameterOptions)
-                                : steppedCalc(e.movementY, parameterOptions, stateValue)
-                            // : e.target.value
-                            if (propVal !== stateValue) {
-                                data = setNestedValue(property, propVal);
-                            }
-                        }
-                        if (data) {
-                            // event = extendObj(event, data);
-                            // trigg.at(time, event);
-                            dispatch(
-                                parameterLock(
-                                    activePatternRef.current,
-                                    index,
-                                    step,
-                                    data,
-                                    property
-                                )
-                            );
-                        }
-                    }
-                } else {
-                    // no steps selected logic
-                    if (isContinuous) {
-                        if (
-                            stateValue === getNested(
-                                instrumentRef.current.get(),
-                                property
-                            )
-                        ) {
-                            let val = e.controller && e.controler.number
-                                ? valueFromCC(e.value, low, high, parameterPayload)
-                                : valueFromMouse(
-                                    stateValue,
-                                    typeMovement(indicatorType, e),
-                                    low,
-                                    high,
-                                    parameterPayload
-                                );
-                            // instrumentRef.current.set(setNestedValue(property, val))
-                            dispatch(
-                                updateInstrumentState(
-                                    index,
-                                    setNestedValue(property, val)
-                                )
-                            )
-                        }
-                    } else {
-                        let val = e.controller && e.controller.number
-                            ? optionFromCC(e.value, parameterOptions)
-                            : steppedCalc(e.movementY, parameterOptions, stateValue)
-                        if (val !== stateValue) {
-                            let data = setNestedValue(property, val);
-                            // instrumentRef.current.set(data);
-                            dispatch(updateInstrumentState(index, data))
-                        }
-                    }
-                }
-            }
-        })
-        let o = {};
-        properties.forEach((_, idx, __) => {
-            setNestedValue(properties[idx], callArray[idx], o);
-        });
-        return o;
-    }, [
-        dispatch,
-        activePatternRef,
-        eventsRef,
-        indexRef,
-        optionsRef,
-        selectedStepsRef,
-        index,
-        properties,
-        triggRefs
-    ]);
-
     const propertyIncreaseDecrease: any = useMemo(() => {
         const callArray = properties.map((property) => {
             return (e: any) => {
@@ -396,7 +277,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
                 if (selectedStepsRef.current.length >= 1) {
                     selectedStepsRef.current.forEach(step => {
-                        // console.log('dispatching parameter lock', 'value = ', cc ? e.value : e.movementY)
                         dispatch(parameterLockIncreaseDecrease(
                             activePatternRef.current,
                             idRef.current,
@@ -519,21 +399,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 }
             })
         }
-
-        // parameter lock
-        // properties.forEach(property => {
-        //     const currVal = getNested(optionsRef.current, property);
-        //     const callbackVal = getNested(value, property);
-        //     const lockVal = getNested(lockedParameters.current, property);
-        //     if (callbackVal && callbackVal !== currVal[0]) {
-        //         propertyUpdate[property](callbackVal);
-        //         setNestedValue(property, callbackVal, lockedParameters);
-        //     } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-        //         propertyUpdate[property](lockVal);
-        //         deleteProperty(lockedParameters.current, property);
-        //         // setNestedValue(property, undefined, lockedParameters.current)
-        //     }
-        // });
     }, [
         properties,
         propertyValueUpdateCallback,
@@ -753,7 +618,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     ]
     );
 
-    const instrumentKeyDown = useCallback(function dd(this: Document, ev: KeyboardEvent) {
+    const instrumentKeyDown = useCallback(function keyDownCallback(this: Document, ev: KeyboardEvent) {
         if (ev.repeat) { return }
         const time = Date.now() / 1000;
         const key = ev.key.toLowerCase()
@@ -768,7 +633,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
     }, [noteDict, keyboardRangeRef])
 
-    const instrumentKeyUp = useCallback(function dd(this: Document, ev: KeyboardEvent) {
+    const instrumentKeyUp = useCallback(function keyUpCallback(this: Document, ev: KeyboardEvent) {
         const key = ev.key.toLowerCase()
         if (Object.keys(noteDict).includes(key)) {
             const noteNumber = noteDict[key] + (keyboardRangeRef.current * 12)
@@ -799,7 +664,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     ) => {
         const calculationCallback = wrapBind(
             getNested(
-                propertyCalculationCallbacks,
+                propertyIncreaseDecrease,
                 property
             ), cc);
         setNestedValue(
@@ -826,6 +691,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const midiLearn = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => {
         event.preventDefault()
+        event.stopPropagation()
         let locked = false;
         const mappedProperty = getNested(CCMaps.current, property);
         if (mappedProperty) {

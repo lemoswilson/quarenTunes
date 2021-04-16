@@ -4,8 +4,10 @@
     display: flex;
     flex-direction: column;
     // border: 1px solid black;
-    width: 4rem;
+    // width: 4rem;
+    width: 100%;
     height: 5rem;
+    // align-items: flex-start;
 
     .title {
         // border: 1px solid red;
@@ -13,9 +15,11 @@
         @include center;
         width: 100%;
         font-family: $jost;
+        // padding: 0;
         font-weight: 500;
         color: $textColor;
         text-shadow: 0 0 1px $textShadow;
+        // padding-right: 1rem;
         -webkit-touch-callout: none; /* iOS Safari */
         -webkit-user-select: none; /* Safari */
         -khtml-user-select: none; /* Konqueror HTML */
@@ -31,11 +35,16 @@
     .options {
         display: grid;
         // grid-template-rows: 3.1rem 3.1rem;
+        // border: 1px solid black;
+        padding-left: 1rem;
+        // margin-left: 1rem;
 
         .box {
             display: grid;
-            grid-template-columns: 20% 80%;
+            // grid-template-columns: 20% 80%;
+            grid-template-columns: 15% 70%;
             // border: 1px solid black;
+
 
             .button {
                 display: flex;

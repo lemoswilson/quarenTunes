@@ -47,6 +47,7 @@ const Track: FunctionComponent = () => {
 
     const dispatchChangeInstrument = (instrument: xolombrisxInstruments, index: number): void => {
         dispatch(changeInstrument(index, instrument));
+        // toneRefsEmitter.emit(trackEventTypes.CHANGE_INSTRUMENT, {instrument: })
     };
 
     const dispatchAddInstrument = (instrument: xolombrisxInstruments): void => {

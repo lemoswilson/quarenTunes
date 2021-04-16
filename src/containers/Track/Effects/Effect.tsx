@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useContext, MutableRefObject, useState, useEffect, useCallback } from 'react';
 
 import usePrevious from '../../../hooks/usePrevious';
-import { useEffectProperty } from '../../../hooks/useProperty';
+import { useEffectProperties } from '../../../hooks/useProperty';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { effectTypes, toneEffects } from '../../../store/Track';
@@ -306,42 +306,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         triggRefs
     ]);
 
-    useEffectProperty(effectRef, options, 'Q');
-    useEffectProperty(effectRef, options, 'attack');
-    useEffectProperty(effectRef, options, 'baseFrequency');
-    useEffectProperty(effectRef, options, 'bits');
-    useEffectProperty(effectRef, options, 'dampening');
-    useEffectProperty(effectRef, options, 'delayTime');
-    useEffectProperty(effectRef, options, 'depth');
-    useEffectProperty(effectRef, options, 'detune');
-    useEffectProperty(effectRef, options, 'distortion');
-    useEffectProperty(effectRef, options, 'feedback');
-    useEffectProperty(effectRef, options, 'filter');
-    useEffectProperty(effectRef, options, 'frequency');
-    useEffectProperty(effectRef, options, 'gain');
-    useEffectProperty(effectRef, options, 'high');
-    useEffectProperty(effectRef, options, 'highFrequency');
-    useEffectProperty(effectRef, options, 'knee');
-    useEffectProperty(effectRef, options, 'low');
-    useEffectProperty(effectRef, options, 'lowFrequency');
-    useEffectProperty(effectRef, options, 'maxDelay');
-    useEffectProperty(effectRef, options, 'mid');
-    useEffectProperty(effectRef, options, 'octaves');
-    useEffectProperty(effectRef, options, 'order');
-    useEffectProperty(effectRef, options, 'oversample');
-    useEffectProperty(effectRef, options, 'pitch');
-    useEffectProperty(effectRef, options, 'ratio');
-    useEffectProperty(effectRef, options, 'release');
-    useEffectProperty(effectRef, options, 'rolloff');
-    useEffectProperty(effectRef, options, 'roomSize');
-    useEffectProperty(effectRef, options, 'smoothing');
-    useEffectProperty(effectRef, options, 'spread');
-    useEffectProperty(effectRef, options, 'stages');
-    useEffectProperty(effectRef, options, 'threshold');
-    useEffectProperty(effectRef, options, 'type');
-    useEffectProperty(effectRef, options, 'wet');
-    useEffectProperty(effectRef, options, 'width');
-    useEffectProperty(effectRef, options, 'windowSize');
+    useEffectProperties(effectRef, options)
 
 
     // get handle of input object

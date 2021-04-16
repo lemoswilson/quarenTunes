@@ -45,7 +45,29 @@ import {
 	SamplerOptions,
 	NoiseSynthOptions,
 	PluckSynthOptions,
-	AutoFilter
+	AutoFilter,
+	DelayOptions,
+	ChorusOptions,
+	FilterOptions,
+	PhaserOptions,
+	AutoWahOptions,
+	LimiterOptions,
+	TremoloOptions,
+	VibratoOptions,
+	GateOptions,
+	FreeverbOptions,
+	JCReverbOptions,
+	ChebyshevOptions,
+	AutoFilterOptions,
+	AutoPannerOptions,
+	BiquadFilterOptions,
+	StereoWidenerOptions,
+	CompressorOptions,
+	PingPongDelayOptions,
+	PitchShiftOptions,
+	BitCrusherOptions,
+	DistortionOptions,
+
 } from 'tone';
 import { curveTypes } from '../../containers/Track/defaults';
 
@@ -242,6 +264,29 @@ export type generalInstrumentOptions = RecursivePartial<MembraneSynthOptions |
 	NoiseSynthOptions |
 	PluckSynthOptions
 >
+
+export type generalEffectOptions = RecursivePartial<
+	DelayOptions |
+	ChorusOptions |
+	FilterOptions |
+	PhaserOptions |
+	AutoWahOptions |
+	LimiterOptions |
+	TremoloOptions |
+	VibratoOptions |
+	GateOptions |
+	FreeverbOptions |
+	JCReverbOptions |
+	ChebyshevOptions |
+	AutoFilterOptions |
+	AutoPannerOptions |
+	BiquadFilterOptions |
+	StereoWidenerOptions |
+	CompressorOptions |
+	PingPongDelayOptions |
+	PitchShiftOptions |
+	BitCrusherOptions |
+	DistortionOptions>
 
 export interface increaseDecreaseInstrumentPropertyAction {
 	type: trackActions.INC_DEC_INST_PROP,
