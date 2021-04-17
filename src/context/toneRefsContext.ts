@@ -4,7 +4,7 @@ import { toneEffects } from '../store/Track/';
 import Chain from '../lib/fxChain';
 
 export interface toneRefs {
-    [track: number]: {
+    [trackId: number]: {
         instrument?: any,
         effects: toneEffects[]
         chain: Chain;

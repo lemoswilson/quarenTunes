@@ -1,12 +1,12 @@
 import React, { useRef, useMemo, useContext, MutableRefObject, useState, useEffect, useCallback } from 'react';
-
 import usePrevious from '../../../hooks/usePrevious';
 import { useEffectProperties } from '../../../hooks/useProperty';
 
+
 import { useDispatch, useSelector } from 'react-redux';
-import { effectTypes, toneEffects } from '../../../store/Track';
+import { effectTypes, toneEffects, increaseDecreaseEffectProperty } from '../../../store/Track';
 import { updateEffectState } from '../../../store/Track/actions'
-import { parameterLockEffect } from '../../../store/Sequencer/actions'
+import { parameterLockEffect, parameterLockEffectIncreaseDecrease } from '../../../store/Sequencer/actions'
 
 import triggContext from '../../../context/triggState';
 import toneRefsContext from '../../../context/toneRefsContext';
@@ -27,6 +27,11 @@ import { RootState } from '../../Xolombrisx';
 import { effectsProps } from './types';
 import { getEffectsInitials } from '../defaults';
 import { indicators } from '../defaults'
+
+import styles from './style.module.scss';
+import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
+
+import Compressor from '../../../components/Layout/Effects/Compressor';
 
 export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
     let options = onlyValues(opt);
@@ -81,13 +86,15 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
     }
 }
 
-const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track, trackId }) => {
+const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackId }) => {
     const triggRefs = useContext(triggContext);
     const toneObjRef = useContext(toneRefsContext);
     const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
     const properties = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
     const [firstRender, setRender] = useState(true);
+    const previousType = usePrevious(type)
+
 
     const CCMaps = useRef<any>({});
     const listenCC = useRef<controlChangeEvent>();
@@ -95,6 +102,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     const lockedParameters: MutableRefObject<effectsInitials> = useRef({});
     const inputRef = useRef<false | Input>(false);
 
+    const trackIdRef = useRef(trackId);
+    useEffect(() => { trackIdRef.current = trackId }, [trackId])
 
     const optionsRef = useRef(options)
     useEffect(() => { optionsRef.current = options }, [options])
@@ -177,7 +186,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
                     let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
                     // dispatch(updateEffectState(indexRef.current, temp));
-                    dispatch(updateEffectState(track, temp, index));
+                    dispatch(updateEffectState(trackIdRef.current, temp, index));
                 };
             }
         });
@@ -188,103 +197,58 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     }, [
         dispatch,
         index,
-        track,
         indexRef,
         properties,
         optionsRef,
     ]);
 
-    const calculationCallbacks: any = useMemo(() => {
+    const propertyIncreaseDecrease: any = useMemo(() => {
         const callArray = properties.map((property) => {
             return (e: any) => {
 
-                const [
-                    stateValue,
-                    parameterOptions,
-                    indicatorType,
-                    parameterPayload
-                ] = [...getNested(optionsRef.current, property)]
-                const low = parameterOptions[0], high = parameterOptions[1]
+                const propertyArr = getNested(optionsRef.current, property);
+                const indicatorType = propertyArr[3]
+                const stateValue = propertyArr[0]
 
                 const isContinuous = indicatorType === indicators.KNOB
                     || indicatorType === indicators.VERTICAL_SLIDER
 
+                const cc = e.controller && e.controller.number
+
                 if (selectedStepsRef.current.length >= 1) {
-
-                    for (let step of selectedStepsRef.current) {
-                        let data, propVal;
-                        let event = { ...eventsRef.current[activePatternRef.current][step] }
-                        // const time = timeObjFromEvent(step, event)
-                        // const trigg = triggRefs.current[activePattern.current][indexRef.current].instrument
-                        const evp = getNested(event, property);
-
-                        // parameter lock logic
-                        if (isContinuous) {
-                            const currentValue = evp ? evp : stateValue;
-                            propVal = e.controller && e.controler.number
-                                ? valueFromCC(e.value, low, high, parameterPayload)
-                                : valueFromMouse(
-                                    currentValue,
-                                    typeMovement(indicatorType, e),
-                                    low,
-                                    high,
-                                    parameterPayload
-                                );
-                            data = setNestedValue(property, propVal);
-                        } else {
-                            propVal = e.controller && e.controller.number
-                                ? optionFromCC(e.value, parameterOptions)
-                                : e.target.value
-                            if (propVal !== stateValue) {
-                                data = setNestedValue(property, propVal);
-                            }
-                        }
-                        if (data) {
-                            // event = extendObj(event, data);
-                            // trigg.at(time, event);
-                            dispatch(
-                                parameterLockEffect(
-                                    activePatternRef.current,
-                                    track,
-                                    step,
-                                    index,
-                                    data
-                                )
-                            );
-                        }
-                    }
+                    selectedStepsRef.current.forEach(step => {
+                        dispatch(parameterLockEffectIncreaseDecrease(
+                            activePatternRef.current,
+                            trackIdRef.current,
+                            step,
+                            index, // fx have order between them (chainning) 
+                            cc ? e.value : e.movementY,
+                            property,
+                            propertyArr,
+                            cc,
+                            isContinuous
+                        ))
+                    })
+                    // } else if (stateValue === getNested(
+                    //     instrumentRef.current.get(),
+                    //     property
+                    // )) {
                 } else {
-                    // no steps selected logic
-                    if (isContinuous) {
-                        if (
-                            stateValue === getNested(
-                                effectRef.current.get(),
-                                property
-                            )
-                        ) {
-                            let val = e.controller && e.controler.number
-                                ? valueFromCC(e.value, low, high, parameterPayload)
-                                : valueFromMouse(
-                                    stateValue,
-                                    typeMovement(indicatorType, e),
-                                    low,
-                                    high,
-                                    parameterPayload
-                                );
-                            // instrumentRef.current.set(setNestedValue(property, val))
-                            dispatch(
-                                updateEffectState(track, setNestedValue(property, val), index))
-                        }
-                    } else {
-                        let val = e.controller && e.controller.number
-                            ? optionFromCC(e.value, parameterOptions)
-                            : e.target.value
-                        if (val !== stateValue) {
-                            let data = setNestedValue(property, val);
-                            // instrumentRef.current.set(data);
-                            dispatch(updateEffectState(track, data, index))
-                        }
-                    }
+                    dispatch(increaseDecreaseEffectProperty(
+                        trackIdRef.current,
+                        index,
+                        property,
+                        cc ? e.value : e.movementY,
+                        cc,
+                        isContinuous
+                    ))
+                    // console.log(
+                    //     'increasing decreasing',
+                    //     'property:', property,
+                    //     'cc:', cc,
+                    //     'isContinuous:', isContinuous,
+                    //     'e', e,
+                    // )
                 }
             }
         })
@@ -296,18 +260,14 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     }, [
         dispatch,
         activePatternRef,
-        track,
-        eventsRef,
         indexRef,
         optionsRef,
         selectedStepsRef,
-        index,
         properties,
-        triggRefs
     ]);
 
-    useEffectProperties(effectRef, options)
 
+    useEffectProperties(effectRef, options)
 
     // get handle of input object
     useEffect(() => {
@@ -324,14 +284,14 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
             p.forEach((property) => {
                 const d = copyToNew(lockedParameters.current, property)
                 // effectRef.current.set(d);
-                dispatch(updateEffectState(track, d, index));
+                dispatch(updateEffectState(trackId, d, index));
             });
         }
         isPlayingRef.current = isPlaying;
     }, [
         isPlaying,
         dispatch,
-        track,
+        trackId,
         index,
         previousPlaying,
         isPlayingRef
@@ -365,44 +325,49 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
 
 
     // change effect logic
+    // should only change if previous effect
+    // is different than current effect
     useEffect(() => {
-        effectRef.current = returnEffect(type, optionsRef.current);
-        // toneRefEmitter.emit(
-        //     trackEventTypes.CHANGE_EFFECT,
-        //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
-        // );
+        if (previousType && previousType !== type) {
+            effectRef.current = returnEffect(type, optionsRef.current);
+            // toneRefEmitter.emit(
+            //     trackEventTypes.CHANGE_EFFECT,
+            //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
+            // );
 
-        if (toneObjRef?.current) {
-            const chain = toneObjRef.current[trackId].chain
-            const effects = toneObjRef.current[trackId].effects;
-            let prev, next: Tone.Gain | toneEffects;
-            if (index === toneObjRef.current[trackId].effects.length - 1) {
-                next = chain.out
-                if (index === 0) prev = chain.in;
-                else prev = effects[index - 1];
-            } else {
-                next = effects[index + 1]
-                if (index === 0) prev = chain.in
-                else prev = effects[index - 1]
+            if (toneObjRef?.current) {
+                const chain = toneObjRef.current[trackId].chain
+                const effects = toneObjRef.current[trackId].effects;
+                let prev, next: Tone.Gain | toneEffects;
+                if (index === toneObjRef.current[trackId].effects.length - 1) {
+                    next = chain.out
+                    if (index === 0) prev = chain.in;
+                    else prev = effects[index - 1];
+                } else {
+                    next = effects[index + 1]
+                    if (index === 0) prev = chain.in
+                    else prev = effects[index - 1]
+                }
+
+                effects[index].disconnect();
+                prev.disconnect()
+                prev.connect(effectRef.current);
+                effectRef.current.connect(next)
+                effects[index].dispose();
+                effects[index] = effectRef.current;
             }
-
-            effects[index].disconnect();
-            prev.disconnect()
-            prev.connect(effectRef.current);
-            effectRef.current.connect(next)
-            effects[index].dispose();
-            effects[index] = effectRef.current;
+            Object.keys(triggRefs.current).forEach(key => {
+                let k = parseInt(key);
+                triggRefs.current[k][trackId].effects[index].callback = effectCallback
+            });
         }
 
-        Object.keys(triggRefs.current).forEach(key => {
-            let k = parseInt(key);
-            triggRefs.current[k][track].effects[index].callback = effectCallback
-        });
+
+
     }, [
         type,
         id,
         index,
-        track,
         trackId,
         triggRefs,
         effectCallback,
@@ -445,7 +410,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
 
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key);
-                triggRefs.current[k][track].effects[index].callback = effectCallback
+                triggRefs.current[k][trackId].effects[index].callback = effectCallback
             });
             setRender(false);
         }
@@ -467,7 +432,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
     ) => {
         const f = wrapBind(
             getNested(
-                calculationCallbacks,
+                propertyIncreaseDecrease,
                 property
             ), cc);
         setNestedValue(CCMaps.current, {
@@ -524,71 +489,35 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, track,
         }
     }
 
+    const Component =
+        type === effectTypes.COMPRESSOR
+            ? <Compressor
+                calcCallbacks={propertyIncreaseDecrease}
+                events={events[activePattern]}
+                fxIndex={index}
+                options={options}
+                properties={properties}
+                propertyUpdateCallbacks={propertyValueUpdateCallback}
+                selected={selectedSteps}
+                trackId={trackId}
+            />
+            : null
+
+
     return (
-        <div>
-            { properties.map(property => {
-                // vai passar () => midiLearn(property) como funcão 
-                const [value, r, unit, indicatorType, curve, utypes] = getNested(options, property)
-                switch (indicatorType) {
-                    case indicators.DROPDOWN:
-                        return (
-                            // <Dropdown 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Dropdown>
-                            console.log()
-                        )
-                    case indicators.KNOB:
-                        return (
-                            // <Knob 
-                            //     property={property} 
-                            //     value={value} 
-                            //     range={r} 
-                            //     curve={curve}
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Knob>
-                            console.log()
-                        )
-                    case indicators.CURVE_TYPE:
-                        return (
-                            // <Radio 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </Radio>
-                            console.log()
-                        )
-                    case indicators.VERTICAL_SLIDER:
-                        return (
-                            // <VSlider 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </VSlider>
-                            console.log()
-                        )
-                    case indicators.STEPPED_KNOB:
-                        return (
-                            // <STEPKNOB 
-                            //     property={property} 
-                            //     value={value} 
-                            //     option={r} 
-                            //     calc={accessNested(calcCallback, property)}>
-                            // </STEPKNOB>
-                            console.log()
-                        )
-                    case indicators.WAVEFORM:
-                        return (
-                            // asjd
-                            console.log()
-                        )
-                };
-                return ''
-            })}
+        <div className={styles.border}>
+            <div className={styles.deviceManager}>
+                <DevicePresetManager
+                    deviceId={''}
+                    keyValue={[]}
+                    onSubmit={() => { }}
+                    remove={() => { }}
+                    save={() => { }}
+                    select={() => { }}
+                    selected={''}
+                />
+            </div>
+            { Component}
         </div>
     )
 };

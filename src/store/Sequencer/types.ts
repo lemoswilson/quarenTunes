@@ -1,7 +1,8 @@
 import { effectsInitials, eventOptions } from "../../containers/Track/Instruments";
 import Tone from "../../lib/tone";
 import { RecursivePartial } from '../../containers/Track/Instruments'
-import { Part } from "tone";
+// import { Part } from "tone";
+import { generalEffectOptions } from '../Track';
 
 export type pLockType = number | string | boolean | Tone.TimeClass;
 
@@ -41,10 +42,13 @@ export enum sequencerActions {
 	CHANGE_EFFECT_INDEX = "CHANGE_EFFECT_INDEX",
 	PARAMETER_LOCK_EFFECT = "PARAMETER_LOCK_EFFECT",
 	PARAMETER_LOCK_INC_DEC = "PARAMETER_LOCK_INC_DEC",
-	PARAMETER_LOCK_INC_DEC_EFFECT = "PARAMETER_LOCK_INC_DEC_EFFECT"
+	PARAMETER_LOCK_INC_DEC_EFFECT = "PARAMETER_LOCK_INC_DEC_EFFECT",
+	CHANGE_EFFECT_SEQ = "CHANGE_EFFECT",
+	CHANGE_INSTRUMENT_SEQ = "CHANGE_INSTRUMENT_SEQ"
 };
 
-export type fxOptions = effectsInitials;
+// export type fxOptions = effectsInitials;
+export type fxOptions = generalEffectOptions;
 
 export interface event {
 	instrument: RecursivePartial<eventOptions>,
@@ -66,6 +70,9 @@ export type Pattern = {
 	name: string;
 	patternLength: number;
 	tracks: trackSeqData[];
+	// tracks: {
+	// 	[trackId: number]: trackSeqData,
+	// }
 };
 
 export interface Sequencer {
@@ -77,6 +84,21 @@ export interface Sequencer {
 	counter: number;
 	override: boolean;
 	quantizeRecording: boolean;
+};
+
+export interface changeEffectSeqAction {
+	type: sequencerActions.CHANGE_EFFECT_SEQ,
+	payload: {
+		trackIndex: number,
+		fxIndex: number,
+	}
+};
+
+export interface changeInstrumentSeqAction {
+	type: sequencerActions.CHANGE_INSTRUMENT_SEQ,
+	payload: {
+		trackIndex: number,
+	}
 };
 
 export interface renamePatternAction {
@@ -91,7 +113,7 @@ export interface increaseDecreaseVelocityAction {
 	type: sequencerActions.INC_DEC_VELOCITY,
 	payload: {
 		pattern: number,
-		track: number,
+		trackIndex: number,
 		step: number,
 		amount: number,
 	}
@@ -101,7 +123,7 @@ export interface increaseDecreaseOffsetAction {
 	type: sequencerActions.INC_DEC_OFFSET,
 	payload: {
 		pattern: number,
-		track: number,
+		trackIndex: number,
 		step: number,
 		amount: number,
 	}
@@ -119,7 +141,7 @@ export interface increaseDecreaeseTrackLengthAction {
 	type: sequencerActions.INC_DEC_TRACK_LENGTH,
 	payload: {
 		pattern: number,
-		track: number,
+		trackIndex: number,
 		amount: number,
 	}
 }
@@ -128,7 +150,7 @@ export interface setPatternTrackVelocityAction {
 	type: sequencerActions.SET_PATTERN_TRACK_VELOCITY,
 	payload: {
 		pattern: number,
-		track: number,
+		trackIndex: number,
 		velocity: number,
 	}
 };
@@ -136,23 +158,23 @@ export interface setPatternTrackVelocityAction {
 export interface addEffectAction {
 	type: sequencerActions.ADD_EFFECT_SEQUENCER,
 	payload: {
-		track: number,
-		index: number,
+		trackIndex: number,
+		fxIndex: number,
 	}
 };
 
 export interface removeEffectAction {
 	type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
 	payload: {
-		track: number,
-		index: number
+		trackIndex: number,
+		fxIndex: number
 	}
 };
 
 export interface changeEffectIndexAction {
 	type: sequencerActions.CHANGE_EFFECT_INDEX,
 	payload: {
-		track: number,
+		trackIndex: number,
 		from: number,
 		to: number,
 	}
@@ -177,7 +199,7 @@ export interface parameterLockEffectAction {
 	type: sequencerActions.PARAMETER_LOCK_EFFECT,
 	payload: {
 		pattern: number,
-		track: number,
+		trackIndex: number,
 		fxIndex: number,
 		step: number,
 		data: any
@@ -189,7 +211,7 @@ export interface setNoteLengthPlaybackAction {
 	payload: {
 		note: string;
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		noteLength: number | string;
 	};
@@ -200,7 +222,7 @@ export interface setNoteMidiAction {
 	payload: {
 		note: string | string[];
 		step: number;
-		track: number;
+		trackIndex: number;
 		velocity: number;
 	}
 };
@@ -209,7 +231,7 @@ export interface noteInputAction {
 	type: sequencerActions.NOTE_INPUT;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		offset: number;
 		note: string;
@@ -222,7 +244,7 @@ export interface goToActiveAction {
 	payload: {
 		pageToGo: number | undefined;
 		patternToGo: number | undefined;
-		track: number;
+		trackIndex: number;
 	};
 };
 
@@ -242,7 +264,7 @@ export interface changeTrackLengthAction {
 	type: sequencerActions.CHANGE_TRACK_LENGTH;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		patternLength: number;
 	};
 };
@@ -255,7 +277,7 @@ export interface setNoteLengthAction {
 	type: sequencerActions.SET_NOTE_LENGTH;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		noteLength: number | string;
 	};
@@ -265,7 +287,7 @@ export interface deleteEventsAction {
 	type: sequencerActions.DELETE_EVENTS;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 	};
 };
@@ -274,7 +296,7 @@ export interface selectStepAction {
 	type: sequencerActions.SELECT_STEP;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 	};
 };
@@ -297,7 +319,7 @@ export interface selectPatternAction {
 export interface changePageAction {
 	type: sequencerActions.CHANGE_PAGE;
 	payload: {
-		track: number;
+		trackIndex: number;
 		pattern: number;
 		page: number;
 	};
@@ -307,7 +329,7 @@ export interface setOffsetAction {
 	type: sequencerActions.SET_OFFSET;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		offset: number;
 	};
@@ -317,7 +339,7 @@ export interface setNoteAction {
 	type: sequencerActions.SET_NOTE;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		note: string;
 	};
@@ -328,7 +350,7 @@ export interface setPatternNoteLengthAction {
 	payload: {
 		pattern: number;
 		noteLength: number | string | undefined;
-		track: number;
+		trackIndex: number;
 	};
 };
 
@@ -336,7 +358,7 @@ export interface setVelocityAction {
 	type: sequencerActions.SET_VELOCITY;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		velocity: number;
 	};
@@ -346,7 +368,7 @@ export interface parameterLockAction {
 	type: sequencerActions.PARAMETER_LOCK;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		data: any;
 	};
@@ -356,7 +378,7 @@ export interface parameterLockIncreaseDecreaseAction {
 	type: sequencerActions.PARAMETER_LOCK_INC_DEC;
 	payload: {
 		pattern: number;
-		track: number;
+		trackIndex: number;
 		step: number;
 		property: string;
 		movement: number;
@@ -370,13 +392,14 @@ export interface parameterLockEffectIncreaseDecreaseAction {
 	type: sequencerActions.PARAMETER_LOCK_INC_DEC_EFFECT,
 	payload: {
 		pattern: number,
-		track: number,
+		trackIndex: number,
 		fxIndex: number,
 		step: number,
 		property: string,
 		movement: number,
 		cc?: boolean,
 		isContinuous?: boolean,
+		effectValues: any[],
 	}
 };
 
@@ -389,12 +412,15 @@ export interface duplicatePatternAction {
 
 export interface addInstrumentToSequencerAction {
 	type: sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER;
+	payload: {
+		trackIndex: number,
+	}
 };
 
 export interface removeInstrumentFromSequencerAction {
 	type: sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER;
 	payload: {
-		index: number;
+		trackIndex: number;
 	};
 };
 
@@ -432,6 +458,8 @@ export type sequencerActionTypes =
 	| increaseDecreaseOffsetAction
 	| increaseDecreaseVelocityAction
 	| renamePatternAction
+	| changeEffectSeqAction
+	| changeInstrumentSeqAction
 	| parameterLockEffectIncreaseDecreaseAction
 	| parameterLockIncreaseDecreaseAction
 	| removeInstrumentFromSequencerAction;

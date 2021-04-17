@@ -204,7 +204,7 @@ export enum trackActions {
 	CHANGE_INSTRUMENT = "CHANGE_INSTRUMENT",
 	ADD_INSTRUMENT = "ADD_INSTRUMENT",
 	REMOVE_INSTRUMENT = "REMOVE_INSTRUMENT",
-	SHOW_INSTRUMENT = "SHOW_INSTRUMENT",
+	SELECT_INSTRUMENT = "SELECT_INSTRUMENT",
 	SELECT_MIDI_DEVICE = "SELECT_MIDI_DEVICE",
 	SELECT_MIDI_CHANNEL = "SELECT_MIDI_CHANNEL",
 	INSERT_EFFECT = "INSERT_EFFECT",
@@ -222,7 +222,7 @@ export enum trackActions {
 export interface updateEnvelopeCurveAction {
 	type: trackActions.UPDATE_ENVELOPE_CURVE,
 	payload: {
-		track: number,
+		trackIndex: number,
 		target: 'envelope' | 'modulationEnvelope',
 		curve: curveTypes,
 	}
@@ -232,7 +232,7 @@ export interface updateEnvelopeCurveAction {
 export interface changeInstrumentAction {
 	type: trackActions.CHANGE_INSTRUMENT;
 	payload: {
-		index: number;
+		trackIndex: number;
 		instrument: xolombrisxInstruments;
 	};
 }
@@ -240,7 +240,7 @@ export interface changeInstrumentAction {
 export interface envelopeAttackAction {
 	type: trackActions.ENVELOPE_ATTACK,
 	payload: {
-		index: number,
+		trackIndex: number,
 		amount: number,
 	}
 }
@@ -248,7 +248,7 @@ export interface envelopeAttackAction {
 export interface updateEffectStateAction {
 	type: trackActions.UPDATE_EFFECT_STATE,
 	payload: {
-		track: number,
+		trackIndex: number,
 		fxIndex: number,
 		options: effectsInitials,
 	}
@@ -291,7 +291,7 @@ export type generalEffectOptions = RecursivePartial<
 export interface increaseDecreaseInstrumentPropertyAction {
 	type: trackActions.INC_DEC_INST_PROP,
 	payload: {
-		track: number,
+		trackIndex: number,
 		property: string,
 		movement: number,
 		cc?: boolean,
@@ -302,7 +302,7 @@ export interface increaseDecreaseInstrumentPropertyAction {
 export interface increaseDecreaseEffectPropertyAction {
 	type: trackActions.INC_DEC_EFFECT_PROP,
 	payload: {
-		track: number,
+		trackIndex: number,
 		fx: number,
 		property: string,
 		movement: number,
@@ -314,7 +314,7 @@ export interface increaseDecreaseEffectPropertyAction {
 export interface updateInstrumentStateAction {
 	type: trackActions.UPDATE_INSTRUMENT_STATE,
 	payload: {
-		track: number,
+		trackIndex: number,
 		options: generalInstrumentOptions,
 	}
 }
@@ -323,27 +323,28 @@ export interface addInstrumentAction {
 	type: trackActions.ADD_INSTRUMENT;
 	payload: {
 		instrument: xolombrisxInstruments;
+		trackIndex: number,
 	};
 }
 
 export interface removeInstrumentAction {
 	type: trackActions.REMOVE_INSTRUMENT;
 	payload: {
-		index: number;
+		trackIndex: number;
 	};
 }
 
 export interface showInstrumentAction {
-	type: trackActions.SHOW_INSTRUMENT;
+	type: trackActions.SELECT_INSTRUMENT;
 	payload: {
-		index: number;
+		trackIndex: number;
 	};
 }
 
 export interface selectMidiDeviceAction {
 	type: trackActions.SELECT_MIDI_DEVICE;
 	payload: {
-		index: number;
+		trackIndex: number;
 		device: string;
 	};
 }
@@ -351,7 +352,7 @@ export interface selectMidiDeviceAction {
 export interface selectMidiChannelAction {
 	type: trackActions.SELECT_MIDI_CHANNEL;
 	payload: {
-		index: number;
+		trackIndex: number;
 		channel: number | "all";
 	};
 }
@@ -359,7 +360,7 @@ export interface selectMidiChannelAction {
 export interface insertEffectAction {
 	type: trackActions.INSERT_EFFECT;
 	payload: {
-		index: number;
+		effectIndex: number;
 		trackIndex: number;
 		effect: effectTypes;
 	};
@@ -368,7 +369,7 @@ export interface insertEffectAction {
 export interface changeEffectAction {
 	type: trackActions.CHANGE_EFFECT,
 	payload: {
-		trackId: number,
+		trackIndex: number,
 		effect: effectTypes,
 		effectIndex: number,
 	}
@@ -377,7 +378,7 @@ export interface changeEffectAction {
 export interface deleteEffectAction {
 	type: trackActions.DELETE_EFFECT;
 	payload: {
-		index: number;
+		effectIndex: number;
 		trackIndex: number;
 	};
 }

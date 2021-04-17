@@ -17,7 +17,8 @@ export type TriggEvent =
         pattern: number,
     }
     | {
-        event: triggEventTypes.ADD_TRACK
+        event: triggEventTypes.ADD_TRACK,
+        trackIndex: number,
     }
     | {
         event: triggEventTypes.DUPLICATE_PATTERN,
@@ -29,21 +30,21 @@ export type TriggEvent =
     }
     | {
         event: triggEventTypes.REMOVE_TRACK,
-        track: number
+        trackIndex: number
     }
     | {
         event: triggEventTypes.ADD_EFFECT,
-        track: number,
-        index: number,
+        trackIndex: number,
+        fxIndex: number,
     }
     | {
         event: triggEventTypes.REMOVE_EFFECT,
-        track: number,
-        index: number,
+        trackIndex: number,
+        fxIndex: number,
     }
     | {
         event: triggEventTypes.CHANGE_EFFECT_INDEX,
-        track: number,
+        trackIndex: number,
         from: number,
         to: number
     }

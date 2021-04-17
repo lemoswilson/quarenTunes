@@ -449,19 +449,25 @@ const Sequencer: FunctionComponent = () => {
         //     }
         // }
     };
-    const c = new Tone.FMSynth()
+    // const c = new Tone.FMSynth()
+    // const c = 
+    const c = new Tone.PluckSynth()
+    // c.triggerAttackRelease()
 
     function keyboardOnClick(noteName: string): void {
         if (Tone.context.state !== "running") {
             Tone.context.resume();
-            Tone.context.latencyHint = "playback";
-            Tone.context.lookAhead = 0;
+            // Tone.context.latencyHint
+            // Tone.context.latencyHint = "playback";
+            // Tone.context.lookAhead = 0;
         }
         if (selectedRef.current.length > 0) {
             dispatchSetNote(noteName);
         } else {
             if (selectedInstrument === xolombrisxInstruments.NOISESYNTH) {
                 toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, activePatternObj.tracks[selectedTrack].velocity)
+            } else if (selectedInstrument === xolombrisxInstruments.PLUCKSYNTH) {
+                toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, undefined, activePatternObj.tracks[selectedTrack].velocity)
             } else {
                 toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(noteName, patternNoteLength, activePatternObj.tracks[selectedTrack].velocity)
             }

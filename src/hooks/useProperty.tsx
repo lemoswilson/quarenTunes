@@ -9,6 +9,7 @@ import { returnEffect } from '../containers/Track/Effects';
 import { xolombrisxInstruments } from '../store/Track';
 import DrumRack from '../lib/DrumRack';
 import { DrumRackSlotInitials } from '../containers/Track/defaults';
+import { generalEffectOptions } from '../store/Track';
 
 
 export const useProperty = (
@@ -69,8 +70,9 @@ export const useDrumRackProperty = (
     prop: keyof typeof DrumRackSlotInitials,
     drumPad: string,
     isObject: boolean = false,
+    voice?: xolombrisxInstruments
 ) => {
-    let a = obj[drumPad][prop]
+    let a = voice === xolombrisxInstruments.DRUMRACK ? obj[drumPad][prop] : false;
     // if (a) {
 
     // }
@@ -137,7 +139,7 @@ export const useEffectProperty = (
     useEffect(() => {
         if (a) {
             let v: any;
-            console.log('updating property', t);
+            // console.log('updating property', t);
             if (isObject) {
                 v = {
                     [t]: onlyValues(a),
@@ -198,7 +200,7 @@ export const useEffectProperties = (
 export const useTrigg = (
     trig: Part,
     triggFx: Part[],
-    fxOptions: effectsInitials[],
+    fxOptions: generalEffectOptions[],
     instrumentOptions: RecursivePartial<eventOptions>,
     step: number,
     previousOffset: number,
@@ -218,7 +220,7 @@ export const useTrigg = (
 
     useEffect(() => {
         if (un === prevUn) {
-            console.log('updating stuff')
+            // console.log('updating stuff')
             const now = timeObjFromEvent(step, off)
             trig.at(now, instrumentOptions)
         }

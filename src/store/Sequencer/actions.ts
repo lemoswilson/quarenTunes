@@ -1,5 +1,24 @@
 import { sequencerActions, sequencerActionTypes } from "./types";
 
+export function changeInstrumentSeq(trackIndex: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.CHANGE_INSTRUMENT_SEQ,
+		payload: {
+			trackIndex: trackIndex,
+		}
+	}
+};
+
+export function changeEffectSeq(trackIndex: number, fxIndex: number): sequencerActionTypes {
+	return {
+		type: sequencerActions.CHANGE_EFFECT_SEQ,
+		payload: {
+			trackIndex: trackIndex,
+			fxIndex: fxIndex
+		}
+	}
+};
+
 export function renamePattern(pattern: number, name: string): sequencerActionTypes {
 	return {
 		type: sequencerActions.RENAME_PATTERN,
@@ -10,26 +29,36 @@ export function renamePattern(pattern: number, name: string): sequencerActionTyp
 	}
 }
 
-export function incDecVelocity(amount: number, pattern: number, track: number, step: number): sequencerActionTypes {
+export function incDecVelocity(
+	amount: number,
+	pattern: number,
+	trackIndex: number,
+	step: number
+): sequencerActionTypes {
 	return {
 		type: sequencerActions.INC_DEC_VELOCITY,
 		payload: {
 			amount: amount,
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		}
 	}
 }
 
-export function incDecOffset(amount: number, pattern: number, track: number, step: number): sequencerActionTypes {
+export function incDecOffset(
+	amount: number,
+	pattern: number,
+	trackIndex: number,
+	step: number
+): sequencerActionTypes {
 	return {
 		type: sequencerActions.INC_DEC_OFFSET,
 		payload: {
 			amount: amount,
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		}
 	}
 }
@@ -45,11 +74,11 @@ export function incDecPatLength(amount: number, pattern: number): sequencerActio
 }
 
 
-export function incDecTrackLength(amount: number, pattern: number, track: number): sequencerActionTypes {
+export function incDecTrackLength(amount: number, pattern: number, trackIndex: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.INC_DEC_TRACK_LENGTH,
 		payload: {
-			track: track,
+			trackIndex: trackIndex,
 			amount: amount,
 			pattern: pattern
 		}
@@ -68,7 +97,7 @@ export function removePattern(patternKey: number): sequencerActionTypes {
 export function setNoteLengthPlayback(
 	note: string,
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	noteLength: number | string,
 ): sequencerActionTypes {
@@ -79,14 +108,14 @@ export function setNoteLengthPlayback(
 			note: note,
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
 
 export function noteInput(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	offset: number,
 	note: string,
@@ -97,7 +126,7 @@ export function noteInput(
 		payload: {
 			note: note,
 			pattern: pattern,
-			track: track,
+			trackIndex: trackIndex,
 			offset: offset,
 			step: step,
 			velocity: velocity,
@@ -106,7 +135,7 @@ export function noteInput(
 }
 
 export function setNoteMidi(
-	track: number,
+	trackIndex: number,
 	note: string | string[],
 	velocity: number,
 	step: number,
@@ -114,7 +143,7 @@ export function setNoteMidi(
 	return {
 		type: sequencerActions.SET_NOTE_MIDI,
 		payload: {
-			track: track,
+			trackIndex: trackIndex,
 			velocity: velocity,
 			step: step,
 			note: note,
@@ -137,7 +166,7 @@ export function changePatternName(
 
 export function goToActive(
 	pageToGo: number | undefined,
-	track: number,
+	trackIndex: number,
 	patternToGo: number | undefined
 ): sequencerActionTypes {
 	return {
@@ -145,7 +174,7 @@ export function goToActive(
 		payload: {
 			pageToGo: pageToGo,
 			patternToGo: patternToGo,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
@@ -168,37 +197,37 @@ export function addPattern(): sequencerActionTypes {
 	};
 };
 
-export function addEffectSequencer(index: number, track: number): sequencerActionTypes {
+export function addEffectSequencer(index: number, trackIndex: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.ADD_EFFECT_SEQUENCER,
 		payload: {
-			index: index,
-			track: track
+			fxIndex: index,
+			trackIndex: trackIndex
 		}
 	}
 };
 
-export function removeEffectSequencer(index: number, track: number): sequencerActionTypes {
+export function removeEffectSequencer(index: number, trackIndex: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
 		payload: {
-			index: index,
-			track: track,
+			fxIndex: index,
+			trackIndex: trackIndex,
 		}
 	}
 };
 
-export function changeEffectIndexSequencer(index: number, track: number): sequencerActionTypes {
+export function changeEffectIndexSequencer(index: number, trackIndex: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
 		payload: {
-			index: index,
-			track: track,
+			fxIndex: index,
+			trackIndex: trackIndex,
 		}
 	}
 };
 
-export function parameterLockEffect(pattern: number, track: number, step: number, fxIndex: number, data: any): sequencerActionTypes {
+export function parameterLockEffect(pattern: number, trackIndex: number, step: number, fxIndex: number, data: any): sequencerActionTypes {
 	return {
 		type: sequencerActions.PARAMETER_LOCK_EFFECT,
 		payload: {
@@ -206,7 +235,7 @@ export function parameterLockEffect(pattern: number, track: number, step: number
 			fxIndex: fxIndex,
 			pattern: pattern,
 			step: step,
-			track: track
+			trackIndex: trackIndex
 		}
 	}
 };
@@ -214,7 +243,7 @@ export function parameterLockEffect(pattern: number, track: number, step: number
 
 export function changeTrackLength(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	patternLength: number
 ): sequencerActionTypes {
 	return {
@@ -222,31 +251,34 @@ export function changeTrackLength(
 		payload: {
 			patternLength: patternLength,
 			pattern: pattern,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
 
-export function addInstrumentToSequencer(): sequencerActionTypes {
+export function addInstrumentToSequencer(trackIndex: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER,
+		payload: {
+			trackIndex: trackIndex,
+		},
 	};
 }
 
 export function removeInstrumentFromSequencer(
-	index: number
+	trackIndex: number
 ): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER,
 		payload: {
-			index: index,
+			trackIndex: trackIndex,
 		},
 	};
 };
 
 export function setNoteLength(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	noteLength: number | string,
 	step: number
 ): sequencerActionTypes {
@@ -256,14 +288,14 @@ export function setNoteLength(
 			noteLength: noteLength,
 			step: step,
 			pattern: pattern,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
 
 export function deleteEvents(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 ): sequencerActionTypes {
 	return {
@@ -271,14 +303,14 @@ export function deleteEvents(
 		payload: {
 			step: step,
 			pattern: pattern,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
 
 export function selectStep(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number
 ): sequencerActionTypes {
 	return {
@@ -286,7 +318,7 @@ export function selectStep(
 		payload: {
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
@@ -324,7 +356,7 @@ export function selectPattern(pattern: number): sequencerActionTypes {
 
 export function changePage(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	page: number
 ): sequencerActionTypes {
 	return {
@@ -332,21 +364,21 @@ export function changePage(
 		payload: {
 			page: page,
 			pattern: pattern,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
 
 export function setPatternTrackVelocity(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	velocity: number
 ): sequencerActionTypes {
 	return {
 		type: sequencerActions.SET_PATTERN_TRACK_VELOCITY,
 		payload: {
 			pattern: pattern,
-			track: track,
+			trackIndex: trackIndex,
 			velocity: velocity,
 		}
 	}
@@ -354,7 +386,7 @@ export function setPatternTrackVelocity(
 
 export function setOffset(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	offset: number
 ): sequencerActionTypes {
@@ -364,14 +396,14 @@ export function setOffset(
 			offset: offset,
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
 
 export function setNote(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	note: string,
 	step: number
 ): sequencerActionTypes {
@@ -381,7 +413,7 @@ export function setNote(
 			note: note,
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }
@@ -389,21 +421,21 @@ export function setNote(
 export function setPatternNoteLength(
 	pattern: number,
 	noteLength: number | string | undefined,
-	track: number,
+	trackindex: number,
 ): sequencerActionTypes {
 	return {
 		type: sequencerActions.SET_PATTERN_NOTE_LENGTH,
 		payload: {
 			noteLength: noteLength,
 			pattern: pattern,
-			track: track,
+			trackIndex: trackindex,
 		},
 	};
 }
 
 export function parameterLockIncreaseDecrease(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	movement: number,
 	property: string,
@@ -418,7 +450,7 @@ export function parameterLockIncreaseDecrease(
 			movement: movement,
 			property: property,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 			cc: cc,
 			isContinuous: isContinuous,
 			trackValues: trackValues,
@@ -428,11 +460,12 @@ export function parameterLockIncreaseDecrease(
 
 export function parameterLockEffectIncreaseDecrease(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	fxIndex: number,
 	movement: number,
 	property: string,
+	effectValues: any[],
 	cc?: boolean,
 	isContinuous?: boolean,
 ): sequencerActionTypes {
@@ -443,17 +476,18 @@ export function parameterLockEffectIncreaseDecrease(
 			movement: movement,
 			property: property,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 			fxIndex: fxIndex,
 			cc: cc,
 			isContinuous: isContinuous,
+			effectValues: effectValues,
 		}
 	}
 };
 
 export function setVelocity(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	velocity: number
 ): sequencerActionTypes {
@@ -462,7 +496,7 @@ export function setVelocity(
 		payload: {
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 			velocity: velocity,
 		},
 	};
@@ -470,7 +504,7 @@ export function setVelocity(
 
 export function parameterLock(
 	pattern: number,
-	track: number,
+	trackIndex: number,
 	step: number,
 	data: any,
 	parameter: string
@@ -484,7 +518,7 @@ export function parameterLock(
 			},
 			pattern: pattern,
 			step: step,
-			track: track,
+			trackIndex: trackIndex,
 		},
 	};
 }

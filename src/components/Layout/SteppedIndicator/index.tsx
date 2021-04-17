@@ -90,7 +90,7 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         setDisplay(false);
     }
     const stopDrag = (e: MouseEvent) => {
-        console.log('should be stopping drag');
+        // console.log('should be stopping drag');
         setMovement(false);
         setDisplay(true);
         shouldRemove = true;

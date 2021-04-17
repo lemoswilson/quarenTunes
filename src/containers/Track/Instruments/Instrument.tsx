@@ -143,7 +143,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const activePatternRef = useRef(activePattern);
     useEffect(() => { activePatternRef.current = activePattern }, [activePattern]);
 
-    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[index].selected);
+    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[id].selected);
     const selectedStepsRef = useRef(selectedSteps);
     useEffect(() => { selectedStepsRef.current = selectedSteps }, [selectedSteps])
 
@@ -161,7 +161,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: number } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[index].velocity
+                o[k] = state.sequencer.present.patterns[k].tracks[id].velocity
             });
             return o;
         }
@@ -174,11 +174,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: string | number | undefined } = {}
             Object.entries(state.sequencer.present.patterns).forEach(([key, pattern]) => {
                 let k = parseInt(key);
-                o[k] = pattern.tracks[index].noteLength;
+                o[k] = pattern.tracks[id].noteLength;
             });
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[index].noteLength
+                o[k] = state.sequencer.present.patterns[k].tracks[id].noteLength
             });
             return o
         }
@@ -206,7 +206,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[index].length
+                o[k] = state.sequencer.present.patterns[k].tracks[id].length
             });
             return o;
         }
@@ -219,7 +219,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[index].events
+                o[k] = state.sequencer.present.patterns[k].tracks[id].events
             });
             return o;
         }
@@ -238,7 +238,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     selectedStepsRef.current.forEach(s => {
                         dispatch(parameterLock(
                             activePatternRef.current,
-                            idRef.current,
+                            // idRef.current,
+                            indexRef.current,
                             s,
                             temp,
                             property
@@ -279,7 +280,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     selectedStepsRef.current.forEach(step => {
                         dispatch(parameterLockIncreaseDecrease(
                             activePatternRef.current,
-                            idRef.current,
+                            // idRef.current,
+                            indexRef.current,
                             step,
                             cc ? e.value : e.movementY,
                             property,
@@ -457,8 +459,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             }
             event['note'] = notes ? notes : null;
             event['velocity'] = velocity;
-            triggRefs.current[pattern][index].instrument.at(time, event)
-            dispatch(setNoteMidi(index, event['note'], velocity, step));
+            triggRefs.current[pattern][idRef.current].instrument.at(time, event)
+            dispatch(setNoteMidi(idRef.current, event['note'], velocity, step));
         });
 
     }, [dispatch, index, triggRefs, eventsRef, selectedStepsRef]);
@@ -483,11 +485,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         } else if (!overrideRef && !e.note.includes(noteName)) {
             e.note.push(noteName);
         }
-        triggRefs.current[pattern][index].instrument.remove(pastTime);
+        triggRefs.current[pattern][idRef.current].instrument.remove(pastTime);
         dispatch(
             noteInput(
                 pattern,
-                index,
+                idRef.current,
                 step,
                 offset,
                 noteName,
@@ -743,7 +745,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
         Object.keys(triggRefs.current).forEach(key => {
             let keyNumber = parseInt(key);
-            triggRefs.current[keyNumber][index].instrument.callback = instrumentCallback;
+            triggRefs.current[keyNumber][id].instrument.callback = instrumentCallback;
         });
     }, [
         voice,
@@ -806,7 +808,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             }
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key)
-                triggRefs.current[k][index].instrument.callback = instrumentCallback;
+                triggRefs.current[k][id].instrument.callback = instrumentCallback;
             })
             setRender(false);
         }

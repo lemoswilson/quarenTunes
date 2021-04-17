@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, RefObject, MutableRefObject } from "react";
 import { Provider } from "react-redux";
-import { combineReducers, createStore, compose } from "redux";
+import { combineReducers, createStore, compose, $CombinedState } from "redux";
 import undoable, { newHistory, includeAction } from 'redux-undo';
 import Div100vh from 'react-div-100vh';
 
@@ -56,7 +56,7 @@ export const rootReducer = combineReducers({
         filter: includeAction([
             trackActions.SELECT_MIDI_CHANNEL,
             trackActions.SELECT_MIDI_DEVICE,
-            trackActions.SHOW_INSTRUMENT,
+            trackActions.SELECT_INSTRUMENT,
             trackActions.ADD_INSTRUMENT,
             trackActions.DELETE_EFFECT,
             trackActions.INSERT_EFFECT,
@@ -114,7 +114,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     let triggRef = useRef<triggContext>({
         0: [{
             instrument: new Tone.Part(),
-            effects: []
+            effects: [new Tone.Part()]
         }]
     })
 
@@ -133,19 +133,20 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         let patN = payload.pattern
         const selectedTrack = store.getState().track.present.selectedTrack;
         triggRef.current[patN] = [];
-        [...Array(store.getState().track.present.trackCount).keys()].forEach(track => {
+        [...Array(store.getState().track.present.trackCount).keys()].forEach((idx, track, arr) => {
+            const effectsLength = store.getState().track.present.tracks[track].fx.length
             triggRef.current[patN][track] = {
-                effects: [],
+                effects: Array(effectsLength).map(v => new Tone.Part()),
                 instrument: new Tone.Part(),
             }
-            triggRef.current[patN][track].instrument = new Tone.Part();
-            let i = 0;
+            // triggRef.current[patN][track].instrument = new Tone.Part();
+            // let i = 0;
             // while (i < 4) {
             // while (i < triggRef.current[patN][track].effects.length) {
-            while (i < store.getState().track.present.tracks[selectedTrack].fx.length) {
-                triggRef.current[patN][track].effects[i] = new Tone.Part();
-                i++
-            }
+            // while (i < store.getState().track.present.tracks[selectedTrack].fx.length) {
+            //     triggRef.current[patN][track].effects[i] = new Tone.Part();
+            //     i++
+            // }
         });
     };
 
@@ -153,10 +154,11 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         let patN = payload.pattern
         let counter = store.getState().sequencer.present.counter;
         [...Array(store.getState().track.present.trackCount).keys()]
-            .forEach(track => {
+            .forEach((v, track, arr) => {
                 triggRef.current[counter][track].instrument = new Tone.Part()
+                const fxLength = store.getState().track.present.tracks[track].fx.length
                 let i = 0;
-                while (i < 4) {
+                while (i < fxLength) {
                     triggRef.current[counter][track].effects[i] = new Tone.Part()
                     i++
                 }
@@ -165,7 +167,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                     const time = timeObjFromEvent(idx, e)
                     triggRef.current[counter][track].instrument.at(time, e.instrument);
                     i = 0;
-                    while (i < 4) {
+                    while (i < fxLength) {
                         triggRef.current[counter][track].effects[i].at(time, e.fx[i])
                         i++
                     }
@@ -174,27 +176,34 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     }
 
     const addEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.ADD_EFFECT>): void => {
-        let [track, index] = [payload.track, payload.index];
+        let [trackIndex, index] = [payload.trackIndex, payload.fxIndex];
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
         [...Array(patternCount).keys()].forEach(pat => {
-            triggRef.current[pat][track].effects.push(new Tone.Part());
+            triggRef.current[pat][trackIndex].effects.splice(index, 0, new Tone.Part())
+            // triggRef.current[pat][trackId].effects.push(new Tone.Part());
         });
     };
 
     const removeEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_EFFECT>): void => {
-        let [track, index] = [payload.track, payload.index];
+        let [trackIndex, fxIndex] = [payload.trackIndex, payload.fxIndex];
+        let patterns = Object.keys(store.getState().sequencer.present.patterns)
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
-        [...Array(patternCount).keys()].forEach(pat => {
-            triggRef.current[pat][track].effects.splice(index, 1);
-        });
+        patterns.forEach(pat => {
+            triggRef.current[Number(pat)][trackIndex].effects.splice(fxIndex, 1);
+        })
+        // [...Array(patternCount).keys()].forEach(pat => {
+        //     triggRef.current[pat][trackId].effects.splice(index, 1);
+        // });
     }
 
     const changeEffectIndexTrigg = (payload: ExtractTriggPayload<triggEventTypes.CHANGE_EFFECT_INDEX>): void => {
-        let [track, from, to] = [payload.track, payload.from, payload.to];
+        let [trackIndex, from, to] = [payload.trackIndex, payload.from, payload.to];
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
-        [...Array(patternCount).keys()].forEach(pat => {
-            [triggRef.current[pat][track].effects[to], triggRef.current[pat][track].effects[from]] =
-                [triggRef.current[pat][track].effects[from], triggRef.current[pat][track].effects[to]];
+        let patterns = Object.keys(store.getState().sequencer.present.patterns);
+        Object.keys(patterns).forEach(pat => {
+            let p = Number(pat);
+            [triggRef.current[p][trackIndex].effects[to], triggRef.current[p][trackIndex].effects[from]] =
+                [triggRef.current[p][trackIndex].effects[from], triggRef.current[p][trackIndex].effects[to]];
         });
     }
 
@@ -202,11 +211,11 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     const removePattern = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_PATTERN>): void => {
         const patN: number = payload.pattern;
         const selectedTrack: number = store.getState().track.present.selectedTrack;
-        triggRef.current[patN].forEach(part => {
+        Object.values(triggRef.current[patN]).forEach(part => {
             part.instrument.dispose();
             let i = 0;
             // while (i < 4) {
-            while (i < store.getState().track.present.tracks[selectedTrack].fxCounter) {
+            while (i < part.effects.length) {
                 part.effects[i].dispose();
                 i++
             }
@@ -215,30 +224,38 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     };
 
 
-    const addTrack = (): void => {
+    const addTrack = (payload: ExtractTriggPayload<triggEventTypes.ADD_TRACK>): void => {
         Object.keys(triggRef.current).forEach(patt => {
-            triggRef.current[parseInt(patt)].push({
+            triggRef.current[parseInt(patt)].splice(payload.trackIndex, 0, {
                 instrument: new Tone.Part(),
                 effects: []
-            });
+            })
+            // triggRef.current[parseInt(patt)][payload.trackId] = {
+            //     instrument: new Tone.Part(),
+            //     effects: []
+            // }
         });
     };
 
 
     const removeTrack = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_TRACK>): void => {
-        let trackN: number = payload.track;
+        let trackIndex: number = payload.trackIndex;
         Object.keys(triggRef.current).forEach(patt => {
-            triggRef.current[parseInt(patt)][trackN].instrument.dispose();
+            triggRef.current[parseInt(patt)][trackIndex].instrument.dispose();
+            const fxSize = store.getState().track.present.tracks[trackIndex].fx.length
             let i = 0;
-            while (i < 4) {
-                triggRef.current[parseInt(patt)][trackN].effects[i].dispose();
+            while (i < fxSize) {
+                triggRef.current[parseInt(patt)][trackIndex].effects[i].dispose();
                 i++
             }
-            triggRef.current[parseInt(patt)].splice(trackN, 1);
+            triggRef.current[parseInt(patt)].splice(trackIndex, 1)
+            // delete triggRef.current[parseInt(patt)][trackIndex]
+            // triggRef.current[parseInt(patt)].splice(trackId, 1);
         });
-        toneObjRef.current[trackN].instrument?.dispose();
-        toneObjRef.current[trackN].effects.forEach(v => v.dispose());
-        toneObjRef.current[trackN].chain.dispose();
+        toneObjRef.current[trackIndex].instrument?.dispose();
+        toneObjRef.current[trackIndex].effects.forEach(v => v.dispose());
+        toneObjRef.current[trackIndex].chain.dispose();
+        delete toneObjRef.current[trackIndex]
 
     };
 
@@ -408,7 +425,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     }
 
     const openDropdown = (payload: ExtractDropdownPayload<dropdownEventTypes.OPEN>): void => {
-        console.log('hsould be openig');
+        // console.log('hsould be openig');
         dropdownContextRef.current[payload.id] = payload.openClose;
     }
 
@@ -417,7 +434,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     }
 
     useEffect(() => {
-        console.log('setting event emitter');
+        // console.log('setting event emitter');
         triggEmitter.on(triggEventTypes.ADD_PATTERN, addPattern);
         triggEmitter.on(triggEventTypes.REMOVE_PATTERN, removePattern);
         triggEmitter.on(triggEventTypes.ADD_TRACK, addTrack);

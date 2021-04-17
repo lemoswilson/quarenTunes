@@ -16,7 +16,7 @@ export function updateEnvelopeCurve(
 	return {
 		type: trackActions.UPDATE_ENVELOPE_CURVE,
 		payload: {
-			track: track,
+			trackIndex: track,
 			target: target,
 			curve: curve,
 		}
@@ -33,7 +33,7 @@ export function increaseDecreaseInstrumentProperty(
 	return {
 		type: trackActions.INC_DEC_INST_PROP,
 		payload: {
-			track: index,
+			trackIndex: index,
 			movement: movement,
 			property: property,
 			cc: cc,
@@ -50,7 +50,7 @@ export function envelopeAttack(
 		type: trackActions.ENVELOPE_ATTACK,
 		payload: {
 			amount: movement,
-			index: index
+			trackIndex: index
 		}
 	}
 };
@@ -66,7 +66,7 @@ export function increaseDecreaseEffectProperty(
 	return {
 		type: trackActions.INC_DEC_EFFECT_PROP,
 		payload: {
-			track: track,
+			trackIndex: track,
 			fx: fx,
 			movement: movement,
 			property: property,
@@ -83,7 +83,7 @@ export function updateInstrumentState(
 	return {
 		type: trackActions.UPDATE_INSTRUMENT_STATE,
 		payload: {
-			track: index,
+			trackIndex: index,
 			options: options
 		}
 	};
@@ -98,7 +98,7 @@ export function updateEffectState(
 		type: trackActions.UPDATE_EFFECT_STATE,
 		payload: {
 			fxIndex: fxIndex,
-			track: track,
+			trackIndex: track,
 			options: options,
 		}
 	}
@@ -112,16 +112,17 @@ export function changeInstrument(
 		type: trackActions.CHANGE_INSTRUMENT,
 		payload: {
 			instrument: instrument,
-			index: index,
+			trackIndex: index,
 		},
 	};
 }
 
-export function addInstrument(instrument: xolombrisxInstruments): trackActionTypes {
+export function addInstrument(instrument: xolombrisxInstruments, trackIndex: number): trackActionTypes {
 	return {
 		type: trackActions.ADD_INSTRUMENT,
 		payload: {
 			instrument: instrument,
+			trackIndex: trackIndex,
 		},
 	};
 }
@@ -130,16 +131,16 @@ export function removeInstrument(index: number): trackActionTypes {
 	return {
 		type: trackActions.REMOVE_INSTRUMENT,
 		payload: {
-			index: index,
+			trackIndex: index,
 		},
 	};
 }
 
 export function showInstrument(index: number): trackActionTypes {
 	return {
-		type: trackActions.SHOW_INSTRUMENT,
+		type: trackActions.SELECT_INSTRUMENT,
 		payload: {
-			index: index,
+			trackIndex: index,
 		},
 	};
 };
@@ -151,7 +152,7 @@ export function selectMidiDevice(
 	return {
 		type: trackActions.SELECT_MIDI_DEVICE,
 		payload: {
-			index: index,
+			trackIndex: index,
 			device: device,
 		},
 	};
@@ -164,14 +165,14 @@ export function selectMidiChannel(
 	return {
 		type: trackActions.SELECT_MIDI_CHANNEL,
 		payload: {
-			index: index,
+			trackIndex: index,
 			channel: channel,
 		},
 	};
 }
 
 export function insertEffect(
-	index: number,
+	fxIndex: number,
 	effect: effectTypes,
 	trackIndex: number
 ): trackActionTypes {
@@ -179,7 +180,7 @@ export function insertEffect(
 		type: trackActions.INSERT_EFFECT,
 		payload: {
 			effect: effect,
-			index: index,
+			effectIndex: fxIndex,
 			trackIndex: trackIndex,
 		},
 	};
@@ -192,7 +193,7 @@ export function deleteEffect(
 	return {
 		type: trackActions.DELETE_EFFECT,
 		payload: {
-			index: index,
+			effectIndex: index,
 			trackIndex: trackIndex,
 		},
 	};

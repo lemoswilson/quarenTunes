@@ -4,7 +4,7 @@ import { effectsInitials, effectsInitialsArray } from '../Instruments/types';
 export interface effectsProps {
     id: number,
     trackId: number,
-    track: number,
+    trackIndex: number,
     type: effectTypes,
     options: effectsInitialsArray,
     midi: midi,

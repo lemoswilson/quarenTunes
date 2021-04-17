@@ -96,7 +96,6 @@ export function setNestedValue(accessment: string, val: any, obj: any = {}): any
         }
         cur = cur[field];
     });
-
     if (last) cur[last] = val;
 
     return obj;

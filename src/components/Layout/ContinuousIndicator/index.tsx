@@ -104,7 +104,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
                     ? -7
                     : 7
         }
-        console.log('moving wheel', k)
+        // console.log('moving wheel', k)
         if (k.movementY) {
             ccMouseCalculationCallback(k)
         }

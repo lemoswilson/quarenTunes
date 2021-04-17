@@ -57,8 +57,11 @@
                 flex-direction: row;
                 width: 100%;
                 height: 47%;
+                // @include center;
                 
                 .box {
+                    display: flex;
+                    @include center;
                     border-radius: 2rem;
                     border-top-right-radius: 0;
                     background-color: white;

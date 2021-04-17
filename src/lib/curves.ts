@@ -33,7 +33,7 @@ export function valueFromMouse(
 ): number {
     let r;
     if (extra === 'volume' || extra === 'PAD_0.volume') {
-        console.log('extra is volume');
+        // console.log('extra is volume');
         if (prevValue === -Infinity) {
             if (mouseMovement >= 0) {
                 return prevValue
