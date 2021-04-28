@@ -36,6 +36,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
         if ((page === 0 && length <= 16)
             || (page === 1 && length <= 32)
             || (page === 2 && length <= 48)
+            || (page === 3 && length <= 64)
         ) {
             return length - 1
         } else if (page === 1 && length > 32) {

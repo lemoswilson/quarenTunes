@@ -116,4 +116,7 @@ export default class DrumRack {
                         : 3
         )
     }
+    disconnect() {
+        this.node.disconnect()
+    }
 };

@@ -89,7 +89,8 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
 const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackId }) => {
     const triggRefs = useContext(triggContext);
     const toneObjRef = useContext(toneRefsContext);
-    const effectRef = useRef(returnEffect(type, options))
+    const effectRef: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
+    // const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
     const properties = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
     const [firstRender, setRender] = useState(true);
@@ -181,7 +182,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
         let o = {}
         let callArray = properties.map((property) => {
             return (value: any) => {
-                if (getNested(effectRef.current.get(), property)
+                if (effectRef.current && getNested(effectRef.current.get(), property)
                     === getNested(optionsRef.current, property)[0]) {
                     let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
@@ -377,11 +378,12 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
 
     // add effect first render logic 
     useEffect(() => {
-        if (firstRender) {
+        // if (firstRender) {
             // toneRefEmitter.emit(
             //     trackEventTypes.ADD_EFFECT,
             //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
             // );
+            effectRef.current = returnEffect(type, options)
             if (toneObjRef?.current) {
                 let lgth = toneObjRef.current[trackId].effects.length;
                 let chain = toneObjRef.current[trackId].chain;
@@ -412,8 +414,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
                 let k = parseInt(key);
                 triggRefs.current[k][trackId].effects[index].callback = effectCallback
             });
-            setRender(false);
-        }
+            // setRender(false);
+        // }
     }, [])
 
     const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
@@ -499,7 +501,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
                 properties={properties}
                 propertyUpdateCallbacks={propertyValueUpdateCallback}
                 selected={selectedSteps}
-                trackId={trackId}
+                trackIndex={trackId}
             />
             : null
 

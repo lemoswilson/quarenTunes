@@ -100,6 +100,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     curve={envelopeAttack[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.attack}
                                     className={styles.envelopeAttack}
+                                    indicatorId={`instrument${index}:envelope.attack`}
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.decay}
@@ -113,6 +114,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     unit={envelopeDecay[2]}
                                     value={getPropertyValue('envelope.decay')}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.decay}
+                                    indicatorId={`instrument${index}:envelope.decay`}
                                     className={styles.envelopeDecay}
                                 />
                             </div>
@@ -129,6 +131,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     curve={envelopeSustain[4]}
                                     unit={envelopeSustain[2]}
                                     value={getPropertyValue('envelope.sustain')}
+                                    indicatorId={`instrument${index}:envelope.sustain`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.sustain}
                                     className={styles.envelopeSustain}
                                 />
@@ -143,6 +146,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     type={'knob'}
                                     unit={envelopeRelease[2]}
                                     value={getPropertyValue('envelope.release')}
+                                    indicatorId={`instrument${index}:envelope.release`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.release}
                                     className={styles.envelopeRelease}
                                 />
@@ -167,6 +171,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     curve={octaves[4]}
                                     unit={octaves[2]}
                                     value={getPropertyValue('octaves')}
+                                    indicatorId={`instrument${index}:octaves`}
                                     valueUpdateCallback={propertyUpdateCallbacks.octaves}
                                 />
                                 <ContinuousIndicator
@@ -180,6 +185,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     curve={resonance[4]}
                                     unit={resonance[2]}
                                     value={getPropertyValue('resonance')}
+                                    indicatorId={`instrument${index}:resonance`}
                                     valueUpdateCallback={propertyUpdateCallbacks.resonance}
                                     className={styles.resonance}
                                 />
@@ -207,6 +213,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 curve={volume[4]}
                                 unit={volume[2]}
                                 value={getPropertyValue('volume')}
+                                indicatorId={`instrument${index}:volume`}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
                                 className={styles.volume}
                             />
@@ -221,6 +228,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 curve={harmonicity[4]}
                                 unit={harmonicity[2]}
                                 value={getPropertyValue('harmonicity')}
+                                indicatorId={`instrument${index}:harmonicity`}
                                 valueUpdateCallback={propertyUpdateCallbacks.harmonicity}
                                 className={styles.harmonicity}
                             />
@@ -235,6 +243,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 curve={modulationIndex[4]}
                                 unit={modulationIndex[2]}
                                 value={getPropertyValue('modulationIndex')}
+                                indicatorId={`instrument${index}:modulationIndex`}
                                 valueUpdateCallback={propertyUpdateCallbacks.modulationIndex}
                                 className={styles.modulationIndex}
                             />
@@ -251,6 +260,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 curve={detune[4]}
                                 unit={detune[2]}
                                 value={getPropertyValue('detune')}
+                                indicatorId={`instrument${index}:detune`}
                                 valueUpdateCallback={propertyUpdateCallbacks.detune}
                                 detail={'detune'}
                             />
@@ -265,6 +275,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 detail={'port'}
                                 unit={portamento[2]}
                                 curve={portamento[4]}
+                                indicatorId={`instrument${index}:portamento`}
                                 value={getPropertyValue('portamento')}
                                 valueUpdateCallback={propertyUpdateCallbacks.portamento}
                             />

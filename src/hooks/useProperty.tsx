@@ -1,5 +1,7 @@
 import { useEffect, MutableRefObject } from 'react';
-import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray, returnInstrument } from '../containers/Track/Instruments'
+import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray } from '../containers/Track/Instruments'
+import { returnInstrument } from '../containers/Xolombrisx';
+// import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray } from '../containers/Track/Instruments'
 import { RecursivePartial } from '../containers/Track/Instruments'
 import usePrevious from './usePrevious';
 import { onlyValues } from '../lib/objectDecompose'
@@ -41,7 +43,8 @@ export const useProperty = (
 };
 
 export const useProperties = (
-    instrumentRef: MutableRefObject<ReturnType<typeof returnInstrument>>,
+    // instrumentRef: MutableRefObject<ReturnType<typeof returnInstrument>>,
+    instrumentRef: any,
     options: any,
 ) => {
     useProperty(instrumentRef, options, 'harmonicity');
@@ -155,7 +158,8 @@ export const useEffectProperty = (
 };
 
 export const useEffectProperties = (
-    effectRef: MutableRefObject<ReturnType<typeof returnEffect>>,
+    // effectRef: MutableRefObject<ReturnType<typeof returnEffect>>,
+    effectRef: any,
     options: effectsInitialsArray
 ) => {
 

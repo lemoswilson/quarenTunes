@@ -21,10 +21,10 @@ export const initialState: Track = {
 		{
 			// instrument: xolombrisxInstruments.FMSYNTH,
 			// options: getInitials(xolombrisxInstruments.FMSYNTH),
-			instrument: xolombrisxInstruments.AMSYNTH,
-			options: getInitials(xolombrisxInstruments.AMSYNTH),
-			// instrument: xolombrisxInstruments.NOISESYNTH,
-			// options: getInitials(xolombrisxInstruments.NOISESYNTH),
+			// instrument: xolombrisxInstruments.AMSYNTH,
+			// options: getInitials(xolombrisxInstruments.AMSYNTH),
+			instrument: xolombrisxInstruments.NOISESYNTH,
+			options: getInitials(xolombrisxInstruments.NOISESYNTH),
 			// instrument: xolombrisxInstruments.MEMBRANESYNTH,
 			// options: getInitials(xolombrisxInstruments.MEMBRANESYNTH),
 			// instrument: xolombrisxInstruments.METALSYNTH,
@@ -35,11 +35,11 @@ export const initialState: Track = {
 			// options: getInitials(xolombrisxInstruments.DRUMRACK),
 			id: 0,
 			fx: [
-				{
-					fx: effectTypes.COMPRESSOR,
-					id: 0,
-					options: getEffectsInitials(effectTypes.COMPRESSOR)
-				},
+				// {
+				// 	fx: effectTypes.COMPRESSOR,
+				// 	id: 0,
+				// 	options: getEffectsInitials(effectTypes.COMPRESSOR)
+				// },
 			],
 			fxCounter: 1,
 			// env: 0.001,

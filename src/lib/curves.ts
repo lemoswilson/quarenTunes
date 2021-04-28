@@ -58,7 +58,7 @@ export function valueFromMouse(
         let c;
         let k = prevValue === 0 ? 0.001 : prevValue
 
-        if (curveType == curveTypes.EXPONENTIAL) {
+        if (curveType === curveTypes.EXPONENTIAL) {
             c = k * (1 / 10) * mouseMovement;
         } else {
             c = ((max - min) / 127) * mouseMovement;

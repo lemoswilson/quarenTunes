@@ -8,9 +8,11 @@ import React, { useEffect, FunctionComponent, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../Xolombrisx";
 // import Tone from "../../lib/tone";
-import * as Tone from "tone";
+// import * as Tone from "tone";
+import ToneContext from '../../context/ToneContext';
 
 const Transport: FunctionComponent = () => {
+	const Tone = useContext(ToneContext);
 	const dispatch = useDispatch();
 
 	const isPlaying = useSelector(

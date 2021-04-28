@@ -14,14 +14,6 @@
     }
 
     .title {
-        // border: 1px solid green;
-        // line-height: 0.5rem;
-    //     -webkit-touch-callout: none; /* iOS Safari */
-    //     -webkit-user-select: none; /* Safari */
-    //     -khtml-user-select: none; /* Konqueror HTML */
-    //    -moz-user-select: none; /* Old versions of Firefox */
-    //     -ms-user-select: none; /* Internet Explorer/Edge */
-    //     user-select: none; 
         @include notselectable;
         order: 0;
         width: 100%;
@@ -35,4 +27,6 @@
         text-align: center;
         font-size: 0.9rem;
     }
+
+
 }

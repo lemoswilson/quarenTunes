@@ -40,13 +40,13 @@ html {
                 input {
                     width: 3.9rem;
                     height: 0.9rem;
-                    border: none;
-                    outline: none;
                     font-size: 0.9rem;
                     text-align: center;
-                    background-color: none;
-                    border-bottom: 0.5px solid $textColor;
                     font-family: $jost;
+                    border: none;
+                    outline: none;
+                    border-bottom: 0.5px solid $textColor;
+                    background-color: none;
                     text-shadow: 0 0 1px $textShadow;
                     &::placeholder {
                         color: $textColor;

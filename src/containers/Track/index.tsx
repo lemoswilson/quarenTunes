@@ -15,6 +15,7 @@ import {
     effectTypes
 } from '../../store/Track';
 import triggContext from '../../context/triggState';
+// import ToneContext from '../../context/ToneContext';
 
 import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/toneRefsEmitter';
 // import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/myCustomToneRefsEmitter';
@@ -152,7 +153,7 @@ const Track: FunctionComponent = () => {
             <div className={styles.effectsColumn}>
                 <div className={styles.wrapper}>
                     <div className={styles.fx}>
-                        {Tracks[selectedTrack].fx.map((fx, idx, arr) => {
+                        {/* {Tracks[selectedTrack].fx.map((fx, idx, arr) => {
                             return (
                                 <React.Fragment key={`track:${selectedTrack};effect:${fx.id}`}>
                                     <div className={styles.box}>
@@ -170,10 +171,10 @@ const Track: FunctionComponent = () => {
                                 </React.Fragment>
 
                             )
-                        })}
-                        {/* <div className={styles.box}>
+                        })} */}
+                        <div className={styles.box}>
                         </div>
-                        <div className={styles.tabs}></div> */}
+                        <div className={styles.tabs}></div>
                     </div>
                     <div className={styles.fx}>
                         <div className={styles.box}></div>

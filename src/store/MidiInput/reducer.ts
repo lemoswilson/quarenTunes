@@ -40,7 +40,7 @@ export function midiInputReducer(state: MidiState = initialState, action: MidiIn
                 if (draft.onboardRange < 9) draft.onboardRange = draft.onboardRange + 1;
                 break;
             case MidiInputActions.DOWN_OCTAVE_KEY:
-                if (draft.onboardRange > 0) draft.onboardRange = draft.onboardRange - 1;
+                if (draft.onboardRange > -3) draft.onboardRange = draft.onboardRange - 1;
                 break;
 
 

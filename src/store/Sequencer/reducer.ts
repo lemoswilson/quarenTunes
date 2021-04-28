@@ -19,8 +19,8 @@ export const initialState: Sequencer = {
 			patternLength: 16,
 			tracks: [
 				{
-					// events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
-					events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
+					events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
+					// events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
 					length: 16,
 					noteLength: "16n",
 					page: 0,
@@ -142,6 +142,7 @@ export function sequencerReducer(
 						action.payload.step,
 						action.payload.amount,
 					]
+				console.log('amount is ', amount)
 				const totalOffset = Number(draft.patterns[pattern].tracks[trackIndex].events[step].offset) + amount
 				draft.patterns[pattern].tracks[trackIndex].events[step].offset =
 					(amount > 0 && totalOffset <= 100) || (amount < 0 && totalOffset >= -100)

@@ -13,7 +13,7 @@ export interface CompressorProps {
     options: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
-    trackId: number,
+    trackIndex: number,
     fxIndex: number,
     selected: number[],
     events: event[],
@@ -24,7 +24,7 @@ const Compressor: React.FC<CompressorProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
-    trackId,
+    trackIndex,
     fxIndex,
     events,
     properties,
@@ -87,6 +87,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 type={'knob'}
                 unit={attack[2]}
                 value={getPropertyValue('attack')}
+                indicatorId={`instrument${trackIndex}:effect${fxIndex}:attack`}
                 // value={getPropertyValue('attack')}
                 curve={attack[4]}
                 valueUpdateCallback={propertyUpdateCallbacks.attack}
@@ -102,6 +103,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 type={'knob'}
                 unit={ratio[2]}
                 value={getPropertyValue('ratio')}
+                indicatorId={`instrument${trackIndex}:effect${fxIndex}:ratio`}
                 valueUpdateCallback={propertyUpdateCallbacks.ratio}
             />
             <ContinuousIndicator
@@ -116,6 +118,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 curve={threshold[4]}
                 unit={threshold[2]}
                 value={getPropertyValue('threshold')}
+                indicatorId={`instrument${trackIndex}:effect${fxIndex}:threshold`}
                 valueUpdateCallback={propertyUpdateCallbacks.threshold}
             />
             <ContinuousIndicator
@@ -129,6 +132,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 type={'knob'}
                 unit={release[2]}
                 value={getPropertyValue('release')}
+                indicatorId={`instrument${trackIndex}:effect${fxIndex}:release`}
                 valueUpdateCallback={propertyUpdateCallbacks.release}
             />
             <ContinuousIndicator
@@ -142,6 +146,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 curve={knee[4]}
                 unit={knee[2]}
                 value={getPropertyValue('knee')}
+                indicatorId={`instrument${trackIndex}:effect${fxIndex}:knee`}
                 valueUpdateCallback={propertyUpdateCallbacks.knee}
             // detail={'envelopeZero'}
             />

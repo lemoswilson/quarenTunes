@@ -1,5 +1,5 @@
-// import Tone from './tone'
-import * as Tone from 'tone';
+import Tone from './tone'
+// import * as Tone from 'tone';
 import { toneEffects } from '../store/Track';
 
 class Chain {

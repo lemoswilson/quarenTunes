@@ -1,10 +1,12 @@
-import React, { useState, useEffect, WheelEvent, useContext, MutableRefObject } from 'react';
+import React, { useState, useEffect, WheelEvent, useContext, MutableRefObject, MouseEvent as ME, FormEvent, useRef } from 'react';
 import { curveTypes } from '../../../containers/Track/defaults';
 import { propertiesToArray } from '../../../lib/objectDecompose';
 // import styles from './knob.module.scss';
 import Knob from './Knob';
 import Slider from './Slider';
 import appContext from '../.././../context/AppContext';
+import MenuContext from '../../../context/MenuContext';
+import MenuEmitter, { menuEmitterEventTypes } from '../../../lib/MenuEmitter';
 
 interface continuousIndicator {
     className?: string;
@@ -20,6 +22,8 @@ interface continuousIndicator {
     unit: string;
     selectedLock: boolean,
     curve?: curveTypes;
+    indicatorId: string,
+    ccMap?: any,
 }
 
 export interface indicatorProps {
@@ -30,11 +34,25 @@ export interface indicatorProps {
     label: string,
     selectedLock: boolean,
     indicatorData: string,
+    min: number,
+    max: number,
     className?: string,
     unit?: string,
     value: number | '*';
     display: boolean;
+    onSubmit: (e: FormEvent) => void,
+    onBlur: (e: FormEvent) => void,
     setDisplay: () => void;
+    input?: boolean,
+    toggleInput: (ref?: MutableRefObject<HTMLInputElement | null>) => void,
+    contextMenu?: boolean,
+    valueUpdateCallback: (value: any) => void,
+    onContextMenu: (e: ME) => void,
+    menuOptions: any[],
+    MenuPosisiton?: {
+        left: number,
+        top: number,
+    } 
 }
 
 const ContinuousIndicator: React.FC<continuousIndicator> = ({
@@ -49,13 +67,104 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     value,
     detail,
     midiLearn,
+    ccMap,
     type,
-    unit
+    unit,
+    indicatorId
 }) => {
     const [isMoving, setMovement] = useState(false)
     const [display, setDisplay] = useState(true);
     const appRef = useContext<MutableRefObject<HTMLDivElement>>(appContext);
+    const [isMenuOpen, setMenu] = useState(false)
+    const [isInputOpen, setInput] = useState(false)
+    const [menuCoordinates, setCoordinates] = useState({left: 0, top:0})
+    const menuContext = useContext(MenuContext);
+    const indicatorRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
     let shouldRemove = false;
+
+    const toggleMenu = () => {
+        setMenu(menu => !menu)
+    };
+    
+    const toggleInput = (ref?: MutableRefObject<HTMLInputElement | null>) => {
+        setInput(input => !input)
+        if (isMenuOpen){
+            MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
+            // toggleMenu()
+            if (ref && ref.current) {
+                console.log('should be focusing');
+            }
+            ref?.current?.focus()
+        }
+    };
+
+
+    const menuOptions = [
+        ['Set value', toggleInput], 
+        [
+            ccMap 
+            ? `Unmap from CC ${ccMap.cc}` 
+            : 'Map to CC', midiLearn
+        ]
+    ]
+
+    const onSubmit = (e: FormEvent) => {
+        const inputElement = e.currentTarget.getElementsByTagName('input')[0]
+        inputElement.focus()
+        const val = Number(inputElement.value)
+
+        if (!Number.isNaN(val) && val <= max && val >= min){
+            valueUpdateCallback(val)
+        } else {
+            inputElement.value = String(value)
+        }
+
+        toggleInput()
+    }
+
+    const onBlur = (e: FormEvent) => {
+        const input = e.currentTarget.getElementsByTagName('input')[0]
+        input.value = String(value)
+        toggleInput()
+    }
+
+    const onContextMenu = (e: ME) => {
+        e.preventDefault()
+        console.log('should be setting on contextMenu')
+        let bound = e.currentTarget.getBoundingClientRect()
+        const x = e.pageX - bound.x
+        const y = e.pageY - bound.y
+
+        setCoordinates({
+            left: x,
+            top: y
+        }) 
+
+        const id = menuContext.current?.[0]
+        console.log(id)
+        if (!id) {
+            toggleMenu()
+            MenuEmitter.emit(
+                menuEmitterEventTypes.OPEN, 
+                {id: indicatorId, close: toggleMenu}
+            )
+        } else {
+            MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
+            if (id !== indicatorId) {
+                toggleMenu()
+                MenuEmitter.emit(menuEmitterEventTypes.OPEN, 
+                    {id: indicatorId, close: toggleMenu}
+                )
+            }
+        }
+    };
+
+    const onSetValue = () => {
+        MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
+        toggleInput() 
+    };
+
+
 
     useEffect(() => {
         if (isMoving && !shouldRemove) {
@@ -74,13 +183,22 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     };
 
     const captureStart = (e: React.PointerEvent<SVGSVGElement>) => {
+        e.stopPropagation()
+        MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
         if (e.button === 0) {
+            if (isInputOpen){
+                toggleInput()
+            }
+            // if (isMenuOpen) {
+            //     toggleInput()
+            // }
             // appRef.current.exitPointerLock = appRef.current.exitPointerLock || appRef.current.mozExitPointerLock;
             appRef.current.requestPointerLock();
             setMovement(true);
             setDisplay(false);
         }
     };
+
 
     const captureStartDiv = (e: React.MouseEvent) => {
         setMovement(true);
@@ -160,7 +278,8 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     // const rotateBy = rotate(0)
     const heightPercentage = value === "*" ? '40%' : `${(86 / (max - min)) * value + 3}%`
 
-    const knob = <Knob
+    const indicator = type === 'knob' 
+    ? <Knob
         captureStart={captureStart}
         // indicatorData={rotateBy}
         indicatorData={
@@ -170,33 +289,50 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         // indicatorData={detail === 'detune' ? rotate((0) * 140) : rotateBy}
         // indicatorData={rrr()}
         label={label}
+        onContextMenu={onContextMenu}
+        onBlur={onBlur}
+        onSubmit={onSubmit}
+        menuOptions={menuOptions}
+        toggleInput={toggleInput}
         wheelMove={wheelMove}
         className={className}
         selectedLock={selectedLock}
         value={value}
+        max={max}
+        min={min}
         unit={unit}
         display={display}
         curve={curve}
+        MenuPosisiton={menuCoordinates}
+        valueUpdateCallback={valueUpdateCallback}
+        contextMenu={isMenuOpen}
+        input={isInputOpen}
         setDisplay={() => setDisplay(state => !state)}
-    ></Knob>
-
-    // wheelMove={wheelMove}>
-    const slider = <Slider
+    ></Knob> 
+    : <Slider
         value={value}
         curve={curve}
         unit={unit}
+        onBlur={onBlur}
+        onSubmit={onSubmit}
         selectedLock={selectedLock}
+        menuOptions={menuOptions}
+        max={max}
+        min={min}
+        valueUpdateCallback={valueUpdateCallback}
+        onContextMenu={onContextMenu}
+        toggleInput={toggleInput}
         wheelMove={wheelMove}
         display={display}
         className={className}
         captureStartDiv={captureStartDiv}
+        contextMenu={isMenuOpen}
+        input={isInputOpen}
         // indicatorData={detail === 'volume' ? rrr() : heightPercentage}
         indicatorData={detail === 'volume' ? `${(1 / 106) * ((83 * Number(value)) + 8618)}%` : heightPercentage}
         // indicatorData={rrr()}
         label={label}
-        setDisplay={() => setDisplay(state => !state)} />
-
-    const indicator = type === 'knob' ? knob : slider;
+        setDisplay={() => setDisplay(state => !state)} />;
 
     return indicator
 }

@@ -98,6 +98,20 @@ const Dropdown: React.FC<Dropdown> = ({
 
     }, [Open])
 
+    useEffect(() => {
+        inputRef.current?.addEventListener('keydown', onKeyDown) 
+        return () => {
+            inputRef.current?.removeEventListener('keydown', onKeyDown) 
+        }
+    }, [])
+
+    function onKeyDown(this: HTMLInputElement, e: KeyboardEvent){
+       e.stopPropagation()
+       if (e.key === 'Escape') {
+           this.blur()
+       }
+    }
+
 
     const optionsList = <div className={styles.list}>
         {keyValue.map(([key, name], idx, arr) => {
@@ -114,11 +128,21 @@ const Dropdown: React.FC<Dropdown> = ({
     const form = renamable
         ? (
             <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                <input ref={inputRef} defaultValue={defaultValue()} type='text' placeholder={defaultValue()} />
+                <input 
+                ref={inputRef} defaultValue={defaultValue()} 
+                // onKeyDown={(e) => {e.preventDefault(); e.stopPropagation()}}
+                // onKeyUp={(e) => {e.preventDefault(); e.stopPropagation()}}
+                type='text' 
+                placeholder={defaultValue()} />
             </form>
         ) : (
             <form className={styles.text}>
-                <input readOnly={true} ref={inputRef} value={defaultValue()} type='text' placeholder={defaultValue()} />
+                <input 
+                readOnly={true} 
+                ref={inputRef} 
+                value={defaultValue()} 
+                type='text' 
+                placeholder={defaultValue()}/>
             </form>
         )
 

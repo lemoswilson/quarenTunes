@@ -99,6 +99,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                     value={getPropertyValue('modulationIndex')}
                     valueUpdateCallback={propertyUpdateCallbacks.modulationIndex}
                     className={styles.modidx}
+                    indicatorId={`instrument${index}:modulationIndex`}
                 />
             ) : null
 
@@ -124,6 +125,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     curve={envelopeAttack[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.attack}
                                     className={styles.envelopeAttack}
+                                    indicatorId={`instrument${index}:envelope.attack`}
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.decay}
@@ -138,6 +140,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('envelope.decay')}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.decay}
                                     className={styles.envelopeDecay}
+                                    indicatorId={`instrument${index}:envelope.decay`}
                                 />
                             </div>
                             <div className={styles.box}>
@@ -155,6 +158,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('envelope.sustain')}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.sustain}
                                     className={styles.envelopeSustain}
+                                    indicatorId={`instrument${index}:envelope.sustain`}
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.release}
@@ -169,6 +173,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('envelope.release')}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.release}
                                     className={styles.envelopeRelease}
+                                    indicatorId={`instrument${index}:envelope.release`}
                                 />
                             </div>
                         </div>
@@ -200,6 +205,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     valueUpdateCallback={propertyUpdateCallbacks.detune}
                                     detail={'detune'}
                                     className={styles.decay}
+                                    indicatorId={`instrument${index}:detune`}
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.portamento}
@@ -215,6 +221,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('portamento')}
                                     valueUpdateCallback={propertyUpdateCallbacks.portamento}
                                     className={styles.envelopeRelease}
+                                    indicatorId={`instrument${index}:portamento`}
                                 />
                             </div>
                             <ContinuousIndicator
@@ -231,6 +238,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 value={getPropertyValue('volume')}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
                                 className={styles.volume}
+                                indicatorId={`instrument${index}:volume`}
                             />
                         </div>
                     </div>
@@ -253,6 +261,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     curve={modulationEnvelopeAttack[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.attack}
                                     className={styles.envelopeAttack}
+                                    indicatorId={`instrument${index}:modulationEnvelope.attack`}
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.decay}
@@ -267,6 +276,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('modulationEnvelope.decay')}
                                     valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.decay}
                                     className={styles.envelopeDecay}
+                                    indicatorId={`instrument${index}:modulationEnvelope.decay`}
                                 />
                             </div>
                             <div className={styles.box}>
@@ -283,6 +293,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('modulationEnvelope.sustain')}
                                     valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.sustain}
                                     className={styles.decay}
+                                    indicatorId={`instrument${index}:modulationEnvelope.sustain`}
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.release}
@@ -297,6 +308,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     value={getPropertyValue('modulationEnvelope.release')}
                                     valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.release}
                                     className={styles.envelopeRelease}
+                                    indicatorId={`instrument${index}:modulationEnvelope.release`}
                                 />
                             </div>
                         </div>
@@ -327,6 +339,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 // value={getNested(options, 'harmonicity')[0]}
                                 value={getPropertyValue('harmonicity')}
                                 valueUpdateCallback={propertyUpdateCallbacks.harmonicity}
+                                indicatorId={`instrument${index}:modulationEnvelope.harmonicity`}
                                 className={styles.harm}
                             />
                             {modulationIndexIndicator}

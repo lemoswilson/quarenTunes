@@ -34,12 +34,14 @@ import {
 } from "../../store/Arranger";
 import { goToActive } from '../../store/Sequencer'
 import Tone from "../../lib/tone";
+// import ToneContext from '../../context/ToneContext';
 import { RootState } from "../Xolombrisx";
 import styles from './style.module.scss';
 import Dropdown from '../../components/Layout/Dropdown';
 import Minus from '../../components/Layout/Icons/Minus';
 import Plus from '../../components/Layout/Icons/Plus';
 import NumberBox from '../../components/Layout/NumberBox';
+import { Part } from 'tone';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { current } from "immer";
@@ -69,6 +71,7 @@ const Arranger: FunctionComponent = () => {
 	const [schedulerID, setSchedulerID] = useState<number | undefined>(undefined);
 	const triggRef = useContext(triggCtx);
 	const dispatch = useDispatch();
+	// const Tone = useContext(ToneContext);
 
 	const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
 	const activePatternRef = useRef(activePattern);
@@ -214,7 +217,7 @@ const Arranger: FunctionComponent = () => {
 					if (idx > 0 && arr[idx - 1].pattern >= 0) {
 						Tone.Transport.schedule((time) => {
 							[...Array(trackCount).keys()].forEach(track => {
-								const pastInstrumentTriggs: Tone.Part = triggRef.current[arr[idx - 1].pattern][track].instrument;
+								const pastInstrumentTriggs = triggRef.current[arr[idx - 1].pattern][track].instrument;
 								const pastEffectTriggs = triggRef.current[arr[idx - 1].pattern][track].effects
 								for (let i = 0; i < pastEffectTriggs.length; i++) {
 									pastEffectTriggs[i].stop();
@@ -232,7 +235,7 @@ const Arranger: FunctionComponent = () => {
 				// Stopping patterns
 				Tone.Transport.schedule((time) => {
 					[...Array(trackCount).keys()].forEach(track => {
-						const lastTriggInstrument: Tone.Part =
+						const lastTriggInstrument: Part =
 							triggRef.current[events[eventsLength].pattern][track].instrument;
 						const lastTriggFx = triggRef.current[events[eventsLength].pattern][track].effects
 						for (let i = 0; i < lastTriggFx.length; i++) {
@@ -395,7 +398,7 @@ const Arranger: FunctionComponent = () => {
 	// set following scheduler
 	useEffect(() => {
 		let newSchedulerId: number
-		let schedulerPart: Tone.Part;
+		let schedulerPart: Part;
 		if (
 			isFollowing
 			&& !schedulerID

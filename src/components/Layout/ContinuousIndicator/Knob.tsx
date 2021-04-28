@@ -1,15 +1,59 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, FormEvent } from 'react';
 import styles from './knob.module.scss';
 import { indicatorProps } from './index';
+import InputBox from './InputBox';
+import ContextMenu from './ContextMenu';
 
 
-const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indicatorData, className, unit, display, value, setDisplay }) => {
+const Knob: React.FC<indicatorProps> = ({ 
+    captureStart, 
+    label, 
+    wheelMove, 
+    indicatorData, 
+    className, 
+    unit, 
+    onSubmit,
+    onBlur,
+    display, 
+    value, 
+    setDisplay,
+    contextMenu,
+    toggleInput,
+    valueUpdateCallback,
+    menuOptions,
+    onContextMenu,
+    max, 
+    min,
+    input,
+    MenuPosisiton,
+}) => {
     // const Knob: React.FC<indicatorProps> = ({ captureStart, label, indicatorData, className, unit, display, value, setDisplay }) => {
     const c = `${styles.wrapper} ${className}`
     const valueDisplay = value === -Infinity ? '-&infin;' : value;
 
+    const displayComponent = (
+        <div onPointerDown={setDisplay} className={styles.title}>
+            {display ? label : `${value} ${unit}`}
+        </div>
+    )
+
+    const contextMenuComponent = 
+    <ContextMenu
+        MenuPosition={MenuPosisiton}
+        menuOptions={menuOptions}
+    />
+
+    const displayOrInput = 
+        input 
+        ? <InputBox 
+            onBlur={onBlur} 
+            onSubmit={onSubmit}
+            value={value}
+        /> 
+        : displayComponent
+
     return (
-        <div className={c} onWheel={wheelMove}>
+        <div onContextMenu={onContextMenu} className={c} onWheel={wheelMove}>
             {/* <div className={c}> */}
             <svg className={styles.svg} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
                 <defs>
@@ -54,9 +98,11 @@ const Knob: React.FC<indicatorProps> = ({ captureStart, label, wheelMove, indica
                     </g>
                 </g>
             </svg>
-            <div onPointerDown={setDisplay} className={styles.title}>
+            { displayOrInput }
+            { contextMenu ? contextMenuComponent : null}
+            {/* <div onPointerDown={setDisplay} className={styles.title}>
                 {display ? label : `${value} ${unit}`}
-            </div>
+            </div> */}
         </div>
     )
 }

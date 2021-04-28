@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, RefObject, MutableRefObject } from "react";
+import React, { useRef, useEffect, RefObject, MutableRefObject, useState } from "react";
 import { Provider } from "react-redux";
-import { combineReducers, createStore, compose, $CombinedState } from "redux";
+import { combineReducers, createStore, compose } from "redux";
 import undoable, { newHistory, includeAction } from 'redux-undo';
 import Div100vh from 'react-div-100vh';
 
@@ -9,26 +9,33 @@ import { trackActions } from '../../store/Track'
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/triggEmitter';
 import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/toneRefsEmitter';
 import dropdownEmitter, { dropdownEventTypes, ExtractDropdownPayload } from '../../lib/dropdownEmitter';
+import MenuEmitter, { menuEmitterEventTypes, ExtractMenuPayload } from "../../lib/MenuEmitter";
 
 import TriggContext, { triggContext } from '../../context/triggState';
 import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
 import AppContext from '../../context/AppContext';
+import MenuContext from '../../context/MenuContext';
+import ToneContext from '../../context/ToneContext';
+import InputContext from '../../context/InputContext';
 // import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/myCustomToneRefsEmitter';
 
-// import Tone from '../../lib/tone'
-import * as Tone from 'tone';
+import Tone from '../../lib/tone'
+// import * as Tone from 'tone';
 
 import { arrangerActions } from '../../store/Arranger'
 import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
-import { trackReducer, initialState as TrkInit, toneEffects } from "../../store/Track";
+import { trackReducer, initialState as TrkInit, toneEffects, xolombrisxInstruments } from "../../store/Track";
 import { sequencerReducer, initialState as SeqInit, sequencerActions } from "../../store/Sequencer";
 import { transportReducer, initialState as TrsState, transportActions } from "../../store/Transport";
 import { midiInputReducer, initialState as MidiState } from '../../store/MidiInput';
 import { timeObjFromEvent } from "../../lib/utility";
+import { onlyValues } from '../../lib/objectDecompose';
+import DrumRackInstrument from '../../lib/DrumRack';
 import { userProps } from '../../App';
 import styles from './xolombrisx.module.scss'
 import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
+import { initialsArray } from '../../containers/Track/Instruments/'
 import Playground from '../../components/Layout/Playground';
 import Arranger from "../Arranger";
 
@@ -44,6 +51,29 @@ const sequencerHistory = newHistory([], SeqInit, [])
 const trackHistory = newHistory([], TrkInit, [])
 const transportHistory = newHistory([], TrsState, [])
 
+export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
+    let options = onlyValues(opt);
+
+    switch (voice) {
+        case xolombrisxInstruments.AMSYNTH:
+            return new Tone.PolySynth(Tone.AMSynth, options);
+        case xolombrisxInstruments.FMSYNTH:
+            return new Tone.PolySynth(Tone.FMSynth, options);
+        case xolombrisxInstruments.MEMBRANESYNTH:
+            return new Tone.PolySynth(Tone.MembraneSynth, options);
+        case xolombrisxInstruments.METALSYNTH:
+            return new Tone.PolySynth(Tone.MetalSynth, options);
+        case xolombrisxInstruments.NOISESYNTH:
+            return new Tone.NoiseSynth(options);
+        case xolombrisxInstruments.PLUCKSYNTH:
+            return new Tone.PluckSynth(options);
+        case xolombrisxInstruments.DRUMRACK:
+            // return new DrumRackInstrument(opt)
+            return new DrumRackInstrument(options)
+        default:
+            return new Tone.Sampler();
+    }
+}
 
 export const rootReducer = combineReducers({
     arranger: undoable(arrangerReducer, {
@@ -109,7 +139,10 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     updateUser
 }) => {
 
+    // const context = useRef(new Tone.Context({ latencyHint: 'balanced', lookAhead: 0.5 }))
     const appRef = useRef<HTMLDivElement>(null);
+    const context = useRef<Tone.Context | null>(null)
+    const [firstRender, setRender] = useState(true);
 
     let triggRef = useRef<triggContext>({
         0: [{
@@ -125,6 +158,35 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             instrument: undefined,
         }
     });
+
+    let menuRef = useRef<any[]>([]);
+    let inputsRef = useRef<any[]>([]);
+
+    // let triggRef = useRef<triggContext>({})
+    // let toneObjRef = useRef<toneRefs>({});
+
+    useEffect(() => {
+        // if (firstRender) {
+        //     triggRef.current = {
+        //         0: [{
+        //             instrument: new Tone.Part(),
+        //             effects: [new Tone.Part()]
+        //         }]
+        //     }
+        //     toneObjRef.current = {
+        //         0: {
+        //             effects: [],
+        //             chain: new Chain(),
+        //             instrument: undefined,
+        //         }
+        //     };
+        //     context.current = new Tone.Context({ latencyHint: 'balanced', lookAhead: 0.5 })
+        //     Tone.setContext(context.current)
+        //     setRender(false);
+        // }
+            context.current = new Tone.Context({ latencyHint: 'balanced', lookAhead: 0.5 })
+            Tone.setContext(context.current)
+    }, [])
 
     let dropdownContextRef = useRef<dropDownContext>({})
 
@@ -433,6 +495,28 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         delete dropdownContextRef.current[payload.id];
     }
 
+    const openMenu = (payload: ExtractMenuPayload<menuEmitterEventTypes.OPEN>): void => {
+        menuRef.current = [payload.id, payload.close]
+    }
+
+    const closeMenu = (payload: ExtractMenuPayload<menuEmitterEventTypes.CLOSE>): void => {
+        if (menuRef.current.length > 0){
+            menuRef.current[1]((state: any) => !state)
+            menuRef.current = []
+        }
+    }
+
+    function onClick(this: HTMLDocument, e: MouseEvent) {
+        closeMenu({})
+    }
+
+    useEffect(() => {
+        document.addEventListener('click', onClick)
+        return () => {
+            document.removeEventListener('click', onClick)
+        }
+    }, [])
+
     useEffect(() => {
         // console.log('setting event emitter');
         triggEmitter.on(triggEventTypes.ADD_PATTERN, addPattern);
@@ -454,6 +538,10 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         dropdownEmitter.on(dropdownEventTypes.ESCAPE, escapeDropdown)
         dropdownEmitter.on(dropdownEventTypes.OPEN, openDropdown)
         dropdownEmitter.on(dropdownEventTypes.REMOVE, removeDropdown)
+
+        MenuEmitter.on(menuEmitterEventTypes.OPEN, openMenu)
+        MenuEmitter.on(menuEmitterEventTypes.CLOSE, closeMenu)
+
         return () => {
             triggEmitter.off(triggEventTypes.ADD_PATTERN, addPattern);
             triggEmitter.off(triggEventTypes.REMOVE_PATTERN, removePattern);
@@ -475,56 +563,66 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             dropdownEmitter.off(dropdownEventTypes.ESCAPE, escapeDropdown)
             dropdownEmitter.off(dropdownEventTypes.OPEN, openDropdown)
             dropdownEmitter.off(dropdownEventTypes.REMOVE, removeDropdown)
+
+            MenuEmitter.off(menuEmitterEventTypes.OPEN, openMenu)
+            MenuEmitter.off(menuEmitterEventTypes.CLOSE, closeMenu)
+
         }
     }, [])
 
     return (
         <React.Fragment>
-            <DropdownContext.Provider value={dropdownContextRef}>
-                <AppContext.Provider value={appRef}>
-                    <toneRefsContext.Provider value={toneObjRef}>
-                        <TriggContext.Provider value={triggRef}>
-                            <Provider store={store}>
-                                <Div100vh className={styles.app}>
-                                    <div ref={appRef} className={styles.wrapson}>
-                                        <div className={styles.content}>
-                                            <div className={styles.top}>
-                                                <div className={styles.transport}></div>
-                                            </div>
-                                            <div className={styles.mid}>
-                                                <div className={styles.arrangerColumn}>
-                                                    <div className={styles.box}>
-                                                        <Arranger />
+            <InputContext.Provider value={inputsRef}>
+                <MenuContext.Provider value={menuRef}>
+                    {/* <ToneContext.Provider value={Tone}> */}
+                    <DropdownContext.Provider value={dropdownContextRef}>
+                        <AppContext.Provider value={appRef}>
+                            <toneRefsContext.Provider value={toneObjRef}>
+                                <TriggContext.Provider value={triggRef}>
+                                    <Provider store={store}>
+                                        <Div100vh className={styles.app}>
+                                            <div ref={appRef} className={styles.wrapson}>
+                                                <div className={styles.content}>
+                                                    <div className={styles.top}>
+                                                        <div className={styles.transport}></div>
                                                     </div>
-                                                </div>
-                                                <Track></Track>
-                                            </div>
-                                            <Sequencer></Sequencer>
-                                            {/* <div className={styles.bottom}>
-                                                <div className={styles.arrangerColumn}>
-                                                    <div className={styles.patterns}></div>
-                                                </div>
-                                                <div className={styles.sequencerColumn}>
-                                                    <div className={styles.box}>
-                                                        <div className={styles.stepSequencer}></div>
-                                                        <Playground></Playground>
+                                                    <div className={styles.mid}>
+                                                        <div className={styles.arrangerColumn}>
+                                                            <div className={styles.box}>
+                                                                <Arranger />
+                                                            </div>
+                                                        </div>
+                                                        <Track></Track>
                                                     </div>
+                                                    <Sequencer></Sequencer>
+                                                    {/* <div className={styles.bottom}>
+                                                            <div className={styles.arrangerColumn}>
+                                                                <div className={styles.patterns}></div>
+                                                            </div>
+                                                            <div className={styles.sequencerColumn}>
+                                                                <div className={styles.box}>
+                                                                    <div className={styles.stepSequencer}></div>
+                                                                    <Playground></Playground>
+                                                                </div>
+                                                            </div>
+                                                        </div> */}
                                                 </div>
-                                            </div> */}
-                                        </div>
-                                    </div>
-                                    {/* <Arranger></Arranger>
-                                                                <Transport></Transport> */}
-                                    {/* <Dummy></Dummy> */}
-                                    {/* <Track></Track>
-                                                                <Sequencer></Sequencer> */}
-                                    {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
-                                </Div100vh>
-                            </Provider>
-                        </TriggContext.Provider>
-                    </toneRefsContext.Provider>
-                </AppContext.Provider>
-            </DropdownContext.Provider>
+                                            </div>
+                                            {/* <Arranger></Arranger>
+                                                                            <Transport></Transport> */}
+                                            {/* <Dummy></Dummy> */}
+                                            {/* <Track></Track>
+                                                                            <Sequencer></Sequencer> */}
+                                            {/* <Instruments id={0} index={0} midi={{ channel: undefined, device: undefined }} voice={instrumentTypes.FMSYNTH} options={getInitials(instrumentTypes.FMSYNTH)}></Instruments> */}
+                                        </Div100vh>
+                                    </Provider>
+                                </TriggContext.Provider>
+                            </toneRefsContext.Provider>
+                        </AppContext.Provider>
+                    </DropdownContext.Provider>
+                    {/* </ToneContext.Provider> */}
+                </MenuContext.Provider>
+            </InputContext.Provider>
         </React.Fragment >
     );
 }
