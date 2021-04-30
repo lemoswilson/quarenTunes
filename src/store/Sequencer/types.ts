@@ -19,6 +19,7 @@ export enum sequencerActions {
 	CHANGE_TRACK_LENGTH = "CHANGE_TRACK_LENGTH",
 	INC_DEC_TRACK_LENGTH = "INC_DEC_TRACK_LENGTH",
 	INC_DEC_VELOCITY = "INC_DEC_VELOCITY",
+	INC_DEC_PT_VELOCITY = "INC_DEC_PT_VELOCITY",
 	INC_DEC_OFFSET = "INC_DEC_OFFSET",
 	SET_NOTE_LENGTH = "SET_NOTE_LENGTH",
 	DELETE_EVENTS = "DELTE_EVENTS",
@@ -44,7 +45,8 @@ export enum sequencerActions {
 	PARAMETER_LOCK_INC_DEC = "PARAMETER_LOCK_INC_DEC",
 	PARAMETER_LOCK_INC_DEC_EFFECT = "PARAMETER_LOCK_INC_DEC_EFFECT",
 	CHANGE_EFFECT_SEQ = "CHANGE_EFFECT",
-	CHANGE_INSTRUMENT_SEQ = "CHANGE_INSTRUMENT_SEQ"
+	CHANGE_INSTRUMENT_SEQ = "CHANGE_INSTRUMENT_SEQ",
+	CYCLE_STEPS = "CYCLE_STEPS"
 };
 
 // export type fxOptions = effectsInitials;
@@ -86,6 +88,16 @@ export interface Sequencer {
 	quantizeRecording: boolean;
 };
 
+export interface cycleStepsAction {
+	type: sequencerActions.CYCLE_STEPS,
+	payload: {
+		direction: number,
+		pattern: number,
+		trackIndex: number, 
+		interval: number[],
+	}
+}
+
 export interface changeEffectSeqAction {
 	type: sequencerActions.CHANGE_EFFECT_SEQ,
 	payload: {
@@ -109,12 +121,21 @@ export interface renamePatternAction {
 	}
 }
 
-export interface increaseDecreaseVelocityAction {
+export interface increaseDecreaseStepVelocityAction {
 	type: sequencerActions.INC_DEC_VELOCITY,
 	payload: {
 		pattern: number,
 		trackIndex: number,
 		step: number,
+		amount: number,
+	}
+}
+
+export interface increaseDecreasePatTrackVelocityAction {
+	type: sequencerActions.INC_DEC_PT_VELOCITY,
+	payload: {
+		pattern: number,
+		trackIndex: number,
 		amount: number,
 	}
 }
@@ -456,10 +477,12 @@ export type sequencerActionTypes =
 	| increaseDecreaeseTrackLengthAction
 	| increaseDecreaesePatternLengthAction
 	| increaseDecreaseOffsetAction
-	| increaseDecreaseVelocityAction
+	| increaseDecreaseStepVelocityAction
 	| renamePatternAction
 	| changeEffectSeqAction
 	| changeInstrumentSeqAction
 	| parameterLockEffectIncreaseDecreaseAction
+	| increaseDecreasePatTrackVelocityAction
+	| cycleStepsAction
 	| parameterLockIncreaseDecreaseAction
 	| removeInstrumentFromSequencerAction;

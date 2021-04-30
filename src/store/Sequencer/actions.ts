@@ -29,7 +29,24 @@ export function renamePattern(pattern: number, name: string): sequencerActionTyp
 	}
 }
 
-export function incDecVelocity(
+export function cycleSteps(
+	direction: number,
+	pattern: number, 
+	track: number,
+	interval: number[]
+) {
+	return {
+		type: sequencerActions.CYCLE_STEPS,
+		payload: {
+			direction: direction,
+			pattern: pattern,
+			track: track, 
+			interval: interval,
+		}
+	}
+}
+
+export function incDecStepVelocity(
 	amount: number,
 	pattern: number,
 	trackIndex: number,
@@ -42,6 +59,21 @@ export function incDecVelocity(
 			pattern: pattern,
 			step: step,
 			trackIndex: trackIndex,
+		}
+	}
+}
+
+export function incDecPTVelocity(
+	amount: number,
+	pattern: number,
+	trackIndex: number,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.INC_DEC_PT_VELOCITY,
+		payload: {
+			pattern: pattern,
+			trackIndex: trackIndex,
+			amount: amount,
 		}
 	}
 }

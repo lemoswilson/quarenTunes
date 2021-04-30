@@ -29,11 +29,12 @@ export function valueFromMouse(
     min: number,
     max: number,
     curveType: curveTypes,
-    extra?: 'volume' | 'detune' | 'PAD_0.volume',
+    // extra?: 'volume' | 'detune' | 'PAD_0.volume',
+    extra?: string,
 ): number {
     let r;
-    if (extra === 'volume' || extra === 'PAD_0.volume') {
-        // console.log('extra is volume');
+    if (extra?.includes('volume')) {
+
         if (prevValue === -Infinity) {
             if (mouseMovement >= 0) {
                 return prevValue

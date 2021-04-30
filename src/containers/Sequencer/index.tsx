@@ -33,15 +33,17 @@ import {
     toggleRecordingQuantization,
     changePatternName,
 } from '../../store/Sequencer';
-import { incDecOffset, incDecPatLength, incDecTrackLength, incDecVelocity, renamePattern, setPatternTrackVelocity } from '../../store/Sequencer/actions';
+import { incDecOffset, incDecPatLength, incDecTrackLength, incDecStepVelocity, renamePattern, setPatternTrackVelocity, incDecPTVelocity, cycleSteps } from '../../store/Sequencer/actions';
 import { noteOff, noteOn, upOctaveKey, downOctaveKey, keyDict, noteDict, numberNoteDict } from '../../store/MidiInput';
 
 import triggCtx from '../../context/triggState';
 
-import { timeObjFromEvent } from '../../lib/utility';
+import { bisect, startEndRange, timeObjFromEvent } from '../../lib/utility';
 // import Tone from '../../lib/tone';
 // import * as Tone from 'tone';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
+import MenuEmitter, { menuEmitterEventTypes } from '../../lib/MenuEmitter';
+import DropdownEmitter, { dropdownEventTypes } from '../../lib/dropdownEmitter';
 
 import StepSequencer from '../../components/StepSequencer';
 import Patterns from '../../components/Patterns/Patterns';
@@ -56,6 +58,8 @@ import { xolombrisxInstruments } from '../../store/Track';
 
 import toneRefsContext from '../../context/toneRefsContext';
 import ToneContext from '../../context/ToneContext';
+import menuContext from '../../context/MenuContext';
+import dropdownContext from '../../context/DropdownContext';
 
 const Sequencer: FunctionComponent = () => {
     const triggRef = useContext(triggCtx);
@@ -63,6 +67,7 @@ const Sequencer: FunctionComponent = () => {
     const dispatch = useDispatch()
     const newPatternRef = useRef(false);
     const Tone = useContext(ToneContext);
+    const [isNote, setIsNote] = useState(false)
 
     const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
     const sequencer = useSelector((state: RootState) => state.sequencer.present);
@@ -72,6 +77,8 @@ const Sequencer: FunctionComponent = () => {
     const isFollowing = useSelector((state: RootState) => state.arranger.present.following);
     const trackCount = useSelector((state: RootState) => state.track.present.trackCount)
     const patternAmount = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).length)
+    const MenuContext = useContext(menuContext);
+    const DropdownContext = useContext(dropdownContext);
 
     const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
     const activePatternRef = useRef(activePattern);
@@ -268,6 +275,28 @@ const Sequencer: FunctionComponent = () => {
         );
     }, [dispatch, activePattern, selectedTrack]);
 
+    const pageClickHandler = useCallback((e: MouseEvent, pageIndex: number): void => {
+        if (e.shiftKey) {
+            console.log('should be mimicking and dispatching select steps')
+            mimicSelectedFromTo(activePageRef.current, pageIndex)
+        } else {
+            dispatchChangePage(pageIndex)
+        }
+    }, [dispatchChangePage, activePageRef])
+
+    const mimicSelectedFromTo = (from: number, to: number) => {
+        if (from === to) return;
+
+        const v: number[] = []
+        const r = [from * 16, from * 16 + 15]
+        selectedRef.current.forEach(i => {
+            if (i >= r[0] && i <= r[1]) v.push(i - 16*from);
+        })
+        v.forEach(value => {
+            dispatch(selectStep(activePatternRef.current, selectedTrackRef.current, to*16 + value))
+        })
+    }
+
     const dispatchSetOffset = (direction: number): void => {
         selectedRef.current.forEach(step => {
             let offset = activePatternObj.tracks[selectedTrack].events[step].offset;
@@ -384,11 +413,11 @@ const Sequencer: FunctionComponent = () => {
         );
     };
 
-    const dispatchIncDecVelocity = (amount: number): void => {
-        if (selected.length > 0) {
+    const dispatchIncDecStepVelocity = (amount: number): void => {
+        // if (selected.length > 0) {
             selected.forEach(step => {
                 dispatch(
-                    incDecVelocity(
+                    incDecStepVelocity(
                         amount, 
                         activePattern, 
                         selectedTrack, 
@@ -396,11 +425,20 @@ const Sequencer: FunctionComponent = () => {
                     )
                 )
             })
-        } else {
-            dispatch(
-                incDecVelocity(amount, activePattern, selectedTrack, -1)
-            )
-        }
+        // }
+        // } else {
+        //     dispatch(
+        //         incDecVelocity(amount, activePattern, selectedTrack, -1)
+        //     )
+        // }
+    }
+
+    const dispatchIncDecPTVelocity = (amount: number): void => {
+        dispatch(incDecPTVelocity(
+            amount,
+            activePattern,
+            selectedTrack,
+        )) 
     }
 
     const dispatchIncDecOffset = (amount: number): void => {
@@ -443,7 +481,7 @@ const Sequencer: FunctionComponent = () => {
         // colocar o condicional pra ver se não tem foco em um input box
         // passar todas as input refs pra um context
         // e checar com hasFocus?
-        if (Object.keys(keyDict).includes(char)) {
+        if (!e.shiftKey && Object.keys(keyDict).includes(char)) {
             console.log('dictionary includes key')
             if (e.repeat) { return }
             let n: number = keyDict[char]
@@ -459,10 +497,35 @@ const Sequencer: FunctionComponent = () => {
             dispatchDeleteEvents();
         } else if (keyFunctions[char]) {
             keyFunctions[char]()
-        } else if (numberNoteDict[noteDict[char]]) {
+        } else if (!e.shiftKey && numberNoteDict[noteDict[char]]) {
             const noteName = numberNoteDict[noteDict[char]] + String(keyboardRangeRef.current)
             console.log('notename', noteName);
-        }
+        } else if (!e.shiftKey && char === '`') {
+            setIsNote(state => !state)
+        } else if (!e.shiftKey && char === 'escape') {
+            if (MenuContext.current.length > 0) {
+                MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
+            } else if (Object.keys(DropdownContext.current).length > 0) {
+                DropdownEmitter.emit(dropdownEventTypes.ESCAPE, {})
+            } else if (selectedRef.current.length > 0) {
+                dispatch(selectStep(activePatternRef.current, selectedTrackRef.current, -1))
+            }
+        } 
+        // else if (e.shiftKey && char === 'c') {
+        //     dispatch(cycleSteps(
+        //         -1, 
+        //         activePatternRef.current,
+        //         selectedTrackRef.current,
+        //         e.ctrlKey ? [activePageRef.current*16, finalStep()] : [0, trackLengthRef.current - 1] 
+        //         ))
+        // } else if (e.shiftKey && char === 'v') {
+        //     dispatch(cycleSteps(
+        //         1, 
+        //         activePatternRef.current,
+        //         selectedTrackRef.current,
+        //         e.ctrlKey ? [activePageRef.current*16, finalStep()] : [0, trackLengthRef.current - 1] 
+        //     ))
+        // }
     };
 
     function keyup(e: KeyboardEvent): void {
@@ -503,6 +566,22 @@ const Sequencer: FunctionComponent = () => {
         }
     }
 
+    // const finalStep = () => {
+    //     if ((activePageRef.current === 0 && trackLengthRef.current <= 16)
+    //         || (activePageRef.current === 1 && trackLengthRef.current <= 32)
+    //         || (activePageRef.current === 2 && trackLengthRef.current <= 48)
+    //         || (activePageRef.current === 3 && trackLengthRef.current <= 64)
+    //     ) {
+    //         return trackLengthRef.current - 1
+    //     } else if (activePageRef.current === 1 && trackLengthRef.current > 32) {
+    //         return 31
+    //     } else if (activePageRef.current === 2 && trackLengthRef.current > 48) {
+    //         return 47
+    //     } else {
+    //         return 15
+    //     }
+    // };
+
     const lookup = (key: string) => {
         if (patterns[Number(key)]) return patterns[Number(key)].name;
         else return ''
@@ -528,7 +607,12 @@ const Sequencer: FunctionComponent = () => {
                     <Patterns
                         renamePattern={dispatchRenamePattern}
                         incDecOffset={dispatchIncDecOffset}
-                        incDecVelocity={dispatchIncDecVelocity}
+                        note={isNote}
+                        // incDecVelocity={dispatchIncDecStepVelocity}
+                        incDecVelocity={{
+                            patternTrack: dispatchIncDecPTVelocity,
+                            step: dispatchIncDecStepVelocity,
+                        }}
                         incDecPatLength={dispatchIncDecPatLength}
                         incDecTrackLength={dispatchIncDecTrackLength}
                         activePattern={activePattern}
@@ -553,8 +637,10 @@ const Sequencer: FunctionComponent = () => {
                     <div className={styles.border}>
                         <div className={styles.stepSequencer}>
                             <StepSequencer
+                                // finalStep={finalStep}
                                 selectStep={dispatchSelectStep}
-                                changePage={dispatchChangePage}
+                                // changePage={dispatchChangePage}
+                                changePage={pageClickHandler}
                                 activePattern={activePattern}
                                 events={events}
                                 length={trackLength}

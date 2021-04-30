@@ -175,9 +175,7 @@ export function trackReducer(
 							instrumentRangeOrOption[1][0],
 							instrumentRangeOrOption[1][1],
 							instrumentRangeOrOption[4],
-							property === 'volume' || property === 'detune' || property === 'PAD_0.volume'
-								? property
-								: undefined
+							property
 						);
 					if (val === -Infinity) {
 						setNestedArray(draft.tracks[trackIndex].options, property, -Infinity)

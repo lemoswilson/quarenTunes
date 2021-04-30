@@ -17,6 +17,7 @@ import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
 import ToneContext from '../../context/ToneContext';
 import InputContext from '../../context/InputContext';
+import DropdownContext, { dropDownContext } from '../../context/DropdownContext';
 // import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/myCustomToneRefsEmitter';
 
 import Tone from '../../lib/tone'
@@ -125,11 +126,11 @@ interface XolombrisxProps extends userProps {
     children?: React.ReactNode,
 }
 
-interface dropDownContext {
-    [key: string]: () => void
-}
+// interface dropDownContext {
+//     [key: string]: () => void
+// }
 
-const DropdownContext = React.createContext<any>({})
+// export const DropdownContext = React.createContext<any>({})
 
 const Xolombrisx: React.FC<XolombrisxProps> = ({
     children,

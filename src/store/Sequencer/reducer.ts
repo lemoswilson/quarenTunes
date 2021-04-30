@@ -7,7 +7,17 @@ import {
 import { propertiesToArray, getNested, setNestedValue } from "../../lib/objectDecompose";
 import { eventOptions } from "../../containers/Track/Instruments";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from "../../lib/curves";
+import { startEndRange } from "../../lib/utility";
 
+const initialTrack = {
+	events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
+	// events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
+	length: 16,
+	noteLength: "16n",
+	page: 0,
+	selected: [],
+	velocity: 60
+}
 export const initialState: Sequencer = {
 	activePattern: 0,
 	counter: 1,
@@ -18,15 +28,16 @@ export const initialState: Sequencer = {
 			name: "pattern 1",
 			patternLength: 16,
 			tracks: [
-				{
-					events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
-					// events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
-					length: 16,
-					noteLength: "16n",
-					page: 0,
-					selected: [],
-					velocity: 60
-				},
+				// {
+				// 	events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
+				// 	// events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
+				// 	length: 16,
+				// 	noteLength: "16n",
+				// 	page: 0,
+				// 	selected: [],
+				// 	velocity: 60
+				// },
+				initialTrack
 			],
 		},
 	},
@@ -51,6 +62,8 @@ export function sequencerReducer(
 			data: any,
 			note: string[] | string,
 			offset: number,
+			direction: number,
+			interval: number[],
 			name: string,
 			amount: number,
 			velocity: number,
@@ -69,15 +82,16 @@ export function sequencerReducer(
 				let trackNumber: number = draft.patterns[0].tracks.length;
 				Object.keys(draft.patterns).forEach(
 					(v) =>
-					(draft.patterns[parseInt(v)].tracks[trackNumber] = {
-						length: 16,
-						events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
-						// eventsFx: Array(16).fill({}),
-						noteLength: "16n",
-						velocity: 60,
-						page: 0,
-						selected: [],
-					})
+					(draft.patterns[parseInt(v)].tracks[trackNumber] = initialTrack)
+					// {
+					// 	length: 16,
+					// 	events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
+					// 	// eventsFx: Array(16).fill({}),
+					// 	noteLength: "16n",
+					// 	velocity: 60,
+					// 	page: 0,
+					// 	selected: [],
+					// })
 				);
 				break;
 			case sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER:
@@ -175,9 +189,23 @@ export function sequencerReducer(
 							? totalVelocity + amount
 							: amount > 0 && totalVelocity === 127
 								? 127
-								: -10
+								: 0
 				}
 				break
+			case sequencerActions.INC_DEC_PT_VELOCITY:
+				[trackIndex, pattern, amount] = [
+					action.payload.trackIndex,
+					action.payload.pattern,
+					action.payload.amount,
+				]
+				const totalVelocity = Number(draft.patterns[pattern].tracks[trackIndex].velocity)
+				draft.patterns[pattern].tracks[trackIndex].velocity =
+					(amount > 0 && totalVelocity < 127) || (amount < 0 && totalVelocity > 0)
+						? totalVelocity + amount
+						: amount > 0 && totalVelocity === 127
+							? 127
+							: 0
+				break;
 			case sequencerActions.INC_DEC_PAT_LENGTH:
 				[amount, pattern] = [
 					action.payload.amount,
@@ -262,13 +290,31 @@ export function sequencerReducer(
 					action.payload.trackIndex,
 					action.payload.step,
 				];
-				if (draft.patterns[pattern].tracks[trackIndex].selected.includes(step)) {
-					const ind: number = draft.patterns[pattern].tracks[trackIndex].selected.indexOf(
+				if (step < 0){
+					draft.patterns[pattern].tracks[trackIndex].selected.length = 0
+					break;
+				} else if (step >= draft.patterns[pattern].tracks[trackIndex].length) {
+					break
+				}
+				const sel = draft.patterns[pattern].tracks[trackIndex].selected
+				if (sel.includes(step)) {
+					const ind: number = sel.indexOf(
 						step
 					);
 					draft.patterns[pattern].tracks[trackIndex].selected.splice(ind, 1);
 				} else {
-					draft.patterns[pattern].tracks[trackIndex].selected.push(step);
+					let i = 0
+					for (i; i < sel.length ; i++) {
+						if (sel[i] >= step) { break }	
+					}
+					if (i == 0) 
+						draft.patterns[pattern].tracks[trackIndex].selected.unshift(step)
+					else if (i == sel.length)
+						draft.patterns[pattern].tracks[trackIndex].selected.push(step)
+					else 
+						draft.patterns[pattern].tracks[trackIndex].selected.splice(i, 0, step)
+
+					// draft.patterns[pattern].tracks[trackIndex].selected.push(step);
 				}
 				break;
 			case sequencerActions.SET_NOTE:
@@ -546,6 +592,23 @@ export function sequencerReducer(
 						}
 					}
 				})
+				break;
+			case sequencerActions.CYCLE_STEPS:
+				[pattern, trackIndex, direction, interval] = [
+					action.payload.pattern,
+					action.payload.trackIndex,
+					action.payload.direction,
+					action.payload.interval
+				]
+				if (direction > 0){
+					const c = draft.patterns[pattern].tracks[trackIndex].events.pop()
+					if (c)
+						draft.patterns[pattern].tracks[trackIndex].events.unshift(c)
+				} else {
+					const c = draft.patterns[pattern].tracks[trackIndex].events.shift()
+					if (c)
+						draft.patterns[pattern].tracks[trackIndex].events.push(c)
+				}
 				break;
 		}
 	});

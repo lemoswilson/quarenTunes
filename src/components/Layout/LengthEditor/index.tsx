@@ -10,6 +10,7 @@ interface LegnthEditorProps {
     onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
     className?: string;
     length: number | string;
+    disabled: boolean,
 }
 
 const LengthEditor: React.FC<LegnthEditorProps> = ({
@@ -18,7 +19,9 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
     label,
     onSubmit,
     className,
-    length
+    length,
+    disabled,
+    children,
 }) => {
 
     const onBlur = (event: React.FocusEvent<HTMLFormElement>) => {
@@ -45,7 +48,7 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
             <div className={styles.display}>
                 <div className={styles.box}>
                     <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                        <input ref={inputRef} type={"text"} defaultValue={length} placeholder={String(length)} />
+                        <input ref={inputRef} disabled={disabled} type={"text"} defaultValue={length} placeholder={String(length)} />
                     </form>
                 </div>
             </div>
