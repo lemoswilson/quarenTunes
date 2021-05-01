@@ -1,23 +1,7 @@
-import { sequencerActions, sequencerActionTypes } from "./types";
+import { sequencerActions, sequencerActionTypes, event } from "./types";
+import { eventOptions, RecursivePartial } from '../../containers/Track/Instruments';
+import { generalEffectOptions } from "../Track";
 
-export function changeInstrumentSeq(trackIndex: number): sequencerActionTypes {
-	return {
-		type: sequencerActions.CHANGE_INSTRUMENT_SEQ,
-		payload: {
-			trackIndex: trackIndex,
-		}
-	}
-};
-
-export function changeEffectSeq(trackIndex: number, fxIndex: number): sequencerActionTypes {
-	return {
-		type: sequencerActions.CHANGE_EFFECT_SEQ,
-		payload: {
-			trackIndex: trackIndex,
-			fxIndex: fxIndex
-		}
-	}
-};
 
 export function renamePattern(pattern: number, name: string): sequencerActionTypes {
 	return {
@@ -29,18 +13,49 @@ export function renamePattern(pattern: number, name: string): sequencerActionTyp
 	}
 }
 
+export function deleteLocks(
+	pattern: number,
+	trackIndex: number,
+	step: number,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.DELETE_LOCKS,
+		payload: {
+			pattern: pattern,
+			trackIndex: trackIndex,
+			step: step,
+		}
+	}	
+}
+
+export function deleteNotes(
+	pattern: number,
+	trackIndex: number,
+	step: number,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.DELETE_NOTES,
+		payload: {
+			pattern: pattern,
+			trackIndex: trackIndex,
+			step: step,
+		}
+	}	
+}
+
+
 export function cycleSteps(
 	direction: number,
 	pattern: number, 
-	track: number,
+	trackIndex: number,
 	interval: number[]
-) {
+): sequencerActionTypes {
 	return {
 		type: sequencerActions.CYCLE_STEPS,
 		payload: {
 			direction: direction,
 			pattern: pattern,
-			track: track, 
+			trackIndex: trackIndex, 
 			interval: interval,
 		}
 	}
@@ -249,15 +264,54 @@ export function removeEffectSequencer(index: number, trackIndex: number): sequen
 	}
 };
 
-export function changeEffectIndexSequencer(index: number, trackIndex: number): sequencerActionTypes {
+export function changeEffectIndexSequencer(
+	fxIndex: number, 
+	trackIndex: number
+): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_EFFECT_SEQUENCER,
 		payload: {
-			fxIndex: index,
+			fxIndex: fxIndex,
 			trackIndex: trackIndex,
 		}
 	}
 };
+
+export function removePropertyLock(
+	trackIndex: number,
+	pattern: number, 
+	step: number,
+	property: string,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.REMOVE_PROPERTY_LOCK,
+		payload: {
+			pattern: pattern,
+			property: property,
+			step: step,
+			trackIndex: trackIndex,
+		}
+	}
+};
+
+export function removeEffectPropertyLock(
+	trackIndex: number,
+	pattern: number, 
+	step: number,
+	property: string,
+	fxIndex: number,
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.REMOVE_EFFECT_PROPERTY_LOCK,
+		payload: {
+			pattern: pattern,
+			property: property,
+			step: step,
+			trackIndex: trackIndex,
+			fxIndex: fxIndex,
+		}
+	}
+}
 
 export function parameterLockEffect(pattern: number, trackIndex: number, step: number, fxIndex: number, data: any): sequencerActionTypes {
 	return {
@@ -324,6 +378,37 @@ export function setNoteLength(
 		},
 	};
 }
+
+export function copyNotes(
+	pattern: number,
+	trackIndex: number,
+	events?: event[]
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.COPY_NOTES,
+		payload: {
+			events: events,
+			trackIndex: trackIndex,
+			pattern: pattern,
+		}
+	}
+}
+
+export function copyEvents(
+	pattern: number,
+	trackIndex: number,
+	events?: any[]
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.COPY_EVENTS,
+		payload: {
+			events: events,
+			trackIndex: trackIndex,
+			pattern: pattern,
+		}
+	}
+}
+
 
 export function deleteEvents(
 	pattern: number,

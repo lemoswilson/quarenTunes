@@ -32,6 +32,11 @@ import {
     toggleOverride,
     toggleRecordingQuantization,
     changePatternName,
+    deleteNotes, 
+    deleteLocks,
+    copyEvents,
+    copyNotes,
+    event,
 } from '../../store/Sequencer';
 import { incDecOffset, incDecPatLength, incDecTrackLength, incDecStepVelocity, renamePattern, setPatternTrackVelocity, incDecPTVelocity, cycleSteps } from '../../store/Sequencer/actions';
 import { noteOff, noteOn, upOctaveKey, downOctaveKey, keyDict, noteDict, numberNoteDict } from '../../store/MidiInput';
@@ -61,6 +66,11 @@ import ToneContext from '../../context/ToneContext';
 import menuContext from '../../context/MenuContext';
 import dropdownContext from '../../context/DropdownContext';
 
+interface copySteps {
+    steps: event[], 
+    instrument?: xolombrisxInstruments
+}
+
 const Sequencer: FunctionComponent = () => {
     const triggRef = useContext(triggCtx);
     const toneRefs = useContext(toneRefsContext);
@@ -68,6 +78,25 @@ const Sequencer: FunctionComponent = () => {
     const newPatternRef = useRef(false);
     const Tone = useContext(ToneContext);
     const [isNote, setIsNote] = useState(false)
+
+    const copiedStepsRef = useRef<copySteps | null>(null)
+
+    useEffect(() => {
+        copiedStepsRef.current = {
+            steps: [],
+            instrument: undefined,
+        }
+    }, [])
+
+    function copySteps(newSteps: copySteps) {
+        copiedStepsRef.current = newSteps
+    }
+
+
+    // const [copiedSteps, copySteps] = useState<{steps: event[], instrument?: xolombrisxInstruments}>({
+    //     steps: [],
+    //     instrument: undefined,
+    // })
 
     const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
     const sequencer = useSelector((state: RootState) => state.sequencer.present);
@@ -91,9 +120,14 @@ const Sequencer: FunctionComponent = () => {
         selectedTrackRef.current = selectedTrack
     }, [selectedTrack])
 
+    const selectedInstrument = useSelector((state: RootState) => state.track.present.tracks[selectedTrack].instrument)
+    const selectedInstrumentRef = useRef(selectedInstrument)
+    useEffect(() => {
+        selectedInstrumentRef.current = selectedInstrument
+    }, [selectedInstrument])
+
     const selected = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].selected);
     const selectedRef = useRef(selected);
-    const selectedInstrument = useSelector((state: RootState) => state.track.present.tracks[selectedTrack].instrument)
     useEffect(() => { selectedRef.current = selected }, [selected])
 
     // const selLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].noteLength);
@@ -122,6 +156,12 @@ const Sequencer: FunctionComponent = () => {
     }, [trackLength])
 
     const events = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[selectedTrack].events);
+    const eventsRef = useRef(events);
+
+    useEffect(() => {
+        eventsRef.current = events;
+    }, [events])
+
     const activePatternObj = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern])
     const selectedDevice = useSelector((state: RootState) => {
         if (state.track.present.tracks[selectedTrack].midi.device
@@ -300,8 +340,6 @@ const Sequencer: FunctionComponent = () => {
     const dispatchSetOffset = (direction: number): void => {
         selectedRef.current.forEach(step => {
             let offset = activePatternObj.tracks[selectedTrack].events[step].offset;
-            // let eVent = { ...activePatternObj.tracks[selectedTrack].events[step] };
-            // let currOffset: number = eVent.offset ? eVent.offset : 0;
             let currOffset = offset ? offset : 0;
             if ((direction > 0 && currOffset + direction <= 128)
                 || (direction < 0 && currOffset + direction >= -128)) {
@@ -361,24 +399,64 @@ const Sequencer: FunctionComponent = () => {
 
     const dispatchDeleteEvents = (): void => {
         if (selectedRef.current.length >= 1) {
-            selectedRef.current.forEach(s => {
-                let e = { ...activePatternObj.tracks[selectedTrack].events[s] }
-                let time = timeObjFromEvent(s, e)
-                triggRef.current[activePattern][selectedTrack].instrument.remove(time);
-                const l = triggRef.current[activePattern][selectedTrack].effects.length
-                for (let j = 0; j < l; j++) {
-                    triggRef.current[activePattern][selectedTrack].effects[j].remove(time);
-                }
+            selectedRef.current.forEach(step => {
+
+                // first remove events from instrument triggs
+                // but it will actually be remove in the 
+                // step component ??
+                // keep the coded comment in here just in case 
+                // let stepEvent = { 
+                //     ...activePatternObj
+                //     .tracks[selectedTrack]
+                //     .events[step] 
+                // }
+                // let time = timeObjFromEvent(step, stepEvent)
+                // triggRef.current[activePattern][selectedTrack]
+                // .instrument.remove(time);
+
+                //     // then remove for effect triggs
+                // const l = triggRef.current[activePattern][selectedTrack]
+                // .effects.length
+                // for (let j = 0; j < l; j++) {
+                //     triggRef.current[activePattern][selectedTrack]
+                //     .effects[j].remove(time);
+                // }
+
+                // delete events from store
                 dispatch(
                     deleteEvents(
-                        activePattern,
-                        selectedTrack,
-                        s
+                        activePatternRef.current,
+                        selectedTrackRef.current,
+                        step
                     )
                 );
             });
         }
     };
+
+    const dispatchDeleteNotes = (): void => {
+        if (selectedRef.current.length >= 1) {
+            selectedRef.current.forEach(step => {
+                dispatch(deleteNotes(
+                    activePatternRef.current,
+                    selectedTrackRef.current,
+                    step
+                ))
+            })
+        }
+    }
+
+    const dispatchDeleteLocks = (): void => {
+        if (selectedRef.current.length >= 1) {
+            selectedRef.current.forEach(step => {
+                dispatch(deleteLocks(
+                    activePatternRef.current,
+                    selectedTrackRef.current,
+                    step
+                ))
+            })
+        }
+    }
 
     const dispatchSetVelocity = (velocity: number): void => {
         selectedRef.current.forEach(s => {
@@ -473,60 +551,199 @@ const Sequencer: FunctionComponent = () => {
         '0': dispatchDownOctaveKey
     }
 
+    // keyboardevent checkers and helpers 
+    function shouldSelectStep(e: KeyboardEvent, char: string){
+        // using isNan because keyDict[char] maps to 0
+        return !e.shiftKey 
+            && !e.ctrlKey
+            && !Number.isNaN(Number(keyDict[char]))
+        
+    }
+
+    function shouldDecreaseOffset(e: KeyboardEvent, char: string): boolean {
+        return !e.ctrlKey
+            && char === 'arrowleft' 
+            && selectedRef.current.length >= 1
+    }
+
+    function shouldIncreaseOffset(e: KeyboardEvent, char: string): boolean {
+        return !e.ctrlKey
+        && char === 'arrowright' 
+        && selectedRef.current.length >= 1
+    }
+
+    function shouldIncreaseDecrease(e: KeyboardEvent, char: string): number {
+        if (shouldIncreaseOffset(e, char))
+            return e.shiftKey ? 10 : 1
+        else if (shouldDecreaseOffset(e, char))
+            return e.shiftKey ? -10 : -1
+        else 
+            return 0
+    }
+
+    function shouldPlayNote(e: KeyboardEvent, char: string): boolean | string {
+        return !e.shiftKey 
+            && !e.ctrlKey
+            && numberNoteDict[noteDict[char]]
+    }
+
+    function shouldDelete(e: KeyboardEvent, char: string): boolean {
+        return ['delete', 'bakcspace'].includes(char)
+    }
+
+    function shouldTogglePatternUI(e: KeyboardEvent, char: string): boolean {
+        return !e.shiftKey && !e.ctrlKey && char === '`'
+    }
+
+    function shouldEscape(e: KeyboardEvent, char: string): boolean {
+        return !e.shiftKey && !e.ctrlKey && char === 'escape'
+    }
+    
+    function shouldCopy(e: KeyboardEvent, char: string): boolean {
+        return !e.shiftKey && e.ctrlKey &&  char === 'c'
+    }
+
+    function shouldPaste(e: KeyboardEvent, char: string): boolean | null {
+        return !e.shiftKey 
+            && e.ctrlKey 
+            && char === 'v' 
+            && copiedStepsRef.current 
+            && copiedStepsRef.current?.steps.length > 0
+    }
+
+    function shouldCopyEventsOrNotes() {
+        return copiedStepsRef.current?.instrument === selectedInstrumentRef.current
+    }
+
     // sequencer keyboard shortcuts 
     function keydown(this: Document, e: KeyboardEvent): void {
+        
         let char: string = e.key.toLowerCase();
-        const target = 
-        console.log('keydown, char is:', char)
-        // colocar o condicional pra ver se não tem foco em um input box
-        // passar todas as input refs pra um context
-        // e checar com hasFocus?
-        if (!e.shiftKey && Object.keys(keyDict).includes(char)) {
-            console.log('dictionary includes key')
+        // console.log('keydown, char is:', char)
+
+        // select steps a-l and z-m
+        if (shouldSelectStep(e, char)) {
             if (e.repeat) { return }
-            let n: number = keyDict[char]
             let index: number = (activePageRef.current + 1) * keyDict[char];
-            if (index <= trackLength) {
-                dispatch(selectStep(activePatternRef.current, selectedTrackRef.current, index));
-            }
-        } else if (char === 'arrowleft' && selectedRef.current.length >= 1) {
-            e.shiftKey ? dispatchIncDecOffset(-10) : dispatchIncDecOffset(-1);
-        } else if (char === 'arrowright' && selectedRef.current.length >= 1) {
-            e.shiftKey ? dispatchIncDecOffset(10) : dispatchIncDecOffset(1);
-        } else if (char === 'delete' || e.key.toLowerCase() === 'backspace') {
-            dispatchDeleteEvents();
-        } else if (keyFunctions[char]) {
-            keyFunctions[char]()
-        } else if (!e.shiftKey && numberNoteDict[noteDict[char]]) {
-            const noteName = numberNoteDict[noteDict[char]] + String(keyboardRangeRef.current)
-            console.log('notename', noteName);
-        } else if (!e.shiftKey && char === '`') {
-            setIsNote(state => !state)
-        } else if (!e.shiftKey && char === 'escape') {
-            if (MenuContext.current.length > 0) {
-                MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
-            } else if (Object.keys(DropdownContext.current).length > 0) {
-                DropdownEmitter.emit(dropdownEventTypes.ESCAPE, {})
-            } else if (selectedRef.current.length > 0) {
-                dispatch(selectStep(activePatternRef.current, selectedTrackRef.current, -1))
-            }
+            if (index <= trackLength) 
+                dispatch(selectStep(
+                    activePatternRef.current, 
+                    selectedTrackRef.current, 
+                    index
+                ));
         } 
-        // else if (e.shiftKey && char === 'c') {
-        //     dispatch(cycleSteps(
-        //         -1, 
-        //         activePatternRef.current,
-        //         selectedTrackRef.current,
-        //         e.ctrlKey ? [activePageRef.current*16, finalStep()] : [0, trackLengthRef.current - 1] 
-        //         ))
-        // } else if (e.shiftKey && char === 'v') {
-        //     dispatch(cycleSteps(
-        //         1, 
-        //         activePatternRef.current,
-        //         selectedTrackRef.current,
-        //         e.ctrlKey ? [activePageRef.current*16, finalStep()] : [0, trackLengthRef.current - 1] 
-        //     ))
-        // }
+        
+        // increase/decrease offset with arrow keys
+        const amount = shouldIncreaseDecrease(e, char)
+        if (amount)
+            dispatchIncDecOffset(amount)
+        
+
+        // delete events with backspace and delete 
+        if (shouldDelete(e, char)) {
+            if (e.shiftKey && !e.ctrlKey)
+                dispatchDeleteNotes()
+            else if (e.ctrlKey && !e.shiftKey)
+                dispatchDeleteLocks()
+            else 
+                dispatchDeleteEvents();
+        } 
+        
+        // increase decrease keyboard octave range
+        // with 1 and 0
+        if (keyFunctions[char]) {
+            keyFunctions[char]()
+        } 
+        
+        // keyboard note from q2 to i
+        if (shouldPlayNote(e, char)) {
+            const noteName = numberNoteDict[noteDict[char]] 
+                + String(keyboardRangeRef.current)
+            // console.log('notename', noteName);
+        } 
+        
+        // toggle between pattern and notes with `
+        if (shouldTogglePatternUI(e, char)) {
+            setIsNote(state => !state)
+        } 
+
+        // escape dropdowns and menus 
+        // and unselect steps with esc
+        // if (!e.shiftKey && char === 'escape') {
+        if (shouldEscape(e, char)) {
+
+            if (MenuContext.current.length > 0)
+                MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
+
+            else if (Object.keys(DropdownContext.current).length > 0) 
+                DropdownEmitter.emit(dropdownEventTypes.ESCAPE, {})
+
+            else if (selectedRef.current.length > 0) 
+                dispatch(
+                    selectStep(
+                        activePatternRef.current, 
+                        selectedTrackRef.current, 
+                        -1
+                    )
+                )
+        } 
+
+        // cycle steps
+        const dir = getDirection(e, char)
+        if (dir) {
+            const pageInit = activePageRef.current * 16
+            const stepAmount = trackLengthRef.current - pageInit
+            const finalStep = pageInit + Math.min(16, stepAmount) - 1
+
+            dispatch(cycleSteps(
+                dir,
+                activePatternRef.current,
+                selectedTrackRef.current,
+                e.ctrlKey 
+                    ? [activePageRef.current*16, finalStep] 
+                    : [0, trackLengthRef.current - 1] 
+            ))
+        }
+
+        // copy events or steps 
+        if (shouldCopy(e, char)){
+            console.log('should copy')
+            const ev = selectedRef.current
+            .map(step => eventsRef.current[step])
+
+            copySteps({
+                instrument: selectedInstrumentRef.current,
+                steps: ev
+            })
+
+        } 
+        
+        if (shouldPaste(e, char)){
+
+            if (shouldCopyEventsOrNotes())
+                dispatch(copyEvents(
+                    activePatternRef.current,
+                    selectedTrackRef.current, 
+                    copiedStepsRef.current?.steps
+                ))
+            else 
+                dispatch(copyNotes(
+                    activePatternRef.current,
+                    selectedTrackRef.current, 
+                    copiedStepsRef.current?.steps
+                ))
+            
+        }
     };
+
+
+    function getDirection(e: KeyboardEvent, char:string) {
+        return e.shiftKey && char === 'c'
+            ? -1
+            : e.shiftKey && char === 'v'
+            ? 1
+            : 0
+    }
 
     function keyup(e: KeyboardEvent): void {
         let char = e.key.toLowerCase();

@@ -14,6 +14,7 @@ export interface ModulationSynthProps {
     options: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
+    removePropertyLocks: any,
     index: number,
     events: event[],
     selected: number[],
@@ -24,6 +25,7 @@ export interface ModulationSynthProps {
 const ModulationSynth: React.FC<ModulationSynthProps> = ({
     calcCallbacks,
     options,
+    removePropertyLocks,
     events,
     properties,
     selected,

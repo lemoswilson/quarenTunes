@@ -4,10 +4,12 @@ import {
 	sequencerActions,
 	Sequencer,
 } from "./types";
-import { propertiesToArray, getNested, setNestedValue } from "../../lib/objectDecompose";
+import { propertiesToArray, getNested, setNestedValue, deleteProperty } from "../../lib/objectDecompose";
 import { eventOptions } from "../../containers/Track/Instruments";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from "../../lib/curves";
 import { startEndRange } from "../../lib/utility";
+import { RecursivePartial } from '../../containers/Track/Instruments';
+import { generalEffectOptions } from "../Track";
 
 const initialTrack = {
 	events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
@@ -66,10 +68,12 @@ export function sequencerReducer(
 			interval: number[],
 			name: string,
 			amount: number,
+			toCopy: any[] | undefined,
 			velocity: number,
 			fxIndex: number,
 			movement: number,
 			property: string,
+			fxProps: keyof RecursivePartial<generalEffectOptions>,
 			step: number,
 			cc: boolean | undefined,
 			isContinuous: boolean | undefined,
@@ -247,7 +251,7 @@ export function sequencerReducer(
 				break;
 			case sequencerActions.DELETE_EVENTS:
 				[pattern, trackIndex, step] = [action.payload.pattern, action.payload.trackIndex, action.payload.step];
-				draft.patterns[pattern].tracks[trackIndex].events[step] = { fx: [], instrument: [], offset: 0 };
+				draft.patterns[pattern].tracks[trackIndex].events[step] = { instrument: { note: [] }, fx: [], offset: 0 };
 				break;
 			case sequencerActions.GO_TO_ACTIVE:
 				[patternToGo, pageToGo, trackIndex] = [
@@ -558,41 +562,6 @@ export function sequencerReducer(
 					setNestedValue(property, valFx, draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex])
 				}
 				break;
-			case sequencerActions.CHANGE_EFFECT_SEQ:
-				[trackIndex, fxIndex] = [action.payload.trackIndex, action.payload.fxIndex]
-				Object.keys(draft.patterns).forEach(p => {
-					const pat = Number(p)
-					const eventsLength = draft.patterns[pat].tracks[trackIndex].events.length
-					for (let i = 0; i < eventsLength; i++) {
-						draft.patterns[pat].tracks[trackIndex].events[i].fx[fxIndex] = {}
-						// const note = draft.patterns[pat].tracks[trackIndex].events[i].instrument.note
-						// const vel = draft.patterns[pat].tracks[trackIndex].events[i].instrument.velocity
-						// const len = draft.patterns[pat].tracks[trackIndex].events[i].instrument.length
-						// draft.patterns[pat].tracks[trackIndex].events[i].instrument = {
-						// 	note: note,
-						// 	velocity: velocity,
-						// 	length: length,
-						// }
-					}
-				})
-				break;
-			case sequencerActions.CHANGE_INSTRUMENT_SEQ:
-				trackIndex = action.payload.trackIndex
-				Object.keys(draft.patterns).forEach(p => {
-					const patt = Number(p)
-					const eventL = draft.patterns[patt].tracks[trackIndex].events.length
-					for (let i = 0; i < eventL; i++) {
-						const note = draft.patterns[patt].tracks[trackIndex].events[i].instrument.note
-						const vel = draft.patterns[patt].tracks[trackIndex].events[i].instrument.velocity
-						const len = draft.patterns[patt].tracks[trackIndex].events[i].instrument.length
-						draft.patterns[patt].tracks[trackIndex].events[i].instrument = {
-							note: note,
-							velocity: vel,
-							length: len,
-						}
-					}
-				})
-				break;
 			case sequencerActions.CYCLE_STEPS:
 				[pattern, trackIndex, direction, interval] = [
 					action.payload.pattern,
@@ -600,15 +569,103 @@ export function sequencerReducer(
 					action.payload.direction,
 					action.payload.interval
 				]
+
+				trackIndex = trackIndex ? 0 : trackIndex;
+
+				const [init, end] = interval;
+				const events = draft.patterns[pattern].tracks[trackIndex].events
+
+				if (end-init === 1) 
+					break
+
+				// cycling steps is equivalent to rotating the array by 1
+				// either to the left, or to the right 
+
 				if (direction > 0){
-					const c = draft.patterns[pattern].tracks[trackIndex].events.pop()
-					if (c)
-						draft.patterns[pattern].tracks[trackIndex].events.unshift(c)
+					const temp = events[end]
+					draft.patterns[pattern].tracks[trackIndex].events.copyWithin(init + 1, init, end-1)
+					draft.patterns[pattern].tracks[trackIndex].events[init] = temp
 				} else {
-					const c = draft.patterns[pattern].tracks[trackIndex].events.shift()
-					if (c)
-						draft.patterns[pattern].tracks[trackIndex].events.push(c)
+					const temp = events[init]
+					draft.patterns[pattern].tracks[trackIndex].events.copyWithin(init, init+1, end)
+					draft.patterns[pattern].tracks[trackIndex].events[end] = temp
 				}
+
+				break;
+			case sequencerActions.DELETE_LOCKS:
+				[step, trackIndex, pattern] = [
+					action.payload.step,
+					action.payload.trackIndex,
+					action.payload.pattern,
+				]
+
+				const notes = draft.patterns[pattern].tracks[trackIndex].events[step].instrument.note
+				draft.patterns[pattern].tracks[trackIndex].events[step]	= {
+					instrument: { note: [] }, fx: [], offset: 0 
+				}
+				draft.patterns[pattern].tracks[trackIndex].events[step].instrument.note = notes
+				break;
+			case sequencerActions.DELETE_NOTES:
+				[step, trackIndex, pattern] = [
+					action.payload.step,
+					action.payload.trackIndex,
+					action.payload.pattern,
+				]
+
+				draft.patterns[pattern].tracks[trackIndex].events[step].instrument.note = []
+				break
+			case sequencerActions.COPY_EVENTS:
+				[toCopy, pattern, trackIndex] = [
+					action.payload.events,
+					action.payload.pattern,
+					action.payload.trackIndex,
+				]
+
+				const sels = draft.patterns[pattern].tracks[trackIndex].selected
+
+				if (toCopy) {
+					console.log('should be copying');
+						for (let i = 0; i < Math.min(sels.length, toCopy.length); i++){
+							console.log('should be copyinig to selected', sels[i]);
+							draft.patterns[pattern].tracks[trackIndex].events[sels[i]] = 
+								toCopy[i]
+						}
+				}
+				break;
+			case sequencerActions.COPY_NOTES:
+				[toCopy, pattern, trackIndex] = [
+					action.payload.events,
+					action.payload.pattern,
+					action.payload.trackIndex,
+				]
+				const selss = draft.patterns[pattern].tracks[trackIndex].selected
+
+				if (toCopy) {
+					console.log('should be copying');
+					for (let i = 0; i < Math.min(selss.length, toCopy.length); i++){
+						draft.patterns[pattern].tracks[trackIndex].events[selss[i]].instrument.note = 
+							toCopy[i].instrument.note
+					}
+				}
+				break;
+			case sequencerActions.REMOVE_PROPERTY_LOCK:
+				[pattern, trackIndex, step, property] = [
+					action.payload.pattern,
+					action.payload.trackIndex,
+					action.payload.step,
+					action.payload.property,
+				]
+				deleteProperty(draft.patterns[pattern].tracks[trackIndex].events[step].instrument, property)
+				break;
+			case sequencerActions.REMOVE_EFFECT_PROPERTY_LOCK:
+				[pattern, trackIndex, step, property, fxIndex] = [
+					action.payload.pattern,
+					action.payload.trackIndex,
+					action.payload.step,
+					action.payload.property,
+					action.payload.fxIndex,
+				]
+				deleteProperty(draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex], property)
 				break;
 		}
 	});

@@ -18,7 +18,9 @@ import {
     setNoteMidi,
     noteInput,
     setNoteLengthPlayback,
-    parameterLockIncreaseDecrease
+    parameterLockIncreaseDecrease,
+    removePropertyLock,
+    removeEffectPropertyLock,
 } from '../../../store/Sequencer';
 
 import WebMidi, {
@@ -236,6 +238,25 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const eventsRef = useRef(events);
     useEffect(() => { eventsRef.current = events }, [events])
 
+
+    const removePropertyLockCallbacks: any = useMemo(() => {
+        let o = {}
+        let callArray = properties.map(property => {
+            if (selectedStepsRef.current.length > 0)
+                selectedStepsRef.current.forEach(step => {
+                    dispatch(removePropertyLock(
+                        indexRef.current,
+                        activePatternRef.current,
+                        step,
+                        property    
+                    ))
+                })
+        })
+        callArray.forEach((call, idx, arr) => {
+            setNestedValue(properties[idx], call, o);
+        });
+        return o
+    }, [])
 
     const propertyValueUpdateCallback: any = useMemo(() => {
         let o = {}
@@ -837,6 +858,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const Component = voice === xolombrisxInstruments.FMSYNTH
         ? <ModulationSynth
             calcCallbacks={propertyIncreaseDecrease}
+            removePropertyLocks={removePropertyLockCallbacks}
             options={options}
             index={index}
             events={events[activePattern]}
@@ -858,6 +880,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 propertyUpdateCallbacks={propertyValueUpdateCallback} />
             : voice === xolombrisxInstruments.AMSYNTH
                 ? <ModulationSynth
+                    removePropertyLocks={removePropertyLockCallbacks}
                     calcCallbacks={propertyIncreaseDecrease}
                     options={options}
                     index={index}

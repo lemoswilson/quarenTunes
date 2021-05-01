@@ -45,8 +45,13 @@ export enum sequencerActions {
 	PARAMETER_LOCK_INC_DEC = "PARAMETER_LOCK_INC_DEC",
 	PARAMETER_LOCK_INC_DEC_EFFECT = "PARAMETER_LOCK_INC_DEC_EFFECT",
 	CHANGE_EFFECT_SEQ = "CHANGE_EFFECT",
-	CHANGE_INSTRUMENT_SEQ = "CHANGE_INSTRUMENT_SEQ",
-	CYCLE_STEPS = "CYCLE_STEPS"
+	CYCLE_STEPS = "CYCLE_STEPS",
+	DELETE_NOTES = "DELTE_NOTES",
+	DELETE_LOCKS = "DELETE_LOCKS",
+	COPY_NOTES = "COPY_NOTES",
+	COPY_EVENTS = "COPY_EVENTS",
+	REMOVE_PROPERTY_LOCK = "REMOVE_PROPERTY_LOCK",
+	REMOVE_EFFECT_PROPERTY_LOCK = "REMOVE_EFFECT_PROPERTY_LOCK",
 };
 
 // export type fxOptions = effectsInitials;
@@ -88,6 +93,63 @@ export interface Sequencer {
 	quantizeRecording: boolean;
 };
 
+export interface removePropertyLockAction {
+	type: sequencerActions.REMOVE_PROPERTY_LOCK,
+	payload: {
+		pattern: number,
+		trackIndex: number,
+		step: number,
+		property: string,
+	}
+};
+
+export interface removeEffectPropertyLockAction {
+	type: sequencerActions.REMOVE_EFFECT_PROPERTY_LOCK,
+	payload: {
+		pattern: number,
+		trackIndex: number,
+		step: number,
+		property: string,
+		fxIndex: number,
+	}
+}
+
+export interface deleteNotesAction {
+	type: sequencerActions.DELETE_NOTES,
+	payload: {
+		pattern: number,
+		trackIndex: number,
+		step: number,
+	}
+}
+
+export interface copyNotesAction {
+	type: sequencerActions.COPY_NOTES,
+	payload: {
+		events?: event[],
+		trackIndex: number,
+		pattern: number,
+	}
+}
+
+export interface copyEventsAction {
+	type: sequencerActions.COPY_EVENTS,
+	payload: {
+		events?: event[],
+		trackIndex: number,
+		pattern: number,
+	}
+}
+
+export interface deleteLocksAction {
+	type: sequencerActions.DELETE_LOCKS,
+	payload: {
+		pattern: number,
+		trackIndex: number,
+		step: number,
+	}
+}
+
 export interface cycleStepsAction {
 	type: sequencerActions.CYCLE_STEPS,
 	payload: {
@@ -97,21 +159,6 @@ export interface cycleStepsAction {
 		interval: number[],
 	}
 }
-
-export interface changeEffectSeqAction {
-	type: sequencerActions.CHANGE_EFFECT_SEQ,
-	payload: {
-		trackIndex: number,
-		fxIndex: number,
-	}
-};
-
-export interface changeInstrumentSeqAction {
-	type: sequencerActions.CHANGE_INSTRUMENT_SEQ,
-	payload: {
-		trackIndex: number,
-	}
-};
 
 export interface renamePatternAction {
 	type: sequencerActions.RENAME_PATTERN,
@@ -479,10 +526,14 @@ export type sequencerActionTypes =
 	| increaseDecreaseOffsetAction
 	| increaseDecreaseStepVelocityAction
 	| renamePatternAction
-	| changeEffectSeqAction
-	| changeInstrumentSeqAction
 	| parameterLockEffectIncreaseDecreaseAction
 	| increaseDecreasePatTrackVelocityAction
 	| cycleStepsAction
+	| deleteNotesAction
+	| deleteLocksAction
 	| parameterLockIncreaseDecreaseAction
+	| copyEventsAction
+	| copyNotesAction
+	| removePropertyLockAction
+	| removeEffectPropertyLockAction
 	| removeInstrumentFromSequencerAction;
