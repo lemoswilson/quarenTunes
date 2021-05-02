@@ -18,6 +18,7 @@ export interface DrumRack {
     propertyUpdateCallbacks: any,
     index: number,
     selected: number[],
+    removePropertyLocks: any,
     events: event[],
     properties: any[];
 }
@@ -26,6 +27,7 @@ const DrumRack: React.FC<DrumRack> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
+    removePropertyLocks,
     index,
     events,
     properties,
@@ -134,6 +136,7 @@ const DrumRack: React.FC<DrumRack> = ({
                         <ContinuousIndicator
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_0.attack}
+                            removePropertyLock={removePropertyLocks.PAD_0.attack}
                             label={'Attack'}
                             max={attackPad0[1][1]}
                             midiLearn={() => { }}
@@ -148,6 +151,7 @@ const DrumRack: React.FC<DrumRack> = ({
                         <ContinuousIndicator
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_0.release}
+                            removePropertyLock={removePropertyLocks.PAD_0.release}
                             label={'Release'}
                             max={releasePad0[1][1]}
                             midiLearn={() => { }}
@@ -162,6 +166,7 @@ const DrumRack: React.FC<DrumRack> = ({
                         <ContinuousIndicator
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_0.volume}
+                            removePropertyLock={removePropertyLocks.PAD_0.volume}
                             label={'Volume'}
                             max={volumePad0[1][1]}
                             midiLearn={() => { }}
@@ -187,6 +192,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_1.attack}
                             label={'Attack'}
+                            removePropertyLock={removePropertyLocks.PAD_1.attack}
                             max={attackPad1[1][1]}
                             midiLearn={() => { }}
                             min={attackPad1[1][0]}
@@ -201,6 +207,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_1.release}
                             label={'Release'}
+                            removePropertyLock={removePropertyLocks.PAD_1.release}
                             max={releasePad1[1][1]}
                             midiLearn={() => { }}
                             min={releasePad1[1][0]}
@@ -215,6 +222,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_1.volume}
                             label={'Volume'}
+                            removePropertyLock={removePropertyLocks.PAD_1.volume}
                             max={volumePad1[1][1]}
                             midiLearn={() => { }}
                             detail={'volume'}
@@ -244,6 +252,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             midiLearn={() => { }}
                             min={attackPad2[1][0]}
                             type={'knob'}
+                            removePropertyLock={removePropertyLocks.PAD_2.attack}
                             unit={attackPad2[2]}
                             value={getPropertyValue('PAD_2.attack')}
                             indicatorId={`instrument${index}:PAD_2:attack`}
@@ -258,6 +267,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             midiLearn={() => { }}
                             min={releasePad2[1][0]}
                             type={'knob'}
+                            removePropertyLock={removePropertyLocks.PAD_2.release}
                             unit={releasePad2[2]}
                             value={getPropertyValue('PAD_2.release')}
                             indicatorId={`instrument${index}:PAD_2:release`}
@@ -272,6 +282,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             midiLearn={() => { }}
                             detail={'volume'}
                             min={volumePad2[1][0]}
+                            removePropertyLock={removePropertyLocks.PAD_2.volume}
                             type={'knob'}
                             unit={volumePad2[2]}
                             value={getPropertyValue('PAD_2.volume')}
@@ -296,6 +307,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             midiLearn={() => { }}
                             min={attackPad3[1][0]}
                             type={'knob'}
+                            removePropertyLock={removePropertyLocks.PAD_3.attack}
                             unit={attackPad3[2]}
                             value={getPropertyValue('PAD_3.attack')}
                             indicatorId={`instrument${index}:PAD_3:attack`}
@@ -309,6 +321,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             max={releasePad3[1][1]}
                             midiLearn={() => { }}
                             min={releasePad3[1][0]}
+                            removePropertyLock={removePropertyLocks.PAD_3.release}
                             type={'knob'}
                             unit={releasePad3[2]}
                             value={getPropertyValue('PAD_3.release')}
@@ -323,6 +336,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             max={volumePad3[1][1]}
                             midiLearn={() => { }}
                             detail={'volume'}
+                            removePropertyLock={removePropertyLocks.PAD_3.volume}
                             min={volumePad3[1][0]}
                             type={'knob'}
                             unit={volumePad3[2]}

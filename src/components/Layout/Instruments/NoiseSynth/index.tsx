@@ -13,6 +13,7 @@ export interface NoiseSynthProps {
     options: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
+    removePropertyLocks: any,
     index: number,
     selected: number[],
     events: event[],
@@ -24,6 +25,8 @@ export interface NoiseSynthProps {
 const NoiseSynth: React.FC<NoiseSynthProps> = ({
     calcCallbacks,
     options,
+    removePropertyLocks,
+    ccMap,
     propertyUpdateCallbacks,
     midiLearn,
     index,
@@ -92,6 +95,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
                                     label={'Attack'}
+                                    removePropertyLock={removePropertyLocks.envelope.attack}
                                     max={envelopeAttack[1][1]}
                                     midiLearn={() => {midiLearn('envelope.attack')}}
                                     min={envelopeAttack[1][0]}
@@ -108,6 +112,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     label={'Decay'}
                                     max={envelopeDecay[1][1]}
+                                    removePropertyLock={removePropertyLocks.envelope.decay}
                                     midiLearn={() => { }}
                                     curve={envelopeDecay[4]}
                                     min={envelopeDecay[1][0]}
@@ -123,6 +128,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
                                     selectedLock={false}
+                                    removePropertyLock={removePropertyLocks.envelope.sustain}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
                                     midiLearn={() => { }}
@@ -138,6 +144,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.release}
+                                    removePropertyLock={removePropertyLocks.envelope.release}
                                     selectedLock={false}
                                     label={'Release'}
                                     max={envelopeRelease[1][1]}
@@ -167,6 +174,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     label={'FadeIn'}
                                     max={fadeIn[1][1]}
                                     midiLearn={() => { }}
+                                    removePropertyLock={removePropertyLocks.noise.fadeIn}
                                     min={fadeIn[1][0]}
                                     type={'knob'}
                                     curve={fadeIn[4]}
@@ -182,6 +190,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     label={'FadeOut'}
                                     max={fadeOut[1][1]}
+                                    removePropertyLock={removePropertyLocks.noise.fadeOut}
                                     midiLearn={() => { }}
                                     min={fadeOut[1][0]}
                                     type={'knob'}
@@ -198,6 +207,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                         <div className={styles.voices}>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
+                                removePropertyLock={removePropertyLocks.volume}
                                 selectedLock={false}
                                 label={'Volume'}
                                 max={volume[1][1]}
@@ -215,6 +225,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.rateType}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.noise.playbackRate}
+                                    removePropertyLock={removePropertyLocks.noise.playbackRate}
                                     selectedLock={false}
                                     label={'Rate'}
                                     max={rate[1][1]}

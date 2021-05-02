@@ -12,6 +12,7 @@ export interface CompressorProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
+    removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
     fxIndex: number,
@@ -24,6 +25,7 @@ const Compressor: React.FC<CompressorProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
+    removeEffectPropertyLocks,
     trackIndex,
     fxIndex,
     events,
@@ -80,6 +82,7 @@ const Compressor: React.FC<CompressorProps> = ({
             <ContinuousIndicator
                 selectedLock={false}
                 ccMouseCalculationCallback={calcCallbacks.attack}
+                removePropertyLock={removeEffectPropertyLocks.attack}
                 label={'Attack'}
                 max={attack[1][1]}
                 midiLearn={() => { }}
@@ -95,6 +98,7 @@ const Compressor: React.FC<CompressorProps> = ({
             <ContinuousIndicator
                 ccMouseCalculationCallback={calcCallbacks.ratio}
                 selectedLock={false}
+                removePropertyLock={removeEffectPropertyLocks.ration}
                 label={'Ratio'}
                 max={ratio[1][1]}
                 midiLearn={() => { }}
@@ -110,6 +114,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 ccMouseCalculationCallback={calcCallbacks.threshold}
                 selectedLock={false}
                 label={'Threshold'}
+                removePropertyLock={removeEffectPropertyLocks.threshold}
                 max={threshold[1][1]}
                 midiLearn={() => { }}
                 min={threshold[1][0]}
@@ -125,6 +130,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 ccMouseCalculationCallback={calcCallbacks.release}
                 selectedLock={false}
                 label={'Release'}
+                removePropertyLock={removeEffectPropertyLocks.release}
                 max={release[1][1]}
                 midiLearn={() => { }}
                 min={release[1][0]}
@@ -139,6 +145,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 ccMouseCalculationCallback={calcCallbacks.knee}
                 selectedLock={false}
                 label={'Knee'}
+                removePropertyLock={removeEffectPropertyLocks.knee}
                 max={knee[1][1]}
                 midiLearn={() => { }}
                 min={knee[1][0]}

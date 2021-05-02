@@ -50,17 +50,20 @@ export function deleteProperty(obj: any, property: string): void {
 
     fields.forEach((field, idx, arr) => {
         if (!cur[field]) return
-        if (cur[field].keys().length !== 1) {
-            pointer = idx + 1;
-        };
+        cur = cur[field]
+        // if (Object(cur[field]).keys().length !== 1) {
+        //     pointer = idx + 1;
+        // };
     });
 
-    while (j < pointer) {
-        cur = cur[fields[j]];
-        j++;
-    }
-    if (pointer === fields.length && last) delete cur[last]
-    else delete cur[fields[j]]
+    // while (j < pointer) {
+    //     cur = cur[fields[j]];
+    //     j++;
+    // }
+    // if (pointer === fields.length && last) delete cur[last]
+    // else delete cur[fields[j]]
+    if (last && cur[last])
+        delete cur[last]
 }
 
 // export function setNestedArray(obj: any, property: string, val: any): any {

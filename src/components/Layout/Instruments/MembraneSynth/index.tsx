@@ -13,6 +13,7 @@ export interface MembraneSynthProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
+    removePropertyLocks: any,
     propertyUpdateCallbacks: any,
     index: number,
     events: event[],
@@ -25,6 +26,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
     options,
     events,
     properties,
+    removePropertyLocks,
     selected,
     propertyUpdateCallbacks,
     index,
@@ -95,6 +97,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                 <ContinuousIndicator
                                     selectedLock={false}
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
+                                    removePropertyLock={removePropertyLocks.envelope.attack}
                                     label={'Attack'}
                                     max={envelopeAttack[1][1]}
                                     midiLearn={() => { }}
@@ -111,6 +114,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.decay}
                                     selectedLock={false}
                                     label={'Decay'}
+                                    removePropertyLock={removePropertyLocks.envelope.decay}
                                     max={envelopeDecay[1][1]}
                                     midiLearn={() => { }}
                                     curve={envelopeDecay[4]}
@@ -126,6 +130,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
+                                    removePropertyLock={removePropertyLocks.envelope.sustain}
                                     selectedLock={false}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
@@ -144,6 +149,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.release}
                                     selectedLock={false}
                                     label={'Release'}
+                                    removePropertyLock={removePropertyLocks.envelope.release}
                                     max={envelopeRelease[1][1]}
                                     midiLearn={() => { }}
                                     min={envelopeRelease[1][0]}
@@ -175,6 +181,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.detune}
                                     selectedLock={false}
                                     label={'Detune'}
+                                    removePropertyLock={removePropertyLocks.detune}
                                     max={detune[1][1]}
                                     midiLearn={() => { }}
                                     min={detune[1][0]}
@@ -191,6 +198,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     selectedLock={false}
                                     label={'Portamento'}
                                     max={portamento[1][1]}
+                                    removePropertyLock={removePropertyLocks.portamento}
                                     midiLearn={() => { }}
                                     min={portamento[1][0]}
                                     type={'knob'}
@@ -206,6 +214,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
                                 selectedLock={false}
+                                removePropertyLock={removePropertyLocks.volume}
                                 label={'Volume'}
                                 max={volume[1][1]}
                                 midiLearn={() => { }}
@@ -233,6 +242,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             midiLearn={() => { }}
                             min={octaves[1][0]}
                             type={'knob'}
+                            removePropertyLock={removePropertyLocks.octaves}
                             curve={octaves[4]}
                             unit={octaves[2]}
                             value={getPropertyValue('octaves')}
@@ -247,6 +257,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             midiLearn={() => { }}
                             min={pitchDecay[1][0]}
                             type={'knob'}
+                            removePropertyLock={removePropertyLocks.pitchDecay}
                             curve={pitchDecay[4]}
                             unit={pitchDecay[2]}
                             value={getPropertyValue('pitchDecay')}

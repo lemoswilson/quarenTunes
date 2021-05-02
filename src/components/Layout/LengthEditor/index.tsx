@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { MutableRefObject, useEffect, useRef } from 'react';
 import styles from './style.module.scss';
 import Plus from '../../Layout/Icons/Plus';
 import Minus from '../../Layout/Icons/Minus';
@@ -29,15 +29,28 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
         input.value = String(length);
     }
 
+
+    function keydown(this: HTMLInputElement, e: KeyboardEvent){
+        e.stopPropagation()
+        if (e.key === 'Escape') this.blur()
+    }
+
     useEffect(() => {
-        if (inputRef.current) {
+        ref_input.current?.addEventListener('keydown', keydown)
+        return () => {
+            ref_input.current?.removeEventListener('keydown', keydown)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (ref_input.current) {
             // console.log('just updated, length is now', length);
-            inputRef.current.value = String(length);
+            ref_input.current.value = String(length);
         }
 
     }, [length])
 
-    const inputRef = useRef<HTMLInputElement>(null);
+    const ref_input = useRef<HTMLInputElement>(null);
 
     return (
         <div className={styles.wrapper}>
@@ -48,7 +61,7 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
             <div className={styles.display}>
                 <div className={styles.box}>
                     <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                        <input ref={inputRef} disabled={disabled} type={"text"} defaultValue={length} placeholder={String(length)} />
+                        <input ref={ref_input} disabled={disabled} type={"text"} defaultValue={length} placeholder={String(length)} />
                     </form>
                 </div>
             </div>

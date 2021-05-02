@@ -6,7 +6,7 @@ import { useEffectProperties } from '../../../hooks/useProperty';
 import { useDispatch, useSelector } from 'react-redux';
 import { effectTypes, toneEffects, increaseDecreaseEffectProperty } from '../../../store/Track';
 import { updateEffectState } from '../../../store/Track/actions'
-import { parameterLockEffect, parameterLockEffectIncreaseDecrease } from '../../../store/Sequencer/actions'
+import { parameterLockEffect, parameterLockEffectIncreaseDecrease, removeEffectPropertyLock } from '../../../store/Sequencer/actions'
 
 import triggContext from '../../../context/triggState';
 import toneRefsContext from '../../../context/toneRefsContext';
@@ -86,17 +86,22 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
     }
 }
 
-const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackId }) => {
+const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, trackId, trackIndex }) => {
     const triggRefs = useContext(triggContext);
     const toneObjRef = useContext(toneRefsContext);
     const effectRef: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
     // const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
-    const properties = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
+    const fxProps = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
     const [firstRender, setRender] = useState(true);
     const previousType = usePrevious(type)
 
 
+    const ref_trackIndex = useRef(trackIndex);
+    useEffect(() => { ref_trackIndex.current = trackIndex }, [trackIndex])
+
+    const ref_fxIndex = useRef(fxIndex)
+    useEffect(() => { ref_fxIndex.current = fxIndex}, [fxIndex])
     const CCMaps = useRef<any>({});
     const listenCC = useRef<controlChangeEvent>();
 
@@ -109,8 +114,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
     const optionsRef = useRef(options)
     useEffect(() => { optionsRef.current = options }, [options])
 
-    const indexRef = useRef(index);
-    useEffect(() => { indexRef.current = index }, [index]);
+    const indexRef = useRef(fxIndex);
+    useEffect(() => { indexRef.current = fxIndex }, [fxIndex]);
 
     const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
     const patternTrackerRef = useRef(patternTracker);
@@ -121,12 +126,12 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
     useEffect(() => { arrangerModeRef.current = arrangerMode }, [arrangerMode]);
 
     const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
-    const activePatternRef = useRef(activePattern);
-    useEffect(() => { activePatternRef.current = activePattern }, [activePattern]);
+    const ref_activePatt = useRef(activePattern);
+    useEffect(() => { ref_activePatt.current = activePattern }, [activePattern]);
 
-    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[index].selected);
-    const selectedStepsRef = useRef(selectedSteps);
-    useEffect(() => { selectedStepsRef.current = selectedSteps }, [selectedSteps]);
+    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[fxIndex].selected);
+    const ref_selectedSteps = useRef(selectedSteps);
+    useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps]);
 
     const isRecording = useSelector((state: RootState) => state.transport.present.recording);
     const isRecordingRef = useRef(isRecording);
@@ -156,7 +161,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[index].length
+                o[k] = state.sequencer.present.patterns[k].tracks[fxIndex].length
             });
             return o;
         }
@@ -169,7 +174,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[index].events
+                o[k] = state.sequencer.present.patterns[k].tracks[fxIndex].events
             });
             return o;
         }
@@ -178,33 +183,33 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
     const eventsRef = useRef(events);
     useEffect(() => { eventsRef.current = events }, [events])
 
-    const propertyValueUpdateCallback: any = useMemo(() => {
+    const propertiesUpdate: any = useMemo(() => {
         let o = {}
-        let callArray = properties.map((property) => {
+        let callArray = fxProps.map((property) => {
             return (value: any) => {
                 if (effectRef.current && getNested(effectRef.current.get(), property)
                     === getNested(optionsRef.current, property)[0]) {
                     let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
                     // dispatch(updateEffectState(indexRef.current, temp));
-                    dispatch(updateEffectState(trackIdRef.current, temp, index));
+                    dispatch(updateEffectState(trackIdRef.current, temp, fxIndex));
                 };
             }
         });
         callArray.forEach((call, idx, arr) => {
-            setNestedValue(properties[idx], call, o);
+            setNestedValue(fxProps[idx], call, o);
         });
         return o
     }, [
         dispatch,
-        index,
+        fxIndex,
         indexRef,
-        properties,
+        fxProps,
         optionsRef,
     ]);
 
-    const propertyIncreaseDecrease: any = useMemo(() => {
-        const callArray = properties.map((property) => {
+    const propertiesIncDec: any = useMemo(() => {
+        const callArray = fxProps.map((property) => {
             return (e: any) => {
 
                 const propertyArr = getNested(optionsRef.current, property);
@@ -216,13 +221,13 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
 
                 const cc = e.controller && e.controller.number
 
-                if (selectedStepsRef.current.length >= 1) {
-                    selectedStepsRef.current.forEach(step => {
+                if (ref_selectedSteps.current.length >= 1) {
+                    ref_selectedSteps.current.forEach(step => {
                         dispatch(parameterLockEffectIncreaseDecrease(
-                            activePatternRef.current,
+                            ref_activePatt.current,
                             trackIdRef.current,
                             step,
-                            index, // fx have order between them (chainning) 
+                            fxIndex, // fx have order between them (chainning) 
                             cc ? e.value : e.movementY,
                             property,
                             propertyArr,
@@ -237,7 +242,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
                 } else {
                     dispatch(increaseDecreaseEffectProperty(
                         trackIdRef.current,
-                        index,
+                        fxIndex,
                         property,
                         cc ? e.value : e.movementY,
                         cc,
@@ -254,18 +259,41 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
             }
         })
         let o = {};
-        properties.forEach((_, idx, __) => {
-            setNestedValue(properties[idx], callArray[idx], o);
+        fxProps.forEach((_, idx, __) => {
+            setNestedValue(fxProps[idx], callArray[idx], o);
         });
         return o;
     }, [
         dispatch,
-        activePatternRef,
+        ref_activePatt,
         indexRef,
         optionsRef,
-        selectedStepsRef,
-        properties,
+        ref_selectedSteps,
+        fxProps,
     ]);
+
+    const removeEffectPropertyLockCallbacks: any = useMemo(() => {
+        let o = {}
+        let callArray = fxProps.map(property => {
+            return () => {
+                if (ref_selectedSteps.current.length > 0)
+                    ref_selectedSteps.current.forEach(step => {
+                        dispatch(removeEffectPropertyLock(
+                            ref_trackIndex.current,
+                            ref_activePatt.current,
+                            step,
+                            property,    
+                            ref_fxIndex.current,
+                        ))
+                    }
+                )
+            }
+        })
+        callArray.forEach((call, idx, arr) => {
+            setNestedValue(fxProps[idx], call, o);
+        });
+        return o
+    }, [])
 
 
     useEffectProperties(effectRef, options)
@@ -285,7 +313,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
             p.forEach((property) => {
                 const d = copyToNew(lockedParameters.current, property)
                 // effectRef.current.set(d);
-                dispatch(updateEffectState(trackId, d, index));
+                dispatch(updateEffectState(trackId, d, fxIndex));
             });
         }
         isPlayingRef.current = isPlaying;
@@ -293,7 +321,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
         isPlaying,
         dispatch,
         trackId,
-        index,
+        fxIndex,
         previousPlaying,
         isPlayingRef
     ]
@@ -301,23 +329,27 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
 
     const effectCallback = useCallback((time: number, value: any) => {
 
-        properties.forEach(property => {
+        fxProps.forEach(property => {
+
             const currVal = getNested(optionsRef.current, property);
             const callbackVal = getNested(value, property);
             const lockVal = getNested(lockedParameters.current, property);
+
             if (callbackVal && callbackVal !== currVal[0]) {
-                propertyValueUpdateCallback[property](callbackVal);
+                propertiesUpdate[property](callbackVal);
                 setNestedValue(property, callbackVal, lockedParameters);
+
             } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-                propertyValueUpdateCallback[property](lockVal);
+                propertiesUpdate[property](lockVal);
                 deleteProperty(lockedParameters.current, property);
+
                 // setNestedValue(property, undefined, lockedParameters.current)
             }
         });
 
     }, [
-        properties,
-        propertyValueUpdateCallback,
+        fxProps,
+        propertiesUpdate,
         // activePattern,
         // arrangerMode,
         optionsRef,
@@ -340,26 +372,26 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
                 const chain = toneObjRef.current[trackId].chain
                 const effects = toneObjRef.current[trackId].effects;
                 let prev, next: Tone.Gain | toneEffects;
-                if (index === toneObjRef.current[trackId].effects.length - 1) {
+                if (fxIndex === toneObjRef.current[trackId].effects.length - 1) {
                     next = chain.out
-                    if (index === 0) prev = chain.in;
-                    else prev = effects[index - 1];
+                    if (fxIndex === 0) prev = chain.in;
+                    else prev = effects[fxIndex - 1];
                 } else {
-                    next = effects[index + 1]
-                    if (index === 0) prev = chain.in
-                    else prev = effects[index - 1]
+                    next = effects[fxIndex + 1]
+                    if (fxIndex === 0) prev = chain.in
+                    else prev = effects[fxIndex - 1]
                 }
 
-                effects[index].disconnect();
+                effects[fxIndex].disconnect();
                 prev.disconnect()
                 prev.connect(effectRef.current);
                 effectRef.current.connect(next)
-                effects[index].dispose();
-                effects[index] = effectRef.current;
+                effects[fxIndex].dispose();
+                effects[fxIndex] = effectRef.current;
             }
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key);
-                triggRefs.current[k][trackId].effects[index].callback = effectCallback
+                triggRefs.current[k][trackId].effects[fxIndex].callback = effectCallback
             });
         }
 
@@ -367,8 +399,8 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
 
     }, [
         type,
-        id,
-        index,
+        fxId,
+        fxIndex,
         trackId,
         triggRefs,
         effectCallback,
@@ -390,12 +422,12 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
 
                 if (lgth > 0) {
                     let from, to;
-                    if (index === lgth - 1) {
+                    if (fxIndex === lgth - 1) {
                         from = toneObjRef.current[trackId].effects[lgth - 1];
                         to = chain.out
                     } else {
-                        from = toneObjRef.current[trackId].effects[index]
-                        to = toneObjRef.current[trackId].effects[index + 1]
+                        from = toneObjRef.current[trackId].effects[fxIndex]
+                        to = toneObjRef.current[trackId].effects[fxIndex + 1]
                     }
                     if (from && to) {
                         from.disconnect();
@@ -412,7 +444,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
 
             Object.keys(triggRefs.current).forEach(key => {
                 let k = parseInt(key);
-                triggRefs.current[k][trackId].effects[index].callback = effectCallback
+                triggRefs.current[k][trackId].effects[fxIndex].callback = effectCallback
             });
             // setRender(false);
         // }
@@ -434,7 +466,7 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
     ) => {
         const f = wrapBind(
             getNested(
-                propertyIncreaseDecrease,
+                propertiesIncDec,
                 property
             ), cc);
         setNestedValue(CCMaps.current, {
@@ -494,12 +526,13 @@ const Effect: React.FC<effectsProps> = ({ id, index, midi, options, type, trackI
     const Component =
         type === effectTypes.COMPRESSOR
             ? <Compressor
-                calcCallbacks={propertyIncreaseDecrease}
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
                 events={events[activePattern]}
-                fxIndex={index}
+                fxIndex={fxIndex}
                 options={options}
-                properties={properties}
-                propertyUpdateCallbacks={propertyValueUpdateCallback}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
                 selected={selectedSteps}
                 trackIndex={trackId}
             />

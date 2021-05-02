@@ -19,12 +19,12 @@ export const initialState: Track = {
 	trackCount: 1,
 	tracks: [
 		{
-			// instrument: xolombrisxInstruments.FMSYNTH,
-			// options: getInitials(xolombrisxInstruments.FMSYNTH),
+			instrument: xolombrisxInstruments.FMSYNTH,
+			options: getInitials(xolombrisxInstruments.FMSYNTH),
 			// instrument: xolombrisxInstruments.AMSYNTH,
 			// options: getInitials(xolombrisxInstruments.AMSYNTH),
-			instrument: xolombrisxInstruments.NOISESYNTH,
-			options: getInitials(xolombrisxInstruments.NOISESYNTH),
+			// instrument: xolombrisxInstruments.NOISESYNTH,
+			// options: getInitials(xolombrisxInstruments.NOISESYNTH),
 			// instrument: xolombrisxInstruments.MEMBRANESYNTH,
 			// options: getInitials(xolombrisxInstruments.MEMBRANESYNTH),
 			// instrument: xolombrisxInstruments.METALSYNTH,

@@ -15,7 +15,7 @@ import TriggContext, { triggContext } from '../../context/triggState';
 import toneRefsContext, { toneRefs } from '../../context/toneRefsContext';
 import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
-import ToneContext from '../../context/ToneContext';
+// import ToneContext from '../../context/ToneContext';
 import InputContext from '../../context/InputContext';
 import DropdownContext, { dropDownContext } from '../../context/DropdownContext';
 // import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/myCustomToneRefsEmitter';

@@ -14,6 +14,7 @@ interface continuousIndicator {
     min: number;
     max: number;
     ccMouseCalculationCallback: (e: any) => void;
+    removePropertyLock: () => void;
     valueUpdateCallback: (value: any) => void;
     label: string;
     midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
@@ -59,6 +60,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     className,
     curve,
     ccMouseCalculationCallback,
+    removePropertyLock,
     valueUpdateCallback,
     label,
     selectedLock,
@@ -184,6 +186,12 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const captureStart = (e: React.PointerEvent<SVGSVGElement>) => {
         e.stopPropagation()
+
+        if (e.shiftKey){
+            removePropertyLock?.()
+            return;
+        }
+
         MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
         if (e.button === 0) {
             if (isInputOpen){

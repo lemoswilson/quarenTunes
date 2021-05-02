@@ -98,31 +98,31 @@ export type controlChangeEvent = (e: InputEventControlchange) => void;
 export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, selected }: InstrumentProps<T>) => {
 
     // const instrumentRef = useRef(returnInstrument(voice, options));
-    const instrumentRef: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
+    const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
     useEffect(() => {
-        instrumentRef.current = returnInstrument(voice, options)
+        ref_ToneInstrument.current = returnInstrument(voice, options)
     }, [])
 
-    const properties: string[] = useMemo(() => {
+    const instProps: string[] = useMemo(() => {
         return propertiesToArray(getInitials(voice))
     }, [voice]);
 
     const dispatch = useDispatch()
     const [firstRender, setRender] = useState(true);
 
-    const CCMaps = useRef<any>({});
-    const listenCC = useRef<controlChangeEvent>();
-    const inputRef = useRef<false | Input>(false);
-    const onHoldNotes = useRef<{ [key: string]: any }>({});
-    const previousVoice = usePrevious(voice);
+    const ref_CCMaps = useRef<any>({});
+    const ref_listenCC = useRef<controlChangeEvent>();
+    const ref_midiInput = useRef<false | Input>(false);
+    const ref_onHoldNotes = useRef<{ [key: string]: any }>({});
+    const prev_voice = usePrevious(voice);
 
     const instrumentHTMLRef = useRef<HTMLDivElement>(null)
 
-    const triggRefs = useContext(triggCtx);
-    const refsContext = useContext(toneRefsContext);
+    const ref_toneTriggObjCtx = useContext(triggCtx);
+    const ref_toneTrkObjCtx = useContext(toneRefsContext);
     // const previousMidi = usePrevious(midi);
 
-    const lockedParameters: MutableRefObject<initials> = useRef({});
+    const ref_lockedParameters: MutableRefObject<initials> = useRef({});
 
     const keyboardRange = useSelector((state: RootState) => state.midi.onboardRange);
     const keyboardRangeRef = useRef(keyboardRange)
@@ -132,41 +132,43 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const overrideRef = useRef(override);
     useEffect(() => { overrideRef.current = override }, [override])
 
-    const optionsRef = useRef(options);
-    useEffect(() => { optionsRef.current = options }, [options])
+    const ref_options = useRef(options);
+    useEffect(() => { ref_options.current = options }, [options])
 
-    const indexRef = useRef(index);
-    useEffect(() => { indexRef.current = index }, [index])
+    const ref_index = useRef(index);
+    useEffect(() => { ref_index.current = index }, [index])
 
     const idRef = useRef(id);
     useEffect(() => { idRef.current = id }, [id])
 
-    const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
-    const patternTrackerRef = useRef(patternTracker);
-    useEffect(() => { patternTrackerRef.current = patternTracker }, [patternTracker])
+    const pattTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
+    const ref_pattTracker = useRef(pattTracker);
+    useEffect(() => { ref_pattTracker.current = pattTracker }, [pattTracker])
 
-    const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
-    const arrangerModeRef = useRef(arrangerMode);
-    useEffect(() => { arrangerModeRef.current = arrangerMode }, [arrangerMode])
+    const arrgMode = useSelector((state: RootState) => state.arranger.present.mode);
+    const ref_arrgMode = useRef(arrgMode);
+    useEffect(() => { ref_arrgMode.current = arrgMode }, [arrgMode])
 
-    const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
-    const activePatternRef = useRef(activePattern);
-    useEffect(() => { activePatternRef.current = activePattern }, [activePattern]);
+    const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
+    const ref_activePatt = useRef(activePatt);
+    useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
-    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[id].selected);
-    const selectedStepsRef = useRef(selectedSteps);
-    useEffect(() => { selectedStepsRef.current = selectedSteps }, [selectedSteps])
+    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[id].selected);
+    const ref_selectedSteps = useRef(selectedSteps);
+    useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps])
 
-    const isRecording = useSelector((state: RootState) => state.transport.present.recording);
-    const isRecordingRef = useRef(isRecording);
-    useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
+    const isRec = useSelector((state: RootState) => state.transport.present.recording);
+    const ref_isRec = useRef(isRec);
+    useEffect(() => { ref_isRec.current = isRec }, [isRec])
 
-    const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
-    const isPlayingRef = useRef(isPlaying);
-    useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
-    const previousPlaying = usePrevious(isPlaying);
+    const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
+    const ref_isPlay = useRef(isPlay);
+    useEffect(() => { ref_isPlay.current = isPlay }, [isPlay])
+    const prev_IsPlay = usePrevious(isPlay);
 
-    const patternVelocities = useSelector(
+    // ** flag ** 
+    // only used as starting point for ref
+    const pattVelocities = useSelector(
         (state: RootState) => {
             let o: { [key: number]: number } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -177,10 +179,12 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         }
     );
 
-    const patternVelocitiesRef = useRef(patternVelocities);
-    useEffect(() => { patternVelocitiesRef.current = patternVelocities }, [patternVelocities])
+    const ref_pattVelocities = useRef(pattVelocities);
+    useEffect(() => { ref_pattVelocities.current = pattVelocities }, [pattVelocities])
 
-    const patternNoteLength = useSelector(
+    // ** flag ** 
+    // only used as starting point for ref
+    const pattNoteLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: string | number | undefined } = {}
             Object.entries(state.sequencer.present.patterns).forEach(([key, pattern]) => {
@@ -194,10 +198,10 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             return o
         }
     );
-    const patternNoteLengthRef = useRef(patternNoteLength);
-    useEffect(() => { patternNoteLengthRef.current = patternNoteLength }, [patternNoteLength])
+    const ref_pattNoteLen = useRef(pattNoteLen);
+    useEffect(() => { ref_pattNoteLen.current = pattNoteLen }, [pattNoteLen])
 
-    const patternLengths = useSelector(
+    const pattsLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -207,12 +211,10 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             return o;
         }
     );
-    const patternLengthsRef = useRef(patternLengths);
-    useEffect(() => { patternLengthsRef.current = patternLengths }, [patternLengths])
+    const ref_pattsLen = useRef(pattsLen);
+    useEffect(() => { ref_pattsLen.current = pattsLen }, [pattsLen])
 
-    // should delete this, there's no reference to it 
-    // anywhere else 
-    const trackPatternLength = useSelector(
+    const trkPattLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -222,8 +224,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             return o;
         }
     );
-    const trackPatternLengthRef = useRef(trackPatternLength);
-    useEffect(() => { trackPatternLengthRef.current = trackPatternLength }, [trackPatternLength])
+    const ref_trkPattLen = useRef(trkPattLen);
+    useEffect(() => { ref_trkPattLen.current = trkPattLen }, [trkPattLen])
 
     const events = useSelector(
         (state: RootState) => {
@@ -241,35 +243,38 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const removePropertyLockCallbacks: any = useMemo(() => {
         let o = {}
-        let callArray = properties.map(property => {
-            if (selectedStepsRef.current.length > 0)
-                selectedStepsRef.current.forEach(step => {
-                    dispatch(removePropertyLock(
-                        indexRef.current,
-                        activePatternRef.current,
-                        step,
-                        property    
-                    ))
-                })
+        let callArray = instProps.map(property => {
+            return () => {
+                if (ref_selectedSteps.current.length > 0)
+                    ref_selectedSteps.current.forEach(step => {
+                        dispatch(removePropertyLock(
+                            ref_index.current,
+                            ref_activePatt.current,
+                            step,
+                            property    
+                        ))
+                    }
+                )
+            }
         })
         callArray.forEach((call, idx, arr) => {
-            setNestedValue(properties[idx], call, o);
+            setNestedValue(instProps[idx], call, o);
         });
         return o
     }, [])
 
-    const propertyValueUpdateCallback: any = useMemo(() => {
+    const propertiesUpdate: any = useMemo(() => {
         let o = {}
-        let callArray = properties.map((property) => {
+        let callArray = instProps.map((property) => {
             return (value: any) => {
                 // parameter lock logic 
                 let temp = setNestedValue(property, value)
-                if (selectedStepsRef.current.length > 0) {
-                    selectedStepsRef.current.forEach(s => {
+                if (ref_selectedSteps.current.length > 0) {
+                    ref_selectedSteps.current.forEach(s => {
                         dispatch(parameterLock(
-                            activePatternRef.current,
+                            ref_activePatt.current,
                             // idRef.current,
-                            indexRef.current,
+                            ref_index.current,
                             s,
                             temp,
                             property
@@ -279,43 +284,46 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     //     === getNested(optionsRef.current, property)[0]) {
                 } else {
                     // instrumentRef.current.set(temp);
-                    dispatch(updateInstrumentState(indexRef.current, temp));
+                    dispatch(updateInstrumentState(ref_index.current, temp));
                 };
             }
         });
         callArray.forEach((call, idx, arr) => {
-            setNestedValue(properties[idx], call, o);
+            setNestedValue(instProps[idx], call, o);
         });
         return o
     }, [
         dispatch,
-        indexRef,
-        properties,
-        optionsRef,
+        ref_index,
+        instProps,
+        ref_options,
     ]);
 
-    const propertyIncreaseDecrease: any = useMemo(() => {
-        const callArray = properties.map((property) => {
+    // I think maybe this one doesn't need
+    // to be wraped in an useMemo 
+    // ** flag ** 
+    const propertiesIncDec: any = useMemo(() => {
+        const callArray = instProps.map((property) => {
             return (e: any) => {
 
-                const indicatorType = getNested(optionsRef.current, property)[3]
-                const stateValue = getNested(optionsRef.current, property)[0]
+                const indicatorType = getNested(ref_options.current, property)[3]
+                const stateValue = getNested(ref_options.current, property)[0]
 
                 const isContinuous = indicatorType === indicators.KNOB
                     || indicatorType === indicators.VERTICAL_SLIDER
 
                 const cc = e.controller && e.controller.number
 
-                if (selectedStepsRef.current.length >= 1) {
-                    selectedStepsRef.current.forEach(step => {
+                if (ref_selectedSteps.current.length >= 1) {
+                    ref_selectedSteps.current.forEach(step => {
                         dispatch(parameterLockIncreaseDecrease(
-                            activePatternRef.current,
+                            ref_activePatt.current,
                             // idRef.current,
-                            indexRef.current,
+                            ref_index.current,
                             step,
                             cc ? e.value : e.movementY,
                             property,
-                            getNested(optionsRef.current, property),
+                            getNested(ref_options.current, property),
                             cc,
                             isContinuous,
                         ))
@@ -325,15 +333,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     //     property
                     // )) {
                 } else {
-                    // console.log(
-                    //     'increasing decreasing',
-                    //     'property:', property,
-                    //     'cc:', cc,
-                    //     'isContinuous:', isContinuous,
-                    //     'e', e,
-                    // )
                     dispatch(increaseDecreaseInstrumentProperty(
-                        indexRef.current,
+                        ref_index.current,
                         property,
                         cc ? e.value : e.movementY,
                         cc,
@@ -343,53 +344,60 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             }
         })
         let o = {};
-        properties.forEach((_, idx, __) => {
-            setNestedValue(properties[idx], callArray[idx], o);
+        instProps.forEach((_, idx, __) => {
+            setNestedValue(instProps[idx], callArray[idx], o);
         });
         return o;
     }, [
         dispatch,
-        activePatternRef,
-        indexRef,
-        optionsRef,
-        selectedStepsRef,
-        properties,
+        ref_activePatt,
+        ref_index,
+        ref_options,
+        ref_selectedSteps,
+        instProps,
     ]);
 
-    useProperties(instrumentRef, options);
-    useDrumRackProperties(instrumentRef, options)
+    useProperties(ref_ToneInstrument, options);
+    useDrumRackProperties(ref_ToneInstrument, options)
 
     // reset to normal state after playback stopped
+    // ** flag ** 
+    // instrumentCallback, effectsCallbacks, lockedProperties
+    // should all be encapsulated into hooks 
+    // something like 
+    // { lockedParameters, instrumentCallback} = useParameterLocks(
+
+    // )
     useEffect(() => {
-        if (!isPlaying && previousPlaying) {
-            let lockedProperties = propertiesToArray(lockedParameters.current);
+        if (!isPlay && prev_IsPlay) {
+            let lockedProperties = propertiesToArray(ref_lockedParameters.current);
             lockedProperties.forEach((lockedProperty) => {
-                const data = copyToNew(lockedParameters.current, lockedProperty)
+                const data = copyToNew(ref_lockedParameters.current, lockedProperty)
                 dispatch(updateInstrumentState(index, data));
             });
             // instrumentRef.current.set(d);
         }
-        isPlayingRef.current = isPlaying;
+        ref_isPlay.current = isPlay;
     }, [
-        isPlaying,
+        isPlay,
         dispatch,
         index,
-        previousPlaying,
-        isPlayingRef
+        prev_IsPlay,
+        ref_isPlay
     ]
     );
 
     const instrumentCallback = useCallback((time: number, value: eventOptions) => {
         let velocity: number = value.velocity
             ? value.velocity
-            : arrangerModeRef.current === "pattern"
-                ? patternVelocitiesRef.current[activePatternRef.current]
-                : patternVelocitiesRef.current[patternTrackerRef.current[0]]
+            : ref_arrgMode.current === "pattern"
+                ? ref_pattVelocities.current[ref_activePatt.current]
+                : ref_pattVelocities.current[ref_pattTracker.current[0]]
         let length: string | number | undefined = value.length
             ? value.length
-            : arrangerModeRef.current === "pattern"
-                ? patternNoteLengthRef.current[activePatternRef.current]
-                : patternNoteLengthRef.current[patternTrackerRef.current[0]]
+            : ref_arrgMode.current === "pattern"
+                ? ref_pattNoteLen.current[ref_activePatt.current]
+                : ref_pattNoteLen.current[ref_pattTracker.current[0]]
         let notes: string[] | undefined = value.note ? value.note : undefined;
 
         // note playback
@@ -402,15 +410,15 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 && eventProperty !== 'length'
                 && eventProperty !== 'note'
             ) {
-                const currVal = getNested(optionsRef.current, eventProperty);
+                const currVal = getNested(ref_options.current, eventProperty);
                 const callbackVal = getNested(value, eventProperty);
-                const lockVal = getNested(lockedParameters.current, eventProperty);
+                const lockVal = getNested(ref_lockedParameters.current, eventProperty);
                 if (callbackVal && callbackVal !== currVal[0]) {
-                    propertyValueUpdateCallback[eventProperty](callbackVal);
-                    setNestedValue(eventProperty, callbackVal, lockedParameters);
+                    propertiesUpdate[eventProperty](callbackVal);
+                    setNestedValue(eventProperty, callbackVal, ref_lockedParameters);
                 } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-                    propertyValueUpdateCallback[eventProperty](lockVal);
-                    deleteProperty(lockedParameters.current, eventProperty);
+                    propertiesUpdate[eventProperty](lockVal);
+                    deleteProperty(ref_lockedParameters.current, eventProperty);
                     // setNestedValue(property, undefined, lockedParameters.current)
                 }
             }
@@ -418,8 +426,8 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
         if (notes) {
             notes.forEach(note => {
-                if (note && instrumentRef.current) {
-                    instrumentRef.current.triggerAttackRelease(
+                if (note && ref_ToneInstrument.current) {
+                    ref_ToneInstrument.current.triggerAttackRelease(
                         note,
                         length ? length : 0,
                         time,
@@ -432,42 +440,42 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             })
         }
     }, [
-        properties,
-        propertyValueUpdateCallback,
-        activePatternRef,
-        arrangerModeRef,
-        optionsRef,
-        patternNoteLengthRef,
-        patternTrackerRef,
-        patternVelocitiesRef,
+        instProps,
+        propertiesUpdate,
+        ref_activePatt,
+        ref_arrgMode,
+        ref_options,
+        ref_pattNoteLen,
+        ref_pattTracker,
+        ref_pattVelocities,
     ]
     );
 
     const returnStep = useCallback((t: string): number => {
         let result;
         const n = sixteenthFromBBS(t)
-        if (arrangerModeRef.current === "pattern") {
-            result = trackPatternLengthRef.current[activePatternRef.current] >= patternLengthsRef.current[activePatternRef.current]
+        if (ref_arrgMode.current === "pattern") {
+            result = ref_trkPattLen.current[ref_activePatt.current] >= ref_pattsLen.current[ref_activePatt.current]
                 ? n
-                : n % trackPatternLengthRef.current[activePatternRef.current]
+                : n % ref_trkPattLen.current[ref_activePatt.current]
         } else {
-            const pattern = patternTrackerRef.current[0];
-            const timeb = patternTrackerRef.current[1] ? patternTrackerRef.current[1] : 0;
+            const pattern = ref_pattTracker.current[0];
+            const timeb = ref_pattTracker.current[1] ? ref_pattTracker.current[1] : 0;
             const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
             const step = n - sixteenthFromBBS(timebbs);
-            const patternLocation = step % patternLengthsRef.current[pattern];
+            const patternLocation = step % ref_pattsLen.current[pattern];
             if (!patternLocation) return -1
-            result = trackPatternLengthRef.current[pattern] < patternLengthsRef.current[activePatternRef.current]
-                ? patternLocation % trackPatternLengthRef.current[pattern]
+            result = ref_trkPattLen.current[pattern] < ref_pattsLen.current[ref_activePatt.current]
+                ? patternLocation % ref_trkPattLen.current[pattern]
                 : patternLocation;
         };
         return result;
     }, [
-        arrangerModeRef,
-        patternTrackerRef,
-        patternLengthsRef,
-        activePatternRef,
-        trackPatternLengthRef
+        ref_arrgMode,
+        ref_pattTracker,
+        ref_pattsLen,
+        ref_activePatt,
+        ref_trkPattLen
     ]
     )
 
@@ -476,7 +484,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         velocity: number,
         pattern: number
     ): void => {
-        selectedStepsRef.current.forEach(step => {
+        ref_selectedSteps.current.forEach(step => {
             const event = {
                 ...eventsRef.current[pattern][step],
             };
@@ -489,11 +497,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             }
             event['note'] = notes ? notes : null;
             event['velocity'] = velocity;
-            triggRefs.current[pattern][idRef.current].instrument.at(time, event)
+            ref_toneTriggObjCtx.current[pattern][idRef.current].instrument.at(time, event)
             dispatch(setNoteMidi(idRef.current, event['note'], velocity, step));
         });
 
-    }, [dispatch, index, triggRefs, eventsRef, selectedStepsRef]);
+    }, [dispatch, index, ref_toneTriggObjCtx, eventsRef, ref_selectedSteps]);
 
     const setNoteInput = useCallback((
         pattern: number,
@@ -515,7 +523,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         } else if (!overrideRef && !e.note.includes(noteName)) {
             e.note.push(noteName);
         }
-        triggRefs.current[pattern][idRef.current].instrument.remove(pastTime);
+        ref_toneTriggObjCtx.current[pattern][idRef.current].instrument.remove(pastTime);
         dispatch(
             noteInput(
                 pattern,
@@ -526,7 +534,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 velocity
             )
         );
-        onHoldNotes.current[noteName] = {
+        ref_onHoldNotes.current[noteName] = {
             pattern,
             index,
             step,
@@ -538,7 +546,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     }, [
         dispatch,
         index,
-        triggRefs,
+        ref_toneTriggObjCtx,
         eventsRef,
         overrideRef
     ]
@@ -571,50 +579,50 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const noteInCallback = useCallback((noteNumber: number, noteName: string, time: number, velocity?: number) => {
         if (!velocity) velocity = 60
-        if (isRecordingRef.current && isPlayingRef.current && instrumentRef.current) {
+        if (ref_isRec.current && ref_isPlay.current && ref_ToneInstrument.current) {
 
             // recording playiback logic 
-            instrumentRef.current.triggerAttack(noteName, 0, velocity);
+            ref_ToneInstrument.current.triggerAttack(noteName, 0, velocity);
             const position = Tone.Transport.position.toString();
             const multiplier = parseFloat("0." + position.split(".")[1]);
             let offset = Math.round(127 * multiplier);
-            const pattern = arrangerModeRef.current
-                ? activePatternRef.current
-                : patternTrackerRef.current[0];
+            const pattern = ref_arrgMode.current
+                ? ref_activePatt.current
+                : ref_pattTracker.current[0];
             let step = returnStep(position);
             if (step >= 0) {
                 if (
-                    eventsRef.current[activePatternRef.current][step + 1]
-                    && !eventsRef.current[activePatternRef.current][step + 1]['note']
+                    eventsRef.current[ref_activePatt.current][step + 1]
+                    && !eventsRef.current[ref_activePatt.current][step + 1]['note']
                 ) {
                     step = step + 1
                     offset = 1 - offset;
                 }
                 setNoteInput(pattern, step, offset, noteName, velocity, time)
             }
-        } else if (selectedStepsRef.current.length >= 0 && !isRecordingRef.current) {
-            noteLock(noteName, velocity, activePatternRef.current);
+        } else if (ref_selectedSteps.current.length >= 0 && !ref_isRec.current) {
+            noteLock(noteName, velocity, ref_activePatt.current);
         } else {
-            instrumentRef.current?.triggerAttack(noteName, 0, velocity);
+            ref_ToneInstrument.current?.triggerAttack(noteName, 0, velocity);
         }
     }, [noteLock,
         setNoteInput,
-        activePatternRef,
-        arrangerModeRef,
+        ref_activePatt,
+        ref_arrgMode,
         eventsRef,
-        isPlayingRef,
-        isRecordingRef,
-        patternTrackerRef,
+        ref_isPlay,
+        ref_isRec,
+        ref_pattTracker,
         returnStep,
-        selectedStepsRef
+        ref_selectedSteps
     ]
     )
 
 
     const noteOffCallback = useCallback((noteNumber: number, noteName: string): void => {
-        const noteObj = onHoldNotes.current[noteName];
+        const noteObj = ref_onHoldNotes.current[noteName];
 
-        if (isRecordingRef.current && isPlayingRef.current) {
+        if (ref_isRec.current && ref_isPlay.current) {
             // instrumentRef.current.triggerRelease(noteName);
             const now = Date.now() / 1000;
             const length = Tone.Time(now - noteObj.time, 's').toNotation();
@@ -625,7 +633,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 length: length,
             }
             const time = timeObjFromEvent(noteObj.step, e);
-            triggRefs.current[pattern][index].instrument.at(time, e);
+            ref_toneTriggObjCtx.current[pattern][index].instrument.at(time, e);
             dispatch(
                 setNoteLengthPlayback(
                     noteName,
@@ -635,24 +643,23 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     length,
                 )
             );
-            onHoldNotes.current[noteName] = {};
+            ref_onHoldNotes.current[noteName] = {};
         }
-        if (!(selectedStepsRef.current.length > 0) && !isRecordingRef.current) {
-            instrumentRef.current?.triggerRelease(noteName);
+        if (!(ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
+            ref_ToneInstrument.current?.triggerRelease(noteName);
         }
     }, [
         dispatch,
         index,
-        triggRefs,
-        isPlayingRef,
-        isRecordingRef,
-        selectedStepsRef,
+        ref_toneTriggObjCtx,
+        ref_isPlay,
+        ref_isRec,
+        ref_selectedSteps,
     ]
     );
 
     const instrumentKeyDown = useCallback(function keyDownCallback(this: Document, ev: KeyboardEvent) {
         if (ev.repeat) { return }
-        const time = Date.now() / 1000;
         const key = ev.key.toLowerCase()
         if (Object.keys(noteDict).includes(key)) {
             const noteNumber = noteDict[key] + (keyboardRangeRef.current * 12)
@@ -696,7 +703,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     ) => {
         const calculationCallback = wrapBind(
             getNested(
-                propertyIncreaseDecrease,
+                propertiesIncDec,
                 property
             ), cc);
         setNestedValue(
@@ -707,7 +714,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 channel: channel,
                 cc: cc,
             },
-            CCMaps.current
+            ref_CCMaps.current
         )
         if (device && channel) {
             let i = WebMidi.getInputByName(device)
@@ -726,7 +733,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         // event.preventDefault()
         // event.stopPropagation()
         let locked = false;
-        const mappedProperty = getNested(CCMaps.current, property);
+        const mappedProperty = getNested(ref_CCMaps.current, property);
         if (mappedProperty) {
             locked = true;
             let device = WebMidi.getInputByName(mappedProperty.device);
@@ -736,11 +743,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                     mappedProperty.channel,
                     mappedProperty.func,
                 )
-                deleteProperty(CCMaps.current, property);
+                deleteProperty(ref_CCMaps.current, property);
             }
         }
         if (!locked) {
-            listenCC.current = (e: InputEventControlchange): void => {
+            ref_listenCC.current = (e: InputEventControlchange): void => {
                 return bindCCtoParameter(
                     e.target.name,
                     e.channel,
@@ -749,11 +756,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 )
             }
             WebMidi.inputs.forEach(input => {
-                if (listenCC.current) {
+                if (ref_listenCC.current) {
                     input.addListener(
                         'controlchange',
                         'all',
-                        listenCC.current
+                        ref_listenCC.current
                     )
                 }
             });
@@ -762,26 +769,26 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     // change instrument logic 
     useEffect(() => {
-        if (previousVoice && previousVoice !== voice) {
-            instrumentRef.current = returnInstrument(voice, optionsRef.current);
+        if (prev_voice && prev_voice !== voice) {
+            ref_ToneInstrument.current = returnInstrument(voice, ref_options.current);
             // toneRefEmitter.emit(
             //     trackEventTypes.CHANGE_INSTRUMENT,
             //     { instrument: instrumentRef.current, trackId: id }
             // );
-            if (refsContext && refsContext.current[id].instrument) {
-                const inst = refsContext.current[id].instrument
-                const chain = refsContext.current[id].chain;
+            if (ref_toneTrkObjCtx && ref_toneTrkObjCtx.current[id].instrument) {
+                const inst = ref_toneTrkObjCtx.current[id].instrument
+                const chain = ref_toneTrkObjCtx.current[id].chain;
                 if (inst) {
                     inst.disconnect();
                     inst.dispose();
                 }
-                instrumentRef.current.connect(chain.in);
+                ref_ToneInstrument.current.connect(chain.in);
                 // refsContext.current[id].instrument.disconnect();
                 // refsContext.current[id].instrument.dispose();
-                refsContext.current[id].instrument = instrumentRef.current;
-                Object.keys(triggRefs.current).forEach(key => {
+                ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
+                Object.keys(ref_toneTriggObjCtx.current).forEach(key => {
                     let keyNumber = parseInt(key);
-                    triggRefs.current[keyNumber][id].instrument.callback = instrumentCallback;
+                    ref_toneTriggObjCtx.current[keyNumber][id].instrument.callback = instrumentCallback;
                 });
             }
         }
@@ -790,31 +797,31 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         voice,
         id,
         index,
-        triggRefs,
+        ref_toneTriggObjCtx,
         instrumentCallback,
-        optionsRef
+        ref_options
     ]);
 
     // keyboard note/midi input listeners
     useEffect(() => {
         // console.log(instrumentRef.current.get())
         if (midi.channel && midi.device && midi.device !== 'onboardKey') {
-            inputRef.current = WebMidi.getInputByName(midi.device);
+            ref_midiInput.current = WebMidi.getInputByName(midi.device);
             if (
-                inputRef.current
-                && !inputRef.current.hasListener('noteon', midi.channel, midiInCallback)
+                ref_midiInput.current
+                && !ref_midiInput.current.hasListener('noteon', midi.channel, midiInCallback)
             ) {
-                inputRef.current.addListener('noteon', midi.channel, midiInCallback);
-                inputRef.current.addListener('noteoff', midi.channel, midiOffCallback);
+                ref_midiInput.current.addListener('noteon', midi.channel, midiInCallback);
+                ref_midiInput.current.addListener('noteoff', midi.channel, midiOffCallback);
             }
 
             return () => {
-                if (inputRef.current
+                if (ref_midiInput.current
                     && midi.channel
-                    && inputRef.current.hasListener('noteon', midi.channel, midiInCallback)
+                    && ref_midiInput.current.hasListener('noteon', midi.channel, midiInCallback)
                 ) {
-                    inputRef.current.removeListener('noteon', midi.channel, midiInCallback);
-                    inputRef.current.removeListener('noteoff', midi.channel, midiOffCallback);
+                    ref_midiInput.current.removeListener('noteon', midi.channel, midiInCallback);
+                    ref_midiInput.current.removeListener('noteoff', midi.channel, midiOffCallback);
                 }
             }
         } else if (midi.device === 'onboardKey') {
@@ -826,7 +833,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 document.removeEventListener('keyup', instrumentKeyUp);
             }
         }
-    }, [])
+    }, [midi.device, midi.channel])
 
 
     // adding instrument to context in first render
@@ -841,13 +848,13 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             //     { instrument: instrumentRef.current, trackId: id }
             // );
 
-            if (refsContext && !refsContext.current[id].instrument) {
-                refsContext.current[id].instrument = instrumentRef.current;
-                instrumentRef.current?.connect(refsContext.current[id].chain.in);
+            if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
+                ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
+                ref_ToneInstrument.current?.connect(ref_toneTrkObjCtx.current[id].chain.in);
             }
-            Object.keys(triggRefs.current).forEach(key => {
+            Object.keys(ref_toneTriggObjCtx.current).forEach(key => {
                 let k = parseInt(key)
-                triggRefs.current[k][id].instrument.callback = instrumentCallback;
+                ref_toneTriggObjCtx.current[k][id].instrument.callback = instrumentCallback;
             })
             setRender(false);
         }
@@ -857,76 +864,81 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const Component = voice === xolombrisxInstruments.FMSYNTH
         ? <ModulationSynth
-            calcCallbacks={propertyIncreaseDecrease}
+            calcCallbacks={propertiesIncDec}
             removePropertyLocks={removePropertyLockCallbacks}
             options={options}
             index={index}
-            events={events[activePattern]}
+            events={events[activePatt]}
             selected={selectedSteps}
             voice={voice}
-            properties={properties}
-            propertyUpdateCallbacks={propertyValueUpdateCallback} />
+            properties={instProps}
+            propertyUpdateCallbacks={propertiesUpdate} />
         : voice === xolombrisxInstruments.NOISESYNTH
             ? <NoiseSynth
-                calcCallbacks={propertyIncreaseDecrease}
+                calcCallbacks={propertiesIncDec}
                 // parameterLockValues={parameterLockValues}
-                properties={properties}
-                ccMap={CCMaps}
+                properties={instProps}
+                removePropertyLocks={removePropertyLockCallbacks}
+                ccMap={ref_CCMaps}
                 midiLearn={midiLearn}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 selected={selectedSteps}
                 options={options}
                 index={index}
-                propertyUpdateCallbacks={propertyValueUpdateCallback} />
+                propertyUpdateCallbacks={propertiesUpdate} />
             : voice === xolombrisxInstruments.AMSYNTH
                 ? <ModulationSynth
                     removePropertyLocks={removePropertyLockCallbacks}
-                    calcCallbacks={propertyIncreaseDecrease}
+                    calcCallbacks={propertiesIncDec}
                     options={options}
                     index={index}
-                    events={events[activePattern]}
+                    events={events[activePatt]}
                     selected={selectedSteps}
                     voice={voice}
-                    properties={properties}
-                    propertyUpdateCallbacks={propertyValueUpdateCallback} />
+                    properties={instProps}
+                    propertyUpdateCallbacks={propertiesUpdate} />
                 : voice === xolombrisxInstruments.MEMBRANESYNTH
                     ? <MembraneSynth
-                        calcCallbacks={propertyIncreaseDecrease}
-                        events={events[activePattern]}
+                        calcCallbacks={propertiesIncDec}
+                        removePropertyLocks={removePropertyLockCallbacks}
+                        events={events[activePatt]}
                         index={index}
                         options={options}
-                        properties={properties}
-                        propertyUpdateCallbacks={propertyValueUpdateCallback}
+                        properties={instProps}
+                        propertyUpdateCallbacks={propertiesUpdate}
                         selected={selectedSteps}
                     />
                     : voice === xolombrisxInstruments.METALSYNTH
                         ? <MetalSynth
-                            calcCallbacks={propertyIncreaseDecrease}
-                            events={events[activePattern]}
+                            calcCallbacks={propertiesIncDec}
+                            removePropertyLocks={removePropertyLockCallbacks}
+                            events={events[activePatt]}
                             index={index}
                             options={options}
-                            properties={properties}
-                            propertyUpdateCallbacks={propertyValueUpdateCallback}
+                            properties={instProps}
+                            propertyUpdateCallbacks={propertiesUpdate}
                             selected={selectedSteps}
                         />
                         : voice === xolombrisxInstruments.PLUCKSYNTH
                             ? <PluckSynth
-                                calcCallbacks={propertyIncreaseDecrease}
-                                events={events[activePattern]}
+                                removePropertyLocks={removePropertyLockCallbacks}
+                                calcCallbacks={propertiesIncDec}
+                                events={events[activePatt]}
                                 index={index}
                                 options={options}
-                                properties={properties}
-                                propertyUpdateCallbacks={propertyValueUpdateCallback}
+                                properties={instProps}
+                                propertyUpdateCallbacks={propertiesUpdate}
                                 selected={selectedSteps}
                             />
                             : voice === xolombrisxInstruments.DRUMRACK
                                 ? <DrumRack
-                                    calcCallbacks={propertyIncreaseDecrease}
-                                    events={events[activePattern]}
+                                    removePropertyLocks={removePropertyLockCallbacks}
+                                    calcCallbacks={propertiesIncDec}
+                                    events={events[activePatt]}
                                     index={index}
                                     options={options}
-                                    properties={properties}
-                                    propertyUpdateCallbacks={propertyValueUpdateCallback}
+                                    properties={instProps}
+                                    propertyUpdateCallbacks={propertiesUpdate}
                                     selected={selectedSteps}
                                 />
                                 : null;

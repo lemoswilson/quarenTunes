@@ -32,11 +32,17 @@ interface Patterns {
     patternTrackVelocity: number,
     events: event[],
     note: boolean,
+    setOffset: (offset: number) => void,
+    setVelocity: {
+        step: (amount: number) => void,
+        pattTrk: (amount: number) => void,
+    }
     // setNoteLength: (noteLength: number | string) => void,
 }
 
 const Patterns: React.FC<Patterns> = ({
     activePattern,
+    setOffset,
     addPattern,
     renamePattern,
     incDecPatLength,
@@ -45,6 +51,7 @@ const Patterns: React.FC<Patterns> = ({
     incDecVelocity,
     changePatternLength,
     changeTrackLength,
+    setVelocity,
     patterns,
     patternLength,
     patternTrackVelocity,
@@ -73,6 +80,7 @@ const Patterns: React.FC<Patterns> = ({
             changeTrackLength(data);
         };
         input.value = String(data);
+        input.blur()
     };
 
     const patternLengthSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
@@ -84,44 +92,61 @@ const Patterns: React.FC<Patterns> = ({
             changePatternLength(data);
         };
         input.value = String(data);
+        input.blur()
     };
 
+    // fix velocity submit and offset submit 
     const velocitySubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
+        const val = Number(input.value)
+        console.log('submiting velocity, val is', val)
+
         let data =
-            selected.length >= 1 
-            && selected
-            .map(id => events[id].instrument.velocity)
-            .every((val, i, arr) => val === arr[0])
-                ? Number(events[selected[0]].instrument.velocity)
-                : selected.length === 0
+            selected.length >=1 && note && selectedVelocities && events[selected[0]].instrument.velocity
+            ? Number(events[selected[0]].instrument.velocity)
+            : (note && selected.length >= 1 && selectedVelocities && !events[selected[0]].instrument.velocity)
+                ? `${patternTrackVelocity} (pattern)`
+                : !note   
                     ? trackLength
+                    : note && selected.length === 0
+                    ? patternTrackVelocity
                     : '*'
-        if (Number(input.value) >= 0 && Number(input.value) <= 127) {
+
+        if (val >= 0 && val <= 127) {
             data = Number(input.value);
-            changeTrackLength(data);
+            selected.length > 0 
+                ? setVelocity.step(data) 
+                : setVelocity.pattTrk(data)
         };
+
         input.value = String(data);
+        input.blur()
     };
 
     const offsetSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
+        const val = Number(input.value)
+
         let data =
-            selected.length >= 1 
-            && selected.map(
-                id => events[id].instrument.offset
-            ).every((val, i, arr) => val === arr[0])
-                ? Number(events[selected[0]].instrument.offset)
-                : selected.length === 0
+            note && selected.length >= 1 && selectedOffset && events[selected[0]].offset
+            ? Number(events[selected[0]].offset)
+            : note && selected.length >= 1 && selectedOffset && !events[selected[0]].offset
+                ? 0
+                : !note
                     ? patternLength
+                    // : selected.length === 0 && note
+                    // ? '*'
                     : '*'
-        if (Number(input.value) >= -100 && Number(input.value) <= 100) {
-            data = Number(input.value);
-            changeTrackLength(data);
+
+        if (val >= -100 && val <= 100) {
+            data = val;
+            setOffset(val)
         };
+
         input.value = String(data);
+        input.blur()
     };
 
     const selectedVelocities = selected
@@ -219,7 +244,6 @@ const Patterns: React.FC<Patterns> = ({
                             selected.length >=1 && note && selectedVelocities && events[selected[0]].instrument.velocity
                                 ? Number(events[selected[0]].instrument.velocity)
                                 : (note && selected.length >= 1 && selectedVelocities && !events[selected[0]].instrument.velocity)
-                                    // ? patternTrackVelocity 
                                     ? `${patternTrackVelocity} (pattern)`
                                     : !note   
                                         ? trackLength

@@ -13,6 +13,7 @@ export interface PluckSynthProps {
     options: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
+    removePropertyLocks: any,
     index: number,
     selected: number[],
     events: event[],
@@ -22,6 +23,7 @@ export interface PluckSynthProps {
 const PluckSynth: React.FC<PluckSynthProps> = ({
     calcCallbacks,
     options,
+    removePropertyLocks,
     propertyUpdateCallbacks,
     index,
     events,
@@ -90,6 +92,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     // ccMouseCalculationCallback={calcCallbacks.attackNoise}
                                     ccMouseCalculationCallback={calcCallbacks.attackNoise}
                                     label={'attackNoise'}
+                                    removePropertyLock={removePropertyLocks.attackNoise}
                                     max={attackNoise[1][1]}
                                     midiLearn={() => { }}
                                     min={attackNoise[1][0]}
@@ -105,6 +108,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     selectedLock={false}
                                     ccMouseCalculationCallback={calcCallbacks.dampening}
                                     label={'Damp'}
+                                    removePropertyLock={removePropertyLocks.dampening}
                                     max={dampening[1][1]}
                                     midiLearn={() => { }}
                                     min={dampening[1][0]}
@@ -135,6 +139,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.resonance}
+                                    removePropertyLock={removePropertyLocks.resonance}
                                     selectedLock={false}
                                     label={'Resoance'}
                                     max={resonance[1][1]}
@@ -159,6 +164,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     curve={release[4]}
                                     type={'knob'}
                                     unit={release[2]}
+                                    removePropertyLock={removePropertyLocks.release}
                                     value={getPropertyValue('release')}
                                     indicatorId={`instrument${index}:release`}
                                     valueUpdateCallback={propertyUpdateCallbacks.release}
@@ -187,6 +193,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                 curve={volume[4]}
                                 unit={volume[2]}
                                 value={getPropertyValue('volume')}
+                                removePropertyLock={removePropertyLocks.volume}
                                 indicatorId={`instrument${index}:volume`}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
                                 className={styles.volume}

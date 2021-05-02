@@ -655,6 +655,7 @@ export function sequencerReducer(
 					action.payload.step,
 					action.payload.property,
 				]
+				console.log('instrument :', state.patterns[pattern].tracks[trackIndex].events[step].instrument, ', property', property);
 				deleteProperty(draft.patterns[pattern].tracks[trackIndex].events[step].instrument, property)
 				break;
 			case sequencerActions.REMOVE_EFFECT_PROPERTY_LOCK:
@@ -666,6 +667,14 @@ export function sequencerReducer(
 					action.payload.fxIndex,
 				]
 				deleteProperty(draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex], property)
+				break;
+			case sequencerActions.SET_PATTERN_TRACK_VELOCITY:
+				[pattern, trackIndex, velocity] = [
+					action.payload.pattern,
+					action.payload.trackIndex,
+					action.payload.velocity
+				]
+				draft.patterns[pattern].tracks[trackIndex].velocity = velocity
 				break;
 		}
 	});
