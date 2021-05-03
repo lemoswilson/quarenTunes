@@ -118,14 +118,14 @@ export type PolyInstruments = MembraneSynth | MetalSynth | FMSynth | AMSynth | S
 
 
 export enum xolombrisxInstruments {
-	FMSYNTH = "FMSYNTH",
-	AMSYNTH = "AMSYNTH",
-	MEMBRANESYNTH = "MEMBRANESYNTH",
-	METALSYNTH = "METALSYNTH",
-	NOISESYNTH = "NOISESYNTH",
-	PLUCKSYNTH = "PLUCKSYNTH",
-	SAMPLER = "SAMPLER",
-	DRUMRACK = "DRUMRACK",
+	FMSYNTH = "FMSynth",
+	AMSYNTH = "AMSynth",
+	MEMBRANESYNTH = "MembraneSynth",
+	METALSYNTH = "MetalSynth",
+	NOISESYNTH = "NoiseSynth",
+	PLUCKSYNTH = "PluckSynth",
+	SAMPLER = "Sampler",
+	DRUMRACK = "DrumRack",
 }
 
 export enum effectTypes {
@@ -217,7 +217,15 @@ export enum trackActions {
 	UPDATE_EFFECT_STATE = "UPDATE_EFFECT_STATE",
 	ENVELOPE_ATTACK = "ENVELOPE_ATTACK",
 	UPDATE_ENVELOPE_CURVE = "UPDATE_ENVELOPE_CURVE",
+	REMOVE_MIDI_DEVICE = "REMOVE_MIDI_DEVICE"
 }
+
+export interface removeMidiDeviceAction {
+	type: trackActions.REMOVE_MIDI_DEVICE,
+	payload: {
+		device: string,
+	}
+};
 
 export interface updateEnvelopeCurveAction {
 	type: trackActions.UPDATE_ENVELOPE_CURVE,
@@ -334,7 +342,7 @@ export interface removeInstrumentAction {
 	};
 }
 
-export interface showInstrumentAction {
+export interface selectTrackAction {
 	type: trackActions.SELECT_INSTRUMENT;
 	payload: {
 		trackIndex: number;
@@ -396,7 +404,7 @@ export type trackActionTypes =
 	| changeInstrumentAction
 	| addInstrumentAction
 	| removeInstrumentAction
-	| showInstrumentAction
+	| selectTrackAction
 	| selectMidiDeviceAction
 	| selectMidiChannelAction
 	| insertEffectAction
@@ -408,4 +416,5 @@ export type trackActionTypes =
 	| increaseDecreaseInstrumentPropertyAction
 	| envelopeAttackAction
 	| updateEnvelopeCurveAction
+	| removeMidiDeviceAction
 	| changeEffectIndexAction;

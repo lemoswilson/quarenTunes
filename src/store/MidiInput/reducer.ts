@@ -1,10 +1,11 @@
 import { MidiInputActionTypes, MidiInputActions, MidiState } from './types';
 import produce from 'immer';
+import { startEndRange } from '../../lib/utility';
 
 
 export const initialState = {
     devices: {
-        onboardKey: Array(128).map(x => { return false }),
+        onboardKey: {all: Array(128).map(x => { return false })},
     },
     onboardRange: 4,
 }
@@ -14,21 +15,28 @@ export function midiInputReducer(state: MidiState = initialState, action: MidiIn
         switch (action.type) {
             case MidiInputActions.NOTE_ON:
                 action.payload.notes.forEach(index => {
-                    draft.devices[action.payload.device][index] = true
+                    draft.devices[action.payload.device][action.payload.channel][index] = true
                 })
                 break;
             case MidiInputActions.NOTE_OFF:
                 console.log('noteoff');
                 action.payload.notes.forEach(index => {
-                    draft.devices[action.payload.device][index] = false
+                    draft.devices[action.payload.device][action.payload.channel][index] = false
                 })
                 break;
             case MidiInputActions.PANIC:
-                draft.devices[action.payload.device] = Array(128).map(x => false);
+                Object.keys(draft.devices[action.payload.device]).forEach(channel => {
+                    draft.devices[action.payload.device][Number(channel)] = Array(128).map(x => false);
+                })
                 break;
             case MidiInputActions.ADD_DEVICE:
                 if (!draft.devices[action.payload.device]) {
-                    draft.devices[action.payload.device] = Array(128).map(x => false);
+                    draft.devices[action.payload.device] = {
+                        all: Array(128).map(x=> false)
+                    } 
+                    startEndRange(0, 15).forEach(channel => {
+                        draft.devices[action.payload.device][channel] = Array(128).map(x => false);
+                    })
                 }
                 break;
             case MidiInputActions.REMOVE_DEVICE:

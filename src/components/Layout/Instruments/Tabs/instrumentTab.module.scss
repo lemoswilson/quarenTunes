@@ -1,0 +1,25 @@
+@import '../../../../style/variables';
+
+.tab {
+    height: 100%;
+    width: 4rem;
+    list-style: none;
+    background-color: 'white';
+    position: relative;
+    display: flex;
+    text-align: left;
+    vertical-align: bottom;
+    line-height: 1.7rem;
+    font-family: $jost;
+    height: 65%;
+    // border-bottom: 0.5px solid $textColor;
+    font-size: 0.9rem;
+    color: $textColor;
+    text-shadow: 0 0 1px $textShadow;
+    background-color: rgba($color: #ffffff, $alpha: 1.0);
+    border: 1px solid black;
+}
+
+.radius {
+    border-top-left-radius: 0.3rem;
+}

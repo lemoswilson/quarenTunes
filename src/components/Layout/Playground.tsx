@@ -65,7 +65,7 @@ const Playground: React.FC = () => {
             const noteNumber = noteDict[key] + (keyboardRangeRef.current * 12)
             const noteName = numberToNote(noteNumber);
             if (noteNumber < 127) {
-                dispatch(noteOn([noteNumber], 'onboardKey'));
+                dispatch(noteOn([noteNumber], 'onboardKey', 'all'));
             }
         }
     }, [keyboardRangeRef, dispatch, noteOn])
@@ -79,7 +79,7 @@ const Playground: React.FC = () => {
             if (noteNumber <= 127) {
                 console.log('keyup', 'notenumber', noteNumber);
                 const time = Date.now() / 1000;
-                dispatch(noteOff([noteNumber], 'onboardKey'));
+                dispatch(noteOff([noteNumber], 'onboardKey', 'all'));
             }
         } else if (Object.keys(keyFunctions).includes(key)) {
             keyFunctions[key]()

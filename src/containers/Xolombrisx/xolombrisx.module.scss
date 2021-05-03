@@ -19,9 +19,9 @@ html {
         .content {
             display: grid;
             width: 98rem;
-            height: 53rem;
+            height: 56rem;
             // border: 1px solid black;
-            grid-template-rows: 2.5rem 34rem auto;
+            grid-template-rows: 2.5rem 1rem 34rem auto;
     
             .top {
                 display: flex;

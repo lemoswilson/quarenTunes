@@ -59,6 +59,7 @@ export function trackReducer(
 		let options: generalInstrumentOptions,
 			trackIndex: number,
 			fxOptions: generalEffectOptions,
+			device: string,
 			movement: number,
 			cc: boolean | undefined,
 			curve: curveTypes,
@@ -230,6 +231,13 @@ export function trackReducer(
 				draft.tracks[trackIndex].options[target].attackCurve[0] = curve
 				draft.tracks[trackIndex].options[target].releaseCurve[0] = curve
 				break;
+			case trackActions.REMOVE_MIDI_DEVICE:
+				device = action.payload.device
+				draft.tracks.forEach((_, idx, __) => {
+					if (draft.tracks[idx].midi.device === device)
+					draft.tracks[idx].midi.device = undefined
+					draft.tracks[idx].midi.channel = undefined
+				})
 		}
 	});
 }

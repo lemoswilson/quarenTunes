@@ -1,21 +1,23 @@
-import { MidiInputActionTypes, MidiInputActions } from './types';
+import { MidiInputActionTypes, MidiInputActions, numberNoteDict } from './types';
 
-export function noteOn(notes: number[], device: string): MidiInputActionTypes {
+export function noteOn(notes: number[], device: string, channel: number | 'all'): MidiInputActionTypes {
     return {
         type: MidiInputActions.NOTE_ON,
         payload: {
             device: device,
             notes: notes,
+            channel: channel,
         }
     }
 };
 
 
-export function noteOff(notes: number[], device: string): MidiInputActionTypes {
+export function noteOff(notes: number[], device: string, channel: number | 'all'): MidiInputActionTypes {
     return {
         type: MidiInputActions.NOTE_OFF,
         payload: {
             device: device,
+            channel: channel,
             notes: notes,
         }
     }

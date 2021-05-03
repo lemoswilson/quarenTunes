@@ -425,6 +425,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         })
 
         if (notes) {
+            // should fix this 
             notes.forEach(note => {
                 if (note && ref_ToneInstrument.current) {
                     ref_ToneInstrument.current.triggerAttackRelease(
@@ -558,18 +559,18 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         const velocity = e.velocity * 127;
         const time = Date.now() / 1000;
 
-        if (midi.device) {
-            dispatch(noteOn([noteNumber], midi.device));
+        if (midi.device && midi.channel) {
+            dispatch(noteOn([noteNumber], midi.device, midi.channel));
         }
 
         noteInCallback(noteNumber, noteName, time, velocity)
-    }, [midi.device])
+    }, [midi.device, midi.channel])
 
     const midiOffCallback = useCallback((e: InputEventNoteoff) => {
         const noteNumber = e.note.number;
         const noteName = e.note.name + e.note.octave;
-        if (midi.device) {
-            dispatch(noteOff([noteNumber], midi.device))
+        if (midi.device && midi.channel) {
+            dispatch(noteOff([noteNumber], midi.device, midi.channel))
         }
 
         noteOffCallback(noteNumber, noteName)
@@ -666,7 +667,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             const noteName = numberToNote(noteNumber);
             if (noteNumber < 127) {
                 const time = Date.now() / 1000;
-                dispatch(noteOn([noteNumber], 'onboardKey'));
+                dispatch(noteOn([noteNumber], 'onboardKey', 'all'));
                 noteInCallback(noteNumber, noteName, time)
             }
         }
@@ -678,7 +679,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             const noteNumber = noteDict[key] + (keyboardRangeRef.current * 12)
             const noteName = numberToNote(noteNumber);
             if (noteNumber < 127) {
-                dispatch(noteOff([noteNumber], 'onboardKey'));
+                dispatch(noteOff([noteNumber], 'onboardKey', 'all'));
                 noteOffCallback(noteNumber, noteName)
             }
         }

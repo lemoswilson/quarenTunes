@@ -84,11 +84,11 @@ const Arranger: FunctionComponent = () => {
 	useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
 	const previousPlaying = usePrevious(isPlaying);
 
-	const selectedTrk = useSelector((state: RootState) => state.track.present.selectedTrack);
-	const ref_selectedTrk = useRef(selectedTrk)
-	useEffect(() => {ref_selectedTrk.current = selectedTrk}, [selectedTrk])
+	const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack);
+	const ref_selectedTrkIdx = useRef(selectedTrkIdx)
+	useEffect(() => {ref_selectedTrkIdx.current = selectedTrkIdx}, [selectedTrkIdx])
 
-	const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrk].page);
+	const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIdx].page);
 	const ref_activePage = useRef(activePage);
 	useEffect(() => { ref_activePage.current = activePage;}, [activePage])
 
@@ -313,9 +313,9 @@ const Arranger: FunctionComponent = () => {
 		const step: number = sixteenthFromBBS(nowTime) - sixteenthFromBBS(timeBBS);
 		const patternLocation: number = step % ref_pattsObj.current[ref_pattTracker.current[0]].patternLength;
 		const trackStep: number =
-			ref_pattsObj.current[patternToUse].tracks[ref_selectedTrk.current].length
+			ref_pattsObj.current[patternToUse].tracks[ref_selectedTrkIdx.current].length
 				< ref_pattsObj.current[ref_pattTracker.current[0]].patternLength
-				? patternLocation % ref_pattsObj.current[ref_pattTracker.current[0]].tracks[ref_selectedTrk.current].length
+				? patternLocation % ref_pattsObj.current[ref_pattTracker.current[0]].tracks[ref_selectedTrkIdx.current].length
 				: patternLocation;
 		pageToGo = Math.floor(trackStep / 16);
 
@@ -326,7 +326,7 @@ const Arranger: FunctionComponent = () => {
 			dispatch(
 				goToActive(
 					pageToGo,
-					ref_selectedTrk.current,
+					ref_selectedTrkIdx.current,
 					patternToGo
 				)
 			);
@@ -334,18 +334,18 @@ const Arranger: FunctionComponent = () => {
 			ref_activePatt.current === patternToGo
 			&& ref_activePage.current !== pageToGo
 		) {
-			dispatch(goToActive(pageToGo, ref_selectedTrk.current, undefined));
+			dispatch(goToActive(pageToGo, ref_selectedTrkIdx.current, undefined));
 		} else if (
 			ref_activePatt.current !== patternToGo
 			&& pageToGo === ref_activePage.current
 		) {
-			dispatch(goToActive(undefined, ref_selectedTrk.current, patternToGo));
+			dispatch(goToActive(undefined, ref_selectedTrkIdx.current, patternToGo));
 		}
 	}, [
 		ref_activePatt,
 		ref_activePage,
 		dispatch,
-		selectedTrk,
+		selectedTrkIdx,
 		ref_pattsObj,
 	])
 

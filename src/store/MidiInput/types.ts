@@ -1,6 +1,9 @@
 export interface MidiState {
     devices: {
-        [device: string]: boolean[],
+        [device: string]: {
+            [channel:number]: boolean[],
+            all: boolean[],
+        },
         // [device: string]: any[],
     }
     onboardRange: number,
@@ -21,6 +24,7 @@ export interface midiOnAction {
     payload: {
         notes: number[],
         device: string;
+        channel: number | 'all',
     }
 };
 
@@ -29,6 +33,7 @@ export interface midiOffAction {
     payload: {
         notes: number[],
         device: string;
+        channel: number | 'all',
     }
 };
 
@@ -97,6 +102,7 @@ export const noteDict: { [key: string]: number } = {
     u: 11,
     i: 12,
 };
+
 
 export const numberNoteDict: { [key: number]: string } = {
     0: 'C',

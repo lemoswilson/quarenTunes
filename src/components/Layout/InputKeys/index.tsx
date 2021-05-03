@@ -16,7 +16,7 @@ import { event } from '../../../store/Sequencer/'
 
 interface InputKeys {
     // keyState: { [key: string]: boolean },
-    keyState: boolean[],
+    keyState: boolean[] | false,
     noteCallback: (noteName: string) => void,
     setNoteLength: (noteLength: string) => void,
     setPatternNoteLength: (noteLength: string) => void,
@@ -76,11 +76,11 @@ const InputKeys: React.FC<InputKeys> = ({
         }
 
         if (bl > 0) {
-            if (keyDownMouse[noteNumber] || keyState[noteNumber] || incl) {
+            if (keyState && (keyDownMouse[noteNumber] || keyState[noteNumber] || incl)) {
                 return onStyleWhite
             } else return offStyleWhite
         } else {
-            if (keyDownMouse[noteNumber] || keyState[noteNumber] || incl) {
+            if (keyState && (keyDownMouse[noteNumber] || keyState[noteNumber] || incl)) {
                 return onStyleBlack
             } else return offStyleBlack
         }

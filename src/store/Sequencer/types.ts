@@ -52,6 +52,7 @@ export enum sequencerActions {
 	COPY_EVENTS = "COPY_EVENTS",
 	REMOVE_PROPERTY_LOCK = "REMOVE_PROPERTY_LOCK",
 	REMOVE_EFFECT_PROPERTY_LOCK = "REMOVE_EFFECT_PROPERTY_LOCK",
+	SELECT_STEPS_BATCH = "SELECT_STEPS_BATCH"
 };
 
 // export type fxOptions = effectsInitials;
@@ -92,6 +93,15 @@ export interface Sequencer {
 	override: boolean;
 	quantizeRecording: boolean;
 };
+
+export interface selectStepBatchAction {
+	type: sequencerActions.SELECT_STEPS_BATCH,
+	payload: {
+		pattern: number,
+		trackIndex: number,
+		steps: number[],
+	}
+}
 
 export interface removePropertyLockAction {
 	type: sequencerActions.REMOVE_PROPERTY_LOCK,
@@ -536,4 +546,5 @@ export type sequencerActionTypes =
 	| copyNotesAction
 	| removePropertyLockAction
 	| removeEffectPropertyLockAction
+	| selectStepBatchAction
 	| removeInstrumentFromSequencerAction;

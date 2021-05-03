@@ -116,6 +116,14 @@ export function changeInstrument(
 		},
 	};
 }
+export function removeMidiDevice(device: string) {
+	return {
+		type: trackActions.REMOVE_MIDI_DEVICE,
+		payload: {
+			device: device,
+		}
+	}
+};
 
 export function addInstrument(instrument: xolombrisxInstruments, trackIndex: number): trackActionTypes {
 	return {
@@ -136,7 +144,7 @@ export function removeInstrument(index: number): trackActionTypes {
 	};
 }
 
-export function showInstrument(index: number): trackActionTypes {
+export function selectTrack(index: number): trackActionTypes {
 	return {
 		type: trackActions.SELECT_INSTRUMENT,
 		payload: {

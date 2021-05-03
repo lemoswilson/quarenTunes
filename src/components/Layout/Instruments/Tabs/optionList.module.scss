@@ -1,0 +1,15 @@
+@import '../../../../style/variables';
+
+.menu {
+    position: relative;
+
+    .options {
+        display: flex;
+        position: absolute;
+
+        .li {
+            list-style: none;
+        }
+    }
+
+}

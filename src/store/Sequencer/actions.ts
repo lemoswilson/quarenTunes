@@ -2,6 +2,20 @@ import { sequencerActions, sequencerActionTypes, event } from "./types";
 import { eventOptions, RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions } from "../Track";
 
+export function selectStepsBatch(
+	pattern: number,
+	trackIndex: number,
+	steps: number[]
+): sequencerActionTypes {
+	return {
+		type: sequencerActions.SELECT_STEPS_BATCH,
+		payload: {
+			pattern: pattern,
+			trackIndex: trackIndex,
+			steps: steps
+		}
+	}
+}
 
 export function renamePattern(pattern: number, name: string): sequencerActionTypes {
 	return {

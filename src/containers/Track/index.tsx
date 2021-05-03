@@ -10,7 +10,7 @@ import {
     removeInstrument,
     selectMidiChannel,
     selectMidiDevice,
-    showInstrument,
+    selectTrack,
     xolombrisxInstruments,
     effectTypes
 } from '../../store/Track';
@@ -31,6 +31,7 @@ import grayTriangle from '../../assets/grayTriangle.svg';
 import Dropdown from '../../components/Layout/Dropdown';
 import Playground from '../../components/Layout/Playground';
 import SteppedIndicator from '../../components/Layout/SteppedIndicator';
+import Tabs from '../../components/Layout/Instruments/Tabs';
 
 import styles from './style.module.scss';
 
@@ -40,41 +41,40 @@ import { getInitials } from './defaults';
 const Track: FunctionComponent = () => {
 
     const dispatch = useDispatch();
-    const triggRef = useContext(triggContext);
-    const patternKeys: number[] = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).map(key => parseInt(key)));
-    const trackNumber: number = useSelector((state: RootState) => state.track.present.trackCount);
-    const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack);
-    const selectedTrackIndex = useSelector((state: RootState) => state.track.present.tracks.findIndex(v => v.id === selectedTrack))
+    const ref_ToneTriggCtx = useContext(triggContext);
+    const pattKeys: number[] = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).map(key => parseInt(key)));
+    const trackCount: number = useSelector((state: RootState) => state.track.present.trackCount);
+    const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack);
     const Tracks = useSelector((state: RootState) => state.track.present.tracks);
     const counter = useSelector((state: RootState) => state.track.present.instrumentCounter)
 
-    const dispatchChangeInstrument = (instrument: xolombrisxInstruments): void => {
-        dispatch(changeInstrument(selectedTrackIndex, instrument));
+    const _changeInstrument = (instrument: xolombrisxInstruments): void => {
+        dispatch(changeInstrument(selectedTrkIdx, instrument));
         // toneRefsEmitter.emit(trackEventTypes.CHANGE_INSTRUMENT, {instrument: })
     };
 
-    const dispatchAddInstrument = (instrument: xolombrisxInstruments, index: number): void => {
+    const dispatchAddInstrument = (instrument: xolombrisxInstruments, trackIndex: number): void => {
         dispatch(addInstrumentToSequencer(counter + 1));
-        dispatch(addInstrument(instrument, index));
-        triggEmitter.emit(triggEventTypes.ADD_TRACK, { trackIndex: index })
+        dispatch(addInstrument(instrument, trackIndex));
+        triggEmitter.emit(triggEventTypes.ADD_TRACK, { trackIndex: trackIndex })
     };
 
-    const dispatchRemoveInstrument = (trackId: number, index: number): void => {
-        dispatch(removeInstrument(index));
-        dispatch(removeInstrumentFromSequencer(trackId));
-        triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { trackIndex: index })
+    const _removeInstrument = (trackId: number, trackIndex: number): void => {
+        dispatch(removeInstrument(trackIndex));
+        dispatch(removeInstrumentFromSequencer(trackIndex));
+        triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { trackIndex: trackIndex })
         toneRefsEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackId: trackId })
     };
 
-    const dispatchShowInstrument = (index: number): void => {
-        dispatch(showInstrument(index));
+    const _selectInstrument = (trkIndex: number): void => {
+        dispatch(selectTrack(trkIndex));
     };
 
-    const dispatchSelectMIDIDevice = (index: number, device: string): void => {
+    const _selectMIDIDevice = (index: number, device: string): void => {
         dispatch(selectMidiDevice(index, device));
     };
 
-    const dispatchSelectMIDIChannel = (index: number, channel: number): void => {
+    const _selectMIDIChannel = (index: number, channel: number): void => {
         dispatch(selectMidiChannel(index, channel));
     };
 
@@ -86,18 +86,29 @@ const Track: FunctionComponent = () => {
     };
 
     const dispatchChangeEffectIdx = (from: number, to: number): void => {
-        dispatch(changeEffectIndex(from, to, selectedTrackIndex));
-        toneRefsEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackId: selectedTrack })
+        dispatch(changeEffectIndex(from, to, selectedTrkIdx));
+        toneRefsEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackId: selectedTrkIdx })
     };
 
     const dispatchDeleteEffect = (index: number, trackId: number): void => {
-        dispatch(deleteEffect(index, selectedTrack));
+        dispatch(deleteEffect(index, selectedTrkIdx));
         toneRefsEmitter.emit(trackEventTypes.REMOVE_EFFECT, { effectsIndex: index, trackId: trackId })
     };
 
     return (
         <div className={styles.trackWrapper}>
             <div className={styles.instrumentColumn}>
+                <Tabs 
+                Tracks={Tracks} 
+                className={styles.tabs}
+                removeInstrument={_removeInstrument}
+                changeInstrument={_changeInstrument}
+                selectInstrument={_selectInstrument}
+                setMIDIInput={{
+                    channel: _selectMIDIChannel,
+                    device: _selectMIDIDevice,
+                }}
+                />
                 <div className={styles.tabs}></div>
                 <div className={styles.box}>
                     {Tracks.map((trackInfo, idx, arr) => {
@@ -107,63 +118,26 @@ const Track: FunctionComponent = () => {
                             index={idx}
                             midi={trackInfo.midi}
                             options={trackInfo.options}
-                            selected={selectedTrack === trackInfo.id}
+                            selected={selectedTrkIdx === idx}
                             voice={trackInfo.instrument}
                         ></Instrument>
                     })}
-                    {/* <CurveSelector display={'horizontal'} selected={'exponential'} selectCurve={() => { }}></CurveSelector> */}
-                    {/* <WaveformSelector selectWaveform={() => { }} selected={'sine'}></WaveformSelector> */}
-                    {/* <img src={grayTriangle} alt="" /> */}
-                    {/* <Playground></Playground>
-                    <ContinuousIndicator
-                        ccMouseCalculationCallback={() => { }}
-                        curveFunction={() => 10}
-                        label={'Attack'}
-                        max={100}
-                        min={0}
-                        midiLearn={() => { }}
-                        value={100}
-                        valueUpdateCallback={() => { }}
-                        type={'knob'}
-                        unit={'unit'}
-                    ></ContinuousIndicator>
-                    <ContinuousIndicator
-                        ccMouseCalculationCallback={() => { }}
-                        curveFunction={() => 10}
-                        label={'Attack'}
-                        max={100}
-                        min={0}
-                        midiLearn={() => { }}
-                        value={37}
-                        valueUpdateCallback={() => { }}
-                        type={'slider'}
-                        unit={'unit'}
-                    ></ContinuousIndicator> */}
-                    {/* <SteppedIndicator
-                        options={['alameda', 'xola', 'jirafa']}
-                        ccMouseCalculationCallback={() => { }}
-                        label={'Attack'}
-                        midiLearn={() => { }}
-                        selected={'xola'}
-                        valueUpdateCallback={() => { }}
-                        unit={'unit'}
-                    ></SteppedIndicator> */}
                 </div>
             </div>
             <div className={styles.effectsColumn}>
                 <div className={styles.wrapper}>
                     <div className={styles.fx}>
-                        {/* {Tracks[selectedTrack].fx.map((fx, idx, arr) => {
+                        {/* {Tracks[selectedTrkIdx].fx.map((fx, idx, arr) => {
                             return (
                                 <React.Fragment key={`track:${selectedTrack};effect:${fx.id}`}>
                                     <div className={styles.box}>
                                         <Effect
                                             id={fx.id}
-                                            trackIndex={selectedTrackIndex}
+                                            trackIndex={selectedTrkIdx}
                                             index={idx}
-                                            midi={Tracks[selectedTrack].midi}
+                                            midi={Tracks[selectedTrkIdx].midi}
                                             options={fx.options}
-                                            trackId={selectedTrack}
+                                            trackId={Tracks[selectedTrkIdx].id}
                                             type={fx.fx}
                                         />
                                     </div>

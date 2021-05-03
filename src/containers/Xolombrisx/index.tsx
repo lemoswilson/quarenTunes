@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, RefObject, MutableRefObject, useState } from "react";
+import WebMidiComponent from '../../lib/WebMidi';
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
 import undoable, { newHistory, includeAction } from 'redux-undo';
@@ -39,6 +40,7 @@ import Track from '../../containers/Track';
 import { initialsArray } from '../../containers/Track/Instruments/'
 import Playground from '../../components/Layout/Playground';
 import Arranger from "../Arranger";
+import WebMidi from 'webmidi';
 
 declare global {
     interface Window {
@@ -571,6 +573,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         }
     }, [])
 
+
     return (
         <React.Fragment>
             <InputContext.Provider value={inputsRef}>
@@ -583,10 +586,12 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                     <Provider store={store}>
                                         <Div100vh className={styles.app}>
                                             <div ref={appRef} className={styles.wrapson}>
+                                                <WebMidiComponent/>
                                                 <div className={styles.content}>
                                                     <div className={styles.top}>
                                                         <div className={styles.transport}></div>
                                                     </div>
+                                                    <div className={styles.gap}></div>
                                                     <div className={styles.mid}>
                                                         <div className={styles.arrangerColumn}>
                                                             <div className={styles.box}>

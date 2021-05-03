@@ -7,7 +7,7 @@ import {
 import { propertiesToArray, getNested, setNestedValue, deleteProperty } from "../../lib/objectDecompose";
 import { eventOptions } from "../../containers/Track/Instruments";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from "../../lib/curves";
-import { startEndRange } from "../../lib/utility";
+import { startEndRange, bisect } from "../../lib/utility";
 import { RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions } from "../Track";
 
@@ -75,6 +75,7 @@ export function sequencerReducer(
 			property: string,
 			fxProps: keyof RecursivePartial<generalEffectOptions>,
 			step: number,
+			steps: number[],
 			cc: boolean | undefined,
 			isContinuous: boolean | undefined,
 			trackValues: any[],
@@ -300,6 +301,7 @@ export function sequencerReducer(
 				} else if (step >= draft.patterns[pattern].tracks[trackIndex].length) {
 					break
 				}
+
 				const sel = draft.patterns[pattern].tracks[trackIndex].selected
 				if (sel.includes(step)) {
 					const ind: number = sel.indexOf(
@@ -307,10 +309,7 @@ export function sequencerReducer(
 					);
 					draft.patterns[pattern].tracks[trackIndex].selected.splice(ind, 1);
 				} else {
-					let i = 0
-					for (i; i < sel.length ; i++) {
-						if (sel[i] >= step) { break }	
-					}
+					let i = bisect(sel, step)
 					if (i == 0) 
 						draft.patterns[pattern].tracks[trackIndex].selected.unshift(step)
 					else if (i == sel.length)
@@ -675,6 +674,15 @@ export function sequencerReducer(
 					action.payload.velocity
 				]
 				draft.patterns[pattern].tracks[trackIndex].velocity = velocity
+				break;
+			case sequencerActions.SELECT_STEPS_BATCH:
+				[pattern, trackIndex, steps] = [
+					action.payload.pattern,
+					action.payload.trackIndex,
+					action.payload.steps,
+				]
+				console.log('should be batching', steps);
+				draft.patterns[pattern].tracks[trackIndex].selected.push(...steps);
 				break;
 		}
 	});

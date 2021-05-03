@@ -1,0 +1,11 @@
+@import '../../../../style/variables';
+
+.tabs {
+    width: 36.5rem;
+    height: 1.6rem;
+    // border: 1px solid black;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+}

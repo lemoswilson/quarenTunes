@@ -87,9 +87,9 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
 }
 
 const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, trackId, trackIndex }) => {
-    const triggRefs = useContext(triggContext);
-    const toneObjRef = useContext(toneRefsContext);
-    const effectRef: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
+    const ref_toneTriggCtx = useContext(triggContext);
+    const ref_toneTrkCtx = useContext(toneRefsContext);
+    const ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
     // const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
     const fxProps = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
@@ -187,7 +187,7 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
         let o = {}
         let callArray = fxProps.map((property) => {
             return (value: any) => {
-                if (effectRef.current && getNested(effectRef.current.get(), property)
+                if (ref_ToneEffect.current && getNested(ref_ToneEffect.current.get(), property)
                     === getNested(optionsRef.current, property)[0]) {
                     let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
@@ -296,7 +296,7 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
     }, [])
 
 
-    useEffectProperties(effectRef, options)
+    useEffectProperties(ref_ToneEffect, options)
 
     // get handle of input object
     useEffect(() => {
@@ -362,17 +362,17 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
     // is different than current effect
     useEffect(() => {
         if (previousType && previousType !== type) {
-            effectRef.current = returnEffect(type, optionsRef.current);
+            ref_ToneEffect.current = returnEffect(type, optionsRef.current);
             // toneRefEmitter.emit(
             //     trackEventTypes.CHANGE_EFFECT,
             //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
             // );
 
-            if (toneObjRef?.current) {
-                const chain = toneObjRef.current[trackId].chain
-                const effects = toneObjRef.current[trackId].effects;
+            if (ref_toneTrkCtx?.current) {
+                const chain = ref_toneTrkCtx.current[trackId].chain
+                const effects = ref_toneTrkCtx.current[trackId].effects;
                 let prev, next: Tone.Gain | toneEffects;
-                if (fxIndex === toneObjRef.current[trackId].effects.length - 1) {
+                if (fxIndex === ref_toneTrkCtx.current[trackId].effects.length - 1) {
                     next = chain.out
                     if (fxIndex === 0) prev = chain.in;
                     else prev = effects[fxIndex - 1];
@@ -384,14 +384,14 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
 
                 effects[fxIndex].disconnect();
                 prev.disconnect()
-                prev.connect(effectRef.current);
-                effectRef.current.connect(next)
+                prev.connect(ref_ToneEffect.current);
+                ref_ToneEffect.current.connect(next)
                 effects[fxIndex].dispose();
-                effects[fxIndex] = effectRef.current;
+                effects[fxIndex] = ref_ToneEffect.current;
             }
-            Object.keys(triggRefs.current).forEach(key => {
+            Object.keys(ref_toneTriggCtx.current).forEach(key => {
                 let k = parseInt(key);
-                triggRefs.current[k][trackId].effects[fxIndex].callback = effectCallback
+                ref_toneTriggCtx.current[k][trackId].effects[fxIndex].callback = effectCallback
             });
         }
 
@@ -402,7 +402,7 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
         fxId,
         fxIndex,
         trackId,
-        triggRefs,
+        ref_toneTriggCtx,
         effectCallback,
         optionsRef
     ]);
@@ -415,36 +415,36 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
             //     trackEventTypes.ADD_EFFECT,
             //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
             // );
-            effectRef.current = returnEffect(type, options)
-            if (toneObjRef?.current) {
-                let lgth = toneObjRef.current[trackId].effects.length;
-                let chain = toneObjRef.current[trackId].chain;
+            ref_ToneEffect.current = returnEffect(type, options)
+            if (ref_toneTrkCtx?.current) {
+                let lgth = ref_toneTrkCtx.current[trackId].effects.length;
+                let chain = ref_toneTrkCtx.current[trackId].chain;
 
                 if (lgth > 0) {
                     let from, to;
                     if (fxIndex === lgth - 1) {
-                        from = toneObjRef.current[trackId].effects[lgth - 1];
+                        from = ref_toneTrkCtx.current[trackId].effects[lgth - 1];
                         to = chain.out
                     } else {
-                        from = toneObjRef.current[trackId].effects[fxIndex]
-                        to = toneObjRef.current[trackId].effects[fxIndex + 1]
+                        from = ref_toneTrkCtx.current[trackId].effects[fxIndex]
+                        to = ref_toneTrkCtx.current[trackId].effects[fxIndex + 1]
                     }
                     if (from && to) {
                         from.disconnect();
-                        from.connect(effectRef.current);
-                        effectRef.current.connect(to);
+                        from.connect(ref_ToneEffect.current);
+                        ref_ToneEffect.current.connect(to);
                     }
                 } else {
                     chain.in.disconnect();
-                    chain.in.connect(effectRef.current);
-                    effectRef.current.connect(chain.out);
+                    chain.in.connect(ref_ToneEffect.current);
+                    ref_ToneEffect.current.connect(chain.out);
                 }
-                toneObjRef.current[trackId].effects.push(effectRef.current);
+                ref_toneTrkCtx.current[trackId].effects.push(ref_ToneEffect.current);
             }
 
-            Object.keys(triggRefs.current).forEach(key => {
+            Object.keys(ref_toneTriggCtx.current).forEach(key => {
                 let k = parseInt(key);
-                triggRefs.current[k][trackId].effects[fxIndex].callback = effectCallback
+                ref_toneTriggCtx.current[k][trackId].effects[fxIndex].callback = effectCallback
             });
             // setRender(false);
         // }
