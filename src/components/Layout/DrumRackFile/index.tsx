@@ -3,11 +3,12 @@ import styles from './style.module.scss';
 
 interface DrumRackFileProps {
     onClick: (e: MouseEvent) => void
+    tabIndex: number,
 }
 
-const DrumRackFile: React.FC<DrumRackFileProps> = ({ onClick }) => {
+const DrumRackFile: React.FC<DrumRackFileProps> = ({ onClick, tabIndex }) => {
     return (
-        <div onClick={onClick} className={styles.wrapper}>
+        <div tabIndex={tabIndex} onClick={onClick} className={styles.wrapper}>
             <div className={styles.text}></div>
         </div>
     )

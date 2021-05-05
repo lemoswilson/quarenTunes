@@ -18,7 +18,7 @@ export type TriggEvent =
     }
     | {
         event: triggEventTypes.ADD_TRACK,
-        trackIndex: number,
+        // trackIndex: number,
     }
     | {
         event: triggEventTypes.DUPLICATE_PATTERN,

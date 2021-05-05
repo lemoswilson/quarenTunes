@@ -164,6 +164,7 @@ const Playground: React.FC = () => {
             <SteppedIndicator
                 options={Options.current}
                 ccMouseCalculationCallback={ccMouseCalculationCallback}
+                tabIndex={66}
                 label={'Attack'}
                 midiLearn={() => { }}
                 selected={optionsState}

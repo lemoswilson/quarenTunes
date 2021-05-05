@@ -10,6 +10,7 @@ interface SteppedIndicator {
     selected: string;
     options: string[];
     ccMouseCalculationCallback: (e: any) => void;
+    tabIndex: number,
     valueUpdateCallback: (value: any) => void;
     // curveFunction: (input: number) => number;
     label: string;
@@ -19,6 +20,7 @@ interface SteppedIndicator {
 
 export interface indicatorProps {
     wheelMove: (e: WheelEvent) => void,
+    tabIndex: number,
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
     valueUpdateCallback: (value: any) => void,
     captureStartDiv?: (e: React.MouseEvent) => void,
@@ -35,6 +37,7 @@ export interface indicatorProps {
 const SteppedIndicator: React.FC<SteppedIndicator> = ({
     className,
     ccMouseCalculationCallback,
+    tabIndex, 
     valueUpdateCallback,
     label,
     selected,
@@ -134,6 +137,7 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         selected={selected}
         valueUpdateCallback={valueUpdateCallback}
         unit={unit}
+        tabIndex={tabIndex}
         display={display}
         setDisplay={() => setDisplay(state => !state)}
     ></Knob>

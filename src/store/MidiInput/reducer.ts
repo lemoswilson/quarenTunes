@@ -14,15 +14,31 @@ export function midiInputReducer(state: MidiState = initialState, action: MidiIn
     return produce(state, (draft) => {
         switch (action.type) {
             case MidiInputActions.NOTE_ON:
-                action.payload.notes.forEach(index => {
-                    draft.devices[action.payload.device][action.payload.channel][index] = true
-                })
+                if (action.payload.channel === 'all') {
+                    startEndRange(0, 15).forEach(channel => {
+                        action.payload.notes.forEach(index => {
+                            draft.devices[action.payload.device][channel][index] = true
+                        })
+                    })
+                } else {
+                    action.payload.notes.forEach(index => {
+                        draft.devices[action.payload.device][action.payload.channel][index] = true
+                    })
+                }
                 break;
             case MidiInputActions.NOTE_OFF:
-                console.log('noteoff');
-                action.payload.notes.forEach(index => {
-                    draft.devices[action.payload.device][action.payload.channel][index] = false
-                })
+                // console.log('noteoff');
+                if (action.payload.channel = 'all') {
+                    startEndRange(0,15).forEach(channel => {
+                        action.payload.notes.forEach(index => {
+                            draft.devices[action.payload.device][channel][index] = false;
+                        })
+                    })
+                } else {
+                    action.payload.notes.forEach(index => {
+                        draft.devices[action.payload.device][action.payload.channel][index] = false
+                    })
+                }
                 break;
             case MidiInputActions.PANIC:
                 Object.keys(draft.devices[action.payload.device]).forEach(channel => {

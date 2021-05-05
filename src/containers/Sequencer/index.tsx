@@ -174,12 +174,16 @@ const Sequencer: FunctionComponent = () => {
     })
 
     const selectedChannel = useSelector((state: RootState) => {
-        return Number(state.track.present.tracks[selectedTrkIndex].midi.channel)
+        return state.track.present.tracks[selectedTrkIndex].midi.channel
     })
 
     // probably will have to change type
     const controller_keys = useSelector((state: RootState) => {
-        return selectedDevice && !Number.isNaN(Number(selectedChannel)) ? state.midi.devices[selectedDevice][selectedChannel] : false
+        return (selectedDevice && !Number.isNaN(Number(selectedChannel))) 
+            ? state.midi.devices[selectedDevice][Number(selectedChannel)] 
+            : (selectedDevice === 'onboardKey' && selectedChannel === 'all') 
+            ? state.midi.devices[selectedDevice]['all']
+            : false
     });
 
 
@@ -790,12 +794,11 @@ const Sequencer: FunctionComponent = () => {
         if (Tone.context.state !== "running") {
             Tone.start()
             Tone.context.resume();
-            // Tone.context.latencyHint
-            // Tone.context.latencyHint = "playback";
-            // Tone.context.lookAhead = 0;
         }
+
         // toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease('C3', '16n')
         if (ref_selectedSteps.current.length > 0) {
+            console.log('should be dispatching note')
             dispatchSetNote(noteName);
         } else if (typeof patternNoteLength === 'string') {
             if (voice === xolombrisxInstruments.NOISESYNTH) {

@@ -7,6 +7,7 @@ import ContinuousIndicator from '../../ContinuousIndicator';
 import { useDispatch } from 'react-redux';
 // import SteppedIndicator from '../../SteppedIndicator';
 import { event } from '../../../../store/Sequencer';
+import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/defaults';
 
 export interface CompressorProps {
     // options: initialsArray,
@@ -81,6 +82,7 @@ const Compressor: React.FC<CompressorProps> = ({
             <div className={styles.title}>Compressor</div>
             <ContinuousIndicator
                 selectedLock={false}
+                tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 ccMouseCalculationCallback={calcCallbacks.attack}
                 removePropertyLock={removeEffectPropertyLocks.attack}
                 label={'Attack'}
@@ -97,6 +99,7 @@ const Compressor: React.FC<CompressorProps> = ({
             />
             <ContinuousIndicator
                 ccMouseCalculationCallback={calcCallbacks.ratio}
+                tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 selectedLock={false}
                 removePropertyLock={removeEffectPropertyLocks.ration}
                 label={'Ratio'}
@@ -113,6 +116,7 @@ const Compressor: React.FC<CompressorProps> = ({
             <ContinuousIndicator
                 ccMouseCalculationCallback={calcCallbacks.threshold}
                 selectedLock={false}
+                tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 label={'Threshold'}
                 removePropertyLock={removeEffectPropertyLocks.threshold}
                 max={threshold[1][1]}
@@ -130,6 +134,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 ccMouseCalculationCallback={calcCallbacks.release}
                 selectedLock={false}
                 label={'Release'}
+                tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 removePropertyLock={removeEffectPropertyLocks.release}
                 max={release[1][1]}
                 midiLearn={() => { }}
@@ -143,6 +148,7 @@ const Compressor: React.FC<CompressorProps> = ({
             />
             <ContinuousIndicator
                 ccMouseCalculationCallback={calcCallbacks.knee}
+                tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 selectedLock={false}
                 label={'Knee'}
                 removePropertyLock={removeEffectPropertyLocks.knee}

@@ -1,15 +1,12 @@
-import React, { ChangeEvent, ChangeEventHandler, MutableRefObject, useEffect, useMemo, useRef } from 'react';
-import { updateEnvelopeCurve } from '../../../../store/Track';
+import React, {  MutableRefObject, useMemo, useRef } from 'react';
 import { getNested, setNestedValue } from '../../../../lib/objectDecompose';
 import styles from './style.module.scss';
 import ContinuousIndicator from '../../ContinuousIndicator';
 import CurveSelector from '../../CurveSelector';
 import { useDispatch } from 'react-redux';
-import SteppedIndicator from '../../SteppedIndicator';
 import { event } from '../../../../store/Sequencer';
-import { curveTypes } from '../../../../containers/Track/defaults';
 import DrumRackFile from '../../DrumRackFile';
-import { isConstructorDeclaration } from 'typescript';
+import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 
 export interface DrumRack {
     // options: initialsArray,
@@ -135,6 +132,7 @@ const DrumRack: React.FC<DrumRack> = ({
                     <div className={`${styles.pad}`}>
                         <ContinuousIndicator
                             selectedLock={false}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             ccMouseCalculationCallback={calcCallbacks.PAD_0.attack}
                             removePropertyLock={removePropertyLocks.PAD_0.attack}
                             label={'Attack'}
@@ -159,6 +157,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={releasePad0[2]}
                             value={getPropertyValue('PAD_0.release')}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             curve={releasePad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_0.release}
                             indicatorId={`instrument${index}:PAD_0:release`}
@@ -171,6 +170,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             max={volumePad0[1][1]}
                             midiLearn={() => { }}
                             detail={'volume'}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             min={volumePad0[1][0]}
                             type={'knob'}
                             unit={volumePad0[2]}
@@ -183,9 +183,10 @@ const DrumRack: React.FC<DrumRack> = ({
                             display={'vertical'}
                             selectCurve={(curve) => { propertyUpdateCallbacks.PAD_0.curve(curve) }}
                             selected={options.PAD_0.curve[0]}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             className={styles.curve}
                         />
-                        <DrumRackFile onClick={() => { }} />
+                        <DrumRackFile tabIndex={widgetTabIndexTrkStart + index} onClick={() => { }} />
                     </div>
                     <div className={`${styles.pad}`}>
                         <ContinuousIndicator
@@ -193,6 +194,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             ccMouseCalculationCallback={calcCallbacks.PAD_1.attack}
                             label={'Attack'}
                             removePropertyLock={removePropertyLocks.PAD_1.attack}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             max={attackPad1[1][1]}
                             midiLearn={() => { }}
                             min={attackPad1[1][0]}
@@ -205,6 +207,7 @@ const DrumRack: React.FC<DrumRack> = ({
                         />
                         <ContinuousIndicator
                             selectedLock={false}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             ccMouseCalculationCallback={calcCallbacks.PAD_1.release}
                             label={'Release'}
                             removePropertyLock={removePropertyLocks.PAD_1.release}
@@ -222,6 +225,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_1.volume}
                             label={'Volume'}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             removePropertyLock={removePropertyLocks.PAD_1.volume}
                             max={volumePad1[1][1]}
                             midiLearn={() => { }}
@@ -239,12 +243,14 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectCurve={(curve) => { propertyUpdateCallbacks.PAD_1.curve(curve) }}
                             selected={options.PAD_1.curve[0]}
                             className={styles.curve}
+                            tabIndex={widgetTabIndexTrkStart + index}
                         />
                         {/* <DrumRackFile onClick={getFile} /> */}
-                        <DrumRackFile onClick={() => { }} />
+                        <DrumRackFile tabIndex={widgetTabIndexTrkStart + index} onClick={() => { }} />
                     </div>
                     <div className={`${styles.pad}`}>
                         <ContinuousIndicator
+                            tabIndex={widgetTabIndexTrkStart + index}
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_2.attack}
                             label={'Attack'}
@@ -261,6 +267,7 @@ const DrumRack: React.FC<DrumRack> = ({
                         />
                         <ContinuousIndicator
                             selectedLock={false}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             ccMouseCalculationCallback={calcCallbacks.PAD_2.release}
                             label={'Release'}
                             max={releasePad2[1][1]}
@@ -277,6 +284,7 @@ const DrumRack: React.FC<DrumRack> = ({
                         <ContinuousIndicator
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_2.volume}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             label={'Volume'}
                             max={volumePad2[1][1]}
                             midiLearn={() => { }}
@@ -293,10 +301,11 @@ const DrumRack: React.FC<DrumRack> = ({
                         <CurveSelector
                             display={'vertical'}
                             selectCurve={(curve) => { propertyUpdateCallbacks.PAD_2.curve(curve) }}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             selected={options.PAD_2.curve[0]}
                             className={styles.curve}
                         />
-                        <DrumRackFile onClick={() => { }} />
+                        <DrumRackFile tabIndex={widgetTabIndexTrkStart + index} onClick={() => { }} />
                     </div>
                     <div className={`${styles.pad}`}>
                         <ContinuousIndicator
@@ -306,6 +315,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             max={attackPad3[1][1]}
                             midiLearn={() => { }}
                             min={attackPad3[1][0]}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             type={'knob'}
                             removePropertyLock={removePropertyLocks.PAD_3.attack}
                             unit={attackPad3[2]}
@@ -318,6 +328,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_3.release}
                             label={'Release'}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             max={releasePad3[1][1]}
                             midiLearn={() => { }}
                             min={releasePad3[1][0]}
@@ -330,6 +341,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_3.release}
                         />
                         <ContinuousIndicator
+                            tabIndex={widgetTabIndexTrkStart + index}
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_3.volume}
                             label={'Volume'}
@@ -347,11 +359,12 @@ const DrumRack: React.FC<DrumRack> = ({
                         />
                         <CurveSelector
                             display={'vertical'}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             selectCurve={(curve) => { propertyUpdateCallbacks.PAD_3.curve(curve) }}
                             selected={options.PAD_3.curve[0]}
                             className={styles.curve}
                         />
-                        <DrumRackFile onClick={() => { }} />
+                        <DrumRackFile tabIndex={widgetTabIndexTrkStart + index} onClick={() => { }} />
                     </div>
                 </div>
             </div>

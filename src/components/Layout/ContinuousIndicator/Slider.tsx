@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { MutableRefObject, useState, useRef, useEffect } from 'react';
 import styles from './slider.module.scss';
 import { indicatorProps } from './index';
 import InputBox from './InputBox';
@@ -16,14 +16,25 @@ const Slider: React.FC<indicatorProps> = ({
     display, 
     contextMenu,
     wheelMove,
+    onKeyDown,
     menuOptions,
     MenuPosisiton, 
     onBlur,
     onSubmit,
+    tabIndex,
     onContextMenu,
     input,
 }) => {
+    
     const c = `${styles.wrapper} ${className}`;
+    const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+
+    useEffect(() => {
+        divRef.current?.addEventListener('keydown', onKeyDown)
+        return () => {
+            divRef.current?.removeEventListener('keydown', onKeyDown)
+        }
+    }, [])
 
     const displayComponent = (
         <div 
@@ -49,8 +60,7 @@ const Slider: React.FC<indicatorProps> = ({
         : displayComponent
 
     return (
-        <div onContextMenu={onContextMenu} className={c} onWheel={wheelMove}>
-            {/* <div onClick={setDisplay} className={styles.text}>{display ? label : `${value} ${unit}`}</div> */}
+        <div tabIndex={tabIndex} ref={divRef} onContextMenu={onContextMenu} className={c} onWheel={wheelMove}>
             { displayOrInput }
             { contextMenu ? contextMenuComponent : null}
             <div onPointerDown={captureStartDiv} className={styles.indicatorWrapper}>

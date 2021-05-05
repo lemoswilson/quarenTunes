@@ -331,7 +331,6 @@ export interface addInstrumentAction {
 	type: trackActions.ADD_INSTRUMENT;
 	payload: {
 		instrument: xolombrisxInstruments;
-		trackIndex: number,
 	};
 }
 

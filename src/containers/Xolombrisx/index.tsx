@@ -187,8 +187,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         //     Tone.setContext(context.current)
         //     setRender(false);
         // }
-            context.current = new Tone.Context({ latencyHint: 'balanced', lookAhead: 0.5 })
-            Tone.setContext(context.current)
+            // context.current = new Tone.Context({ latencyHint: 'balanced', lookAhead: 0.5 })
+            // Tone.setContext(context.current)
     }, [])
 
     let dropdownContextRef = useRef<dropDownContext>({})
@@ -290,11 +290,16 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
 
     const addTrack = (payload: ExtractTriggPayload<triggEventTypes.ADD_TRACK>): void => {
+        console.log('should be adding track');
         Object.keys(triggRef.current).forEach(patt => {
-            triggRef.current[parseInt(patt)].splice(payload.trackIndex, 0, {
+            triggRef.current[parseInt(patt)].push({
                 instrument: new Tone.Part(),
-                effects: []
+                effects: [],
             })
+            // triggRef.current[parseInt(patt)].splice(payload.trackIndex, 0, {
+            //     instrument: new Tone.Part(),
+            //     effects: []
+            // })
             // triggRef.current[parseInt(patt)][payload.trackId] = {
             //     instrument: new Tone.Part(),
             //     effects: []
@@ -499,6 +504,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     }
 
     const openMenu = (payload: ExtractMenuPayload<menuEmitterEventTypes.OPEN>): void => {
+        console.log('should be opening menu');
         menuRef.current = [payload.id, payload.close]
     }
 

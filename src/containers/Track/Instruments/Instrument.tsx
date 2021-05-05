@@ -67,6 +67,7 @@ import MembraneSynth from '../../../components/Layout/Instruments/MembraneSynth'
 import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
 import PluckSynth from '../../../components/Layout/Instruments/PluckSynth';
 import DrumRack from '../../../components/Layout/Instruments/DrumRack';
+import Chain from '../../../lib/fxChain';
 // import DrumRack from '../../../lib/DrumRack';
 
 // export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
@@ -261,7 +262,9 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             setNestedValue(instProps[idx], call, o);
         });
         return o
-    }, [])
+    }, [
+        voice,
+    ])
 
     const propertiesUpdate: any = useMemo(() => {
         let o = {}
@@ -849,10 +852,17 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             //     { instrument: instrumentRef.current, trackId: id }
             // );
 
-            if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
+            // if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
+            if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id]) {
+                ref_toneTrkObjCtx.current[id] = {chain: new Chain(), effects: [], instrument: undefined}
+                ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
+                ref_ToneInstrument.current?.connect(ref_toneTrkObjCtx.current[id].chain.in);
+            } else if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
+                // ref_toneTrkObjCtx.current[id] = {chain: new Chain(), effects: [], instrument: undefined}
                 ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
                 ref_ToneInstrument.current?.connect(ref_toneTrkObjCtx.current[id].chain.in);
             }
+
             Object.keys(ref_toneTriggObjCtx.current).forEach(key => {
                 let k = parseInt(key)
                 ref_toneTriggObjCtx.current[k][id].instrument.callback = instrumentCallback;

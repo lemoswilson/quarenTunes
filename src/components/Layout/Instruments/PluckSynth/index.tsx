@@ -7,6 +7,7 @@ import CurveSelector from '../../CurveSelector';
 import { useDispatch } from 'react-redux';
 import SteppedIndicator from '../../SteppedIndicator';
 import { event } from '../../../../store/Sequencer';
+import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 
 export interface PluckSynthProps {
     // options: initialsArray,
@@ -92,6 +93,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     // ccMouseCalculationCallback={calcCallbacks.attackNoise}
                                     ccMouseCalculationCallback={calcCallbacks.attackNoise}
                                     label={'attackNoise'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.attackNoise}
                                     max={attackNoise[1][1]}
                                     midiLearn={() => { }}
@@ -116,6 +118,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     unit={dampening[2]}
                                     value={getPropertyValue('dampening')}
                                     indicatorId={`instrument${index}:dampening`}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     curve={dampening[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.dampening}
                                     className={styles.envelopeDecay}
@@ -140,6 +143,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.resonance}
                                     removePropertyLock={removePropertyLocks.resonance}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
                                     label={'Resoance'}
                                     max={resonance[1][1]}
@@ -164,6 +168,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     curve={release[4]}
                                     type={'knob'}
                                     unit={release[2]}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.release}
                                     value={getPropertyValue('release')}
                                     indicatorId={`instrument${index}:release`}
@@ -188,6 +193,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                 max={volume[1][1]}
                                 midiLearn={() => { }}
                                 min={volume[1][0]}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 type={'slider'}
                                 detail={'volume'}
                                 curve={volume[4]}

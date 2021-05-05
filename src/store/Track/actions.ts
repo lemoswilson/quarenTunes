@@ -125,12 +125,11 @@ export function removeMidiDevice(device: string) {
 	}
 };
 
-export function addInstrument(instrument: xolombrisxInstruments, trackIndex: number): trackActionTypes {
+export function addInstrument(instrument: xolombrisxInstruments): trackActionTypes {
 	return {
 		type: trackActions.ADD_INSTRUMENT,
 		payload: {
 			instrument: instrument,
-			trackIndex: trackIndex,
 		},
 	};
 }

@@ -17,10 +17,11 @@ type wave = 'sine' | 'sawtooth' | 'pulse' | 'triangle';
 interface WaveformSelectorProps {
     selected: wave;
     selectWaveform: (wave: wave) => void;
-    className?: string
+    className?: string,
+    tabIndex: number,
 }
 
-const WaveformSelector: React.FC<WaveformSelectorProps> = ({ selectWaveform, selected, className }) => {
+const WaveformSelector: React.FC<WaveformSelectorProps> = ({ tabIndex, selectWaveform, selected, className }) => {
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
@@ -33,23 +34,23 @@ const WaveformSelector: React.FC<WaveformSelectorProps> = ({ selectWaveform, sel
         <div className={`${styles.wrapper} ${className}`}>
             <div className={styles.title}> Waveform</div>
             <div className={styles.options}>
-                <div className={styles.box}>
-                    <div onClick={() => selectWaveform('triangle')} className={styles.button}>
+                <div tabIndex={tabIndex} className={styles.box}>
+                    <div  onClick={() => selectWaveform('triangle')} className={styles.button}>
                         {triangle[1]}
                     </div>
-                    <div onClick={() => selectWaveform('triangle')} className={styles.waveform}>
+                    <div  onClick={() => selectWaveform('triangle')} className={styles.waveform}>
                         {triangle[0]}
                     </div>
                 </div>
-                <div className={styles.box}>
-                    <div onClick={() => selectWaveform('sawtooth')} className={styles.button}>
+                <div tabIndex={tabIndex} className={styles.box}>
+                    <div  onClick={() => selectWaveform('sawtooth')} className={styles.button}>
                         {saw[1]}
                     </div>
-                    <div onClick={() => selectWaveform('sawtooth')} className={styles.waveform}>
+                    <div  onClick={() => selectWaveform('sawtooth')} className={styles.waveform}>
                         {saw[0]}
                     </div>
                 </div>
-                <div className={styles.box}>
+                <div tabIndex={tabIndex} className={styles.box}>
                     <div onClick={() => selectWaveform('sine')} className={styles.button}>
                         {sine[1]}
                     </div>
@@ -57,7 +58,7 @@ const WaveformSelector: React.FC<WaveformSelectorProps> = ({ selectWaveform, sel
                         {sine[0]}
                     </div>
                 </div>
-                <div className={styles.box}>
+                <div tabIndex={tabIndex} className={styles.box}>
                     <div onClick={() => selectWaveform('pulse')} className={styles.button}>
                         {square[1]}
                     </div>

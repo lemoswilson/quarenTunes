@@ -8,6 +8,7 @@ import WaveformSelector from '../../WaveformSelector';
 import { setNestedValue } from '../../../../lib/objectDecompose';
 import { useDispatch } from 'react-redux';
 import { event } from '../../../../store/Sequencer'
+import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 
 export interface MembraneSynthProps {
     // options: initialsArray,
@@ -96,6 +97,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     selectedLock={false}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
                                     removePropertyLock={removePropertyLocks.envelope.attack}
                                     label={'Attack'}
@@ -120,6 +122,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     curve={envelopeDecay[4]}
                                     min={envelopeDecay[1][0]}
                                     type={'knob'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     unit={envelopeDecay[2]}
                                     value={getPropertyValue('envelope.decay')}
                                     indicatorId={`instrument${index}:envelope.decay`}
@@ -136,6 +139,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     max={envelopeSustain[1][1]}
                                     midiLearn={() => { }}
                                     min={envelopeSustain[1][0]}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     detail={'envelopeZero'}
                                     type={'knob'}
                                     curve={envelopeSustain[4]}
@@ -149,6 +153,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.release}
                                     selectedLock={false}
                                     label={'Release'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.release}
                                     max={envelopeRelease[1][1]}
                                     midiLearn={() => { }}
@@ -167,12 +172,14 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             <CurveSelector
                                 display={'horizontal'}
                                 selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'envelope', curve))}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selected={options.envelope.decayCurve[0]}
                                 className={styles.curve}
                             />
                             <WaveformSelector
                                 selectWaveform={(wave) => { propertyUpdateCallbacks.oscillator.type(wave) }}
                                 selected={options.oscillator.type[0]}
+                                tabIndex={widgetTabIndexTrkStart + index}
                             />
                         </div>
                         <div className={styles.voices}>
@@ -182,6 +189,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     selectedLock={false}
                                     label={'Detune'}
                                     removePropertyLock={removePropertyLocks.detune}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     max={detune[1][1]}
                                     midiLearn={() => { }}
                                     min={detune[1][0]}
@@ -195,6 +203,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.portamento}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
                                     label={'Portamento'}
                                     max={portamento[1][1]}
@@ -214,6 +223,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
                                 selectedLock={false}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 removePropertyLock={removePropertyLocks.volume}
                                 label={'Volume'}
                                 max={volume[1][1]}
@@ -238,6 +248,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             ccMouseCalculationCallback={calcCallbacks.octaves}
                             selectedLock={false}
                             label={'Octaves'}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             max={octaves[1][1]}
                             midiLearn={() => { }}
                             min={octaves[1][0]}
@@ -256,6 +267,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             max={pitchDecay[1][1]}
                             midiLearn={() => { }}
                             min={pitchDecay[1][0]}
+                            tabIndex={widgetTabIndexTrkStart + index}
                             type={'knob'}
                             removePropertyLock={removePropertyLocks.pitchDecay}
                             curve={pitchDecay[4]}

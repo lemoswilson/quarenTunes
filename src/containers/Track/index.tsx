@@ -53,10 +53,12 @@ const Track: FunctionComponent = () => {
         // toneRefsEmitter.emit(trackEventTypes.CHANGE_INSTRUMENT, {instrument: })
     };
 
-    const dispatchAddInstrument = (instrument: xolombrisxInstruments, trackIndex: number): void => {
+    const _addInstrument = (instrument: xolombrisxInstruments): void => {
+        // triggEmitter.emit(triggEventTypes.ADD_TRACK, { trackIndex: trackCount - 1 })
+        triggEmitter.emit(triggEventTypes.ADD_TRACK, {})
         dispatch(addInstrumentToSequencer(counter + 1));
-        dispatch(addInstrument(instrument, trackIndex));
-        triggEmitter.emit(triggEventTypes.ADD_TRACK, { trackIndex: trackIndex })
+        dispatch(addInstrument(instrument));
+        // dispatch(addInstrument(instrument, trackIndex));
     };
 
     const _removeInstrument = (trackId: number, trackIndex: number): void => {
@@ -100,16 +102,16 @@ const Track: FunctionComponent = () => {
             <div className={styles.instrumentColumn}>
                 <Tabs 
                 Tracks={Tracks} 
-                className={styles.tabs}
                 removeInstrument={_removeInstrument}
                 changeInstrument={_changeInstrument}
                 selectInstrument={_selectInstrument}
+                addInstrument={_addInstrument}
                 setMIDIInput={{
                     channel: _selectMIDIChannel,
                     device: _selectMIDIDevice,
                 }}
                 />
-                <div className={styles.tabs}></div>
+                {/* <div className={styles.tabs}></div> */}
                 <div className={styles.box}>
                     {Tracks.map((trackInfo, idx, arr) => {
                         return <Instrument

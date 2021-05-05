@@ -7,6 +7,7 @@ import CurveSelector from '../../CurveSelector';
 import { setNestedValue } from '../../../../lib/objectDecompose';
 import { useDispatch } from 'react-redux';
 import { event } from '../../../../store/Sequencer'
+import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 
 export interface MetalSynthProps {
     // options: initialsArray,
@@ -92,6 +93,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 <ContinuousIndicator
                                     selectedLock={false}
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Attack'}
                                     max={envelopeAttack[1][1]}
                                     midiLearn={() => { }}
@@ -115,6 +117,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     min={envelopeDecay[1][0]}
                                     type={'knob'}
                                     removePropertyLock={removePropertyLocks.envelope.decay}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     unit={envelopeDecay[2]}
                                     value={getPropertyValue('envelope.decay')}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.decay}
@@ -133,6 +136,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     removePropertyLock={removePropertyLocks.envelope.sustain}
                                     detail={'envelopeZero'}
                                     type={'knob'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     curve={envelopeSustain[4]}
                                     unit={envelopeSustain[2]}
                                     value={getPropertyValue('envelope.sustain')}
@@ -145,6 +149,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     selectedLock={false}
                                     label={'Release'}
                                     max={envelopeRelease[1][1]}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     midiLearn={() => { }}
                                     removePropertyLock={removePropertyLocks.envelope.release}
                                     min={envelopeRelease[1][0]}
@@ -162,6 +167,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                             <CurveSelector
                                 display={'horizontal'}
                                 selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'envelope', curve))}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selected={options.envelope.decayCurve[0]}
                                 className={styles.curve}
                             />
@@ -171,6 +177,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     selectedLock={false}
                                     label={'Octaves'}
                                     max={octaves[1][1]}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     midiLearn={() => { }}
                                     min={octaves[1][0]}
                                     type={'knob'}
@@ -184,6 +191,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.resonance}
                                     selectedLock={false}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Resonance'}
                                     max={resonance[1][1]}
                                     midiLearn={() => { }}
@@ -211,6 +219,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                         <div className={styles.sliders}>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selectedLock={false}
                                 label={'Volume'}
                                 max={volume[1][1]}
@@ -228,6 +237,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                             />
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.harmonicity}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selectedLock={false}
                                 label={'Harm'}
                                 max={harmonicity[1][1]}
@@ -245,6 +255,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.modulationIndex}
                                 selectedLock={false}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 label={'modIdx'}
                                 max={modulationIndex[1][1]}
                                 midiLearn={() => { }}
@@ -263,6 +274,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.detune}
                                 selectedLock={false}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 label={'Detune'}
                                 max={detune[1][1]}
                                 midiLearn={() => { }}
@@ -278,6 +290,7 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                             />
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.portamento}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selectedLock={false}
                                 label={'Portamento'}
                                 max={portamento[1][1]}

@@ -13,6 +13,7 @@ interface continuousIndicator {
     value: number | '*';
     min: number;
     max: number;
+    tabIndex: number;
     ccMouseCalculationCallback: (e: any) => void;
     removePropertyLock: () => void;
     valueUpdateCallback: (value: any) => void;
@@ -31,7 +32,9 @@ export interface indicatorProps {
     wheelMove: (e: WheelEvent) => void,
     curve?: curveTypes,
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
+    tabIndex: number,
     captureStartDiv?: (e: React.MouseEvent) => void,
+    onKeyDown: (this: HTMLDivElement, e: KeyboardEvent) =>  void,
     label: string,
     selectedLock: boolean,
     indicatorData: string,
@@ -59,6 +62,7 @@ export interface indicatorProps {
 const ContinuousIndicator: React.FC<continuousIndicator> = ({
     className,
     curve,
+    tabIndex,
     ccMouseCalculationCallback,
     removePropertyLock,
     valueUpdateCallback,
@@ -213,6 +217,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         appRef.current.requestPointerLock();
         setDisplay(false);
     }
+
     const stopDrag = (e: MouseEvent) => {
         document.exitPointerLock();
         setMovement(false);
@@ -234,47 +239,27 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         if (k.movementY) {
             ccMouseCalculationCallback(k)
         }
+
     };
 
-    function keyHandle(this: Document, e: KeyboardEvent): void {
+    function keyHandle(this: HTMLDivElement, e: KeyboardEvent): void {
         let char: string = e.key.toLowerCase();
-        if (char === 'arrowdown') {
-            // valueUpdateCallback(value - curveFunction(value));
-        } else if (char === 'arrowup') {
-            // valueUpdateCallback(value + curveFunction(value));
+        let isShift = e.shiftKey ? 9 : 0;
+        let k = {
+            movementY:
+                char === 'arrowdown' 
+                ? 1 + isShift 
+                : char === 'arrowup'
+                ? -1 - isShift
+                : undefined 
         }
-    }
-
-    const rrr = () => {
-        let ccc = min === 0 ? 0.01 : min
-        if (typeof value === 'number') {
-            if (curve === curveTypes.LINEAR && (detail === 'detune' && type === 'knob')) {
-                return rotate(140 * ((value + 1200) - (mid + 1200) / (mid + 1200)))
-            } else if (curve === curveTypes.EXPONENTIAL && (detail === 'envelopeZero' || detail === 'port')) {
-                // return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5))
-                return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
-            } else if (label === 'volume') {
-                return value === -Infinity
-                    ? '3%'
-                    : `${(86 / (max - ccc) * value + 101)}`;
-            } else if (detail === 'port') {
-                return value === 0 ? rotate(-140) : rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
-            } else if ((curve === curveTypes.LINEAR || !curve) && type === 'knob') {
-                return rotate(140 * (value - (mid)) / mid)
-            } else if ((curve === curveTypes.LINEAR || !curve) && type === 'slider') {
-                return `${(86 / (max - ccc)) * value + 3}%`;
-            } else {
-                return rotate(280 * ((Math.log(value / ccc) / Math.log(max / ccc)) - 0.5))
-            }
+        if (k.movementY){
+            ccMouseCalculationCallback(k)
         }
-
     }
 
     const rotate = (angle: number) => `rotate(${angle} 33.64 33.64)`
     const mid = (max - min) / 2
-    // const rotateBy = curve === curveTypes.LINEAR || !curve
-    //     ? rotate(140 * (value - (mid)) / mid)
-    //     : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
     const rotateBy =
         value === '*'
             ? rotate(0)
@@ -283,20 +268,18 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
                 : curve === curveTypes.LINEAR || !curve
                     ? rotate(140 * (value - (mid)) / mid)
                     : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
-    // const rotateBy = rotate(0)
     const heightPercentage = value === "*" ? '40%' : `${(86 / (max - min)) * value + 3}%`
 
     const indicator = type === 'knob' 
     ? <Knob
         captureStart={captureStart}
-        // indicatorData={rotateBy}
+        onKeyDown={keyHandle}
         indicatorData={
             detail === 'detune'
                 ? rotate((Number(value) / 1200) * 140)
                 : rotateBy}
-        // indicatorData={detail === 'detune' ? rotate((0) * 140) : rotateBy}
-        // indicatorData={rrr()}
         label={label}
+        tabIndex={tabIndex}
         onContextMenu={onContextMenu}
         onBlur={onBlur}
         onSubmit={onSubmit}
@@ -319,8 +302,10 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     ></Knob> 
     : <Slider
         value={value}
+        tabIndex={tabIndex}
         curve={curve}
         unit={unit}
+        onKeyDown={keyHandle}
         onBlur={onBlur}
         onSubmit={onSubmit}
         selectedLock={selectedLock}
@@ -336,9 +321,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         captureStartDiv={captureStartDiv}
         contextMenu={isMenuOpen}
         input={isInputOpen}
-        // indicatorData={detail === 'volume' ? rrr() : heightPercentage}
         indicatorData={detail === 'volume' ? `${(1 / 106) * ((83 * Number(value)) + 8618)}%` : heightPercentage}
-        // indicatorData={rrr()}
         label={label}
         setDisplay={() => setDisplay(state => !state)} />;
 

@@ -8,6 +8,7 @@ import WaveformSelector from '../../WaveformSelector';
 import { setNestedValue } from '../../../../lib/objectDecompose';
 import { useDispatch } from 'react-redux';
 import { event } from '../../../../store/Sequencer'
+import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 
 export interface ModulationSynthProps {
     // options: initialsArray,
@@ -90,6 +91,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
             ? (
                 <ContinuousIndicator
                     ccMouseCalculationCallback={calcCallbacks.modulationIndex}
+                    tabIndex={widgetTabIndexTrkStart + index}
                     selectedLock={false}
                     label={'ModIdx'}
                     max={modulationIndex[1][1]}
@@ -120,6 +122,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
                                     label={'Attack'}
                                     max={envelopeAttack[1][1]}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.attack}
                                     midiLearn={() => { }}
                                     min={envelopeAttack[1][0]}
@@ -136,6 +139,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     selectedLock={false}
                                     label={'Decay'}
                                     max={envelopeDecay[1][1]}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.decay}
                                     midiLearn={() => { }}
                                     curve={envelopeDecay[4]}
@@ -152,6 +156,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
                                     selectedLock={false}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
                                     midiLearn={() => { }}
@@ -170,6 +175,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.release}
                                     selectedLock={false}
                                     label={'Release'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     max={envelopeRelease[1][1]}
                                     midiLearn={() => { }}
                                     removePropertyLock={removePropertyLocks.envelope.release}
@@ -188,11 +194,13 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                             <CurveSelector
                                 display={'horizontal'}
                                 selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'envelope', curve))}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selected={options.envelope.decayCurve[0]}
                                 className={styles.curve}
                             />
                             <WaveformSelector
                                 selectWaveform={(wave) => { propertyUpdateCallbacks.oscillator.type(wave) }}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selected={options.oscillator.type[0]}
                             />
                         </div>
@@ -201,6 +209,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.detune}
                                     selectedLock={false}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Detune'}
                                     max={detune[1][1]}
                                     midiLearn={() => { }}
@@ -219,6 +228,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.portamento}
                                     selectedLock={false}
                                     label={'Portamento'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     max={portamento[1][1]}
                                     midiLearn={() => { }}
                                     min={portamento[1][0]}
@@ -236,6 +246,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
                                 selectedLock={false}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 label={'Volume'}
                                 max={volume[1][1]}
                                 midiLearn={() => { }}
@@ -260,6 +271,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     selectedLock={false}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.attack}
                                     label={'Attack'}
                                     max={modulationEnvelopeAttack[1][1]}
@@ -278,6 +290,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.decay}
                                     selectedLock={false}
                                     label={'Decay'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     max={modulationEnvelopeDecay[1][1]}
                                     midiLearn={() => { }}
                                     curve={modulationEnvelopeDecay[4]}
@@ -296,6 +309,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.sustain}
                                     selectedLock={false}
                                     label={'Sustain'}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.modulationEnvelope.sustain}
                                     max={modulationEnvelopeSustain[1][1]}
                                     midiLearn={() => { }}
@@ -310,6 +324,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.release}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
                                     label={'Release'}
                                     removePropertyLock={removePropertyLocks.modulationEnvelope.release}
@@ -329,12 +344,14 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                         <div className={styles.selectors}>
                             <CurveSelector
                                 display={'horizontal'}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'modulationEnvelope', curve))}
                                 selected={options.modulationEnvelope.decayCurve[0]}
                                 className={styles.curve}
                             />
                             <WaveformSelector
                                 selectWaveform={(wave) => { propertyUpdateCallbacks.modulation.type(wave) }}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selected={options.modulation.type[0]}
                                 className={styles.waveform}
                             />
@@ -343,6 +360,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.harmonicity}
                                 selectedLock={false}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 label={'Harm'}
                                 max={harmonicity[1][1]}
                                 midiLearn={() => { }}

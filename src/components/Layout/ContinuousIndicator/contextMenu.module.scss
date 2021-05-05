@@ -30,8 +30,6 @@
             text-shadow: 0 0 1px $textShadow;
             text-align: center;
             font-size: 0.9rem;
-            // border: none;
-            // outline: none;
             border-bottom: 0.5px solid $textColor;
             background-color: none;
             text-shadow: 0 0 1px $textShadow;
@@ -39,6 +37,8 @@
                 background-color: $light;
                 color: white;
             }
+            // border: none;
+            // outline: none;
         }
     }
 }

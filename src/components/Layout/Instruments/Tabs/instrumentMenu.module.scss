@@ -1,5 +1,23 @@
 @import '../../../../style/variables';
 
-.polygon {
-    transform: rotate(0);
+.menu {
+    position: absolute;
+    width: 7.2rem;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    left: -2.5rem;
+    top: 1.2rem;
+    background-color: $white;
+    // background-color: rgba($color: #f7f7f7, $alpha: 1.0);
+    // background-color: rgba($color: #b9b9b98e, $alpha: 1.0);
+    @include shadow(0.4rem, 0.4rem, 0.4rem);
+    border-radius: 0.7rem;
+    z-index: 99;
+    // border: 1px solid red;
+
+    .polygon {
+        transform: rotate(0);
+    }
+
 }

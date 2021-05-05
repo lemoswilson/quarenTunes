@@ -3,6 +3,10 @@ import { onlyValues } from "../../lib/objectDecompose";
 import { range } from "../../lib/utility";
 import { effectTypes, xolombrisxInstruments } from "../../store/Track";
 
+export const trackMax = 4;
+export const effectMax = 4;
+export const widgetTabIndexTrkStart = 6
+
 export enum indicators {
     KNOB = 'knob',
     STEPPED_KNOB = 'STEPPED_KNOB',

@@ -7,6 +7,7 @@ import CurveSelector from '../../CurveSelector';
 import { useDispatch } from 'react-redux';
 import SteppedIndicator from '../../SteppedIndicator';
 import { event } from '../../../../store/Sequencer';
+import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 
 export interface NoiseSynthProps {
     // options: initialsArray,
@@ -94,6 +95,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 <ContinuousIndicator
                                     selectedLock={false}
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Attack'}
                                     removePropertyLock={removePropertyLocks.envelope.attack}
                                     max={envelopeAttack[1][1]}
@@ -110,6 +112,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.decay}
                                     selectedLock={false}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Decay'}
                                     max={envelopeDecay[1][1]}
                                     removePropertyLock={removePropertyLocks.envelope.decay}
@@ -127,6 +130,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.box}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
                                     removePropertyLock={removePropertyLocks.envelope.sustain}
                                     label={'Sustain'}
@@ -144,6 +148,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.release}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.release}
                                     selectedLock={false}
                                     label={'Release'}
@@ -163,6 +168,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                         <div className={styles.selectors}>
                             <CurveSelector
                                 display={'horizontal'}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'envelope', curve))}
                                 selected={options.envelope.decayCurve[0]}
                                 className={styles.curve}
@@ -170,6 +176,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.fade}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.noise.fadeIn}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
                                     label={'FadeIn'}
                                     max={fadeIn[1][1]}
@@ -187,6 +194,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.noise.fadeOut}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
                                     label={'FadeOut'}
                                     max={fadeOut[1][1]}
@@ -207,6 +215,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                         <div className={styles.voices}>
                             <ContinuousIndicator
                                 ccMouseCalculationCallback={calcCallbacks.volume}
+                                tabIndex={widgetTabIndexTrkStart + index}
                                 removePropertyLock={removePropertyLocks.volume}
                                 selectedLock={false}
                                 label={'Volume'}
@@ -225,6 +234,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                             <div className={styles.rateType}>
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.noise.playbackRate}
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.noise.playbackRate}
                                     selectedLock={false}
                                     label={'Rate'}
@@ -240,6 +250,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     className={styles.rate}
                                 />
                                 <SteppedIndicator
+                                    tabIndex={widgetTabIndexTrkStart + index}
                                     ccMouseCalculationCallback={calcCallbacks.noise.type}
                                     label={'Type'}
                                     midiLearn={() => { }}

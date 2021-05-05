@@ -7,6 +7,7 @@ import { createSourceFile } from 'typescript';
 const Knob: React.FC<indicatorProps> = ({
     captureStart,
     valueUpdateCallback,
+    tabIndex,
     label,
     wheelMove,
     className,
@@ -31,7 +32,7 @@ const Knob: React.FC<indicatorProps> = ({
         </svg>)
 
     return (
-        <div className={c} onWheel={wheelMove}>
+        <div tabIndex={tabIndex} className={c} onWheel={wheelMove}>
             <div className={styles.indicator}>
                 {/* <svg onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70"> */}
                 <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">

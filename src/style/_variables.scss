@@ -11,6 +11,7 @@ $red: #ea8686;
 $shadow: #cccccc;
 $textColor: #c8c9c8;
 $textShadow: rgba(220, 223, 224, 0.75);
+$white: rgba(255, 255, 255, 1);
 
 @mixin shadow($x, $y, $b) {
         box-shadow: $x $y $b rgba(204,204,204,0.5);

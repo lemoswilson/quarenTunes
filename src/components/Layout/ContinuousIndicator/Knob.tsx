@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, FormEvent } from 'react';
+import React, { useEffect, useRef, FormEvent, MutableRefObject } from 'react';
 import styles from './knob.module.scss';
 import { indicatorProps } from './index';
 import InputBox from './InputBox';
@@ -11,6 +11,7 @@ const Knob: React.FC<indicatorProps> = ({
     wheelMove, 
     indicatorData, 
     className, 
+    tabIndex,
     unit, 
     onSubmit,
     onBlur,
@@ -22,6 +23,7 @@ const Knob: React.FC<indicatorProps> = ({
     valueUpdateCallback,
     menuOptions,
     onContextMenu,
+    onKeyDown,
     max, 
     min,
     input,
@@ -30,6 +32,8 @@ const Knob: React.FC<indicatorProps> = ({
     // const Knob: React.FC<indicatorProps> = ({ captureStart, label, indicatorData, className, unit, display, value, setDisplay }) => {
     const c = `${styles.wrapper} ${className}`
     const valueDisplay = value === -Infinity ? '-&infin;' : value;
+    const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+
 
     const displayComponent = (
         <div onPointerDown={setDisplay} className={styles.title}>
@@ -51,10 +55,18 @@ const Knob: React.FC<indicatorProps> = ({
             value={value}
         /> 
         : displayComponent
+    
+    useEffect(() => {
+        divRef.current?.addEventListener('keydown', onKeyDown)
+
+        return () => {
+            divRef.current?.removeEventListener('keydown', onKeyDown)
+        }
+    }, [])
+
 
     return (
-        <div onContextMenu={onContextMenu} className={c} onWheel={wheelMove}>
-            {/* <div className={c}> */}
+        <div tabIndex={tabIndex} ref={divRef} onContextMenu={onContextMenu} className={c} onWheel={wheelMove}>
             <svg className={styles.svg} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 71.93 73.39">
                 <defs>
                     <linearGradient id="a" x1="18.39" y1="10.37" x2="53.26" y2="63.58" gradientUnits="userSpaceOnUse">
@@ -63,7 +75,6 @@ const Knob: React.FC<indicatorProps> = ({
                     </linearGradient>
                 </defs>
                 <title>knobMid</title>
-                {/* <g style="isolation: isolate"> */}
                 <g style={{ isolation: "isolate" }}>
                     <g>
                         <g>
@@ -88,7 +99,6 @@ const Knob: React.FC<indicatorProps> = ({
                             </g>
                             <g>
                                 <g>
-                                    {/* <image width="27" height="28" transform={'translate(21.94 5.39)'} xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAdCAYAAAC5UQwxAAAACXBIWXMAAAsSAAALEgHS3X78AAACNElEQVRIS72WbW7bMAyGn3w2aZN1K7CT+P5HyFW2danjxonj/SBpUbJsZ0ARAoSUWNbjVyIpzdq25ZE2nxrw1bacGpDa4XCYWb8oiv9entnUkjpAB9K+f7GF+z5gEKigITdrcz4GzgIdbK6+cH17ZoCbeuP6g9AeUGEetARW2i4JUINd1S/aduAcNAI6ZR705Hyt/xvwCtTA2bkH95SmUWrqFghsAzwDL9puEegcUVEDFXACSsL++uWOgJ1Cp86UbRHQN+BV2x3yEQtEwSfwAfwF3rUtkY8wpZHKVKHt3RJR8oyA3tS/638GPAF/dLwt8UW90bkaD8glvgdugT3wA/iJQHf6/IqoWyEwW96KsJc980CfZ+ke7hF1b4jiFTLhGtmnCjjq+JW+7+cbXFKIoaZ0g6jdqRvwhuzZhhDBHtaze2pprggsEFhaDCYtB/Qh3RCCwPLtk5ASZ219oFgqZCuNB/p6aBWkRgAlskdP+syW9Khe6rha3/PQ0cSHGFYhkfhOiMaKOEp/6fMPfeahPUuBqTqLPsuzMxK1Bjwhyf5bx6XAyVpqQWA11CJzr/5Cv9LYch8JKi0Pb0VRREpzCltkspoQefa7RD7GaukFgZ4QkO1jQ2b/YPx48ifGGlFsSW1Ai2Ifrd0RlTuehvLQVPr+hQDz52FDgJhnUwLGT3wIk8+d+wQ3aHfSazt4vxm9RCX3GpI+xPvUwvh9BiaAZv5qqBYVZLjvxgZ3Ar/SHn7zfjjwHy8VLmXg+cprAAAAAElFTkSuQmCC" style={{ opacity: 0.5, mixBlendMode: "multiply" }} /> */}
                                     <image x="21.94" y="5.39" width="27" height="28" transform={indicatorData} xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAdCAYAAAC5UQwxAAAACXBIWXMAAAsSAAALEgHS3X78AAACNElEQVRIS72WbW7bMAyGn3w2aZN1K7CT+P5HyFW2danjxonj/SBpUbJsZ0ARAoSUWNbjVyIpzdq25ZE2nxrw1bacGpDa4XCYWb8oiv9entnUkjpAB9K+f7GF+z5gEKigITdrcz4GzgIdbK6+cH17ZoCbeuP6g9AeUGEetARW2i4JUINd1S/aduAcNAI6ZR705Hyt/xvwCtTA2bkH95SmUWrqFghsAzwDL9puEegcUVEDFXACSsL++uWOgJ1Cp86UbRHQN+BV2x3yEQtEwSfwAfwF3rUtkY8wpZHKVKHt3RJR8oyA3tS/638GPAF/dLwt8UW90bkaD8glvgdugT3wA/iJQHf6/IqoWyEwW96KsJc980CfZ+ke7hF1b4jiFTLhGtmnCjjq+JW+7+cbXFKIoaZ0g6jdqRvwhuzZhhDBHtaze2pprggsEFhaDCYtB/Qh3RCCwPLtk5ASZ219oFgqZCuNB/p6aBWkRgAlskdP+syW9Khe6rha3/PQ0cSHGFYhkfhOiMaKOEp/6fMPfeahPUuBqTqLPsuzMxK1Bjwhyf5bx6XAyVpqQWA11CJzr/5Cv9LYch8JKi0Pb0VRREpzCltkspoQefa7RD7GaukFgZ4QkO1jQ2b/YPx48ifGGlFsSW1Ai2Ifrd0RlTuehvLQVPr+hQDz52FDgJhnUwLGT3wIk8+d+wQ3aHfSazt4vxm9RCX3GpI+xPvUwvh9BiaAZv5qqBYVZLjvxgZ3Ar/SHn7zfjjwHy8VLmXg+cprAAAAAElFTkSuQmCC" style={{ opacity: 0.5, mixBlendMode: "multiply" }} />
                                     <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "#dce0e2" }} transform={indicatorData} /> {/* smaller 1 */}
                                 </g>
@@ -100,9 +110,6 @@ const Knob: React.FC<indicatorProps> = ({
             </svg>
             { displayOrInput }
             { contextMenu ? contextMenuComponent : null}
-            {/* <div onPointerDown={setDisplay} className={styles.title}>
-                {display ? label : `${value} ${unit}`}
-            </div> */}
         </div>
     )
 }

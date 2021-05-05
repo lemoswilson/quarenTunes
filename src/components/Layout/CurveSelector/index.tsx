@@ -13,9 +13,10 @@ interface CurveSelectorProps {
     display: 'vertical' | 'horizontal';
     selectCurve: (curve: curveTypes) => void;
     className?: string;
+    tabIndex: number,
 }
 
-const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, selectCurve, className }) => {
+const CurveSelector: React.FC<CurveSelectorProps> = ({ tabIndex, display, selected, selectCurve, className }) => {
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
@@ -31,13 +32,13 @@ const CurveSelector: React.FC<CurveSelectorProps> = ({ display, selected, select
         <div className={`${displayClass} ${className}`}>
             <div className={styles.title}> Curve </div>
             <div className={styles.options}>
-                <div className={styles.box}>
-                    <div onClick={() => selectCurve(curveTypes.LINEAR)} className={styles.button}>{linear[1]}</div>
-                    <div onClick={() => selectCurve(curveTypes.LINEAR)} className={styles.curve}>{linear[0]}</div>
+                <div  tabIndex={tabIndex} className={styles.box}>
+                    <div  onClick={() => selectCurve(curveTypes.LINEAR)} className={styles.button}>{linear[1]}</div>
+                    <div  onClick={() => selectCurve(curveTypes.LINEAR)} className={styles.curve}>{linear[0]}</div>
                 </div>
-                <div className={styles.box}>
-                    <div onClick={() => selectCurve(curveTypes.EXPONENTIAL)} className={styles.button}>{exponential[1]}</div>
-                    <div onClick={() => selectCurve(curveTypes.EXPONENTIAL)} className={styles.curve}>{exponential[0]}</div>
+                <div tabIndex={tabIndex} className={styles.box}>
+                    <div  onClick={() => selectCurve(curveTypes.EXPONENTIAL)} className={styles.button}>{exponential[1]}</div>
+                    <div  onClick={() => selectCurve(curveTypes.EXPONENTIAL)} className={styles.curve}>{exponential[0]}</div>
                 </div>
             </div>
         </div>
