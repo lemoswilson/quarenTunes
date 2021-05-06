@@ -1,8 +1,9 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import styles from './style.module.scss';
 import Lights from './Lights';
 import { event } from '../../../store/Sequencer'
 import TriggCtx from '../../../context/triggState';
+import ToneObjectsContext from '../../../context/ToneObjectsContext';
 import { useTrigg } from '../../../hooks/useProperty';
 import usePrevious from '../../../hooks/usePrevious';
 
@@ -31,15 +32,14 @@ const StepLayout: React.FC<StepLayout> = ({
 }) => {
     const previousOffset = usePrevious(event.offset);
     const selectedStyle = selected ? styles.selected : null;
-    const triggRefs = useContext(TriggCtx)
+    const toneObjects = useContext(ToneObjectsContext)
 
     // useEffect(() => {
     //     console.log('index', index, 'previousOffset', previousOffset)
     // })
 
     useTrigg(
-        triggRefs.current[activePattern][selectedTrack].instrument,
-        triggRefs.current[activePattern][selectedTrack].effects,
+        toneObjects.current?.patterns[activePattern][selectedTrack],
         event.fx,
         event.instrument,
         index,

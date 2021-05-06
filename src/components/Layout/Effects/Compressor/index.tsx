@@ -17,7 +17,7 @@ export interface CompressorProps {
     propertyUpdateCallbacks: any,
     trackIndex: number,
     fxIndex: number,
-    selected: number[],
+    selected?: number[],
     events: event[],
     properties: any[];
 }
@@ -43,22 +43,22 @@ const Compressor: React.FC<CompressorProps> = ({
     const parameterLockValues = useMemo(() => {
         const o: any = {}
         properties.forEach(property => {
-            const selectedPropertyArray = selected.map(s => getNested(events[s].fx[fxIndex], property))
+            const selectedPropertyArray = selected?.map(s => getNested(events[s].fx[fxIndex], property))
 
             const allValuesEqual =
-                selected.length > 0
-                    ? selectedPropertyArray.every((v, idx, arr) => v && v === arr[0])
+                selected && selected.length > 0
+                    ? selectedPropertyArray?.every((v, idx, arr) => v && v === arr[0])
                     : false;
             const noValuesInSelected =
-                selected.length > 0
-                    ? selectedPropertyArray.every(v => v === undefined)
+                selected && selected.length > 0
+                    ? selectedPropertyArray?.every(v => v === undefined)
                     : false;
 
             setNestedValue(
                 property,
                 [
                     allValuesEqual,
-                    allValuesEqual ? selectedPropertyArray[0] : false,
+                    allValuesEqual && selectedPropertyArray? selectedPropertyArray[0] : false,
                     noValuesInSelected
                 ],
                 o,
@@ -70,7 +70,7 @@ const Compressor: React.FC<CompressorProps> = ({
 
     const getPropertyValue = (property: string): number | '*' => {
         const pmValues: (number | boolean | string)[] = getNested(parameterLockValues, property)
-        return selected.length > 1 && !pmValues[0] && !pmValues[2]
+        return selected && selected.length > 1 && !pmValues[0] && !pmValues[2]
             ? '*'
             : pmValues[0]
                 ? pmValues[1]

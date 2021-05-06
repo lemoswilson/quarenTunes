@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styles from './style.module.scss';
 import Plus from '../../Layout/Icons/Plus';
 import Minus from '../../Layout/Icons/Minus';
@@ -36,9 +36,12 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
     }
 
     useEffect(() => {
-        ref_input.current?.addEventListener('keydown', keydown)
+        const inp = ref_input.current
+        // ref_input.current?.addEventListener('keydown', keydown)
+        inp?.addEventListener('keydown', keydown)
         return () => {
-            ref_input.current?.removeEventListener('keydown', keydown)
+            inp?.removeEventListener('keydown', keydown)
+            // ref_input.current?.removeEventListener('keydown', keydown)
         }
     }, [])
 

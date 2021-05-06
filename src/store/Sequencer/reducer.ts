@@ -9,7 +9,7 @@ import { eventOptions } from "../../containers/Track/Instruments";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from "../../lib/curves";
 import { startEndRange, bisect } from "../../lib/utility";
 import { RecursivePartial } from '../../containers/Track/Instruments';
-import { generalEffectOptions } from "../Track";
+import { generalEffectOptions, trackActions } from "../Track";
 
 const initialTrack = {
 	events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
@@ -85,6 +85,7 @@ export function sequencerReducer(
 		switch (action.type) {
 			case sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER:
 				let trackNumber: number = draft.patterns[0].tracks.length;
+				console.log('should be adding to sequencer.');
 				Object.keys(draft.patterns).forEach(
 					(v) =>
 					(draft.patterns[parseInt(v)].tracks[trackNumber] = initialTrack)
@@ -100,10 +101,12 @@ export function sequencerReducer(
 				);
 				break;
 			case sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER:
+			// case trackActions.REMOVE_INSTRUMENT:
+				console.log('removing from sequencer reducer, trackIndex is:', action.payload.trackIndex);
 				trackIndex = action.payload.trackIndex;
 				Object.keys(draft.patterns).forEach((v) =>
-					delete draft.patterns[parseInt(v)].tracks[trackIndex]
-					// draft.patterns[parseInt(v)].tracks.splice(track, 1)
+					// delete draft.patterns[parseInt(v)].tracks[trackIndex]
+					draft.patterns[parseInt(v)].tracks.splice(trackIndex, 1)
 				);
 				break;
 			case sequencerActions.ADD_PATTERN:

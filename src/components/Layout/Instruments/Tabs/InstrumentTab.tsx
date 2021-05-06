@@ -6,6 +6,9 @@ import InstrumentMenu from './InstrumentMenu';
 import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/MenuEmitter';
 import MenuContext from '../../../../context/MenuContext';
 import { TypeFlags } from 'typescript';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../containers/Xolombrisx';
+import { StateTimeline } from 'tone';
 
 // import midi interfce handlers 
 
@@ -41,6 +44,7 @@ const InstrumentTab: React.FC<InstrumentTabProps> = ({
     const [isMenuOpen, setMenuOpen] = useState(false);
     const menuContext = useContext(MenuContext);
     const indicatorId = `menu:track:${trackId}`
+    const selectedTrack = useSelector((state: RootState) => state.track.present.selectedTrack)
     
 
     const toggleMenu = () => {
@@ -49,6 +53,7 @@ const InstrumentTab: React.FC<InstrumentTabProps> = ({
 
     function onContextMenu(this: SVGSVGElement, e: MouseEvent){
         e.stopPropagation()
+        selectTrack()
         const id = menuContext.current?.[0]
         if (!id) {
             setMenuOpen(state => !state);
@@ -78,12 +83,11 @@ const InstrumentTab: React.FC<InstrumentTabProps> = ({
 
     return (
         <li className={`${styles.tab} ${radius}`}>
-            <div className={`${styles.border} ${radius}`}>
+            <div style={{border: selectedTrack === trackIndex ? '1px solid rgba(166, 215, 230, 0.781)' : '1px solid #ededed' }} className={`${styles.border} ${radius}`}>
                 <div onClick={selectTrack} className={styles.instrumentTitle}>
                     { `${trackIndex + 1}. ${instrument} `}
                 </div>
                 <div className={styles.menuButton}>
-                    {/* <MenuButton onClick={onContextMenu}/> */}
                     <MenuButton onClick={onContextMenu}/>
                 { isMenuOpen
                 ? <InstrumentMenu

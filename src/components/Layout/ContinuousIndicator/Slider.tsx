@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useState, useRef, useEffect } from 'react';
+import React, { MutableRefObject, useRef, useEffect } from 'react';
 import styles from './slider.module.scss';
 import { indicatorProps } from './index';
 import InputBox from './InputBox';
@@ -30,9 +30,12 @@ const Slider: React.FC<indicatorProps> = ({
     const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
     useEffect(() => {
-        divRef.current?.addEventListener('keydown', onKeyDown)
+        const div = divRef.current
+        div?.addEventListener('keydown', onKeyDown)
+        // divRef.current?.addEventListener('keydown', onKeyDown)
         return () => {
-            divRef.current?.removeEventListener('keydown', onKeyDown)
+            // divRef.current?.removeEventListener('keydown', onKeyDown)
+            div?.removeEventListener('keydown', onKeyDown)
         }
     }, [])
 

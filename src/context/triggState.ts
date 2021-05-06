@@ -7,21 +7,11 @@ import { Part } from 'tone';
 
 export interface triggs {
     instrument: Part
-    // effects: {
-    //     0: Part,
-    //     1: Part,
-    //     2: Part,
-    //     3: Part,
-    // }
-    // effects: triggFx
     effects: Part[]
 }
 
 export interface triggContext {
     [patternId: number]: triggs[]
-    // {
-    //     [trackId: number]: triggs
-    // },
 };
 
 class fakeTrig {

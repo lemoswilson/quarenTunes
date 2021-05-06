@@ -7,11 +7,12 @@ import usePrevious from './usePrevious';
 import { onlyValues } from '../lib/objectDecompose'
 import { Part } from 'tone';
 import { timeObjFromEvent } from '../lib/utility';
-import { returnEffect } from '../containers/Track/Effects';
+import { returnEffect } from '../containers/Xolombrisx/';
 import { xolombrisxInstruments } from '../store/Track';
 import DrumRack from '../lib/DrumRack';
 import { DrumRackSlotInitials } from '../containers/Track/defaults';
 import { generalEffectOptions } from '../store/Track';
+import { triggs } from '../context/ToneObjectsContext';
 
 
 export const useProperty = (
@@ -202,8 +203,9 @@ export const useEffectProperties = (
 }
 
 export const useTrigg = (
-    trig: Part,
-    triggFx: Part[],
+    // trig: Part | undefined,
+    // triggFx: Part[] | undefined,
+    triggObj: triggs | undefined,
     fxOptions: generalEffectOptions[],
     instrumentOptions: RecursivePartial<eventOptions>,
     step: number,
@@ -213,17 +215,27 @@ export const useTrigg = (
     const off = instrumentOptions.offset ? instrumentOptions.offset : 0
     const prevUn = usePrevious(un);
     // const now = timeObjFromEvent(step, off)
-    const fx1Trigg = triggFx[0];
+    // const fx1Trigg = triggFx?.[0];
+    // const f1Opt = fxOptions[0]
+    // const fx2Trigg = triggFx?.[1]
+    // const f2Opt = fxOptions[1]
+    // const fx3Trigg = triggFx?.[2]
+    // const f3Opt = fxOptions?.[2]
+    // const fx4Trigg = triggFx?.[3]
+    // const f4Opt = fxOptions[3]
+    const triggFx = triggObj?.effects
+    const trig = triggObj?.instrument
+    const fx1Trigg = triggObj?.effects[0];
     const f1Opt = fxOptions[0]
-    const fx2Trigg = triggFx[1]
+    const fx2Trigg = triggObj?.effects[1]
     const f2Opt = fxOptions[1]
-    const fx3Trigg = triggFx[2]
-    const f3Opt = fxOptions[2]
-    const fx4Trigg = triggFx[3]
+    const fx3Trigg = triggObj?.effects[2]
+    const f3Opt = fxOptions?.[2]
+    const fx4Trigg = triggObj?.effects[3]
     const f4Opt = fxOptions[3]
 
     useEffect(() => {
-        if (un === prevUn) {
+        if (trig && un === prevUn) {
             // console.log('updating stuff')
             const now = timeObjFromEvent(step, off)
             trig.at(now, instrumentOptions)
@@ -231,17 +243,18 @@ export const useTrigg = (
     }, [instrumentOptions, trig, un, prevUn, off])
 
     useEffect(() => {
-        if (un === prevUn && off !== previousOffset) {
+        if (trig && un === prevUn && off !== previousOffset) {
             const now = timeObjFromEvent(step, off)
             const pastTime = timeObjFromEvent(step, previousOffset, false)
             trig.remove({ time: pastTime })
             trig.at(now, instrumentOptions)
             let i = 0;
-            while (i < triggFx.length) {
-                triggFx[i].remove({ time: pastTime })
-                triggFx[i].at(now, fxOptions[i])
-                i++
-            }
+            if (triggFx)
+                while (i < triggFx.length) {
+                    triggFx[i].remove({ time: pastTime })
+                    triggFx[i].at(now, fxOptions[i])
+                    i++
+                }
         }
     }, [off, prevUn, previousOffset, instrumentOptions, trig, triggFx, fxOptions, un])
 

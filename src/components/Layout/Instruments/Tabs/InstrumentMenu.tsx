@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import Polygon from '../../Dropdown/Polygon';
+import React, { MutableRefObject, useEffect, useRef } from 'react';
 import styles from './instrumentMenu.module.scss';
 import { xolombrisxInstruments } from '../../../../store/Track'
 import OptionList from './OptionList';
@@ -36,6 +35,16 @@ const InstrumentMenu: React.FC<MenuProps> = ({
         ? midi.channel + 1 
         : undefined
 
+    const liRef: MutableRefObject<HTMLLIElement | null> = useRef(null)
+
+    useEffect(() => {
+        const li = liRef.current;
+        li?.addEventListener('click', removeInstrument)
+        return () => {
+            li?.removeEventListener('click', removeInstrument)
+        }
+    }, [])
+
     return (
         <ul className={styles.menu} >
             <OptionList 
@@ -62,10 +71,13 @@ const InstrumentMenu: React.FC<MenuProps> = ({
             {
                 count > 1 
                 ? <li 
+                    ref={liRef}
                     style={{border: 'none' , cursor: 'pointer'}} 
                     className={optionListStyles.listElement} 
-                    onClick={removeInstrument}><span style={{width: '0.6rem'}}
-                ></span>Remove Device</li>
+                    // onClick={removeInstrument}
+                >
+                    <span style={{width: '0.6rem'}}></span>Remove Device
+                </li>
                 : null
             }
         </ul>

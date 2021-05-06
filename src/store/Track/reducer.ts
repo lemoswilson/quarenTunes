@@ -90,20 +90,28 @@ export function trackReducer(
 				});
 				draft.trackCount = draft.trackCount + 1;
 				draft.instrumentCounter = draft.instrumentCounter + 1;
+				draft.selectedTrack = draft.tracks.length - 1
 				break;
 			case trackActions.CHANGE_INSTRUMENT:
 				draft.tracks[action.payload.trackIndex].instrument = action.payload.instrument;
 				draft.tracks[action.payload.trackIndex].options = getInitials(action.payload.instrument);
 				break;
 			case trackActions.REMOVE_INSTRUMENT:
+				console.log('removing on track reducer, track index is:', action.payload.trackIndex)
 				draft.tracks.splice(action.payload.trackIndex, 1);
 				draft.trackCount = draft.trackCount - 1;
+				draft.selectedTrack = 0
+				// if (draft.selectedTrack === action.payload.trackIndex)
+				// draft.tracks.splice(action.payload.trackIndex, 1);
+				// draft.selectedTrack = 0;
 				break;
 			case trackActions.SELECT_MIDI_CHANNEL:
 				draft.tracks[action.payload.trackIndex].midi.channel = action.payload.channel;
 				break;
 			case trackActions.SELECT_MIDI_DEVICE:
 				draft.tracks[action.payload.trackIndex].midi.device = action.payload.device;
+				if (action.payload.device === 'onboardKey')
+					draft.tracks[action.payload.trackIndex].midi.channel = 'all'
 				break;
 			case trackActions.SELECT_INSTRUMENT:
 				draft.selectedTrack = action.payload.trackIndex;

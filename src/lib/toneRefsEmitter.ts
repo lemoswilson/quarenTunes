@@ -16,13 +16,13 @@ export enum trackEventTypes {
 export type TrackEvent =
     | {
         event: trackEventTypes.ADD_EFFECT,
-        trackId: number,
+        trackIndex: number,
         effect: toneEffects,
         effectIndex: number,
     }
     | {
         event: trackEventTypes.ADD_INSTRUMENT,
-        trackId: number,
+        trackIndex: number,
         instrument: any,
         // instrument: PolySynth,
     }
@@ -34,24 +34,24 @@ export type TrackEvent =
     }
     | {
         event: trackEventTypes.CHANGE_EFFECT_INDEX,
-        trackId: number,
+        trackIndex: number,
         from: number,
         to: number,
     }
     | {
         event: trackEventTypes.CHANGE_INSTRUMENT,
-        trackId: number,
+        trackIndex: number,
         instrument: any,
         // instrument: PolySynth,
     }
     | {
         event: trackEventTypes.REMOVE_EFFECT,
-        trackId: number,
+        trackIndex: number,
         effectsIndex: number,
     }
     | {
         event: trackEventTypes.REMOVE_INSTRUMENT,
-        trackId: number,
+        trackIndex: number,
     }
 
 type EventType = TrackEvent['event']

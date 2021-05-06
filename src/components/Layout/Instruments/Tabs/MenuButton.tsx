@@ -11,9 +11,12 @@ const MenuButton: React.FC<MenuButtonProps> = ({ onClick }) => {
 
 
     useEffect(() => {
-        svgRef.current?.addEventListener('click', onClick)
+        const svg = svgRef.current
+        svg?.addEventListener('click', onClick)
+        // svgRef.current?.addEventListener('click', onClick)
         return () => {
-            svgRef.current?.removeEventListener('click', onClick)
+            svg?.removeEventListener('click', onClick)
+            // svgRef.current?.removeEventListener('click', onClick)
         }
     }, [])
 

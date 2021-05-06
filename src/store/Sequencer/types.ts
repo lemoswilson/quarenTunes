@@ -1,8 +1,8 @@
-import { effectsInitials, eventOptions } from "../../containers/Track/Instruments";
+import { eventOptions } from "../../containers/Track/Instruments";
 import Tone from "../../lib/tone";
 import { RecursivePartial } from '../../containers/Track/Instruments'
 // import { Part } from "tone";
-import { generalEffectOptions } from '../Track';
+import { generalEffectOptions, trackActions } from '../Track';
 
 export type pLockType = number | string | boolean | Tone.TimeClass;
 
@@ -497,6 +497,7 @@ export interface addInstrumentToSequencerAction {
 
 export interface removeInstrumentFromSequencerAction {
 	type: sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER;
+	// type: trackActions.REMOVE_INSTRUMENT;
 	payload: {
 		trackIndex: number;
 	};

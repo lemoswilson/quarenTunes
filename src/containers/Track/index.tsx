@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useContext, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux'
+import React, { FunctionComponent, useContext } from 'react';
+import { useSelector, useDispatch, batch } from 'react-redux'
 import { addInstrumentToSequencer, removeInstrumentFromSequencer, addEffectSequencer, removeEffectSequencer } from '../../store/Sequencer';
 import {
     addInstrument,
@@ -41,9 +41,6 @@ import { getInitials } from './defaults';
 const Track: FunctionComponent = () => {
 
     const dispatch = useDispatch();
-    const ref_ToneTriggCtx = useContext(triggContext);
-    const pattKeys: number[] = useSelector((state: RootState) => Object.keys(state.sequencer.present.patterns).map(key => parseInt(key)));
-    const trackCount: number = useSelector((state: RootState) => state.track.present.trackCount);
     const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack);
     const Tracks = useSelector((state: RootState) => state.track.present.tracks);
     const counter = useSelector((state: RootState) => state.track.present.instrumentCounter)
@@ -54,18 +51,18 @@ const Track: FunctionComponent = () => {
     };
 
     const _addInstrument = (instrument: xolombrisxInstruments): void => {
-        // triggEmitter.emit(triggEventTypes.ADD_TRACK, { trackIndex: trackCount - 1 })
         triggEmitter.emit(triggEventTypes.ADD_TRACK, {})
         dispatch(addInstrumentToSequencer(counter + 1));
         dispatch(addInstrument(instrument));
-        // dispatch(addInstrument(instrument, trackIndex));
     };
 
-    const _removeInstrument = (trackId: number, trackIndex: number): void => {
-        dispatch(removeInstrument(trackIndex));
-        dispatch(removeInstrumentFromSequencer(trackIndex));
+    const _removeInstrument = (trackIndex: number, trackId: number): void => {
+        toneRefsEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackIndex: trackIndex })
         triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { trackIndex: trackIndex })
-        toneRefsEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackId: trackId })
+        batch(() => {
+            dispatch(removeInstrument(trackIndex));
+            dispatch(removeInstrumentFromSequencer(trackIndex));
+        })
     };
 
     const _selectInstrument = (trkIndex: number): void => {
@@ -80,21 +77,25 @@ const Track: FunctionComponent = () => {
         dispatch(selectMidiChannel(index, channel));
     };
 
-    const dispatchInsertEffect = (effect: effectTypes, fxIndex: number, trackIndex: number): void => {
+    const _insertEffect = (effect: effectTypes, fxIndex: number, trackIndex: number): void => {
+        // toneObjects will be dealt in effect rendering
         dispatch(insertEffect(fxIndex, effect, trackIndex));
-        // const selectedTrackIndex = Tracks.findIndex(track => track.id === selectedTrack)
         dispatch(addEffectSequencer(fxIndex, trackIndex))
+        // const selectedTrackIndex = Tracks.findIndex(track => track.id === selectedTrack)
 
     };
 
-    const dispatchChangeEffectIdx = (from: number, to: number): void => {
+    const _changeEffectIdx = (from: number, to: number): void => {
+        toneRefsEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackIndex: selectedTrkIdx })
         dispatch(changeEffectIndex(from, to, selectedTrkIdx));
-        toneRefsEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackId: selectedTrkIdx })
     };
 
-    const dispatchDeleteEffect = (index: number, trackId: number): void => {
-        dispatch(deleteEffect(index, selectedTrkIdx));
-        toneRefsEmitter.emit(trackEventTypes.REMOVE_EFFECT, { effectsIndex: index, trackId: trackId })
+    const _deleteEffect = (index: number, trackId: number): void => {
+        toneRefsEmitter.emit(trackEventTypes.REMOVE_EFFECT, { effectsIndex: index, trackIndex: selectedTrkIdx })
+        batch(() => {
+            dispatch(deleteEffect(index, selectedTrkIdx));
+            dispatch(removeEffectSequencer(index, selectedTrkIdx))
+        })
     };
 
     return (

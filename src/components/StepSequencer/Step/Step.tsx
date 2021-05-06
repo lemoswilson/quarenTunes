@@ -35,8 +35,9 @@ const Step: React.FC<StepProps> = ({
     // const previousPattern = usePrevious(activePattern)
 
     useTrigg(
-        triggRefs.current[activePattern][selectedTrack].instrument,
-        triggRefs.current[activePattern][selectedTrack].effects,
+        triggRefs.current[activePattern][selectedTrack],
+        // triggRefs.current[activePattern][selectedTrack].instrument,
+        // triggRefs.current[activePattern][selectedTrack].effects,
         event.fx,
         event.instrument,
         index,

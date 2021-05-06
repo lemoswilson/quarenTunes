@@ -1,4 +1,4 @@
-import { getEffectsInitials, getInitials, getInitialsValue } from '../defaults'
+import { getEffectsInitials, getInitials } from '../defaults'
 import { xolombrisxInstruments, midi } from '../../../store/Track'
 
 export interface InstrumentProps<T extends xolombrisxInstruments> extends instrumentProps {

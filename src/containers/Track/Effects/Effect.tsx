@@ -9,7 +9,7 @@ import { updateEffectState } from '../../../store/Track/actions'
 import { parameterLockEffect, parameterLockEffectIncreaseDecrease, removeEffectPropertyLock } from '../../../store/Sequencer/actions'
 
 import triggContext from '../../../context/triggState';
-import toneRefsContext from '../../../context/toneRefsContext';
+import ToneObjectsContext from '../../../context/ToneObjectsContext';
 
 import WebMidi, { InputEventControlchange, Input } from 'webmidi';
 
@@ -17,7 +17,10 @@ import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
 import valueFromCC, { optionFromCC, valueFromMouse } from '../../../lib/curves';
 import { onlyValues, propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
 import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
-import Tone from '../../../lib/tone'
+// import Tone from '../../../lib/tone'
+// import * as Tone from 'tone';
+import { Gain } from 'tone';
+import ToneContext from '../../../context/ToneContext';
 
 import { sixteenthFromBBS } from '../../Arranger'
 import { effectsInitials, effectsInitialsArray } from '../Instruments';
@@ -33,63 +36,14 @@ import DevicePresetManager from '../../../components/Layout/DevicePresetManager'
 
 import Compressor from '../../../components/Layout/Effects/Compressor';
 
-export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
-    let options = onlyValues(opt);
+import { returnEffect } from '../../Xolombrisx';
 
-    switch (type) {
-        case effectTypes.AUTOFILTER:
-            return new Tone.AutoFilter(options);
-        case effectTypes.AUTOPANNER:
-            return new Tone.AutoPanner(options);
-        case effectTypes.BITCRUSHER:
-            return new Tone.BitCrusher(options);
-        case effectTypes.CHEBYSHEV:
-            return new Tone.Chebyshev(options);
-        case effectTypes.CHORUS:
-            return new Tone.Chorus(options);
-        case effectTypes.COMPRESSOR:
-            return new Tone.Compressor(options);
-        case effectTypes.DISTORTION:
-            return new Tone.Distortion(options);
-        case effectTypes.EQ3:
-            return new Tone.EQ3(options);
-        case effectTypes.FEEDBACKDELAY:
-            return new Tone.FeedbackDelay(options);
-        case effectTypes.FILTER:
-            return new Tone.Filter(options);
-        case effectTypes.FREEVERB:
-            return new Tone.Freeverb(options);
-        case effectTypes.FREQUENCYSHIFTER:
-            return new Tone.FrequencyShifter(options);
-        case effectTypes.GATE:
-            return new Tone.Gate(options);
-        case effectTypes.JCREVERB:
-            return new Tone.JCReverb(options);
-        case effectTypes.LIMITER:
-            return new Tone.Limiter(options);
-        case effectTypes.MULTIBANDCOMPRESSOR:
-            return new Tone.MultibandCompressor(options);
-        case effectTypes.PHASER:
-            return new Tone.Phaser(options)
-        case effectTypes.PINGPONGDELAY:
-            return new Tone.PingPongDelay(options)
-        case effectTypes.PITCHSHIFT:
-            return new Tone.PitchShift(options)
-        case effectTypes.STEREOWIDENER:
-            return new Tone.StereoWidener(options)
-        case effectTypes.TREMOLO:
-            return new Tone.Tremolo(options)
-        case effectTypes.VIBRATO:
-            return new Tone.Vibrato(options)
-        default:
-            return new Tone.Vibrato(options)
-    }
-}
 
 const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, trackId, trackIndex }) => {
-    const ref_toneTriggCtx = useContext(triggContext);
-    const ref_toneTrkCtx = useContext(toneRefsContext);
+    // const ref_toneTriggCtx = useContext(triggContext);
+    const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
+    const Tone = useContext(ToneContext);
     // const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
     const fxProps = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
@@ -129,7 +83,10 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
     const ref_activePatt = useRef(activePattern);
     useEffect(() => { ref_activePatt.current = activePattern }, [activePattern]);
 
-    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePattern].tracks[fxIndex].selected);
+    const selectedSteps = useSelector((state: RootState) => {
+        if (state.sequencer.present.patterns[activePattern] && state.sequencer.present.patterns[activePattern].tracks[trackIndex])
+            return state.sequencer.present.patterns[activePattern].tracks[trackIndex].selected
+    });
     const ref_selectedSteps = useRef(selectedSteps);
     useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps]);
 
@@ -221,7 +178,7 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
 
                 const cc = e.controller && e.controller.number
 
-                if (ref_selectedSteps.current.length >= 1) {
+                if (ref_selectedSteps.current && ref_selectedSteps.current.length >= 1) {
                     ref_selectedSteps.current.forEach(step => {
                         dispatch(parameterLockEffectIncreaseDecrease(
                             ref_activePatt.current,
@@ -276,7 +233,7 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
         let o = {}
         let callArray = fxProps.map(property => {
             return () => {
-                if (ref_selectedSteps.current.length > 0)
+                if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0)
                     ref_selectedSteps.current.forEach(step => {
                         dispatch(removeEffectPropertyLock(
                             ref_trackIndex.current,
@@ -368,11 +325,11 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
             //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
             // );
 
-            if (ref_toneTrkCtx?.current) {
-                const chain = ref_toneTrkCtx.current[trackId].chain
-                const effects = ref_toneTrkCtx.current[trackId].effects;
-                let prev, next: Tone.Gain | toneEffects;
-                if (fxIndex === ref_toneTrkCtx.current[trackId].effects.length - 1) {
+            if (ref_toneObjects?.current) {
+                const chain = ref_toneObjects.current.tracks[trackIndex].chain
+                const effects = ref_toneObjects.current.tracks[trackIndex].effects;
+                let prev, next: Gain | toneEffects;
+                if (fxIndex === effects.length - 1) {
                     next = chain.out
                     if (fxIndex === 0) prev = chain.in;
                     else prev = effects[fxIndex - 1];
@@ -388,11 +345,13 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
                 ref_ToneEffect.current.connect(next)
                 effects[fxIndex].dispose();
                 effects[fxIndex] = ref_ToneEffect.current;
+
+                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                    let k = parseInt(key);
+                    if (ref_toneObjects.current)
+                        ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                });
             }
-            Object.keys(ref_toneTriggCtx.current).forEach(key => {
-                let k = parseInt(key);
-                ref_toneTriggCtx.current[k][trackId].effects[fxIndex].callback = effectCallback
-            });
         }
 
 
@@ -401,33 +360,32 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
         type,
         fxId,
         fxIndex,
-        trackId,
-        ref_toneTriggCtx,
-        effectCallback,
+        trackIndex,
+        ToneObjectsContext,
         optionsRef
     ]);
 
 
     // add effect first render logic 
     useEffect(() => {
-        // if (firstRender) {
+        if (firstRender) {
             // toneRefEmitter.emit(
             //     trackEventTypes.ADD_EFFECT,
             //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
             // );
             ref_ToneEffect.current = returnEffect(type, options)
-            if (ref_toneTrkCtx?.current) {
-                let lgth = ref_toneTrkCtx.current[trackId].effects.length;
-                let chain = ref_toneTrkCtx.current[trackId].chain;
+            if (ref_toneObjects.current) {
+                let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
+                let chain = ref_toneObjects.current.tracks[trackIndex].chain;
 
                 if (lgth > 0) {
                     let from, to;
                     if (fxIndex === lgth - 1) {
-                        from = ref_toneTrkCtx.current[trackId].effects[lgth - 1];
+                        from = ref_toneObjects.current.tracks[trackIndex].effects[lgth - 1];
                         to = chain.out
                     } else {
-                        from = ref_toneTrkCtx.current[trackId].effects[fxIndex]
-                        to = ref_toneTrkCtx.current[trackId].effects[fxIndex + 1]
+                        from = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex]
+                        to = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex + 1]
                     }
                     if (from && to) {
                         from.disconnect();
@@ -439,15 +397,17 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
                     chain.in.connect(ref_ToneEffect.current);
                     ref_ToneEffect.current.connect(chain.out);
                 }
-                ref_toneTrkCtx.current[trackId].effects.push(ref_ToneEffect.current);
+                ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current);
+
+                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                    let k = parseInt(key);
+                    if (ref_toneObjects.current)
+                        ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                });
             }
 
-            Object.keys(ref_toneTriggCtx.current).forEach(key => {
-                let k = parseInt(key);
-                ref_toneTriggCtx.current[k][trackId].effects[fxIndex].callback = effectCallback
-            });
-            // setRender(false);
-        // }
+            setRender(false);
+        }
     }, [])
 
     const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, FormEvent, MutableRefObject } from 'react';
+import React, { useEffect, useRef, MutableRefObject } from 'react';
 import styles from './knob.module.scss';
 import { indicatorProps } from './index';
 import InputBox from './InputBox';
@@ -31,7 +31,7 @@ const Knob: React.FC<indicatorProps> = ({
 }) => {
     // const Knob: React.FC<indicatorProps> = ({ captureStart, label, indicatorData, className, unit, display, value, setDisplay }) => {
     const c = `${styles.wrapper} ${className}`
-    const valueDisplay = value === -Infinity ? '-&infin;' : value;
+    // const valueDisplay = value === -Infinity ? '-&infin;' : value;
     const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
 
@@ -57,12 +57,15 @@ const Knob: React.FC<indicatorProps> = ({
         : displayComponent
     
     useEffect(() => {
-        divRef.current?.addEventListener('keydown', onKeyDown)
+        const div = divRef.current
+        // divRef.current?.addEventListener('keydown', onKeyDown)
+        div?.addEventListener('keydown', onKeyDown)
 
         return () => {
-            divRef.current?.removeEventListener('keydown', onKeyDown)
+            // divRef.current?.removeEventListener('keydown', onKeyDown)
+            div?.removeEventListener('keydown', onKeyDown)
         }
-    }, [])
+    }, [onKeyDown])
 
 
     return (

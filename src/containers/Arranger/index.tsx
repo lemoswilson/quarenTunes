@@ -2,7 +2,6 @@ import React, {
 	useEffect,
 	useRef,
 	FunctionComponent,
-	ChangeEvent,
 	KeyboardEvent,
 	MouseEvent,
 	useContext,
@@ -12,41 +11,34 @@ import React, {
 } from "react";
 import usePrevious from "../../hooks/usePrevious";
 import { useDispatch, useSelector } from "react-redux";
-import triggCtx from '../../context/triggState';
+import { Part } from 'tone';
 import {
 	addRow,
 	setTracker,
 	addSong,
-	prependRow,
+	setMode,
 	renameSong,
 	removeRow,
 	removeSong,
 	selectSong,
-	setFollow,
 	swapEvents,
-	setMode,
 	setMute,
 	setPattern,
 	setRepeat,
-	setTimer,
-	arrangerMode,
 	songEvent,
 	increaseDecreaseRepeat
 } from "../../store/Arranger";
 import { goToActive } from '../../store/Sequencer'
-import Tone from "../../lib/tone";
-// import ToneContext from '../../context/ToneContext';
+import ToneContext from '../../context/ToneContext';
 import { RootState } from "../Xolombrisx";
 import styles from './style.module.scss';
 import Dropdown from '../../components/Layout/Dropdown';
 import Minus from '../../components/Layout/Icons/Minus';
 import Plus from '../../components/Layout/Icons/Plus';
 import NumberBox from '../../components/Layout/NumberBox';
-import { Part } from 'tone';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { current } from "immer";
-import Div100vh from "react-div-100vh";
+import ToneObjectsContext from "../../context/ToneObjectsContext";
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;
@@ -69,11 +61,13 @@ export const sixteenthFromBBS = (time: string): number => {
 
 
 const Arranger: FunctionComponent = () => {
+
+	const Tone = useContext(ToneContext);
 	const [schedulerID, setSchedulerID] = useState<number | undefined>(undefined);
-	const ref_toneTriggObjCtx = useContext(triggCtx);
-	const dispatch = useDispatch();
+
+	const ref_toneObjects = useContext(ToneObjectsContext);
 	const ref_schedulerPart: MutableRefObject<Part | null> = useRef(null);
-	// const Tone = useContext(ToneContext);
+	const dispatch = useDispatch();
 
 	const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
 	const ref_activePatt = useRef(activePatt);
@@ -162,22 +156,24 @@ const Arranger: FunctionComponent = () => {
 						Tone.Transport.schedule((time) => {
 							dispatch(setTracker([v.pattern, 0]));
 							[...Array(ref_trkCount.current).keys()].forEach(track => {
-								const trackLength: number | string = ref_pattsObj.current[v.pattern].tracks[track].length;
-								const b = bbsFromSixteenth(trackLength)
-								const instrumentTrigg = ref_toneTriggObjCtx.current[v.pattern][track].instrument;
-								const fxTriggs = ref_toneTriggObjCtx.current[v.pattern][track].effects
-								const l = fxTriggs.length
-								if (!v.mute.includes(track)) {
-									for (let i = 0; i < l; i++) {
-										fxTriggs[i].mute = false;
-										fxTriggs[i].loop = true;
-										fxTriggs[i].loopEnd = b;
-										fxTriggs[i].start("+0");
+								if (ref_toneObjects.current) {
+									const trackLength: number | string = ref_pattsObj.current[v.pattern].tracks[track].length;
+									const b = bbsFromSixteenth(trackLength)
+									const instrumentTrigg = ref_toneObjects.current?.patterns[v.pattern][track].instrument;
+									const fxTriggs = ref_toneObjects.current?.patterns[v.pattern][track].effects
+									const l = fxTriggs.length
+									if (!v.mute.includes(track)) {
+										for (let i = 0; i < l; i++) {
+											fxTriggs[i].mute = false;
+											fxTriggs[i].loop = true;
+											fxTriggs[i].loopEnd = b;
+											fxTriggs[i].start("+0");
+										}
+										instrumentTrigg.mute = false;
+										instrumentTrigg.loop = true;
+										instrumentTrigg.loopEnd = b;
+										instrumentTrigg.start("+0");
 									}
-									instrumentTrigg.mute = false;
-									instrumentTrigg.loop = true;
-									instrumentTrigg.loopEnd = b;
-									instrumentTrigg.start("+0");
 								}
 							});
 						}, 0);
@@ -185,38 +181,41 @@ const Arranger: FunctionComponent = () => {
 						Tone.Transport.schedule((time) => {
 							dispatch(setTracker([v.pattern, secondaryTime]));
 							[...Array(ref_trkCount.current).keys()].forEach(track => {
-								const instrumentTrigg = ref_toneTriggObjCtx.current[v.pattern][track].instrument;
-								const fxTriggs = ref_toneTriggObjCtx.current[v.pattern][track].effects
-								const pastFxTriggs = ref_toneTriggObjCtx.current[arr[idx - 1].pattern][track].effects
-								const pastInstrumentTrigg = ref_toneTriggObjCtx.current[arr[idx - 1].pattern][track].instrument;
-								const trackLength: number = ref_pattsObj.current[v.pattern].tracks[track].length;
-								if (arr[idx - 1].pattern === v.pattern) {
-									if (!v.mute.includes(track)) {
-										if (instrumentTrigg.state !== "started") instrumentTrigg.start("+0");
-										for (let i = 0; i < fxTriggs.length; i++) {
-											if (fxTriggs[i].state !== "started") fxTriggs[i].start("+0")
-										}
-									}
-								} else {
-									if (arr[idx - 1].pattern >= 0) {
-										pastInstrumentTrigg.stop();
-										pastInstrumentTrigg.mute = true;
-										pastInstrumentTrigg.loop = false;
+								if (ref_toneObjects.current){
+
+									const instrumentTrigg = ref_toneObjects.current.patterns[v.pattern][track].instrument;
+									const fxTriggs = ref_toneObjects.current.patterns[v.pattern][track].effects
+									const pastFxTriggs = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].effects
+									const pastInstrumentTrigg = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].instrument;
+									const trackLength: number = ref_pattsObj.current[v.pattern].tracks[track].length;
+									if (arr[idx - 1].pattern === v.pattern) {
 										if (!v.mute.includes(track)) {
-											instrumentTrigg.loop = true;
-											instrumentTrigg.loopEnd = bbsFromSixteenth(trackLength);
-											instrumentTrigg.mute = false;
-											instrumentTrigg.start("+0");
+											if (instrumentTrigg.state !== "started") instrumentTrigg.start("+0");
+											for (let i = 0; i < fxTriggs.length; i++) {
+												if (fxTriggs[i].state !== "started") fxTriggs[i].start("+0")
+											}
 										}
-										for (let i = 0; i < fxTriggs.length; i++) {
-											pastFxTriggs[i].mute = true
-											pastFxTriggs[i].loop = false
-											pastFxTriggs[i].stop();
-											if (v.mute.includes(track)) {
-												fxTriggs[i].mute = false;
-												fxTriggs[i].loop = true;
-												fxTriggs[i].loopEnd = bbsFromSixteenth(trackLength);
-												fxTriggs[i].start("+0");
+									} else {
+										if (arr[idx - 1].pattern >= 0) {
+											pastInstrumentTrigg.stop();
+											pastInstrumentTrigg.mute = true;
+											pastInstrumentTrigg.loop = false;
+											if (!v.mute.includes(track)) {
+												instrumentTrigg.loop = true;
+												instrumentTrigg.loopEnd = bbsFromSixteenth(trackLength);
+												instrumentTrigg.mute = false;
+												instrumentTrigg.start("+0");
+											}
+											for (let i = 0; i < fxTriggs.length; i++) {
+												pastFxTriggs[i].mute = true
+												pastFxTriggs[i].loop = false
+												pastFxTriggs[i].stop();
+												if (v.mute.includes(track)) {
+													fxTriggs[i].mute = false;
+													fxTriggs[i].loop = true;
+													fxTriggs[i].loopEnd = bbsFromSixteenth(trackLength);
+													fxTriggs[i].start("+0");
+												}
 											}
 										}
 									}
@@ -229,14 +228,16 @@ const Arranger: FunctionComponent = () => {
 					if (idx > 0 && arr[idx - 1].pattern >= 0) {
 						Tone.Transport.schedule((time) => {
 							[...Array(ref_trkCount.current).keys()].forEach(track => {
-								const pastInstrumentTriggs = ref_toneTriggObjCtx.current[arr[idx - 1].pattern][track].instrument;
-								const pastEffectTriggs = ref_toneTriggObjCtx.current[arr[idx - 1].pattern][track].effects
-								for (let i = 0; i < pastEffectTriggs.length; i++) {
-									pastEffectTriggs[i].stop();
-									pastEffectTriggs[i].mute = true;
+								if (ref_toneObjects.current){
+									const pastInstrumentTriggs = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].instrument;
+									const pastEffectTriggs = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].effects
+									for (let i = 0; i < pastEffectTriggs.length; i++) {
+										pastEffectTriggs[i].stop();
+										pastEffectTriggs[i].mute = true;
+									}
+									pastInstrumentTriggs.stop();
+									pastInstrumentTriggs.mute = true;
 								}
-								pastInstrumentTriggs.stop();
-								pastInstrumentTriggs.mute = true;
 							});
 						}, timeCounter);
 					}
@@ -247,22 +248,25 @@ const Arranger: FunctionComponent = () => {
 				// Stopping patterns
 				Tone.Transport.schedule((time) => {
 					[...Array(ref_trkCount.current).keys()].forEach(track => {
-						const lastTriggInstrument: Part =
-							ref_toneTriggObjCtx.current[events[eventsLength].pattern][track].instrument;
-						const lastTriggFx = ref_toneTriggObjCtx.current[events[eventsLength].pattern][track].effects
-						for (let i = 0; i < lastTriggFx.length; i++) {
-							lastTriggFx[i].stop();
-							lastTriggFx[i].mute = true;
+						if (ref_toneObjects.current){
+
+							const lastTriggInstrument =
+								ref_toneObjects.current.patterns[events[eventsLength].pattern][track].instrument;
+							const lastTriggFx = ref_toneObjects.current.patterns[events[eventsLength].pattern][track].effects
+							for (let i = 0; i < lastTriggFx.length; i++) {
+								lastTriggFx[i].stop();
+								lastTriggFx[i].mute = true;
+							}
+							lastTriggInstrument.stop();
+							lastTriggInstrument.mute = true;
 						}
-						lastTriggInstrument.stop();
-						lastTriggInstrument.mute = true;
 					});
 				}, timeCounter);
 			}
 		}
 	}, [
 		dispatch,
-		ref_toneTriggObjCtx,
+		ref_toneObjects,
 		ref_pattsObj,
 		ref_trkCount,
 	]
@@ -279,30 +283,33 @@ const Arranger: FunctionComponent = () => {
 		[...Array(trkCount)]
 			.map((_, i) => i)
 			.forEach((trackIndex: number) => {
-				const b = bbsFromSixteenth(pattsObj[activePatt].tracks[trackIndex].length)
-				const InstrumentTrigg = ref_toneTriggObjCtx.current[activePatt][trackIndex].instrument
-				const fxTriggs = ref_toneTriggObjCtx.current[activePatt][trackIndex].effects
-				InstrumentTrigg.loop = true;
-				InstrumentTrigg.loopStart = 0;
-				InstrumentTrigg.loopEnd = b;
-				InstrumentTrigg.mute = false;
-				InstrumentTrigg.start(0);
-				for (let i = 0; i < fxTriggs.length; i++) {
-					fxTriggs[i].mute = false;
-					fxTriggs[i].loop = true;
-					fxTriggs[i].loopEnd = b;
-					fxTriggs[i].loopStart = 0;
-					fxTriggs[i].start(0);
+				if (ref_toneObjects.current){
+
+					const b = bbsFromSixteenth(pattsObj[activePatt].tracks[trackIndex].length)
+					const InstrumentTrigg = ref_toneObjects.current.patterns[activePatt][trackIndex].instrument
+					const fxTriggs = ref_toneObjects.current.patterns[activePatt][trackIndex].effects
+					InstrumentTrigg.loop = true;
+					InstrumentTrigg.loopStart = 0;
+					InstrumentTrigg.loopEnd = b;
+					InstrumentTrigg.mute = false;
+					InstrumentTrigg.start(0);
+					for (let i = 0; i < fxTriggs.length; i++) {
+						fxTriggs[i].mute = false;
+						fxTriggs[i].loop = true;
+						fxTriggs[i].loopEnd = b;
+						fxTriggs[i].loopStart = 0;
+						fxTriggs[i].start(0);
+					}
+
 				}
 			});
 	}, [
 		activePatt,
-		ref_toneTriggObjCtx,
+		ref_toneObjects,
 		trkCount
 	])
 
 
-	// should rewrite all this stuf, everything should be a ref in this
 	const goTo = useCallback(() => {
 		let pageToGo: number | undefined = undefined;
 		const nowTime: string = String(Tone.Transport.position).split('.')[0];
@@ -358,12 +365,14 @@ const Arranger: FunctionComponent = () => {
 			} else {
 				if (prev_arrgMode === "pattern") {
 					[...Array(trkCount).keys()].forEach(track => {
-						const fxTriggs = ref_toneTriggObjCtx.current[activePatt][track].effects
-						ref_toneTriggObjCtx.current[activePatt][track].instrument.stop();
-						ref_toneTriggObjCtx.current[activePatt][track].instrument.mute = true;
-						for (let i = 0; i < fxTriggs.length; i++) {
-							fxTriggs[i].mute = true;
-							fxTriggs[i].stop();
+						if (ref_toneObjects.current){
+							const fxTriggs = ref_toneObjects.current.patterns[activePatt][track].effects
+							ref_toneObjects.current.patterns[activePatt][track].instrument.stop();
+							ref_toneObjects.current.patterns[activePatt][track].instrument.mute = true;
+							for (let i = 0; i < fxTriggs.length; i++) {
+								fxTriggs[i].mute = true;
+								fxTriggs[i].stop();
+							}
 						}
 					})
 				}
@@ -379,7 +388,7 @@ const Arranger: FunctionComponent = () => {
 		scheduleFromIndex,
 		setupPatternMode,
 		prev_arrgMode,
-		ref_toneTriggObjCtx
+		ref_toneObjects
 	]
 	);
 
@@ -434,21 +443,21 @@ const Arranger: FunctionComponent = () => {
 
 
 	// dispatchers
-	const dispatchAddRow = (index: number): void => {
+	const _addRow = (index: number): void => {
 		dispatch(addRow(index));
-		const edummy: songEvent[] = [...ref_songEvents.current];
-		edummy.splice(index + 1, 0, {
-			pattern: -1,
-			repeat: 0,
-			mute: [],
-			id: -1,
-		});
+		// const edummy: songEvent[] = [...ref_songEvents.current];
+		// edummy.splice(index + 1, 0, {
+		// 	pattern: -1,
+		// 	repeat: 0,
+		// 	mute: [],
+		// 	id: -1,
+		// });
 		// Tone.Transport.cancel(0);
 		// implementar from scheduling from the index. 
 		// scheduleFromIndex(index - 1, edummy);
 	}
 
-	const dispatchSelectSong = (value: number): void => {
+	const _selectSong = (value: number): void => {
 		if (arrgMode === "arranger") Tone.Transport.cancel(0);
 		dispatch(selectSong(value));
 		// Tone.Transport.cancel();
@@ -456,37 +465,29 @@ const Arranger: FunctionComponent = () => {
 	};
 
 
-	const dispatchAddSong = (): void => { dispatch(addSong()); };
+	const _addSong = (): void => { dispatch(addSong()); };
 
-	const dispatchRemoveSong = (e: MouseEvent<HTMLDivElement>): void => {
+	const _removeSong = (): void => {
 		Tone.Transport.cancel();
 		dispatch(removeSong(currentSong));
 	};
 
-	const dispatchSetEventPattern = (eventIndex: number, pattern: number): void => {
-		// const dummye: event[] = [...activeSongObject.current.events]
-		// dummye[eventIndex] = { ...dummye[eventIndex] };
-		// dummye[eventIndex].pattern = pIdx;
+	const _setEventPattern = (eventIndex: number, pattern: number): void => {
 		dispatch(setPattern(pattern, eventIndex));
 		// Tone.Transport.cancel(0);
 		// scheduleFromIndex(0, dummye);
 	};
 
-	const dispatchSetRepeat = (repeat: number, eventIndex: number): void => {
-		// const dummye: event[] = [...activeSongObject.current.events];
-		// dummye[eventIndex] = { ...dummye[eventIndex] };
-		// dummye[eventIndex].repeat = repeat;
+	const _setRepeat = (repeat: number, eventIndex: number): void => {
 		dispatch(setRepeat(repeat, eventIndex));
-		// Tone.Transport.cancel();
-		// scheduleFromIndex(0, dummye);
 	};
 
-	const dispatchIncDecRepeat = (amount: number, song: number, eventIndex: number): void => {
+	const _incDecRepeat = (amount: number, song: number, eventIndex: number): void => {
 		console.log('dispatching set repeat')
 		dispatch(increaseDecreaseRepeat(song, eventIndex, amount))
 	}
 
-	const dispatchRemoveRow = (index: number): void => {
+	const _removeRow = (index: number): void => {
 		const dummye: songEvent[] = [...ref_songEvents.current];
 		dummye.splice(index, 1);
 		dispatch(removeRow(index));
@@ -494,7 +495,7 @@ const Arranger: FunctionComponent = () => {
 		// scheduleFromIndex(0, dummye);
 	};
 
-	const dispatchSetMute = (e: KeyboardEvent<HTMLInputElement>, eventIndex: number): void => {
+	const _setMute = (e: KeyboardEvent<HTMLInputElement>, eventIndex: number): void => {
 		if (e.keyCode === 13) {
 			let m: string | number[] = e.currentTarget.value;
 			if (m === "") m = []
@@ -509,7 +510,7 @@ const Arranger: FunctionComponent = () => {
 	};
 
 	// Conditional styles, elements and properties
-	const dispatchRenameSong = (event: React.FormEvent<HTMLFormElement>): void => {
+	const _renameSong = (event: React.FormEvent<HTMLFormElement>): void => {
 		event.preventDefault();
 		const input = event.currentTarget.getElementsByTagName('input')[0];
 		if (input.value.length >= 1) {
@@ -540,16 +541,16 @@ const Arranger: FunctionComponent = () => {
 					<div className={styles.selector}>
 						<Dropdown
 							keyValue={Object.keys(songs).map(song => [song, songs[Number(song)].name])}
-							onSubmit={dispatchRenameSong}
-							select={(value) => { dispatchSelectSong(Number(value)) }}
+							onSubmit={_renameSong}
+							select={(value) => { _selectSong(Number(value)) }}
 							renamable={true}
 							selected={String(currentSong)}
 							dropdownId={`song ${currentSong} selector`}
 							className={styles.dropdown}
 						/>
 					</div>
-					<div className={styles.increase}><Plus onClick={dispatchAddSong} /></div>
-					<div className={styles.decrease}>{Object.keys(songs).length > 1 ? <Minus onClick={dispatchRemoveSong} /> : null}</div>
+					<div className={styles.increase}><Plus onClick={_addSong} /></div>
+					<div className={styles.decrease}>{Object.keys(songs).length > 1 ? <Minus onClick={_removeSong} /> : null}</div>
 				</div>
 			</div>
 			<div className={styles.bottom}>
@@ -578,7 +579,7 @@ const Arranger: FunctionComponent = () => {
 														{
 															activeSongObj.events.length > 1 
 															? <div className={styles.delete}> 
-																	<Minus onClick={() => { dispatchRemoveRow(idx) }} small={true} />
+																	<Minus onClick={() => { _removeRow(idx) }} small={true} />
 															</div> 
 															: <div></div>
 														}
@@ -586,23 +587,23 @@ const Arranger: FunctionComponent = () => {
 															<Dropdown 
 																dropdownId={`song ${currentSong} event ${songEvent.id}`} 
 																keyValue={Object.keys(pattsObj).map(k => [String(k), pattsObj[Number(k)].name])} 
-																className={styles.out} select={(key) => { dispatchSetEventPattern(idx, Number(key)) }} 
+																className={styles.out} select={(key) => { _setEventPattern(idx, Number(key)) }} 
 																selected={String(songEvent.pattern)} 
 															/>
 														</div>
 														<div className={styles.repeat}> 
 															<NumberBox 
 																increaseDecrease={
-																	(value) => dispatchIncDecRepeat(value, songEvent.id, idx)
+																	(value) => _incDecRepeat(value, songEvent.id, idx)
 																} 
 																updateValue={(
-																	value) => dispatchSetRepeat(value, idx)
+																	value) => _setRepeat(value, idx)
 																} 
 																value={songEvent.repeat} 
 															/>
 														</div>
 														<div className={styles.add}>
-															<Plus onClick={() => { dispatchAddRow(idx) }} small={true} />
+															<Plus onClick={() => { _addRow(idx) }} small={true} />
 														</div>
 													</div>
 												)}

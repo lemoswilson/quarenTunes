@@ -1,6 +1,6 @@
 import { sequencerActions, sequencerActionTypes, event } from "./types";
 import { eventOptions, RecursivePartial } from '../../containers/Track/Instruments';
-import { generalEffectOptions } from "../Track";
+import { generalEffectOptions, trackActions } from "../Track";
 
 export function selectStepsBatch(
 	pattern: number,
@@ -370,6 +370,7 @@ export function removeInstrumentFromSequencer(
 ): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER,
+		// type: trackActions.REMOVE_INSTRUMENT,
 		payload: {
 			trackIndex: trackIndex,
 		},

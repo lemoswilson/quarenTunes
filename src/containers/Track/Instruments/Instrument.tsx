@@ -11,7 +11,7 @@ import usePrevious from '../../../hooks/usePrevious';
 import { useProperties, useDrumRackProperties } from '../../../hooks/useProperty';
 // import { useProperty, useProperties } from '../../../hooks/useProperty';
 
-import { xolombrisxInstruments, updateInstrumentState, increaseDecreaseEffectProperty, increaseDecreaseInstrumentProperty } from '../../../store/Track';
+import { xolombrisxInstruments, updateInstrumentState, increaseDecreaseInstrumentProperty } from '../../../store/Track';
 import { noteOn, noteOff, noteDict, numberToNote } from '../../../store/MidiInput';
 import {
     parameterLock,
@@ -20,7 +20,6 @@ import {
     setNoteLengthPlayback,
     parameterLockIncreaseDecrease,
     removePropertyLock,
-    removeEffectPropertyLock,
 } from '../../../store/Sequencer';
 
 import WebMidi, {
@@ -34,24 +33,21 @@ import {
     propertiesToArray,
     setNestedValue,
     getNested,
-    onlyValues,
     deleteProperty,
     copyToNew
 } from '../../../lib/objectDecompose'
 
 // import * as Tone from 'tone';
-import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../../lib/curves';
+// import Tone from '../../../lib/tone';
 import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
-import Tone from '../../../lib/tone';
 
-import triggCtx from '../../../context/triggState';
-import toneRefsContext from '../../../context/toneRefsContext';
-// import ToneContext from '../../../context/ToneContext';
+import ToneObjectsContext from '../../../context/ToneObjectsContext';
+import ToneContext from '../../../context/ToneContext';
 import { InstrumentProps, initials } from './index'
-import { eventOptions, initialsArray } from './types';
+import { eventOptions } from './types';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { DrumRackSlotInitials, getInitials, indicators } from '../defaults';
+import { getInitials, indicators } from '../defaults';
 import { RootState, returnInstrument } from '../../Xolombrisx';
 import { sixteenthFromBBS } from '../../Arranger';
 
@@ -68,40 +64,28 @@ import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
 import PluckSynth from '../../../components/Layout/Instruments/PluckSynth';
 import DrumRack from '../../../components/Layout/Instruments/DrumRack';
 import Chain from '../../../lib/fxChain';
-// import DrumRack from '../../../lib/DrumRack';
-
-// export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
-//     let options = onlyValues(opt);
-
-//     switch (voice) {
-//         case xolombrisxInstruments.AMSYNTH:
-//             return new Tone.PolySynth(Tone.AMSynth, options);
-//         case xolombrisxInstruments.FMSYNTH:
-//             return new Tone.PolySynth(Tone.FMSynth, options);
-//         case xolombrisxInstruments.MEMBRANESYNTH:
-//             return new Tone.PolySynth(Tone.MembraneSynth, options);
-//         case xolombrisxInstruments.METALSYNTH:
-//             return new Tone.PolySynth(Tone.MetalSynth, options);
-//         case xolombrisxInstruments.NOISESYNTH:
-//             return new Tone.NoiseSynth(options);
-//         case xolombrisxInstruments.PLUCKSYNTH:
-//             return new Tone.PluckSynth(options);
-//         case xolombrisxInstruments.DRUMRACK:
-//             // return new DrumRackInstrument(opt)
-//             return new DrumRackInstrument(options)
-//         default:
-//             return new Tone.Sampler();
-//     }
-// }
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
 export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, selected }: InstrumentProps<T>) => {
 
+
     // const instrumentRef = useRef(returnInstrument(voice, options));
+    const Tone = useContext(ToneContext);
     const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
     useEffect(() => {
-        ref_ToneInstrument.current = returnInstrument(voice, options)
+        if (firstRender) {
+            ref_ToneInstrument.current = returnInstrument(voice, options)
+            setRender(false)
+        }
+
+        if (ref_toneObjects.current)
+            Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                let keyNumber = parseInt(key);
+                if (ref_toneObjects.current && ref_toneObjects.current.patterns[keyNumber][index])
+                    ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
+            });
+        // console.log('instrument', voice, 'id', id, 'index', index);
     }, [])
 
     const instProps: string[] = useMemo(() => {
@@ -119,9 +103,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     const instrumentHTMLRef = useRef<HTMLDivElement>(null)
 
-    const ref_toneTriggObjCtx = useContext(triggCtx);
-    const ref_toneTrkObjCtx = useContext(toneRefsContext);
-    // const previousMidi = usePrevious(midi);
+    const ref_toneObjects = useContext(ToneObjectsContext);
 
     const ref_lockedParameters: MutableRefObject<initials> = useRef({});
 
@@ -154,7 +136,10 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     const ref_activePatt = useRef(activePatt);
     useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
-    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[id].selected);
+    const selectedSteps = useSelector((state: RootState) => {
+        if (state.sequencer.present.patterns[activePatt] && state.sequencer.present.patterns[activePatt].tracks[index])
+            return state.sequencer.present.patterns[activePatt].tracks[index].selected
+    });
     const ref_selectedSteps = useRef(selectedSteps);
     useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps])
 
@@ -174,7 +159,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: number } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[id].velocity
+                o[k] = state.sequencer.present.patterns[k].tracks[index].velocity
             });
             return o;
         }
@@ -190,11 +175,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: string | number | undefined } = {}
             Object.entries(state.sequencer.present.patterns).forEach(([key, pattern]) => {
                 let k = parseInt(key);
-                o[k] = pattern.tracks[id].noteLength;
+                o[k] = pattern.tracks[index].noteLength;
             });
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[id].noteLength
+                o[k] = state.sequencer.present.patterns[k].tracks[index].noteLength
             });
             return o
         }
@@ -220,7 +205,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[id].length
+                o[k] = state.sequencer.present.patterns[k].tracks[index].length
             });
             return o;
         }
@@ -233,7 +218,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[id].events
+                o[k] = state.sequencer.present.patterns[k].tracks[index].events
             });
             return o;
         }
@@ -246,7 +231,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         let o = {}
         let callArray = instProps.map(property => {
             return () => {
-                if (ref_selectedSteps.current.length > 0)
+                if ( ref_selectedSteps.current && ref_selectedSteps.current.length > 0)
                     ref_selectedSteps.current.forEach(step => {
                         dispatch(removePropertyLock(
                             ref_index.current,
@@ -272,7 +257,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             return (value: any) => {
                 // parameter lock logic 
                 let temp = setNestedValue(property, value)
-                if (ref_selectedSteps.current.length > 0) {
+                if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
                     ref_selectedSteps.current.forEach(s => {
                         dispatch(parameterLock(
                             ref_activePatt.current,
@@ -317,7 +302,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
                 const cc = e.controller && e.controller.number
 
-                if (ref_selectedSteps.current.length >= 1) {
+                if ( ref_selectedSteps.current && ref_selectedSteps.current.length >= 1) {
                     ref_selectedSteps.current.forEach(step => {
                         dispatch(parameterLockIncreaseDecrease(
                             ref_activePatt.current,
@@ -488,7 +473,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         velocity: number,
         pattern: number
     ): void => {
-        ref_selectedSteps.current.forEach(step => {
+        ref_selectedSteps.current?.forEach(step => {
             const event = {
                 ...eventsRef.current[pattern][step],
             };
@@ -501,11 +486,11 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             }
             event['note'] = notes ? notes : null;
             event['velocity'] = velocity;
-            ref_toneTriggObjCtx.current[pattern][idRef.current].instrument.at(time, event)
-            dispatch(setNoteMidi(idRef.current, event['note'], velocity, step));
+            ref_toneObjects.current?.patterns[pattern][ref_index.current].instrument.at(time, event)
+            dispatch(setNoteMidi(ref_index.current, event['note'], velocity, step));
         });
 
-    }, [dispatch, index, ref_toneTriggObjCtx, eventsRef, ref_selectedSteps]);
+    }, [dispatch, index, ref_toneObjects, eventsRef, ref_selectedSteps]);
 
     const setNoteInput = useCallback((
         pattern: number,
@@ -527,7 +512,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         } else if (!overrideRef && !e.note.includes(noteName)) {
             e.note.push(noteName);
         }
-        ref_toneTriggObjCtx.current[pattern][idRef.current].instrument.remove(pastTime);
+        ref_toneObjects.current?.patterns[pattern][ref_index.current].instrument.remove(pastTime);
         dispatch(
             noteInput(
                 pattern,
@@ -550,7 +535,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     }, [
         dispatch,
         index,
-        ref_toneTriggObjCtx,
+        ref_toneObjects,
         eventsRef,
         overrideRef
     ]
@@ -604,7 +589,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 }
                 setNoteInput(pattern, step, offset, noteName, velocity, time)
             }
-        } else if (ref_selectedSteps.current.length >= 0 && !ref_isRec.current) {
+        } else if (ref_selectedSteps.current && ref_selectedSteps.current.length >= 0 && !ref_isRec.current) {
             noteLock(noteName, velocity, ref_activePatt.current);
         } else {
             ref_ToneInstrument.current?.triggerAttack(noteName, 0, velocity);
@@ -637,7 +622,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 length: length,
             }
             const time = timeObjFromEvent(noteObj.step, e);
-            ref_toneTriggObjCtx.current[pattern][index].instrument.at(time, e);
+            ref_toneObjects.current?.patterns[pattern][ref_index.current].instrument.at(time, e);
             dispatch(
                 setNoteLengthPlayback(
                     noteName,
@@ -649,13 +634,13 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             );
             ref_onHoldNotes.current[noteName] = {};
         }
-        if (!(ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
+        if (!(ref_selectedSteps.current && ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
             ref_ToneInstrument.current?.triggerRelease(noteName);
         }
     }, [
         dispatch,
         index,
-        ref_toneTriggObjCtx,
+        ref_toneObjects,
         ref_isPlay,
         ref_isRec,
         ref_selectedSteps,
@@ -779,9 +764,9 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             //     trackEventTypes.CHANGE_INSTRUMENT,
             //     { instrument: instrumentRef.current, trackId: id }
             // );
-            if (ref_toneTrkObjCtx && ref_toneTrkObjCtx.current[id].instrument) {
-                const inst = ref_toneTrkObjCtx.current[id].instrument
-                const chain = ref_toneTrkObjCtx.current[id].chain;
+            if (ref_toneObjects.current && index < ref_toneObjects.current.tracks.length && ref_toneObjects.current.tracks[index].instrument) {
+                const inst = ref_toneObjects.current.tracks[index].instrument
+                const chain = ref_toneObjects.current.tracks[index].chain;
                 if (inst) {
                     inst.disconnect();
                     inst.dispose();
@@ -789,19 +774,20 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 ref_ToneInstrument.current.connect(chain.in);
                 // refsContext.current[id].instrument.disconnect();
                 // refsContext.current[id].instrument.dispose();
-                ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
-                Object.keys(ref_toneTriggObjCtx.current).forEach(key => {
-                    let keyNumber = parseInt(key);
-                    ref_toneTriggObjCtx.current[keyNumber][id].instrument.callback = instrumentCallback;
-                });
+                ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
+                // should be setting Part callback = instrumentCallback at each new render ? 
+                // Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                //     let keyNumber = parseInt(key);
+                //     if (ref_toneObjects.current)
+                //         ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
+                // });
             }
         }
 
     }, [
         voice,
-        id,
         index,
-        ref_toneTriggObjCtx,
+        ref_toneObjects,
         instrumentCallback,
         ref_options
     ]);
@@ -845,7 +831,7 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         // talvez pode dar problema pq add instrument vai ser async ?¿
         // e ai quando for colocar o instrumentCallback ainda não vai ter o instrumento no objeto?¿
         // se isso for o caso, passar instrumentCallback pro emissor de evento também (aliás, pq não foi esse o caso?)
-        if (firstRender) {
+        if (firstRender && ref_toneObjects.current) {
             // console.log('this is the first render, and should be emitting an event')
             // toneRefEmitter.emit(
             //     trackEventTypes.ADD_INSTRUMENT,
@@ -853,19 +839,26 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
             // );
 
             // if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
-            if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id]) {
-                ref_toneTrkObjCtx.current[id] = {chain: new Chain(), effects: [], instrument: undefined}
-                ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
-                ref_ToneInstrument.current?.connect(ref_toneTrkObjCtx.current[id].chain.in);
-            } else if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
+            if (index >= ref_toneObjects.current.tracks.length) {
+                console.log('no instrument under the id, should be setting up the ref', 'index', index, 'id', id)
+                ref_toneObjects.current.tracks.push({chain: new Chain(), effects: [], instrument: undefined})
+                ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
+                ref_ToneInstrument.current?.connect(ref_toneObjects.current.tracks[index].chain.in);
+            } else if (index < ref_toneObjects.current.tracks.length && !ref_toneObjects.current.tracks[index].instrument) {
+                console.log('there\'s already an id in the ref obj, but no instrument', 'index', index, 'id', id)
                 // ref_toneTrkObjCtx.current[id] = {chain: new Chain(), effects: [], instrument: undefined}
-                ref_toneTrkObjCtx.current[id].instrument = ref_ToneInstrument.current;
-                ref_ToneInstrument.current?.connect(ref_toneTrkObjCtx.current[id].chain.in);
+                ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
+                ref_ToneInstrument.current?.connect(ref_toneObjects.current.tracks[index].chain.in);
             }
+            // ooooh dumb as fuck boooi, u have to create the new entry in the ref_toneTrigg before
 
-            Object.keys(ref_toneTriggObjCtx.current).forEach(key => {
+            Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                console.log('should be pushing before setting stuff')
                 let k = parseInt(key)
-                ref_toneTriggObjCtx.current[k][id].instrument.callback = instrumentCallback;
+                if (ref_toneObjects.current && index > ref_toneObjects.current.patterns[k].length) {
+                    ref_toneObjects.current.patterns[k].push({instrument: new Tone.Part(), effects: []})
+                    ref_toneObjects.current.patterns[k][index].instrument.callback = instrumentCallback;
+                }
             })
             setRender(false);
         }
