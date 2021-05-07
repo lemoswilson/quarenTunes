@@ -2,7 +2,7 @@
 
 .tab {
     height: 100%;
-    width: 7.8em;
+    width: 7.8rem;
     list-style: none;
     background-color: 'white';
     margin: 0;
@@ -21,6 +21,7 @@
         vertical-align: bottom;
 
         .instrumentTitle {
+            cursor: pointer;
             padding-left: 0.6rem;
             line-height: 1.3rem;
             font-family: $jost;

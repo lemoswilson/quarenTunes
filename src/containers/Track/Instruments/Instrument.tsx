@@ -67,12 +67,21 @@ import Chain from '../../../lib/fxChain';
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
-export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, voice, maxPolyphony, options, selected }: InstrumentProps<T>) => {
+export const Instrument = <T extends xolombrisxInstruments>({ 
+    id, 
+    index, 
+    midi, 
+    voice, 
+    maxPolyphony, 
+    options, 
+    selected 
+}: InstrumentProps<T>) => {
 
 
-    // const instrumentRef = useRef(returnInstrument(voice, options));
     const Tone = useContext(ToneContext);
     const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
+
+
     useEffect(() => {
         if (firstRender) {
             ref_ToneInstrument.current = returnInstrument(voice, options)
@@ -85,25 +94,28 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
                 if (ref_toneObjects.current && ref_toneObjects.current.patterns[keyNumber][index])
                     ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
             });
-        // console.log('instrument', voice, 'id', id, 'index', index);
+
     }, [])
 
+    // instrument properties array
+    // will be used to programatically set 
+    // the state of the instrument
+    // depending on the voice choosing
     const instProps: string[] = useMemo(() => {
         return propertiesToArray(getInitials(voice))
     }, [voice]);
 
     const dispatch = useDispatch()
     const [firstRender, setRender] = useState(true);
-
+    
+    const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_CCMaps = useRef<any>({});
     const ref_listenCC = useRef<controlChangeEvent>();
     const ref_midiInput = useRef<false | Input>(false);
     const ref_onHoldNotes = useRef<{ [key: string]: any }>({});
     const prev_voice = usePrevious(voice);
 
-    const instrumentHTMLRef = useRef<HTMLDivElement>(null)
 
-    const ref_toneObjects = useContext(ToneObjectsContext);
 
     const ref_lockedParameters: MutableRefObject<initials> = useRef({});
 
@@ -826,34 +838,57 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
     }, [midi.device, midi.channel])
 
 
-    // adding instrument to context in first render
-    useEffect(() => {
-        // talvez pode dar problema pq add instrument vai ser async ?¿
-        // e ai quando for colocar o instrumentCallback ainda não vai ter o instrumento no objeto?¿
-        // se isso for o caso, passar instrumentCallback pro emissor de evento também (aliás, pq não foi esse o caso?)
-        if (firstRender && ref_toneObjects.current) {
-            // console.log('this is the first render, and should be emitting an event')
-            // toneRefEmitter.emit(
-            //     trackEventTypes.ADD_INSTRUMENT,
-            //     { instrument: instrumentRef.current, trackId: id }
-            // );
+    // adding instrument to toneObjects in first render
+    // now it's creating the parts for the effects in here
+    // but in reallity should be creating the parts for the pattern in the 
+    // sequencer, and the parts for each event in the song in the arranger
 
-            // if (ref_toneTrkObjCtx && !ref_toneTrkObjCtx.current[id].instrument) {
+    // first render would set the pattern 
+    // or the arranger (either one, depending on the saved state)
+    // and then useEffect(()=>{},[arrgMode])
+    // is prevArrg = 'pattern' and arrgMode='song'
+    // arranger would set up all of the Parts
+    // if the opposite was the case, then 
+    // the sequencer would set up the parts for the pattern
+
+    // in selecting a pattern, if it's arranger mode, nothing would change
+    // only the selected pattern that would determine the actions to the reducer and
+    // event emitters.
+    // however, if pattern mode is selected, the sequencer would set up the new pattern 
+    // depending on the transport state, the logic would be handled differently (already described on ipad)
+
+    // the useTriggs now would in fact change the values of the Parts depending on the arrgMode;
+    // if arrgMode === 'pattern', then would set the Pattern Parts values in each step (using the same logic with time and objects)
+    // if arrgmode === 'song', then it would keep track of the indices of the events that have the pattern number equal to the current selected
+    // and would update the value for each one of them
+
+
+    // who should handle the logic of the number of Parts and everything else  ??
+    // arranger deal with the arranger parts, and the sequencer deal with the pattern parts
+    // on trackCount, Effect Count, selectedSong, the arranger would reestructure the Arranger Parts
+    // the addition of new events to the arranger would then be dealt with inside the (have to create)
+    // songEvent component, with a useSongEvent hook
+
+    // the memory leaks that we should pay attention to: event listeners that point to the Tone Objects (instrumentCallback, noteIn, midiIn)
+    // 
+    useEffect(() => {
+
+        if (firstRender && ref_toneObjects.current) {
+
+
             if (index >= ref_toneObjects.current.tracks.length) {
-                console.log('no instrument under the id, should be setting up the ref', 'index', index, 'id', id)
+
                 ref_toneObjects.current.tracks.push({chain: new Chain(), effects: [], instrument: undefined})
                 ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
                 ref_ToneInstrument.current?.connect(ref_toneObjects.current.tracks[index].chain.in);
             } else if (index < ref_toneObjects.current.tracks.length && !ref_toneObjects.current.tracks[index].instrument) {
-                console.log('there\'s already an id in the ref obj, but no instrument', 'index', index, 'id', id)
-                // ref_toneTrkObjCtx.current[id] = {chain: new Chain(), effects: [], instrument: undefined}
+
                 ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
                 ref_ToneInstrument.current?.connect(ref_toneObjects.current.tracks[index].chain.in);
             }
             // ooooh dumb as fuck boooi, u have to create the new entry in the ref_toneTrigg before
 
             Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                console.log('should be pushing before setting stuff')
                 let k = parseInt(key)
                 if (ref_toneObjects.current && index > ref_toneObjects.current.patterns[k].length) {
                     ref_toneObjects.current.patterns[k].push({instrument: new Tone.Part(), effects: []})
@@ -880,7 +915,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
         : voice === xolombrisxInstruments.NOISESYNTH
             ? <NoiseSynth
                 calcCallbacks={propertiesIncDec}
-                // parameterLockValues={parameterLockValues}
                 properties={instProps}
                 removePropertyLocks={removePropertyLockCallbacks}
                 ccMap={ref_CCMaps}
@@ -949,7 +983,6 @@ export const Instrument = <T extends xolombrisxInstruments>({ id, index, midi, v
 
     return (
         <div
-            ref={instrumentHTMLRef}
             className={styles.border}
             style={{ display: !selected ? 'none' : 'flex' }}>
             <div className={styles.deviceManager}>

@@ -37,9 +37,21 @@ import DevicePresetManager from '../../../components/Layout/DevicePresetManager'
 import Compressor from '../../../components/Layout/Effects/Compressor';
 
 import { returnEffect } from '../../Xolombrisx';
+import MenuButton from '../../../components/Layout/Instruments/Tabs/MenuButton';
+import Tabs from '../../../components/Layout/Effects/Tabs';
 
 
-const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, trackId, trackIndex }) => {
+const Effect: React.FC<effectsProps> = ({ fxId, 
+    fxIndex, 
+    midi, 
+    options, 
+    type, 
+    trackId, 
+    trackIndex, 
+    deleteEffect,
+    changeEffect, 
+    addEffect 
+}) => {
     // const ref_toneTriggCtx = useContext(triggContext);
     const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
@@ -74,6 +86,8 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
     const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
     const patternTrackerRef = useRef(patternTracker);
     useEffect(() => { patternTrackerRef.current = patternTracker }, [patternTracker]);
+
+    const fxCount = useSelector((state: RootState) => state.track.present.tracks[trackIndex].fx.length)
 
     const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
     const arrangerModeRef = useRef(arrangerMode);
@@ -252,12 +266,56 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
         return o
     }, [])
 
+        // add effect first render logic 
+        useEffect(() => {
+            if (firstRender) {
+                // toneRefEmitter.emit(
+                //     trackEventTypes.ADD_EFFECT,
+                //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
+                // );
+                ref_ToneEffect.current = returnEffect(type, options)
+                if (ref_toneObjects.current) {
+                    let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
+                    let chain = ref_toneObjects.current.tracks[trackIndex].chain;
+    
+                    if (lgth > 0) {
+                        let from, to;
+                        if (fxIndex === lgth - 1) {
+                            from = ref_toneObjects.current.tracks[trackIndex].effects[lgth - 1];
+                            to = chain.out
+                        } else {
+                            from = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex]
+                            to = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex + 1]
+                        }
+                        if (from && to) {
+                            from.disconnect();
+                            from.connect(ref_ToneEffect.current);
+                            ref_ToneEffect.current.connect(to);
+                        }
+                    } else {
+                        chain.in.disconnect();
+                        chain.in.connect(ref_ToneEffect.current);
+                        ref_ToneEffect.current.connect(chain.out);
+                    }
+                    ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current);
+    
+                    Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                        let k = parseInt(key);
+                        if (ref_toneObjects.current)
+                            ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                    });
+                }
+    
+                setRender(false);
+            }
+        }, [])
+
 
     useEffectProperties(ref_ToneEffect, options)
 
     // get handle of input object
     useEffect(() => {
-        if (midi.channel && midi.device) {
+        if (midi.channel && midi.device && midi.device !== 'onboardKey') {
             inputRef.current = WebMidi.getInputByName(midi.device);
         }
     })
@@ -366,49 +424,7 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
     ]);
 
 
-    // add effect first render logic 
-    useEffect(() => {
-        if (firstRender) {
-            // toneRefEmitter.emit(
-            //     trackEventTypes.ADD_EFFECT,
-            //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
-            // );
-            ref_ToneEffect.current = returnEffect(type, options)
-            if (ref_toneObjects.current) {
-                let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
-                let chain = ref_toneObjects.current.tracks[trackIndex].chain;
 
-                if (lgth > 0) {
-                    let from, to;
-                    if (fxIndex === lgth - 1) {
-                        from = ref_toneObjects.current.tracks[trackIndex].effects[lgth - 1];
-                        to = chain.out
-                    } else {
-                        from = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex]
-                        to = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex + 1]
-                    }
-                    if (from && to) {
-                        from.disconnect();
-                        from.connect(ref_ToneEffect.current);
-                        ref_ToneEffect.current.connect(to);
-                    }
-                } else {
-                    chain.in.disconnect();
-                    chain.in.connect(ref_ToneEffect.current);
-                    ref_ToneEffect.current.connect(chain.out);
-                }
-                ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current);
-
-                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                    let k = parseInt(key);
-                    if (ref_toneObjects.current)
-                        ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                });
-            }
-
-            setRender(false);
-        }
-    }, [])
 
     const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
         const functRect = (e: InputEventControlchange) => {
@@ -500,19 +516,44 @@ const Effect: React.FC<effectsProps> = ({ fxId, fxIndex, midi, options, type, tr
 
 
     return (
-        <div className={styles.border}>
-            <div className={styles.deviceManager}>
-                <DevicePresetManager
-                    deviceId={''}
-                    keyValue={[]}
-                    onSubmit={() => { }}
-                    remove={() => { }}
-                    save={() => { }}
-                    select={() => { }}
-                    selected={''}
-                />
+        <div className={styles.fx}>
+            <div className={styles.box}>
+                <div className={styles.border}>
+                    <div className={styles.deviceManager}>
+                        <DevicePresetManager
+                            deviceId={''}
+                            keyValue={[]}
+                            onSubmit={() => { }}
+                            remove={() => { }}
+                            save={() => { }}
+                            select={() => { }}
+                            selected={''}
+                        />
+                    </div>
+                    { Component}
+                </div>
             </div>
-            { Component}
+            <Tabs 
+                fxIndex={fxIndex}
+                trackIndex={trackIndex}
+                type={type} 
+                fxCount={fxCount}
+                removeEffect={deleteEffect}
+                insertEffect={addEffect}
+                selectEffect={changeEffect}
+            />
+            {/* <div className={styles.tabs}>
+                <div className={styles.selector}>
+                    <div className={styles.border}>
+                        <div className={styles.effectTitle}>
+                            { type }        
+                        </div> 
+                        <div className={styles.menuWrapper}>
+                            <MenuButton onClick={menuOnClick}/> 
+                        </div> 
+                    </div> 
+                </div>  
+            </div> */}
         </div>
     )
 };

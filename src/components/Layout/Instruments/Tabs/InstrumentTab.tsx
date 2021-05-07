@@ -88,7 +88,7 @@ const InstrumentTab: React.FC<InstrumentTabProps> = ({
                     { `${trackIndex + 1}. ${instrument} `}
                 </div>
                 <div className={styles.menuButton}>
-                    <MenuButton onClick={onContextMenu}/>
+                    <MenuButton onClickSVG={onContextMenu}/>
                 { isMenuOpen
                 ? <InstrumentMenu
                     setMIDIChannel={setMIDIChannel}

@@ -35,11 +35,11 @@ export const initialState: Track = {
 			// options: getInitials(xolombrisxInstruments.DRUMRACK),
 			id: 0,
 			fx: [
-				// {
-				// 	fx: effectTypes.COMPRESSOR,
-				// 	id: 0,
-				// 	options: getEffectsInitials(effectTypes.COMPRESSOR)
-				// },
+				{
+					fx: effectTypes.COMPRESSOR,
+					id: 0,
+					options: getEffectsInitials(effectTypes.COMPRESSOR)
+				},
 			],
 			fxCounter: 1,
 			// env: 0.001,
@@ -128,7 +128,7 @@ export function trackReducer(
 			case trackActions.DELETE_EFFECT:
 				draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex, 1);
 				break;
-			case trackActions.INSERT_EFFECT:
+			case trackActions.ADD_EFFECT:
 				draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex, 0, {
 					fx: action.payload.effect,
 					id: draft.tracks[action.payload.trackIndex].fxCounter + 1,

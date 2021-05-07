@@ -9,4 +9,7 @@ export interface effectsProps {
     options: effectsInitialsArray,
     midi: midi,
     fxIndex: number,
+    changeEffect: (effect: effectTypes, trackIndex: number, fxIndex: number) => void,
+    addEffect: (effect: effectTypes, trackIndex: number, fxIndex: number) => void, 
+    deleteEffect: (fxIndex: number, trackIndex: number) => void;
 }

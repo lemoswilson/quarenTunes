@@ -56,7 +56,10 @@
                 display: flex;
                 flex-direction: row;
                 width: 100%;
-                height: 47%;
+                // height: 47%;
+                height: 14.4rem;
+                border: 1px solid black;
+                overflow: scroll;
                 // @include center;
                 
                 .box {

@@ -178,13 +178,13 @@ export function selectMidiChannel(
 	};
 }
 
-export function insertEffect(
+export function addEffect(
 	fxIndex: number,
 	effect: effectTypes,
 	trackIndex: number
 ): trackActionTypes {
 	return {
-		type: trackActions.INSERT_EFFECT,
+		type: trackActions.ADD_EFFECT,
 		payload: {
 			effect: effect,
 			effectIndex: fxIndex,
@@ -205,6 +205,21 @@ export function deleteEffect(
 		},
 	};
 }
+
+export function changeEffect(
+	effectIndex: number,
+	trackIndex: number,
+	effect: effectTypes,
+): trackActionTypes {
+	return {
+		type: trackActions.CHANGE_EFFECT,
+		payload: {
+			effect: effect,
+			effectIndex: effectIndex,
+			trackIndex: trackIndex
+		}
+	}
+};
 
 export function changeEffectIndex(
 	fromIndex: number,

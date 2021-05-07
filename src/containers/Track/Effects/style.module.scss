@@ -1,26 +1,93 @@
 @import '../../../style/variables';
-
-.border {
-    width: 95.5%;
-    height: 90%;
-    border: 0.2rem solid $dark;
-    border-radius: 2rem;
-    border-top-right-radius: 0;
+.fx {
     display: flex;
-    flex-direction: column;
-    position: relative;
-    // align-items: flex-end;
-    justify-content: flex-start;
-    // justify-content: center;
-
-    .deviceManager {
-        height: 3rem;
-        // border: 1px solid black;
-        // width: 100%;
+    flex-direction: row;
+    width: 100%;
+    // height: 47%;
+    height: 14.4rem;
+    // border: 1px solid black;
+    // overflow: scroll;
+    // @include center;
+    
+    .box {
         display: flex;
         @include center;
-        margin-top: 0.5rem;
-        z-index: 2;
+        border-radius: 2rem;
+        border-top-right-radius: 0;
+        background-color: white;
+        @include shadow(7px, 9px, 5px);
+        height: 100%;
+        width: 95%;
+
+        .border {
+            width: 95.5%;
+            height: 90%;
+            border: 0.2rem solid $dark;
+            border-radius: 2rem;
+            border-top-right-radius: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            // align-items: flex-end;
+            justify-content: flex-start;
+            // justify-content: center;
+        
+            .deviceManager {
+                height: 3rem;
+                // border: 1px solid black;
+                // width: 100%;
+                display: flex;
+                @include center;
+                margin-top: 0.5rem;
+                z-index: 2;
+            }
+        
+        }
     }
 
+    // .tabs {
+    //     height: 100%;
+    //     width: 1.83rem;
+    //     border: 1px solid black;
+
+    //     .selector {
+    //         background-color: $white;
+    //         height: 7.8rem;
+    //         width: 100%;
+    //         border-top-right-radius: 1rem;
+
+    //         .border {
+    //             height: 90%;
+    //             width: 70%;
+    //             border: 1px solid rgba(166, 215, 230, 0.781);
+    //             display: grid;
+    //             position: relative;
+    //             grid-template-rows: 5.4rem 1.4rem;
+
+    //             .effectTitle {
+    //                 cursor: pointer;
+    //                 padding-left: 0.6rem;
+    //                 line-height: 1.3rem;
+    //                 font-family: $jost;
+    //                 font-size: 0.9rem;
+    //                 color: $textColor;
+    //                 text-shadow: 0 0 1px $textShadow;
+    //                 overflow: hidden;
+    //                 white-space: nowrap; 
+    //                 transform: rotate(-180deg);
+    //             }
+
+    //             .menuWrapper {
+    //                 height: 1.4rem;
+    //                 position: relative;
+
+    //                 .rotate {
+    //                     transform: rotate(180deg);
+    //                 }
+    //             }
+
+                
+    //         }
+    //     }
+    // }
 }

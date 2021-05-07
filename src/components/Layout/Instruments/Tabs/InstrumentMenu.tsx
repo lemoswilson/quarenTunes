@@ -22,8 +22,8 @@ const InstrumentMenu: React.FC<MenuProps> = ({
     removeInstrument,
     changeInstrument,
     setMIDIChannel,
-    count, 
     setMIDIDevice,
+    count, 
     instrument,
     midi,
 }) => {

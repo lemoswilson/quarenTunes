@@ -2,27 +2,29 @@ import React, { MutableRefObject, useEffect, useRef } from 'react';
 import styles from './menuButton.module.scss';
 
 interface MenuButtonProps {
-    onClick: (this: SVGSVGElement, e: MouseEvent) => void;
+    onClickSVG?: (this: SVGSVGElement, e: MouseEvent) => void;
+    className?: string;
 }
 
-const MenuButton: React.FC<MenuButtonProps> = ({ onClick }) => {
+const MenuButton: React.FC<MenuButtonProps> = ({ onClickSVG , className }) => {
     const svgRef: MutableRefObject<SVGSVGElement | null> = useRef(null)
     
 
-
     useEffect(() => {
         const svg = svgRef.current
-        svg?.addEventListener('click', onClick)
+        if (onClickSVG) 
+            svg?.addEventListener('click', onClickSVG)
         // svgRef.current?.addEventListener('click', onClick)
         return () => {
-            svg?.removeEventListener('click', onClick)
+            if (onClickSVG) 
+                svg?.removeEventListener('click', onClickSVG)
             // svgRef.current?.removeEventListener('click', onClick)
         }
     }, [])
 
     return (
         // <svg onClick={onClick} className={styles.menuButton} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 22 22">
-        <svg ref={svgRef} className={styles.menuButton} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 22 22">
+        <svg ref={svgRef} className={`${styles.menuButton} ${className}`} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 22 22">
             <title>menu</title>
             <g style={{isolation: "isolate"}}>
                 <g>

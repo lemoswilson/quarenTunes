@@ -141,7 +141,7 @@ export const rootReducer = combineReducers({
             trackActions.SELECT_INSTRUMENT,
             trackActions.ADD_INSTRUMENT,
             trackActions.DELETE_EFFECT,
-            trackActions.INSERT_EFFECT,
+            trackActions.ADD_EFFECT,
             trackActions.REMOVE_INSTRUMENT,
         ])
     }),
@@ -209,7 +209,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         ref_toneObjects.current = {
             tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
             patterns: {
-                0: [{instrument: new Tone.Part(), effects: []}]
+                0: [{instrument: new Tone.Part(), effects: [new Tone.Part()]}]
             }
         }
         setRender(false)
