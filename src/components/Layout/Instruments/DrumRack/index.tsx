@@ -14,6 +14,7 @@ export interface DrumRack {
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
     index: number,
+    trackId: number,
     selected?: number[],
     removePropertyLocks: any,
     events: event[],
@@ -26,6 +27,7 @@ const DrumRack: React.FC<DrumRack> = ({
     propertyUpdateCallbacks,
     removePropertyLocks,
     index,
+    trackId,
     events,
     properties,
     selected,
@@ -144,7 +146,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             value={getPropertyValue('PAD_0.attack')}
                             curve={attackPad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_0.attack}
-                            indicatorId={`instrument${index}:PAD_0.attack`}
+                            indicatorId={`instrument${trackId}:PAD_0.attack`}
                         />
                         <ContinuousIndicator
                             selectedLock={false}
@@ -160,7 +162,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             tabIndex={widgetTabIndexTrkStart + index}
                             curve={releasePad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_0.release}
-                            indicatorId={`instrument${index}:PAD_0:release`}
+                            indicatorId={`instrument${trackId}:PAD_0:release`}
                         />
                         <ContinuousIndicator
                             selectedLock={false}
@@ -175,7 +177,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={volumePad0[2]}
                             value={getPropertyValue('PAD_0.volume')}
-                            indicatorId={`instrument${index}:PAD_0:volume`}
+                            indicatorId={`instrument${trackId}:PAD_0:volume`}
                             curve={volumePad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_0.volume}
                         />
@@ -201,7 +203,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={attackPad1[2]}
                             value={getPropertyValue('PAD_1.attack')}
-                            indicatorId={`instrument${index}:PAD_1:attack`}
+                            indicatorId={`instrument${trackId}:PAD_1:attack`}
                             curve={attackPad1[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_1.attack}
                         />
@@ -217,7 +219,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={releasePad1[2]}
                             value={getPropertyValue('PAD_1.release')}
-                            indicatorId={`instrument${index}:PAD_1:release`}
+                            indicatorId={`instrument${trackId}:PAD_1:release`}
                             curve={releasePad1[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_1.release}
                         />
@@ -234,7 +236,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={volumePad1[2]}
                             value={getPropertyValue('PAD_1.volume')}
-                            indicatorId={`instrument${index}:PAD_1:volume`}
+                            indicatorId={`instrument${trackId}:PAD_1:volume`}
                             curve={volumePad1[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_1.volume}
                         />
@@ -261,7 +263,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_2.attack}
                             unit={attackPad2[2]}
                             value={getPropertyValue('PAD_2.attack')}
-                            indicatorId={`instrument${index}:PAD_2:attack`}
+                            indicatorId={`instrument${trackId}:PAD_2:attack`}
                             curve={attackPad2[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_2.attack}
                         />
@@ -277,7 +279,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_2.release}
                             unit={releasePad2[2]}
                             value={getPropertyValue('PAD_2.release')}
-                            indicatorId={`instrument${index}:PAD_2:release`}
+                            indicatorId={`instrument${trackId}:PAD_2:release`}
                             curve={releasePad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_2.release}
                         />
@@ -294,7 +296,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={volumePad2[2]}
                             value={getPropertyValue('PAD_2.volume')}
-                            indicatorId={`instrument${index}:PAD_2:volume`}
+                            indicatorId={`instrument${trackId}:PAD_2:volume`}
                             curve={volumePad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_2.volume}
                         />
@@ -320,7 +322,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_3.attack}
                             unit={attackPad3[2]}
                             value={getPropertyValue('PAD_3.attack')}
-                            indicatorId={`instrument${index}:PAD_3:attack`}
+                            indicatorId={`instrument${trackId}:PAD_3:attack`}
                             curve={attackPad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_3.attack}
                         />
@@ -336,7 +338,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={releasePad3[2]}
                             value={getPropertyValue('PAD_3.release')}
-                            indicatorId={`instrument${index}:PAD_3:release`}
+                            indicatorId={`instrument${trackId}:PAD_3:release`}
                             curve={releasePad3[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_3.release}
                         />
@@ -353,7 +355,7 @@ const DrumRack: React.FC<DrumRack> = ({
                             type={'knob'}
                             unit={volumePad3[2]}
                             value={getPropertyValue('PAD_3.volume')}
-                            indicatorId={`instrument${index}:PAD_3:volume`}
+                            indicatorId={`instrument${trackId}:PAD_3:volume`}
                             curve={volumePad0[4]}
                             valueUpdateCallback={propertyUpdateCallbacks.PAD_3.volume}
                         />

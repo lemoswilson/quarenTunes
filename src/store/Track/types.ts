@@ -130,7 +130,7 @@ export enum xolombrisxInstruments {
 
 export enum effectTypes {
 	AUTOFILTER = "AutoFilter",
-	AUTOPANNER = "AutoPanner",
+	AUTOPANNER = "AutoPan",
 	// AUTOWAH = "AUTOWAH",
 	BITCRUSHER = "BitCrusher",
 	CHEBYSHEV = "Chebyshev",
@@ -144,7 +144,7 @@ export enum effectTypes {
 	JCREVERB = "JCReverb",
 	// MIDSIDEEFFECT = "MIDSIDEEFFECT",
 	PHASER = "Phaser",
-	PINGPONGDELAY = "PingPong",
+	PINGPONGDELAY = "PingPongDelay",
 	PITCHSHIFT = "PitchShifter",
 	FREQUENCYSHIFTER = 'FreqShifter',
 	// REVERB = "REVERB",

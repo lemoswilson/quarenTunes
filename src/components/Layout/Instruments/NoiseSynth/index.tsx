@@ -16,6 +16,7 @@ export interface NoiseSynthProps {
     propertyUpdateCallbacks: any,
     removePropertyLocks: any,
     index: number,
+    trackId: number,
     selected?: number[],
     events: event[],
     properties: any[],
@@ -31,6 +32,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
     propertyUpdateCallbacks,
     midiLearn,
     index,
+    trackId,
     events,
     properties,
     selected,
@@ -104,7 +106,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     type={'knob'}
                                     unit={envelopeAttack[2]}
                                     value={getPropertyValue('envelope.attack')}
-                                    indicatorId={`instrument${index}:envelope.attack`}
+                                    indicatorId={`instrument${trackId}:envelope.attack`}
                                     curve={envelopeAttack[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.attack}
                                     className={styles.envelopeAttack}
@@ -122,7 +124,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     type={'knob'}
                                     unit={envelopeDecay[2]}
                                     value={getPropertyValue('envelope.decay')}
-                                    indicatorId={`instrument${index}:envelope.decay`}
+                                    indicatorId={`instrument${trackId}:envelope.decay`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.decay}
                                     className={styles.envelopeDecay}
                                 />
@@ -142,7 +144,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     curve={envelopeSustain[4]}
                                     unit={envelopeSustain[2]}
                                     value={getPropertyValue('envelope.sustain')}
-                                    indicatorId={`instrument${index}:envelope.sustain`}
+                                    indicatorId={`instrument${trackId}:envelope.sustain`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.sustain}
                                     className={styles.envelopeSustain}
                                 />
@@ -159,7 +161,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     type={'knob'}
                                     unit={envelopeRelease[2]}
                                     value={getPropertyValue('envelope.release')}
-                                    indicatorId={`instrument${index}:envelope.release`}
+                                    indicatorId={`instrument${trackId}:envelope.release`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.release}
                                     className={styles.envelopeRelease}
                                 />
@@ -187,7 +189,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     curve={fadeIn[4]}
                                     unit={fadeIn[2]}
                                     value={getPropertyValue('noise.fadeIn')}
-                                    indicatorId={`instrument${index}:fadeIn`}
+                                    indicatorId={`instrument${trackId}:fadeIn`}
                                     valueUpdateCallback={propertyUpdateCallbacks.noise.fadeIn}
                                     className={styles.in}
                                     detail={'envelopeZero'}
@@ -205,7 +207,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     curve={fadeOut[4]}
                                     unit={fadeOut[2]}
                                     value={getPropertyValue('noise.fadeOut')}
-                                    indicatorId={`instrument${index}:fadeOut`}
+                                    indicatorId={`instrument${trackId}:fadeOut`}
                                     valueUpdateCallback={propertyUpdateCallbacks.noise.fadeOut}
                                     className={styles.out}
                                     detail={'envelopeZero'}
@@ -226,7 +228,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 detail={'volume'}
                                 curve={volume[4]}
                                 unit={volume[2]}
-                                indicatorId={`instrument${index}:volume`}
+                                indicatorId={`instrument${trackId}:volume`}
                                 value={getPropertyValue('volume')}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
                                 className={styles.volume}
@@ -245,7 +247,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     curve={rate[4]}
                                     unit={rate[2]}
                                     value={getPropertyValue('noise.playbackRate')}
-                                    indicatorId={`instrument${index}:playbackRate`}
+                                    indicatorId={`instrument${trackId}:playbackRate`}
                                     valueUpdateCallback={getNested(propertyUpdateCallbacks, 'noise.playbackRate')}
                                     className={styles.rate}
                                 />

@@ -16,6 +16,7 @@ export interface PluckSynthProps {
     propertyUpdateCallbacks: any,
     removePropertyLocks: any,
     index: number,
+    trackId: number,
     selected?: number[],
     events: event[],
     properties: any[];
@@ -27,6 +28,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
     removePropertyLocks,
     propertyUpdateCallbacks,
     index,
+    trackId,
     events,
     properties,
     selected,
@@ -103,7 +105,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     value={getPropertyValue('attackNoise')}
                                     curve={attackNoise[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.attackNoise}
-                                    indicatorId={`instrument${index}:attackNoise`}
+                                    indicatorId={`instrument${trackId}:attackNoise`}
                                     className={styles.envelopeAttack}
                                 />
                                 <ContinuousIndicator
@@ -117,7 +119,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     type={'knob'}
                                     unit={dampening[2]}
                                     value={getPropertyValue('dampening')}
-                                    indicatorId={`instrument${index}:dampening`}
+                                    indicatorId={`instrument${trackId}:dampening`}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     curve={dampening[4]}
                                     valueUpdateCallback={propertyUpdateCallbacks.dampening}
@@ -154,7 +156,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     curve={resonance[4]}
                                     unit={resonance[2]}
                                     value={getPropertyValue('resonance')}
-                                    indicatorId={`instrument${index}:resonance`}
+                                    indicatorId={`instrument${trackId}:resonance`}
                                     valueUpdateCallback={propertyUpdateCallbacks.resonance}
                                     className={styles.envelopeSustain}
                                 />
@@ -171,7 +173,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.release}
                                     value={getPropertyValue('release')}
-                                    indicatorId={`instrument${index}:release`}
+                                    indicatorId={`instrument${trackId}:release`}
                                     valueUpdateCallback={propertyUpdateCallbacks.release}
                                     className={styles.envelopeRelease}
                                 />
@@ -200,7 +202,7 @@ const PluckSynth: React.FC<PluckSynthProps> = ({
                                 unit={volume[2]}
                                 value={getPropertyValue('volume')}
                                 removePropertyLock={removePropertyLocks.volume}
-                                indicatorId={`instrument${index}:volume`}
+                                indicatorId={`instrument${trackId}:volume`}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
                                 className={styles.volume}
                             />

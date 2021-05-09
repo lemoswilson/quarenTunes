@@ -26,6 +26,7 @@ interface continuousIndicator {
     curve?: curveTypes;
     indicatorId: string,
     ccMap?: any,
+    keyFunction?: (value: number | '*') => number | '*',
 }
 
 export interface indicatorProps {
@@ -53,6 +54,7 @@ export interface indicatorProps {
     valueUpdateCallback: (value: any) => void,
     onContextMenu: (e: ME) => void,
     menuOptions: any[],
+    keyFunction?: (value: number | '*') => number | '*',
     MenuPosisiton?: {
         left: number,
         top: number,
@@ -65,6 +67,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     tabIndex,
     ccMouseCalculationCallback,
     removePropertyLock,
+    keyFunction,
     valueUpdateCallback,
     label,
     selectedLock,
@@ -276,7 +279,9 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         onKeyDown={keyHandle}
         indicatorData={
             detail === 'detune'
-                ? rotate((Number(value) / 1200) * 140)
+                ? rotate((Number(value) / max) * 140)
+                // ? rotate((Number(value) / 1200) * 140)
+                // ? rotate((Number(value) / 16) * 140)
                 : rotateBy}
         label={label}
         tabIndex={tabIndex}
@@ -289,6 +294,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         className={className}
         selectedLock={selectedLock}
         value={value}
+        keyFunction={keyFunction}
         max={max}
         min={min}
         unit={unit}

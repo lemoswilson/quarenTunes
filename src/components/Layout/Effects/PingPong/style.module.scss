@@ -1,0 +1,29 @@
+@import '../../../../style/variables';
+
+.wrapper {
+    width: 60%;
+    // height: 100%;
+    display: flex;
+    margin-inline: auto;
+    margin-top: 1.3rem;
+    flex-direction: row;
+    padding-left: 0.5rem;
+    // @include center;
+    justify-content: space-between;
+    // border: 1px solid black;
+
+    .title {
+        position: absolute;
+        left: 2rem;
+        top: 0.8rem;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: rgb(194, 194, 194);
+        text-shadow: 0 0 8px $textShadow;
+        // writing-mode: vertical-lr;
+        // transform: rotate(180deg);
+        // text-orientation: mixed;
+        font-family: $jost;         
+    }
+}

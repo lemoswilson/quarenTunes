@@ -137,8 +137,9 @@ const Tabs: React.FC<TabsProps> = ({
     const effectMenu = (
         <ul 
             style={{
-                left: '-5rem',
-                top: 0,
+                // left: '3rem',
+                // top: '1rem',
+                transform: 'rotate(-90deg)'
             }} 
             className={instrumentMenuStyles.menu} 
         >

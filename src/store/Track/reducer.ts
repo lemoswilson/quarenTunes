@@ -36,9 +36,66 @@ export const initialState: Track = {
 			id: 0,
 			fx: [
 				{
-					fx: effectTypes.COMPRESSOR,
+					// fx: effectTypes.COMPRESSOR,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.COMPRESSOR)
+					// fx: effectTypes.GATE,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.GATE)
+					// fx: effectTypes.LIMITER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.LIMITER)
+					// fx: effectTypes.FREQUENCYSHIFTER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.FREQUENCYSHIFTER),
+					// fx: effectTypes.STEREOWIDENER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.STEREOWIDENER)
+					// fx: effectTypes.EQ3,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.EQ3)
+					// fx: effectTypes.FEEDBACKDELAY,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.FEEDBACKDELAY)
+					// fx: effectTypes.JCREVERB,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.JCREVERB)
+					// fx: effectTypes.FREEVERB,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.FREEVERB)
+					// fx: effectTypes.PHASER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.PHASER)
+					// fx: effectTypes.PINGPONGDELAY,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.PINGPONGDELAY)
+					// fx: effectTypes.PITCHSHIFT,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.PITCHSHIFT)
+					// fx: effectTypes.TREMOLO,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.TREMOLO)
+					// fx: effectTypes.AUTOPANNER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.AUTOPANNER)
+					// fx: effectTypes.CHEBYSHEV,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.CHEBYSHEV)
+					// fx: effectTypes.DISTORTION,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.DISTORTION)
+					fx: effectTypes.VIBRATO,
 					id: 0,
-					options: getEffectsInitials(effectTypes.COMPRESSOR)
+					options: getEffectsInitials(effectTypes.VIBRATO)
+					// fx: effectTypes.AUTOFILTER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.AUTOFILTER)
+					// fx: effectTypes.CHORUS,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.CHORUS)
+					// fx: effectTypes.FILTER,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.FILTER)
 				},
 			],
 			fxCounter: 1,
@@ -228,7 +285,7 @@ export function trackReducer(
 						setNestedArray(draft.tracks[trackIndex].fx[fxIndex].options, property, updateValue)
 					}
 				} else {
-					val = cc ? optionFromCC(movement, fxRangeOrOptions[1]) : steppedCalc(movement, fxRangeOrOptions[1], fxRangeOrOptions[0])
+					fxVal = cc ? optionFromCC(movement, fxRangeOrOptions[1]) : steppedCalc(movement, fxRangeOrOptions[1], fxRangeOrOptions[0])
 					setNestedArray(draft.tracks[trackIndex].fx[fxIndex].options, property, fxVal)
 				}
 				break;

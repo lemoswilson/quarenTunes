@@ -11,6 +11,7 @@ const Knob: React.FC<indicatorProps> = ({
     wheelMove, 
     indicatorData, 
     className, 
+    keyFunction,
     tabIndex,
     unit, 
     onSubmit,
@@ -33,11 +34,13 @@ const Knob: React.FC<indicatorProps> = ({
     const c = `${styles.wrapper} ${className}`
     // const valueDisplay = value === -Infinity ? '-&infin;' : value;
     const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+    const trueValue = keyFunction ? keyFunction(value) : value
 
 
     const displayComponent = (
         <div onPointerDown={setDisplay} className={styles.title}>
-            {display ? label : `${value} ${unit}`}
+            {/* {display ? label : `${value} ${unit}`} */}
+            {display ? label : `${trueValue} ${unit}`}
         </div>
     )
 
@@ -77,7 +80,7 @@ const Knob: React.FC<indicatorProps> = ({
                         <stop offset="0.98" stopColor="#ededed" stopOpacity="0.3" />
                     </linearGradient>
                 </defs>
-                <title>knobMid</title>
+                <title>{label}</title>
                 <g style={{ isolation: "isolate" }}>
                     <g>
                         <g>

@@ -39,6 +39,26 @@ import Compressor from '../../../components/Layout/Effects/Compressor';
 import { returnEffect } from '../../Xolombrisx';
 import MenuButton from '../../../components/Layout/Instruments/Tabs/MenuButton';
 import Tabs from '../../../components/Layout/Effects/Tabs';
+import Gate from '../../../components/Layout/Effects/Gate';
+import Limiter from '../../../components/Layout/Effects/Limiter';
+import FreqShifter from '../../../components/Layout/Effects/FreqShifter';
+import Widener from '../../../components/Layout/Effects/Widener';
+import EQ3 from '../../../components/Layout/Effects/EQ3';
+import FeedbackDelay from '../../../components/Layout/Effects/FeedbackDelay';
+import JCVerb from '../../../components/Layout/Effects/JCVerb';
+import FreeVerb from '../../../components/Layout/Effects/FreeVerb';
+import Phaser from '../../../components/Layout/Effects/Phaser';
+import PingPong from '../../../components/Layout/Effects/PingPong';
+import PitchShifter from '../../../components/Layout/Effects/PitchShifter';
+import Tremolo from '../../../components/Layout/Effects/Tremolo';
+import AutoPan from '../../../components/Layout/Effects/AutoPan';
+import Bitcrusher from '../../../components/Layout/Effects/Bitcrusher';
+import Chebyshev from '../../../components/Layout/Effects/Chebyshev';
+import Distortion from '../../../components/Layout/Effects/Distortion';
+import Vibrato from '../../../components/Layout/Effects/Vibrato';
+import AutoFilter from '../../../components/Layout/Effects/AutoFilter';
+import Chorus from '../../../components/Layout/Effects/Chorus';
+import Filter from '../../../components/Layout/Effects/Filter';
 
 
 const Effect: React.FC<effectsProps> = ({ fxId, 
@@ -505,6 +525,8 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
                 events={events[activePattern]}
+                trackId={trackId}
+                fxId={fxId}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -512,7 +534,288 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 selected={selectedSteps}
                 trackIndex={trackId}
             />
+            : type === effectTypes.GATE 
+            ? <Gate 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                trackId={trackId}
+                fxId={fxId}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}
+            />
+            : type === effectTypes.LIMITER
+            ? <Limiter
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                trackId={trackId}
+                fxId={fxId}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}  
+            />
+            : type === effectTypes.FREQUENCYSHIFTER
+            ? <FreqShifter 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                trackId={trackId}
+                fxId={fxId}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}   
+            />
+            : type === effectTypes.STEREOWIDENER
+            ? <Widener 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}   
+            />
+            : type === effectTypes.EQ3
+            ? <EQ3 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}     
+            />
+            : type === effectTypes.FEEDBACKDELAY
+            ? <FeedbackDelay 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}       
+            />
+            : type === effectTypes.JCREVERB
+            ? <JCVerb
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.FREEVERB
+            ? <FreeVerb
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.PHASER
+            ? <Phaser 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.PINGPONGDELAY
+            ? <PingPong 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.PITCHSHIFT
+            ? <PitchShifter 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.TREMOLO
+            ? <Tremolo 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.AUTOPANNER
+            ? <AutoPan 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.BITCRUSHER
+            ? <Bitcrusher 
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            />
+            : type === effectTypes.CHEBYSHEV
+            ? <Chebyshev
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            /> 
+            : type === effectTypes.DISTORTION
+            ? <Distortion
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            /> 
+            : type === effectTypes.VIBRATO
+            ? <Vibrato
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            /> 
+            : type === effectTypes.AUTOFILTER
+            ? <AutoFilter
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            /> 
+            : type === effectTypes.CHORUS
+            ? <Chorus
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            /> 
+            : type === effectTypes.FILTER
+            ? <Filter
+                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+                calcCallbacks={propertiesIncDec}
+                trackId={trackId}
+                fxId={fxId}
+                events={events[activePattern]}
+                fxIndex={fxIndex}
+                options={options}
+                properties={fxProps}
+                propertyUpdateCallbacks={propertiesUpdate}
+                selected={selectedSteps}
+                trackIndex={trackId}         
+            /> 
             : null
+
 
 
     return (

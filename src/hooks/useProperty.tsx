@@ -153,6 +153,7 @@ export const useEffectProperty = (
                     [t]: a[0],
                 }
             }
+            console.log('t is', t, 'isObject is', isObject, 'a is', a, 'v is ', v);
             ref.current.set(v);
         }
     }, [a, isObject, ref, t])
@@ -174,7 +175,7 @@ export const useEffectProperties = (
     useEffectProperty(effectRef, options, 'detune');
     useEffectProperty(effectRef, options, 'distortion');
     useEffectProperty(effectRef, options, 'feedback');
-    useEffectProperty(effectRef, options, 'filter');
+    useEffectProperty(effectRef, options, 'filter', true);
     useEffectProperty(effectRef, options, 'frequency');
     useEffectProperty(effectRef, options, 'gain');
     useEffectProperty(effectRef, options, 'high');

@@ -16,7 +16,9 @@ export interface CompressorProps {
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
+    trackId: number,
     fxIndex: number,
+    fxId: number,
     selected?: number[],
     events: event[],
     properties: any[];
@@ -28,7 +30,9 @@ const Compressor: React.FC<CompressorProps> = ({
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
     trackIndex,
+    trackId,
     fxIndex,
+    fxId,
     events,
     properties,
     selected,
@@ -92,7 +96,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 type={'knob'}
                 unit={attack[2]}
                 value={getPropertyValue('attack')}
-                indicatorId={`instrument${trackIndex}:effect${fxIndex}:attack`}
+                indicatorId={`instrument${trackId}:effect${fxId}:attack`}
                 // value={getPropertyValue('attack')}
                 curve={attack[4]}
                 valueUpdateCallback={propertyUpdateCallbacks.attack}
@@ -101,7 +105,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 ccMouseCalculationCallback={calcCallbacks.ratio}
                 tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 selectedLock={false}
-                removePropertyLock={removeEffectPropertyLocks.ration}
+                removePropertyLock={removeEffectPropertyLocks.ratio}
                 label={'Ratio'}
                 max={ratio[1][1]}
                 midiLearn={() => { }}
@@ -110,7 +114,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 type={'knob'}
                 unit={ratio[2]}
                 value={getPropertyValue('ratio')}
-                indicatorId={`instrument${trackIndex}:effect${fxIndex}:ratio`}
+                indicatorId={`instrument${trackId}:effect${fxId}:ratio`}
                 valueUpdateCallback={propertyUpdateCallbacks.ratio}
             />
             <ContinuousIndicator
@@ -127,7 +131,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 curve={threshold[4]}
                 unit={threshold[2]}
                 value={getPropertyValue('threshold')}
-                indicatorId={`instrument${trackIndex}:effect${fxIndex}:threshold`}
+                indicatorId={`instrument${trackId}:effect${fxId}:threshold`}
                 valueUpdateCallback={propertyUpdateCallbacks.threshold}
             />
             <ContinuousIndicator
@@ -143,7 +147,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 type={'knob'}
                 unit={release[2]}
                 value={getPropertyValue('release')}
-                indicatorId={`instrument${trackIndex}:effect${fxIndex}:release`}
+                indicatorId={`instrument${trackId}:effect${fxId}:release`}
                 valueUpdateCallback={propertyUpdateCallbacks.release}
             />
             <ContinuousIndicator
@@ -159,7 +163,7 @@ const Compressor: React.FC<CompressorProps> = ({
                 curve={knee[4]}
                 unit={knee[2]}
                 value={getPropertyValue('knee')}
-                indicatorId={`instrument${trackIndex}:effect${fxIndex}:knee`}
+                indicatorId={`instrument${trackId}:effect${fxId}:knee`}
                 valueUpdateCallback={propertyUpdateCallbacks.knee}
             // detail={'envelopeZero'}
             />

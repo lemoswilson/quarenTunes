@@ -8,6 +8,7 @@ import AppContext from '../../../context/AppContext';
 interface SteppedIndicator {
     className?: string;
     selected: string;
+    titleClassName?: string,
     options: string[];
     ccMouseCalculationCallback: (e: any) => void;
     tabIndex: number,
@@ -20,6 +21,7 @@ interface SteppedIndicator {
 
 export interface indicatorProps {
     wheelMove: (e: WheelEvent) => void,
+    titleClassName?: string,
     tabIndex: number,
     captureStart?: (e: React.PointerEvent<SVGSVGElement>) => void,
     valueUpdateCallback: (value: any) => void,
@@ -41,6 +43,7 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
     valueUpdateCallback,
     label,
     selected,
+    titleClassName,
     options,
     midiLearn,
     unit
@@ -132,6 +135,7 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         captureStart={captureStart}
         options={options}
         label={label}
+        titleClassName={titleClassName}
         wheelMove={wheelMove}
         className={className}
         selected={selected}

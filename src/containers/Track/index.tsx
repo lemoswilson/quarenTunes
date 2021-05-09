@@ -158,6 +158,24 @@ const Track: FunctionComponent = () => {
                                 />
                         )
                     })}
+            <div className={styles.fx}>
+                <div className={styles.box}>
+                    <div className={styles.border}>
+                </div>
+            </div>
+            {/* <div className={styles.tabs}>
+                <div className={styles.selector}>
+                    <div className={styles.border}>
+                        <div className={styles.effectTitle}>
+                            { type }        
+                        </div> 
+                        <div className={styles.menuWrapper}>
+                            <MenuButton onClick={menuOnClick}/> 
+                        </div> 
+                    </div> 
+                </div>  
+            </div> */}
+        </div>
                 </div>
             </div>
         </div>

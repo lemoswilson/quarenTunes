@@ -11,6 +11,7 @@ const Knob: React.FC<indicatorProps> = ({
     label,
     wheelMove,
     className,
+    titleClassName,
     unit,
     display,
     selected,
@@ -19,21 +20,26 @@ const Knob: React.FC<indicatorProps> = ({
 }) => {
     const c = `${styles.wrapper} ${className}`
     const initialAngle = -140;
-    // const sel = options.indexOf(selected) + 1;
     const sel = options.indexOf(selected);
+    const titleClass = `${styles.title} ${titleClassName}`
 
     const circle = (angle: number, key: string, option: string) => (
-        // <svg key={key} onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
+
         <svg className={styles.back} onClick={() => valueUpdateCallback(option)} key={key} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
             <g transform={`rotate(${initialAngle + angle} 34.4 35.2)`}>
                 <image width="17" height="17" transform="translate(25.28 -3)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAACXBIWXMAAAsSAAALEgHS3X78AAABH0lEQVQ4T63UTUoDQRAF4G/yh0RBMSK4ELLKwu3c/wi5g+BCEBVFDZI4GRddSXomiQuTgoLuflVvXlV1T1HXtWNY7y9wOp0W+b4sy71fLdqKsuQOGkSosWSbtEEUJAW6ktperKHCT3iFOidbE2UkfZxgGD6I2Dlm4d9Y5GTtHnWD5BxXGOE0sC+84Dn2S0kdmkSd2A8lkjFucRn4Kx5ivZAULqUyddgqaygpucUEd+GTOBtFTB/Fajjt0jpST84kJde4yfDnwAYR20g8irUVLaXaP6WePGXYU5x92vRnbfn4u5LkC6mcsd3Nvscj3jAvy7KiqWg1zpnNiD/sHv8sYteq2qVV0mUjjfjd/gtZ5YnHfyItMg55tG076DfyX/sFxYCEfvkEjmsAAAAASUVORK5CYII=" style={{ opacity: 0.5, mixBlendMode: "multiply" }} />
                 <circle cx="34.4" cy="3.66" r="2.5" style={{ fill: "#dce0e2" }} />
             </g>
-        </svg>)
+        </svg>
+
+    )
 
     return (
         <div tabIndex={tabIndex} className={c} onWheel={wheelMove}>
             <div className={styles.indicator}>
+                {/* <div onPointerDown={setDisplay} className={styles.title}>
+                {display ? label : `${selected} ${unit}`}
+                </div> */}
                 {/* <svg onPointerDown={captureStart} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70"> */}
                 <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70">
                     {options.map((option, idx, arr) => {
@@ -90,7 +96,8 @@ const Knob: React.FC<indicatorProps> = ({
                 {/* <circle cx="33.64" cy="33.64" r="3" style={{ fill: "transparent", stroke: 'red' }} /> */}
                 {/* center */}
             </svg>
-            <div onPointerDown={setDisplay} className={styles.title}>
+            {/* <div onPointerDown={setDisplay} className={styles.title}> */}
+            <div onPointerDown={setDisplay} className={titleClass}>
                 {display ? label : `${selected} ${unit}`}
             </div>
         </div>

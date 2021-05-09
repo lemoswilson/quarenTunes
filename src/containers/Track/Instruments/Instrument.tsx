@@ -907,6 +907,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
             removePropertyLocks={removePropertyLockCallbacks}
             options={options}
             index={index}
+            trackId={id}
             events={events[activePatt]}
             selected={selectedSteps}
             voice={voice}
@@ -915,6 +916,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
         : voice === xolombrisxInstruments.NOISESYNTH
             ? <NoiseSynth
                 calcCallbacks={propertiesIncDec}
+                trackId={id}
                 properties={instProps}
                 removePropertyLocks={removePropertyLockCallbacks}
                 ccMap={ref_CCMaps}
@@ -928,6 +930,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 ? <ModulationSynth
                     removePropertyLocks={removePropertyLockCallbacks}
                     calcCallbacks={propertiesIncDec}
+                    trackId={id}
                     options={options}
                     index={index}
                     events={events[activePatt]}
@@ -938,6 +941,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 : voice === xolombrisxInstruments.MEMBRANESYNTH
                     ? <MembraneSynth
                         calcCallbacks={propertiesIncDec}
+                        trackId={id}
                         removePropertyLocks={removePropertyLockCallbacks}
                         events={events[activePatt]}
                         index={index}
@@ -951,6 +955,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                             calcCallbacks={propertiesIncDec}
                             removePropertyLocks={removePropertyLockCallbacks}
                             events={events[activePatt]}
+                            trackId={id}
                             index={index}
                             options={options}
                             properties={instProps}
@@ -961,6 +966,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                             ? <PluckSynth
                                 removePropertyLocks={removePropertyLockCallbacks}
                                 calcCallbacks={propertiesIncDec}
+                                trackId={id}
                                 events={events[activePatt]}
                                 index={index}
                                 options={options}
@@ -974,6 +980,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                                     calcCallbacks={propertiesIncDec}
                                     events={events[activePatt]}
                                     index={index}
+                                    trackId={id}
                                     options={options}
                                     properties={instProps}
                                     propertyUpdateCallbacks={propertiesUpdate}

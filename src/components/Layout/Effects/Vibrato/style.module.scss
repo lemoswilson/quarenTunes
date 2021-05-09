@@ -1,0 +1,60 @@
+@import '../../../../style/variables';
+
+.wrapper {
+    width: 100%;
+    height: auto;
+    display: flex;
+    position: absolute;
+    margin-top: 3rem;
+    flex-direction: row;
+    padding-left: 0.5rem;
+    justify-content: flex-start;
+    // border: 1px solid black;
+
+    .doubleKnob {
+        position: relative;
+        width: 28%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+
+
+        .block {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            @include center;
+            // border: 1px solid black;
+
+            .knob {
+                position: absolute;
+                top: 5rem;
+            }
+        }
+    }
+
+    .marginleft {
+        margin-left: 1.9rem;
+    }
+
+    .mid {
+        margin-top: 2.5rem;
+        width: 11rem;
+        height: 100%;
+        display: flex;
+        @include center;
+    }
+
+}
+.title {
+    position: absolute;
+    left: 3.5rem;
+    top: 0.6rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: rgb(194, 194, 194);
+    text-shadow: 0 0 8px $textShadow;
+    font-family: $jost;         
+}

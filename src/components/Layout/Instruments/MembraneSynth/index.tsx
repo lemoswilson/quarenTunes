@@ -17,6 +17,7 @@ export interface MembraneSynthProps {
     removePropertyLocks: any,
     propertyUpdateCallbacks: any,
     index: number,
+    trackId: number,
     events: event[],
     selected?: number[],
     properties: any[],
@@ -26,6 +27,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
     calcCallbacks,
     options,
     events,
+    trackId,
     properties,
     removePropertyLocks,
     selected,
@@ -108,7 +110,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     unit={envelopeAttack[2]}
                                     value={getPropertyValue('envelope.attack')}
                                     curve={envelopeAttack[4]}
-                                    indicatorId={`instrument${index}:envelope.attack`}
+                                    indicatorId={`instrument${trackId}:envelope.attack`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.attack}
                                     className={styles.envelopeAttack}
                                 />
@@ -125,7 +127,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     unit={envelopeDecay[2]}
                                     value={getPropertyValue('envelope.decay')}
-                                    indicatorId={`instrument${index}:envelope.decay`}
+                                    indicatorId={`instrument${trackId}:envelope.decay`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.decay}
                                     className={styles.envelopeDecay}
                                 />
@@ -145,7 +147,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     curve={envelopeSustain[4]}
                                     unit={envelopeSustain[2]}
                                     value={getPropertyValue('envelope.sustain')}
-                                    indicatorId={`instrument${index}:envelope.sustain`}
+                                    indicatorId={`instrument${trackId}:envelope.sustain`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.sustain}
                                     className={styles.envelopeSustain}
                                 />
@@ -162,7 +164,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     type={'knob'}
                                     unit={envelopeRelease[2]}
                                     value={getPropertyValue('envelope.release')}
-                                    indicatorId={`instrument${index}:envelope.release`}
+                                    indicatorId={`instrument${trackId}:envelope.release`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.release}
                                     className={styles.envelopeRelease}
                                 />
@@ -197,7 +199,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     curve={detune[4]}
                                     unit={detune[2]}
                                     value={getPropertyValue('detune')}
-                                    indicatorId={`instrument${index}:detune`}
+                                    indicatorId={`instrument${trackId}:detune`}
                                     valueUpdateCallback={propertyUpdateCallbacks.detune}
                                     detail={'detune'}
                                 />
@@ -215,7 +217,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     unit={portamento[2]}
                                     curve={portamento[4]}
                                     value={getPropertyValue('portamento')}
-                                    indicatorId={`instrument${index}:portamento`}
+                                    indicatorId={`instrument${trackId}:portamento`}
                                     valueUpdateCallback={propertyUpdateCallbacks.portamento}
                                 // className={styles.envelopeRelease}
                                 />
@@ -234,7 +236,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                 curve={volume[4]}
                                 unit={volume[2]}
                                 value={getPropertyValue('volume')}
-                                indicatorId={`instrument${index}:volume`}
+                                indicatorId={`instrument${trackId}:volume`}
                                 valueUpdateCallback={propertyUpdateCallbacks.volume}
                             // className={styles.volume}
                             />
@@ -257,7 +259,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             curve={octaves[4]}
                             unit={octaves[2]}
                             value={getPropertyValue('octaves')}
-                            indicatorId={`instrument${index}:octaves`}
+                            indicatorId={`instrument${trackId}:octaves`}
                             valueUpdateCallback={propertyUpdateCallbacks.octaves}
                         />
                         <ContinuousIndicator
@@ -273,7 +275,7 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             curve={pitchDecay[4]}
                             unit={pitchDecay[2]}
                             value={getPropertyValue('pitchDecay')}
-                            indicatorId={`instrument${index}:pitchDecay`}
+                            indicatorId={`instrument${trackId}:pitchDecay`}
                             valueUpdateCallback={propertyUpdateCallbacks.pitchDecay}
                         />
                     </div>
