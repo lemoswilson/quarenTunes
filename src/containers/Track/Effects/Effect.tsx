@@ -8,7 +8,6 @@ import { effectTypes, toneEffects, increaseDecreaseEffectProperty } from '../../
 import { updateEffectState } from '../../../store/Track/actions'
 import { parameterLockEffect, parameterLockEffectIncreaseDecrease, removeEffectPropertyLock } from '../../../store/Sequencer/actions'
 
-import triggContext from '../../../context/triggState';
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
 
 import WebMidi, { InputEventControlchange, Input } from 'webmidi';
@@ -82,6 +81,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     const [firstRender, setRender] = useState(true);
     const previousType = usePrevious(type)
 
+    useEffect(() => {
+        console.log('effect index', fxIndex, 'type', type, 'options', options)
+    }, [fxIndex, type])
 
     const ref_trackIndex = useRef(trackIndex);
     useEffect(() => { ref_trackIndex.current = trackIndex }, [trackIndex])
@@ -100,8 +102,8 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     const optionsRef = useRef(options)
     useEffect(() => { optionsRef.current = options }, [options])
 
-    const indexRef = useRef(fxIndex);
-    useEffect(() => { indexRef.current = fxIndex }, [fxIndex]);
+    // const re_index = useRef(fxIndex);
+    // useEffect(() => { re_index.current = fxIndex }, [fxIndex]);
 
     const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
     const patternTrackerRef = useRef(patternTracker);
@@ -128,6 +130,14 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     const isRecordingRef = useRef(isRecording);
     useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
 
+    useEffect(() => {
+        console.log(`effect ${fxIndex}, type ${type} just mounted`)
+    }, [])
+
+    useEffect(() => {
+        console.log(`effect ${fxIndex}, type ${type} just had index updates`)
+    }, [fxIndex])
+
     const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
     const isPlayingRef = useRef(isPlaying);
     useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying]);
@@ -152,7 +162,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[fxIndex].length
+                o[k] = state.sequencer.present.patterns[k].tracks[trackIndex].length
             });
             return o;
         }
@@ -165,7 +175,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
                 let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[fxIndex].events
+                o[k] = state.sequencer.present.patterns[k].tracks[trackIndex].events
             });
             return o;
         }
@@ -183,7 +193,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                     let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
                     // dispatch(updateEffectState(indexRef.current, temp));
-                    dispatch(updateEffectState(trackIdRef.current, temp, fxIndex));
+                    dispatch(updateEffectState(ref_trackIndex.current, temp, ref_fxIndex.current));
                 };
             }
         });
@@ -194,7 +204,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     }, [
         dispatch,
         fxIndex,
-        indexRef,
+        ref_fxIndex,
         fxProps,
         optionsRef,
     ]);
@@ -216,7 +226,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                     ref_selectedSteps.current.forEach(step => {
                         dispatch(parameterLockEffectIncreaseDecrease(
                             ref_activePatt.current,
-                            trackIdRef.current,
+                            ref_trackIndex.current,
                             step,
                             fxIndex, // fx have order between them (chainning) 
                             cc ? e.value : e.movementY,
@@ -232,8 +242,8 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                     // )) {
                 } else {
                     dispatch(increaseDecreaseEffectProperty(
-                        trackIdRef.current,
-                        fxIndex,
+                        ref_trackIndex.current,
+                        ref_fxIndex.current,
                         property,
                         cc ? e.value : e.movementY,
                         cc,
@@ -257,7 +267,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     }, [
         dispatch,
         ref_activePatt,
-        indexRef,
+        ref_fxIndex,
         optionsRef,
         ref_selectedSteps,
         fxProps,
@@ -284,7 +294,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             setNestedValue(fxProps[idx], call, o);
         });
         return o
-    }, [])
+    }, [type])
 
         // add effect first render logic 
         useEffect(() => {
@@ -294,40 +304,51 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
                 // );
                 ref_ToneEffect.current = returnEffect(type, options)
+
                 if (ref_toneObjects.current) {
                     let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
                     let chain = ref_toneObjects.current.tracks[trackIndex].chain;
-    
-                    if (lgth > 0) {
-                        let from, to;
-                        if (fxIndex === lgth - 1) {
-                            from = ref_toneObjects.current.tracks[trackIndex].effects[lgth - 1];
-                            to = chain.out
-                        } else {
-                            from = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex]
-                            to = ref_toneObjects.current.tracks[trackIndex].effects[fxIndex + 1]
-                        }
-                        if (from && to) {
-                            from.disconnect();
-                            from.connect(ref_ToneEffect.current);
-                            ref_ToneEffect.current.connect(to);
-                        }
-                    } else {
-                        chain.in.disconnect();
-                        chain.in.connect(ref_ToneEffect.current);
-                        ref_ToneEffect.current.connect(chain.out);
+                    // ref_ToneEffect.current.chain()
+                    // ref_ToneEffect.current.disconnect()
+                    if ( fxIndex >= lgth ) {
+                        // console.log(`adding a new `)
+                        ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current) 
+
+                        Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                            // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
+                            let k = parseInt(key);
+                            if (ref_toneObjects.current){
+                                if (fxIndex >= ref_toneObjects.current.patterns[k][trackIndex].effects.length)
+                                    ref_toneObjects.current.patterns[k][trackIndex].effects.push(new Tone.Part())
+
+                                ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                            }
+                        });
                     }
-                    ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current);
-    
-                    Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                        let k = parseInt(key);
-                        if (ref_toneObjects.current)
-                            ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                    });
+                    else if (fxIndex < lgth - 1) {
+                        ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
+
+                        Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                            // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
+                            let k = parseInt(key);
+                            if (ref_toneObjects.current){
+                                ref_toneObjects.current.patterns[k][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
+                                ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                            }
+
+                        });
+                    }
+                    for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
+                        ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
+
+                    ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
+                    chain.in.disconnect()
+
+                    ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
                 }
-    
                 setRender(false);
             }
+
         }, [])
 
 

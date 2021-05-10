@@ -197,7 +197,7 @@ export function noteInput(
 
 export function setNoteMidi(
 	trackIndex: number,
-	note: string | string[],
+	note: string,
 	velocity: number,
 	step: number,
 ): sequencerActionTypes {

@@ -238,15 +238,15 @@ export function getInitials(type: xolombrisxInstruments) {
                 noise: noise, //noise.fadeIn, fadeOut, playbackRate, type
             }
         // return NoiseSynthInitials
-        case xolombrisxInstruments.PLUCKSYNTH:
-            return {
-                volume: volume,
-                attackNoise: attackNoise,
-                dampening: dampening,
-                resonance: pluckResonance,
-                release: pluckRelease,
-                // envelope: undefined,
-            }
+        // case xolombrisxInstruments.PLUCKSYNTH:
+        //     return {
+        //         volume: volume,
+        //         attackNoise: attackNoise,
+        //         dampening: dampening,
+        //         resonance: pluckResonance,
+        //         release: pluckRelease,
+        //         // envelope: undefined,
+        //     }
         // return PluckSynthInitials
         case xolombrisxInstruments.SAMPLER:
             return {

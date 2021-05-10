@@ -50,9 +50,9 @@ export const useProperties = (
 ) => {
     useProperty(instrumentRef, options, 'harmonicity');
     useProperty(instrumentRef, options, 'attack');
-    useProperty(instrumentRef, options, 'attackNoise');
+    // useProperty(instrumentRef, options, 'attackNoise');
     useProperty(instrumentRef, options, 'curve');
-    useProperty(instrumentRef, options, 'dampening');
+    // useProperty(instrumentRef, options, 'dampening');
     useProperty(instrumentRef, options, 'detune');
     useProperty(instrumentRef, options, 'envelope', true);
     useProperty(instrumentRef, options, 'modulation', true);
@@ -153,7 +153,7 @@ export const useEffectProperty = (
                     [t]: a[0],
                 }
             }
-            console.log('t is', t, 'isObject is', isObject, 'a is', a, 'v is ', v);
+            // console.log('t is', t, 'isObject is', isObject, 'a is', a, 'v is ', v);
             ref.current.set(v);
         }
     }, [a, isObject, ref, t])

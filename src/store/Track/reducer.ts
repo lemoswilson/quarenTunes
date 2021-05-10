@@ -98,7 +98,7 @@ export const initialState: Track = {
 					// options: getEffectsInitials(effectTypes.FILTER)
 				},
 			],
-			fxCounter: 1,
+			fxCounter: 0,
 			// env: 0.001,
 			midi: {
 				// device: undefined,
@@ -142,7 +142,13 @@ export function trackReducer(
 						channel: 'all',
 						device: 'onboardKey',
 					},
-					fx: [],
+					fx: [
+						{
+							fx: effectTypes.FILTER,
+							id: 0,
+							options: getEffectsInitials(effectTypes.FILTER)
+						}
+					],
 					fxCounter: 0,
 				});
 				draft.trackCount = draft.trackCount + 1;
@@ -154,7 +160,7 @@ export function trackReducer(
 				draft.tracks[action.payload.trackIndex].options = getInitials(action.payload.instrument);
 				break;
 			case trackActions.REMOVE_INSTRUMENT:
-				console.log('removing on track reducer, track index is:', action.payload.trackIndex)
+				// console.log('removing on track reducer, track index is:', action.payload.trackIndex)
 				draft.tracks.splice(action.payload.trackIndex, 1);
 				draft.trackCount = draft.trackCount - 1;
 				draft.selectedTrack = 0
@@ -186,13 +192,21 @@ export function trackReducer(
 				draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex, 1);
 				break;
 			case trackActions.ADD_EFFECT:
-				draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex, 0, {
-					fx: action.payload.effect,
-					id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
-					options: getEffectsInitials(action.payload.effect)
-				});
-				draft.tracks[action.payload.trackIndex].fxCounter =
-					draft.tracks[action.payload.trackIndex].fxCounter + 1;
+				console.log(`adding effect to track ${action.payload.trackIndex}, effect index ${action.payload.effectIndex}`)
+				if (action.payload.effectIndex + 1 < draft.tracks[action.payload.trackIndex].fx.length)
+					draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex + 1, 0, {
+						fx: action.payload.effect,
+						id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
+						options: getEffectsInitials(action.payload.effect)
+					});
+				else 
+					draft.tracks[action.payload.trackIndex].fx.push({
+						fx: action.payload.effect,
+						id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
+						options: getEffectsInitials(action.payload.effect)
+					})
+				draft.tracks[action.payload.trackIndex].fxCounter ++
+					// draft.tracks[action.payload.trackIndex].fxCounter + 1;
 				break;
 			case trackActions.CHANGE_EFFECT:
 				[trackIndex, effect, effectIndex] = [
@@ -201,6 +215,7 @@ export function trackReducer(
 					action.payload.effectIndex
 				]
 				draft.tracks[trackIndex].fx[effectIndex].fx = effect;
+				draft.tracks[trackIndex].fx[effectIndex].options = getEffectsInitials(effect);
 				break;
 			case trackActions.UPDATE_INSTRUMENT_STATE:
 				[trackIndex, options] = [action.payload.trackIndex, action.payload.options];
@@ -268,6 +283,7 @@ export function trackReducer(
 					action.payload.isContinuous,
 					action.payload.fx
 				]
+				console.log(`inc dec effect prop, track index: ${trackIndex}, fxIndex: ${fxIndex}`)
 				const fxRangeOrOptions = getNested(draft.tracks[trackIndex].fx[fxIndex].options, property)
 				let fxVal;
 				if (isContinuous) {

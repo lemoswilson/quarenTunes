@@ -356,9 +356,10 @@ export function sequencerReducer(
 				[trackIndex, note, velocity, step] = [
 					action.payload.trackIndex,
 					action.payload.note,
+					action.payload.velocity,
 					action.payload.step,
-					action.payload.velocity
 				]
+				// console.log(`setting note midi inside reducer, trackIndex ${action.payload.trackIndex}, events object ${state.patterns[draft.activePattern].tracks[trackIndex].events}`)
 				draft.patterns[draft.activePattern].tracks[trackIndex].events[step].instrument['note'] = Array.isArray(note) ? note : undefined;
 				draft.patterns[draft.activePattern].tracks[trackIndex].events[step].instrument['velocity'] = velocity;
 				break;

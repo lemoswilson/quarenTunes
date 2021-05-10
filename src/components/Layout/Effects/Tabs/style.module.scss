@@ -9,6 +9,7 @@
         background-color: $white;
         height: 7.8rem;
         width: 1.7rem;
+        z-index: 10;
         border-top-right-radius: 1rem;
         display: flex;
         @include center;
@@ -62,6 +63,16 @@
                 // margin-right: rem;
                 transform: rotate(90deg);
 
+                .remove {
+                    background-color: $light;
+                    color: white;
+
+                    &:hover {
+                        background-color: $light;
+                        color: white;
+                    }
+                }
+
                 .rotate {
                     transform: rotate(180deg);
                 }
@@ -79,7 +90,9 @@
         position: relative;
         height: 1.5rem;
         width: 1.7rem;
-        border-bottom-right-radius: 1rem;;
+        @include shadow(0, 0.3rem, 0.3rem);
+        border-bottom-right-radius: 1rem;
+        z-index: 1;
 
         .svg {
             // padding-left: 0.3rem;

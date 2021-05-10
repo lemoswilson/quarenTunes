@@ -123,7 +123,7 @@ export enum xolombrisxInstruments {
 	MEMBRANESYNTH = "MembraneSynth",
 	METALSYNTH = "MetalSynth",
 	NOISESYNTH = "NoiseSynth",
-	PLUCKSYNTH = "PluckSynth",
+	// PLUCKSYNTH = "PluckSynth",
 	SAMPLER = "Sampler",
 	DRUMRACK = "DrumRack",
 }

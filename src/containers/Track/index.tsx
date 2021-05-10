@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useContext } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useRef } from 'react';
 import { useSelector, useDispatch, batch } from 'react-redux'
 import { addInstrumentToSequencer, removeInstrumentFromSequencer, addEffectSequencer, removeEffectSequencer } from '../../store/Sequencer';
 import {
@@ -43,6 +43,11 @@ const Track: FunctionComponent = () => {
 
     const dispatch = useDispatch();
     const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack);
+    // const ref_selectedTrackIdx = useRef(selectedTrkIdx);
+    // useEffect(() => {
+    //     ref_selectedTrackIdx.current = selectedTrkIdx;
+    // }, [selectedTrkIdx])
+
     const Tracks = useSelector((state: RootState) => state.track.present.tracks);
     const counter = useSelector((state: RootState) => state.track.present.instrumentCounter)
     const selectedTrk_Id = useSelector((state: RootState) => state.track.present.tracks[selectedTrkIdx].id)
@@ -81,18 +86,23 @@ const Track: FunctionComponent = () => {
         dispatch(selectMidiChannel(index, channel));
     };
 
-    const _addEffect = (effect: effectTypes, fxIndex: number, trackIndex: number): void => {
-        // toneObjects will be dealt in effect rendering
+    const _addEffect = (effect: effectTypes, trackIndex: number, fxIndex: number): void => {
+        // tone effect ref will be dealt in effect rendering
+        
+        triggEmitter.emit(triggEventTypes.ADD_EFFECT, {fxIndex: fxIndex, trackIndex: trackIndex})        // 
         batch(() => {
-            dispatch(addEffect(fxIndex, effect, trackIndex));
+            dispatch(addEffect(fxIndex, trackIndex, effect));
             dispatch(addEffectSequencer(fxIndex, trackIndex))
+            // dispatch(addEffect(fxIndex, ref_selectedTrackIdx.current, effect));
+            // dispatch(addEffectSequencer(fxIndex, ref_selectedTrackIdx.current))
         })
 
     };
 
     const _changeEffect = (effect: effectTypes, fxIndex: number, trackIndex: number): void => {
         // toneObjects will be dealt in effect rendering
-        dispatch(changeEffect(trackIndex, fxIndex, effect))
+        console.log('should be changing effect');
+        dispatch(changeEffect(fxIndex, trackIndex, effect));
     }
 
     const _changeEffectIdx = (from: number, to: number): void => {
@@ -146,7 +156,8 @@ const Track: FunctionComponent = () => {
                                 <Effect
                                     addEffect={_addEffect}
                                     changeEffect={_changeEffect}
-                                    deleteEffect={deleteEffect}
+                                    deleteEffect={_deleteEffect}
+                                    // deleteEffect={() => {}}
                                     key={`track:${selectedTrk_Id};effect:${fx.id}`}
                                     fxId={fx.id}
                                     trackIndex={selectedTrkIdx}
@@ -158,24 +169,6 @@ const Track: FunctionComponent = () => {
                                 />
                         )
                     })}
-            <div className={styles.fx}>
-                <div className={styles.box}>
-                    <div className={styles.border}>
-                </div>
-            </div>
-            {/* <div className={styles.tabs}>
-                <div className={styles.selector}>
-                    <div className={styles.border}>
-                        <div className={styles.effectTitle}>
-                            { type }        
-                        </div> 
-                        <div className={styles.menuWrapper}>
-                            <MenuButton onClick={menuOnClick}/> 
-                        </div> 
-                    </div> 
-                </div>  
-            </div> */}
-        </div>
                 </div>
             </div>
         </div>

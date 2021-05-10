@@ -31,7 +31,7 @@ export default class DrumRack {
         this.node = new Tone.Gain().toDestination()
         Object.keys(initials).forEach((v, k, arr) => {
             // this.obj[Number(k)] = new Tone.Sampler(onlyValues(initials[Number(k)]))
-            this.obj[Number(k)] = new Tone.Sampler(initials[v])
+            this.obj[Number(k)] = new Tone.Sampler(initials[v]).connect(this.node)
         })
     }
     set(data: Tone.SamplerOptions, id?: number) {
@@ -77,7 +77,7 @@ export default class DrumRack {
     }
     createNew(id: number, map: SampleMap): Tone.Sampler {
         if (this.obj[id]) return this.obj[id]
-        else this.obj[id] = new Tone.Sampler({ ...map })
+        else this.obj[id] = new Tone.Sampler({ ...map }).connect(this.node)
         return this.obj[id]
     }
     triggerAttackRelease(note: string, duration: string | number, time?: number, velocity?: number, pitch?: number) {
@@ -118,5 +118,9 @@ export default class DrumRack {
     }
     disconnect() {
         this.node.disconnect()
+    }
+    chain(...nodes: Tone.InputNode[]){
+        this.node.disconnect()
+        this.node.chain(...nodes)
     }
 };

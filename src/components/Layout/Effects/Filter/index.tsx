@@ -273,6 +273,7 @@ const Filter: React.FC<FilterProps> = ({
                     selectedLock={false}
                     tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                     label={'Gain'}
+                    detail={'detune'}
                     // className={styles.gain}
                     removePropertyLock={removeEffectPropertyLocks.gain}
                     max={gain[1][1]}

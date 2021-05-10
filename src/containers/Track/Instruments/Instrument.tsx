@@ -20,6 +20,7 @@ import {
     setNoteLengthPlayback,
     parameterLockIncreaseDecrease,
     removePropertyLock,
+    setNote,
 } from '../../../store/Sequencer';
 
 import WebMidi, {
@@ -486,20 +487,23 @@ export const Instrument = <T extends xolombrisxInstruments>({
         pattern: number
     ): void => {
         ref_selectedSteps.current?.forEach(step => {
-            const event = {
-                ...eventsRef.current[pattern][step],
-            };
-            const time = timeObjFromEvent(step, event);
-            let notes = event && event.note ? [...event['note']] : []
-            if (notes.includes(note)) {
-                notes = notes.filter(n => n !== note);
-            } else {
-                notes.push(note)
-            }
-            event['note'] = notes ? notes : null;
-            event['velocity'] = velocity;
-            ref_toneObjects.current?.patterns[pattern][ref_index.current].instrument.at(time, event)
-            dispatch(setNoteMidi(ref_index.current, event['note'], velocity, step));
+            dispatch(setNote(pattern, ref_index.current, note, step))
+
+            // const event = {
+            //     ...eventsRef.current[pattern][step],
+            // };
+
+            // const time = timeObjFromEvent(step, event);
+            // let notes = event && event.note ? [...event['note']] : []
+            // if (notes.includes(note)) {
+            //     notes = notes.filter(n => n !== note);
+            // } else {
+            //     notes.push(note)
+            // }
+            // event['note'] = notes ? notes : null;
+            // event['velocity'] = velocity;
+            // ref_toneObjects.current?.patterns[pattern][ref_index.current].instrument.at(time, event)
+            // dispatch(setNoteMidi(ref_index.current, event['note'], velocity, step));
         });
 
     }, [dispatch, index, ref_toneObjects, eventsRef, ref_selectedSteps]);
@@ -580,9 +584,11 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
     const noteInCallback = useCallback((noteNumber: number, noteName: string, time: number, velocity?: number) => {
         if (!velocity) velocity = 60
+
+
+        // recording playiback logic 
         if (ref_isRec.current && ref_isPlay.current && ref_ToneInstrument.current) {
 
-            // recording playiback logic 
             ref_ToneInstrument.current.triggerAttack(noteName, 0, velocity);
             const position = Tone.Transport.position.toString();
             const multiplier = parseFloat("0." + position.split(".")[1]);
@@ -601,10 +607,19 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 }
                 setNoteInput(pattern, step, offset, noteName, velocity, time)
             }
-        } else if (ref_selectedSteps.current && ref_selectedSteps.current.length >= 0 && !ref_isRec.current) {
+        } else if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0 && !ref_isRec.current) {
             noteLock(noteName, velocity, ref_activePatt.current);
-        } else {
-            ref_ToneInstrument.current?.triggerAttack(noteName, 0, velocity);
+        } else if (ref_selectedSteps.current && ref_selectedSteps.current.length === 0){
+            // no selected steps, should be playing notes
+            console.log('should be playing notes');
+            if (voice === xolombrisxInstruments.NOISESYNTH) {
+                const jab: any = ref_ToneInstrument.current
+                jab.triggerAttack(0, velocity/127)
+
+                // ref_ToneInstrument.current?.triggerAttack(0, velocity)
+            } else {
+                ref_ToneInstrument.current?.triggerAttack(noteName, 0, velocity/127);
+            }
         }
     }, [noteLock,
         setNoteInput,
@@ -645,10 +660,22 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 )
             );
             ref_onHoldNotes.current[noteName] = {};
+        // } else if (!(ref_selectedSteps.current && ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
+        } else if (ref_selectedSteps.current?.length === 0 && !ref_isRec.current) {
+            if (
+                voice === xolombrisxInstruments.MEMBRANESYNTH 
+                || voice === xolombrisxInstruments.METALSYNTH
+                || voice === xolombrisxInstruments.NOISESYNTH
+            ) {
+                const d: any = ref_ToneInstrument.current
+                d.triggerRelease()
+            } else  {
+                ref_ToneInstrument.current?.triggerRelease(noteName);
+            }  
+
         }
-        if (!(ref_selectedSteps.current && ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
-            ref_ToneInstrument.current?.triggerRelease(noteName);
-        }
+        // if (!(ref_selectedSteps.current && ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
+        // }
     }, [
         dispatch,
         index,
@@ -665,7 +692,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
         if (Object.keys(noteDict).includes(key)) {
             const noteNumber = noteDict[key] + (keyboardRangeRef.current * 12)
             const noteName = numberToNote(noteNumber);
-            if (noteNumber < 127) {
+            if (noteNumber < 127 && midi.device === 'onboardKey' && midi.channel === 'all') {
                 const time = Date.now() / 1000;
                 dispatch(noteOn([noteNumber], 'onboardKey', 'all'));
                 noteInCallback(noteNumber, noteName, time)
@@ -962,18 +989,18 @@ export const Instrument = <T extends xolombrisxInstruments>({
                             propertyUpdateCallbacks={propertiesUpdate}
                             selected={selectedSteps}
                         />
-                        : voice === xolombrisxInstruments.PLUCKSYNTH
-                            ? <PluckSynth
-                                removePropertyLocks={removePropertyLockCallbacks}
-                                calcCallbacks={propertiesIncDec}
-                                trackId={id}
-                                events={events[activePatt]}
-                                index={index}
-                                options={options}
-                                properties={instProps}
-                                propertyUpdateCallbacks={propertiesUpdate}
-                                selected={selectedSteps}
-                            />
+                        // : voice === xolombrisxInstruments.PLUCKSYNTH
+                        //     ? <PluckSynth
+                        //         removePropertyLocks={removePropertyLockCallbacks}
+                        //         calcCallbacks={propertiesIncDec}
+                        //         trackId={id}
+                        //         events={events[activePatt]}
+                        //         index={index}
+                        //         options={options}
+                        //         properties={instProps}
+                        //         propertyUpdateCallbacks={propertiesUpdate}
+                        //         selected={selectedSteps}
+                        //     />
                             : voice === xolombrisxInstruments.DRUMRACK
                                 ? <DrumRack
                                     removePropertyLocks={removePropertyLockCallbacks}

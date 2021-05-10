@@ -298,7 +298,7 @@ export interface setNoteLengthPlaybackAction {
 export interface setNoteMidiAction {
 	type: sequencerActions.SET_NOTE_MIDI;
 	payload: {
-		note: string | string[];
+		note: string;
 		step: number;
 		trackIndex: number;
 		velocity: number;

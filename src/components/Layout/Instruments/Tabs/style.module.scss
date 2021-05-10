@@ -31,6 +31,7 @@
             @include center;
             background-color: $blue;
             border-top-right-radius: 0.5rem;
+            @include shadow(0.2rem, 0, 0.3rem);
             // border-bottom-right-radius: 0.3rem;
             list-style: none;
             cursor: pointer;

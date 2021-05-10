@@ -1,4 +1,5 @@
 import EventEmitter from 'eventemitter3';
+import { effectTypes } from '../store/Track';
 
 export enum triggEventTypes {
     ADD_TRACK = 'ADD_TRACK',

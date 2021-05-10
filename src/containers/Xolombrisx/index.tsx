@@ -64,8 +64,8 @@ export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArra
             return new Tone.PolySynth(Tone.MetalSynth, options);
         case xolombrisxInstruments.NOISESYNTH:
             return new Tone.NoiseSynth(options);
-        case xolombrisxInstruments.PLUCKSYNTH:
-            return new Tone.PluckSynth(options);
+        // case xolombrisxInstruments.PLUCKSYNTH:
+        //     return new Tone.PluckSynth(options);
         case xolombrisxInstruments.DRUMRACK:
             // return new DrumRackInstrument(opt)
             return new DrumRackInstrument(options)

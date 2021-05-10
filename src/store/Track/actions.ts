@@ -90,7 +90,7 @@ export function updateInstrumentState(
 }
 
 export function updateEffectState(
-	track: number,
+	trackIndex: number,
 	options: effectsInitials,
 	fxIndex: number,
 ): trackActionTypes {
@@ -98,7 +98,7 @@ export function updateEffectState(
 		type: trackActions.UPDATE_EFFECT_STATE,
 		payload: {
 			fxIndex: fxIndex,
-			trackIndex: track,
+			trackIndex: trackIndex,
 			options: options,
 		}
 	}
@@ -180,8 +180,8 @@ export function selectMidiChannel(
 
 export function addEffect(
 	fxIndex: number,
+	trackIndex: number,
 	effect: effectTypes,
-	trackIndex: number
 ): trackActionTypes {
 	return {
 		type: trackActions.ADD_EFFECT,

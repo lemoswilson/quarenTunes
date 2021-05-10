@@ -47,7 +47,7 @@ const Tabs: React.FC<TabsProps> = ({
                 top: 0,
             }}
         >
-            <OptionList label={'Add instrument'} list={Object.values(xolombrisxInstruments)} onAction={onAction} selected={''}/>
+            <OptionList label={'new'} list={Object.values(xolombrisxInstruments)} onAction={onAction} selected={''}/>
         </ul>
     )
     const menuContext = useContext(MenuContext)

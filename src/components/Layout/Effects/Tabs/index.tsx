@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useContext, useRef, useState, useEffect } from 'react';
+import React, { MutableRefObject, useContext, useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { effectTypes } from '../../../../store/Track';
 import MenuButton from '../../Instruments/Tabs/MenuButton';
 import styles from './style.module.scss';
@@ -10,6 +10,7 @@ import mais from '../../../../assets/plus.svg'
 import optionListStyles from '../../Instruments/Tabs/optionList.module.scss';
 import instrumentMenuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
 import instrumentTabStyles from '../../Instruments/Tabs/style.module.scss';
+import RemoveEntry from './removeEntry';
 
 interface TabsProps {
     type: effectTypes,
@@ -35,12 +36,23 @@ const Tabs: React.FC<TabsProps> = ({
     const [isMenuOpen, setMenu] = useState(false);
 
     const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
-    const liRef: MutableRefObject<HTMLLIElement | null> = useRef(null);
 
     const menuContext = useContext(MenuContext);
+
+    useEffect(() => {
+        console.log(`effect tab, track index ${trackIndex}, effect index ${fxIndex}`)
+
+        return () => {
+            console.log(`unmounting effect tab, track index ${trackIndex}, effect index ${fxIndex}`)
+        }
+    }, [])
     
-    const _removeEffect = () => {
-        removeEffect(fxIndex, trackIndex);
+    function _removeEffect(this: HTMLLIElement, e: MouseEvent){
+        e.stopPropagation() 
+        // if (fxCount > 1) {
+            console.log('should be removing effect'); 
+            removeEffect(fxIndex, trackIndex);
+        // }
     }
 
     const toggleAddMenu = () => {
@@ -74,6 +86,7 @@ const Tabs: React.FC<TabsProps> = ({
     }
 
     function openEffectMenu(this: SVGSVGElement, e: MouseEvent){
+        console.log('openEffectMenuCalled');
         e.stopPropagation()
         const id = menuContext.current?.[0]
         if (!id) {
@@ -93,6 +106,10 @@ const Tabs: React.FC<TabsProps> = ({
         }
     }
 
+    const chombris = () => {
+        console.log('chombris');
+    }
+
     useEffect(() => {
         const div = divRef.current
         div?.addEventListener('click', openAddMenu)
@@ -101,13 +118,24 @@ const Tabs: React.FC<TabsProps> = ({
         }
     }, [])
 
-    useEffect(() => {
-        const li = divRef.current
-        li?.addEventListener('click', _removeEffect)
-        return () => {
-            li?.removeEventListener('click', _removeEffect)
-        }
-    }, [])
+    // useLayoutEffect(() => {
+    //         const li = liRef.current
+    //         li?.addEventListener('click', _removeEffect)
+    //     return () => {
+    //         li?.removeEventListener('click', _removeEffect)
+    //     }
+    // }, [])
+
+    // useEffect(() => {
+    //     const li = liRef.current
+    //     console.log('should be adding event listener, li is ', li);
+    //     li?.addEventListener('click', _removeEffect)
+    //     // li?.addEventListener('click', chombris)
+    //     return () => {
+    //         li?.removeEventListener('click', _removeEffect)
+    //         // li?.removeEventListener('click', chombris)
+    //     }
+    // }, [])
 
     const onAction = (item: effectTypes) => {
         insertEffect(item, trackIndex, fxIndex)
@@ -134,14 +162,17 @@ const Tabs: React.FC<TabsProps> = ({
         </ul>
     )
 
+
     const effectMenu = (
         <ul 
+        className={instrumentMenuStyles.menu} 
             style={{
-                // left: '3rem',
-                // top: '1rem',
-                transform: 'rotate(-90deg)'
+                // right: '5rem',
+                left: '-4rem',
+                top: '3rem',
+                transform: 'rotate(-90deg)',
+                marginBottom: '1rem'
             }} 
-            className={instrumentMenuStyles.menu} 
         >
             <OptionList 
                 // open={instrumentListOpen}
@@ -150,18 +181,22 @@ const Tabs: React.FC<TabsProps> = ({
                 onAction={onSelectAction} 
                 selected={type}
             />
-            {
+            <RemoveEntry 
+                className={optionListStyles.listElement}
+                fxCount={fxCount} 
+                removeEffect={_removeEffect}
+            />
+            {/* {
                 fxCount > 1 
                 ? <li 
                     ref={liRef}
                     style={{border: 'none' , cursor: 'pointer'}} 
-                    className={optionListStyles.listElement} 
-                    // onClick={removeInstrument}
+                    className={`${optionListStyles.listElement}` } 
                 >
                     <span style={{width: '0.6rem'}}></span>Remove Effect
                 </li>
                 : null
-            }
+            } */}
         </ul>
     ) 
 

@@ -794,8 +794,8 @@ const Sequencer: FunctionComponent = () => {
                 console.log('trackIndex', selectedTrkIndex);
                 // t.triggerAttackRelease(patternNoteLength, undefined, activePatternObj.tracks[ref_selectedTrkIndex.current].velocity)
                 t.triggerAttackRelease(patternNoteLength)
-            } else if (voice === xolombrisxInstruments.PLUCKSYNTH) {
-                ref_toneObjects?.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
+            // } else if (voice === xolombrisxInstruments.PLUCKSYNTH) {
+            //     ref_toneObjects?.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             } else if (voice === xolombrisxInstruments.FMSYNTH || voice === xolombrisxInstruments.AMSYNTH) {
                 console.log('should be playing note with fm or am synth');
                 ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.connect(ref_toneObjects.current?.tracks[selectedTrkIndex].chain.in)
