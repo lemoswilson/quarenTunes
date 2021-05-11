@@ -12,6 +12,8 @@ import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/de
 export interface CompressorProps {
     // options: initialsArray,
     options: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
@@ -29,6 +31,8 @@ const Compressor: React.FC<CompressorProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -91,7 +95,8 @@ const Compressor: React.FC<CompressorProps> = ({
                 removePropertyLock={removeEffectPropertyLocks.attack}
                 label={'Attack'}
                 max={attack[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('attack') }}
+                ccMap={getNested(ccMaps.current, 'attack')}
                 min={attack[1][0]}
                 type={'knob'}
                 unit={attack[2]}
@@ -108,7 +113,8 @@ const Compressor: React.FC<CompressorProps> = ({
                 removePropertyLock={removeEffectPropertyLocks.ratio}
                 label={'Ratio'}
                 max={ratio[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('ratio') }}
+                ccMap={getNested(ccMaps.current, 'ratio')}
                 curve={ratio[4]}
                 min={ratio[1][0]}
                 type={'knob'}
@@ -124,7 +130,8 @@ const Compressor: React.FC<CompressorProps> = ({
                 label={'Threshold'}
                 removePropertyLock={removeEffectPropertyLocks.threshold}
                 max={threshold[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('threshold') }}
+                ccMap={getNested(ccMaps.current, 'threshold')}
                 min={threshold[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}
@@ -141,7 +148,8 @@ const Compressor: React.FC<CompressorProps> = ({
                 tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 removePropertyLock={removeEffectPropertyLocks.release}
                 max={release[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('release') }}
+                ccMap={getNested(ccMaps.current, 'release')}
                 min={release[1][0]}
                 curve={release[4]}
                 type={'knob'}
@@ -157,7 +165,8 @@ const Compressor: React.FC<CompressorProps> = ({
                 label={'Knee'}
                 removePropertyLock={removeEffectPropertyLocks.knee}
                 max={knee[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('knee') }}
+                ccMap={getNested(ccMaps.current, 'knee')}
                 min={knee[1][0]}
                 type={'knob'}
                 curve={knee[4]}

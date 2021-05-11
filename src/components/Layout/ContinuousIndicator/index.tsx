@@ -18,7 +18,9 @@ interface continuousIndicator {
     removePropertyLock: () => void;
     valueUpdateCallback: (value: any) => void;
     label: string;
-    midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
+    // midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
+    // midiLearn: (property: string) => void,
+    midiLearn: () => void,
     type: 'knob' | 'slider';
     detail?: 'port' | 'detune' | 'envelopeZero' | 'volume'
     unit: string;
@@ -26,6 +28,7 @@ interface continuousIndicator {
     curve?: curveTypes;
     indicatorId: string,
     ccMap?: any,
+    property?: string,
     keyFunction?: (value: number | '*') => number | '*',
 }
 
@@ -79,6 +82,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     ccMap,
     type,
     unit,
+    property,
     indicatorId
 }) => {
     const [isMoving, setMovement] = useState(false)
@@ -107,13 +111,20 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         }
     };
 
+    const learn = () => {
+        // toggleMenu();
+        MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
+        midiLearn();
+    }
+
 
     const menuOptions = [
         ['Set value', toggleInput], 
         [
             ccMap 
             ? `Unmap from CC ${ccMap.cc}` 
-            : 'Map to CC', midiLearn
+            : 'Map to CC', learn
+            // : 'Map to CC', learn
         ]
     ]
 

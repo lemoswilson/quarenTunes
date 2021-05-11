@@ -7,6 +7,7 @@ import { event } from '../../../../store/Sequencer';
 import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/defaults';
 import SteppedIndicator from '../../SteppedIndicator';
 import WaveformSelector from '../../WaveformSelector';
+import { effectLayoutProps } from '../../../../containers/Track/Effects'
 
 export interface AutoFilterProps {
     // options: initialsArray,
@@ -23,11 +24,13 @@ export interface AutoFilterProps {
     properties: any[];
 }
 
-const AutoFilter: React.FC<AutoFilterProps> = ({
+const AutoFilter: React.FC<effectLayoutProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -103,7 +106,8 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                     label={'DryWet'}
                     removePropertyLock={removeEffectPropertyLocks.wet}
                     max={wet[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('wet') }}
+                    ccMap={getNested(ccMaps.current, 'wet')}
                     min={wet[1][0]}
                     keyFunction={getPercentage}
                     type={'knob'}
@@ -121,7 +125,8 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                     label={'Frequency'}
                     removePropertyLock={removeEffectPropertyLocks.frequency}
                     max={frequency[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('frequency') }}
+                    ccMap={getNested(ccMaps.current, 'frequency')}
                     min={frequency[1][0]}
                     type={'knob'}
                     curve={frequency[4]}
@@ -139,7 +144,8 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                         label={'Depth'}
                         removePropertyLock={removeEffectPropertyLocks.depth}
                         max={depth[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('depth') }}
+                        ccMap={getNested(ccMaps.current, 'depth')}
                         min={depth[1][0]}
                         type={'knob'}
                         curve={depth[4]}
@@ -157,7 +163,8 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                         className={styles.knob}
                         removePropertyLock={removeEffectPropertyLocks.octaves}
                         max={octaves[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('octaves') }}
+                        ccMap={getNested(ccMaps.current, 'octaves')}
                         min={octaves[1][0]}
                         type={'knob'}
                         curve={octaves[4]}
@@ -173,6 +180,7 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                     selectWaveform={(wave) => { propertyUpdateCallbacks.type(wave) }}
                     tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                     selected={options.type[0]}
+                    square={true}
                 />
             </div>
             <div className={styles.doubleKnob}>
@@ -184,7 +192,8 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                         label={'baseFreq'}
                         removePropertyLock={removeEffectPropertyLocks.baseFrequency}
                         max={baseFreq[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('baseFrequency') }}
+                        ccMap={getNested(ccMaps.current, 'baseFrequency')}
                         min={baseFreq[1][0]}
                         type={'knob'}
                         curve={baseFreq[4]}
@@ -220,7 +229,8 @@ const AutoFilter: React.FC<AutoFilterProps> = ({
                         label={'Q'}
                         removePropertyLock={removeEffectPropertyLocks.filter.Q}
                         max={Q[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('filter.Q') }}
+                        ccMap={getNested(ccMaps.current, 'filter.Q')}
                         min={Q[1][0]}
                         type={'knob'}
                         curve={Q[4]}

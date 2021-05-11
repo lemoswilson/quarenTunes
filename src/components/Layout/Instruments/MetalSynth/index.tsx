@@ -13,6 +13,8 @@ export interface MetalSynthProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void;
     removePropertyLocks: any,
     propertyUpdateCallbacks: any,
     index: number,
@@ -27,6 +29,8 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
     options,
     removePropertyLocks,
     trackId,
+    ccMaps,
+    midiLearn,
     events,
     properties,
     selected,
@@ -98,9 +102,10 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Attack'}
                                     max={envelopeAttack[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.attack')}}
                                     min={envelopeAttack[1][0]}
                                     type={'knob'}
+                                    ccMap={getNested(ccMaps.current, 'envelope.attack')}
                                     unit={envelopeAttack[2]}
                                     removePropertyLock={removePropertyLocks.envelope.attack}
                                     value={getPropertyValue('envelope.attack')}
@@ -111,10 +116,11 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 />
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.decay}
+                                    ccMap={getNested(ccMaps.current, 'envelope.decay')}
                                     selectedLock={false}
                                     label={'Decay'}
                                     max={envelopeDecay[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.decay')}}
                                     curve={envelopeDecay[4]}
                                     min={envelopeDecay[1][0]}
                                     type={'knob'}
@@ -131,9 +137,10 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 <ContinuousIndicator
                                     ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
                                     selectedLock={false}
+                                    ccMap={getNested(ccMaps.current, 'envelope.sustain')}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.sustain')}}
                                     min={envelopeSustain[1][0]}
                                     removePropertyLock={removePropertyLocks.envelope.sustain}
                                     detail={'envelopeZero'}
@@ -152,7 +159,8 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     label={'Release'}
                                     max={envelopeRelease[1][1]}
                                     tabIndex={widgetTabIndexTrkStart + index}
-                                    midiLearn={() => { }}
+                                    ccMap={getNested(ccMaps.current, 'envelope.release')}
+                                    midiLearn={() => { midiLearn('envelope.release')}}
                                     removePropertyLock={removePropertyLocks.envelope.release}
                                     min={envelopeRelease[1][0]}
                                     curve={envelopeRelease[4]}
@@ -180,7 +188,8 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     label={'Octaves'}
                                     max={octaves[1][1]}
                                     tabIndex={widgetTabIndexTrkStart + index}
-                                    midiLearn={() => { }}
+                                    ccMap={getNested(ccMaps.current, 'octaves')}
+                                    midiLearn={() => { midiLearn('octaves')}}
                                     min={octaves[1][0]}
                                     type={'knob'}
                                     curve={octaves[4]}
@@ -194,9 +203,10 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.resonance}
                                     selectedLock={false}
                                     tabIndex={widgetTabIndexTrkStart + index}
+                                    ccMap={getNested(ccMaps.current, 'resonance')}
                                     label={'Resonance'}
                                     max={resonance[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('resonance')}}
                                     min={resonance[1][0]}
                                     type={'knob'}
                                     curve={resonance[4]}
@@ -225,7 +235,8 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 selectedLock={false}
                                 label={'Volume'}
                                 max={volume[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => { midiLearn('volume')}}
+                                ccMap={getNested(ccMaps.current, 'volume')}
                                 min={volume[1][0]}
                                 type={'slider'}
                                 detail={'volume'}
@@ -243,11 +254,12 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 selectedLock={false}
                                 label={'Harm'}
                                 max={harmonicity[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => { midiLearn('harmonicity')}}
                                 min={harmonicity[1][0]}
                                 type={'slider'}
                                 curve={harmonicity[4]}
                                 removePropertyLock={removePropertyLocks.harmonicity}
+                                ccMap={getNested(ccMaps.current, 'harmonicity')}
                                 unit={harmonicity[2]}
                                 value={getPropertyValue('harmonicity')}
                                 indicatorId={`instrument${trackId}:harmonicity`}
@@ -260,11 +272,12 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 tabIndex={widgetTabIndexTrkStart + index}
                                 label={'modIdx'}
                                 max={modulationIndex[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => { midiLearn('modulationIndex')}}
                                 min={modulationIndex[1][0]}
                                 type={'slider'}
                                 curve={modulationIndex[4]}
                                 unit={modulationIndex[2]}
+                                ccMap={getNested(ccMaps.current, 'modulationIndex')}
                                 value={getPropertyValue('modulationIndex')}
                                 indicatorId={`instrument${trackId}:modulationIndex`}
                                 valueUpdateCallback={propertyUpdateCallbacks.modulationIndex}
@@ -279,7 +292,8 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 tabIndex={widgetTabIndexTrkStart + index}
                                 label={'Detune'}
                                 max={detune[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => { midiLearn('detune')}}
+                                ccMap={getNested(ccMaps.current, 'detune')}
                                 min={detune[1][0]}
                                 type={'knob'}
                                 curve={detune[4]}
@@ -296,9 +310,10 @@ const MetalSynth: React.FC<MetalSynthProps> = ({
                                 selectedLock={false}
                                 label={'Portamento'}
                                 max={portamento[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => { midiLearn('portamento')}}
                                 min={portamento[1][0]}
                                 type={'knob'}
+                                ccMap={getNested(ccMaps.current, 'portamento')}
                                 detail={'port'}
                                 unit={portamento[2]}
                                 removePropertyLock={removePropertyLocks.portamento}

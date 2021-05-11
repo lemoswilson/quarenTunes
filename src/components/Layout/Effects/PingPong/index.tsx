@@ -17,6 +17,8 @@ export interface PingPongProps {
     propertyUpdateCallbacks: any,
     trackIndex: number,
     trackId: number,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     fxId: number,
     fxIndex: number,
     selected?: number[],
@@ -32,6 +34,8 @@ const PingPong: React.FC<PingPongProps> = ({
     trackIndex,
     trackId,
     fxIndex,
+    ccMaps,
+    midiLearn,
     fxId,
     events,
     properties,
@@ -96,7 +100,8 @@ const PingPong: React.FC<PingPongProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 // detail={'envelopeZero'}
@@ -114,7 +119,8 @@ const PingPong: React.FC<PingPongProps> = ({
                 label={'MaxDelay'}
                 removePropertyLock={removeEffectPropertyLocks.maxDelay}
                 max={maxDelay[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('maxDelay') }}
+                ccMap={getNested(ccMaps.current, 'maxDelay')}
                 min={maxDelay[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}
@@ -131,7 +137,8 @@ const PingPong: React.FC<PingPongProps> = ({
                 label={'DelayTime'}
                 removePropertyLock={removeEffectPropertyLocks.delayTime}
                 max={delayTime[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('delayTime') }}
+                ccMap={getNested(ccMaps.current, 'delayTime')}
                 min={delayTime[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}
@@ -148,7 +155,8 @@ const PingPong: React.FC<PingPongProps> = ({
                 label={'Feedback'}
                 removePropertyLock={removeEffectPropertyLocks.feedback}
                 max={feedback[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('feedback') }}
+                ccMap={getNested(ccMaps.current, 'feedback')}
                 min={feedback[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}

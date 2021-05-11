@@ -12,22 +12,23 @@ import RedSine from './RedSine';
 import RedTriangle from './RedTriangle';
 import Button from './Button';
 
-type wave = 'sine' | 'sawtooth' | 'pulse' | 'triangle';
+type wave = 'sine' | 'sawtooth' | 'pulse' | 'triangle' | 'square';
 
 interface WaveformSelectorProps {
     selected: wave;
     selectWaveform: (wave: wave) => void;
     className?: string,
     tabIndex: number,
+    square?: boolean,
 }
 
-const WaveformSelector: React.FC<WaveformSelectorProps> = ({ tabIndex, selectWaveform, selected, className }) => {
+const WaveformSelector: React.FC<WaveformSelectorProps> = ({ tabIndex, selectWaveform, selected, className, square }) => {
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
     const sine = selected === 'sine' ? [<RedSine></RedSine>, redButton] : [<GraySine></GraySine>, grayButton];
     const saw = selected === 'sawtooth' ? [<RedSaw></RedSaw>, redButton] : [<GraySaw></GraySaw>, grayButton];
-    const square = selected === 'pulse' ? [<RedSquare></RedSquare>, redButton] : [<GraySquare></GraySquare>, grayButton];
+    const pulse = selected === 'pulse' || selected === 'square' ? [<RedSquare></RedSquare>, redButton] : [<GraySquare></GraySquare>, grayButton];
     const triangle = selected === 'triangle' ? [<RedTriangle></RedTriangle>, redButton] : [<GrayTriangle></GrayTriangle>, grayButton];
 
     return (
@@ -59,11 +60,11 @@ const WaveformSelector: React.FC<WaveformSelectorProps> = ({ tabIndex, selectWav
                     </div>
                 </div>
                 <div tabIndex={tabIndex} className={styles.box}>
-                    <div onClick={() => selectWaveform('pulse')} className={styles.button}>
-                        {square[1]}
+                    <div onClick={() => selectWaveform(square ? 'square' : 'pulse')} className={styles.button}>
+                        {pulse[1]}
                     </div>
-                    <div onClick={() => selectWaveform('pulse')} className={styles.waveform}>
-                        {square[0]}
+                    <div onClick={() => selectWaveform(square ? 'square' : 'pulse')} className={styles.waveform}>
+                        {pulse[0]}
                     </div>
                 </div>
             </div>

@@ -14,6 +14,8 @@ export interface PitchShifterProps {
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     trackId: number,
     fxId: number,
     fxIndex: number,
@@ -29,6 +31,8 @@ const PitchShifter: React.FC<PitchShifterProps> = ({
     removeEffectPropertyLocks,
     trackIndex,
     trackId,
+    ccMaps,
+    midiLearn,
     fxIndex,
     fxId,
     events,
@@ -97,7 +101,8 @@ const PitchShifter: React.FC<PitchShifterProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -115,7 +120,8 @@ const PitchShifter: React.FC<PitchShifterProps> = ({
                 label={'Pitch'}
                 removePropertyLock={removeEffectPropertyLocks.pitch}
                 max={pitch[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('detune') }}
+                ccMap={getNested(ccMaps.current, 'detune')}
                 min={pitch[1][0]}
                 type={'knob'}
                 curve={pitch[4]}
@@ -131,7 +137,8 @@ const PitchShifter: React.FC<PitchShifterProps> = ({
                 label={'Feedback'}
                 removePropertyLock={removeEffectPropertyLocks.feedback}
                 max={feedback[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('feedback') }}
+                ccMap={getNested(ccMaps.current, 'feedback')}
                 min={feedback[1][0]}
                 type={'knob'}
                 curve={feedback[4]}
@@ -147,7 +154,8 @@ const PitchShifter: React.FC<PitchShifterProps> = ({
                 label={'delayTime'}
                 removePropertyLock={removeEffectPropertyLocks.delayTime}
                 max={delayTime[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('delayTime') }}
+                ccMap={getNested(ccMaps.current, 'delayTime')}
                 min={delayTime[1][0]}
                 type={'knob'}
                 curve={delayTime[4]}
@@ -163,7 +171,8 @@ const PitchShifter: React.FC<PitchShifterProps> = ({
                 label={'windowSize'}
                 removePropertyLock={removeEffectPropertyLocks.windowSize}
                 max={windowSize[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('windowSize') }}
+                ccMap={getNested(ccMaps.current, 'windowSize')}
                 min={windowSize[1][0]}
                 type={'knob'}
                 curve={windowSize[4]}

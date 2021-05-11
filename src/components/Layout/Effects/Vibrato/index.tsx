@@ -7,26 +7,15 @@ import { event } from '../../../../store/Sequencer';
 import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/defaults';
 import SteppedIndicator from '../../SteppedIndicator';
 import WaveformSelector from '../../WaveformSelector';
+import { effectLayoutProps } from '../../../../containers/Track/Effects'
 
-export interface VibratoProps {
-    // options: initialsArray,
-    options: any,
-    calcCallbacks: any,
-    removeEffectPropertyLocks: any,
-    propertyUpdateCallbacks: any,
-    trackIndex: number,
-    trackId: number,
-    fxId: number,
-    fxIndex: number,
-    selected?: number[],
-    events: event[],
-    properties: any[];
-}
 
-const Vibrato: React.FC<VibratoProps> = ({
+const Vibrato: React.FC<effectLayoutProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
+    ccMaps,
+    midiLearn,
     removeEffectPropertyLocks,
     trackIndex,
     trackId,
@@ -100,7 +89,8 @@ const Vibrato: React.FC<VibratoProps> = ({
                     label={'DryWet'}
                     removePropertyLock={removeEffectPropertyLocks.wet}
                     max={wet[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('wet') }}
+                    ccMap={getNested(ccMaps.current, 'wet')}
                     min={wet[1][0]}
                     keyFunction={getPercentage}
                     type={'knob'}
@@ -118,7 +108,8 @@ const Vibrato: React.FC<VibratoProps> = ({
                     label={'Frequency'}
                     removePropertyLock={removeEffectPropertyLocks.frequency}
                     max={frequency[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('frequency') }}
+                    ccMap={getNested(ccMaps.current, 'frequency')}
                     min={frequency[1][0]}
                     type={'knob'}
                     curve={frequency[4]}
@@ -136,7 +127,8 @@ const Vibrato: React.FC<VibratoProps> = ({
                         label={'Depth'}
                         removePropertyLock={removeEffectPropertyLocks.depth}
                         max={depth[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('depth') }}
+                        ccMap={getNested(ccMaps.current, 'depth')}
                         min={depth[1][0]}
                         type={'knob'}
                         curve={depth[4]}
@@ -170,6 +162,7 @@ const Vibrato: React.FC<VibratoProps> = ({
                     selectWaveform={(wave) => { propertyUpdateCallbacks.type(wave) }}
                     tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                     selected={options.type[0]}
+                    square={true}
                 />
             </div>
             <div className={styles.doubleKnob}>
@@ -181,7 +174,8 @@ const Vibrato: React.FC<VibratoProps> = ({
                     label={'maxDelay'}
                     removePropertyLock={removeEffectPropertyLocks.maxDelay}
                     max={maxDelay[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('maxDelay') }}
+                    ccMap={getNested(ccMaps.current, 'maxDelay')}
                     min={maxDelay[1][0]}
                     type={'knob'}
                     curve={maxDelay[4]}
@@ -200,7 +194,8 @@ const Vibrato: React.FC<VibratoProps> = ({
                         // className={styles.knob}
                         removePropertyLock={removeEffectPropertyLocks.spread}
                         max={spread[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('spread') }}
+                        ccMap={getNested(ccMaps.current, 'spread')}
                         min={spread[1][0]}
                         type={'knob'}
                         curve={spread[4]}

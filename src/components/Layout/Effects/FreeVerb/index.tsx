@@ -11,6 +11,8 @@ export interface FreeVerbProps {
     options: any,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     propertyUpdateCallbacks: any,
     trackIndex: number,
     trackId: number,
@@ -27,6 +29,8 @@ const FreeVerb: React.FC<FreeVerbProps> = ({
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
     trackIndex,
+    ccMaps,
+    midiLearn,
     trackId,
     fxIndex,
     fxId,
@@ -94,7 +98,8 @@ const FreeVerb: React.FC<FreeVerbProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -111,7 +116,8 @@ const FreeVerb: React.FC<FreeVerbProps> = ({
                 label={'Dampening'}
                 removePropertyLock={removeEffectPropertyLocks.dampening}
                 max={dampening[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('dampening') }}
+                ccMap={getNested(ccMaps.current, 'dampening')}
                 min={dampening[1][0]}
                 type={'knob'}
                 curve={dampening[4]}

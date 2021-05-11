@@ -14,6 +14,8 @@ export interface PhaserProps {
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     trackId: number,
     fxId: number,
     fxIndex: number,
@@ -29,6 +31,8 @@ const Phaser: React.FC<PhaserProps> = ({
     removeEffectPropertyLocks,
     trackIndex,
     trackId,
+    ccMaps,
+    midiLearn,
     fxIndex,
     fxId,
     events,
@@ -98,7 +102,8 @@ const Phaser: React.FC<PhaserProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -115,7 +120,8 @@ const Phaser: React.FC<PhaserProps> = ({
                 label={'octaves'}
                 removePropertyLock={removeEffectPropertyLocks.octaves}
                 max={octaves[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('octaves') }}
+                ccMap={getNested(ccMaps.current, 'octaves')}
                 min={octaves[1][0]}
                 type={'knob'}
                 curve={octaves[4]}
@@ -131,7 +137,8 @@ const Phaser: React.FC<PhaserProps> = ({
                 label={'Frequency'}
                 removePropertyLock={removeEffectPropertyLocks.frequency}
                 max={frequency[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('frequency') }}
+                ccMap={getNested(ccMaps.current, 'frequency')}
                 min={frequency[1][0]}
                 type={'knob'}
                 curve={frequency[4]}
@@ -147,7 +154,8 @@ const Phaser: React.FC<PhaserProps> = ({
                 label={'baseFreq'}
                 removePropertyLock={removeEffectPropertyLocks.baseFrequency}
                 max={baseFreq[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('baseFrequency') }}
+                ccMap={getNested(ccMaps.current, 'baseFrequency')}
                 min={baseFreq[1][0]}
                 type={'knob'}
                 curve={baseFreq[4]}
@@ -163,7 +171,8 @@ const Phaser: React.FC<PhaserProps> = ({
                 label={'Q'}
                 removePropertyLock={removeEffectPropertyLocks.Q}
                 max={Q[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('Q') }}
+                ccMap={getNested(ccMaps.current, 'Q')}
                 min={Q[1][0]}
                 type={'knob'}
                 curve={Q[4]}

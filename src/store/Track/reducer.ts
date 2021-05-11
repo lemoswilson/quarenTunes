@@ -175,6 +175,8 @@ export function trackReducer(
 				draft.tracks[action.payload.trackIndex].midi.device = action.payload.device;
 				if (action.payload.device === 'onboardKey')
 					draft.tracks[action.payload.trackIndex].midi.channel = 'all'
+				else
+					draft.tracks[action.payload.trackIndex].midi.channel = undefined;
 				break;
 			case trackActions.SELECT_INSTRUMENT:
 				draft.selectedTrack = action.payload.trackIndex;
@@ -283,7 +285,6 @@ export function trackReducer(
 					action.payload.isContinuous,
 					action.payload.fx
 				]
-				console.log(`inc dec effect prop, track index: ${trackIndex}, fxIndex: ${fxIndex}`)
 				const fxRangeOrOptions = getNested(draft.tracks[trackIndex].fx[fxIndex].options, property)
 				let fxVal;
 				if (isContinuous) {
@@ -305,11 +306,6 @@ export function trackReducer(
 					setNestedArray(draft.tracks[trackIndex].fx[fxIndex].options, property, fxVal)
 				}
 				break;
-			// case trackActions.ENVELOPE_ATTACK:
-			// 	[index, movement] = [action.payload.index, action.payload.amount]
-			// 	let vi = state.tracks[index].options.envelope.attack;
-			// 	draft.tracks[index].options.envelope.attack[0] = Number(valueFromMouse(vi[0], movement, vi[1][0], vi[1][1], curveTypes.EXPONENTIAL).toFixed(4))
-			// 	break;
 			case trackActions.UPDATE_ENVELOPE_CURVE:
 				[trackIndex, target, curve] = [action.payload.trackIndex, action.payload.target, action.payload.curve]
 				draft.tracks[trackIndex].options[target].decayCurve[0] = curve

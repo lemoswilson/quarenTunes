@@ -64,7 +64,7 @@ const InstrumentMenu: React.FC<MenuProps> = ({
             <OptionList 
                 // open={midiChannelListOpen}
                 label={'Midi Channel'} 
-                list={midi.device !== 'onboardKey' ? startEndRange(1, 16) : []} 
+                list={midi.device !== 'onboardKey' ? startEndRange(1, 16) : ['all']} 
                 onAction={setMIDIChannel} 
                 selected={midiChannel}
             />

@@ -15,7 +15,9 @@ export interface MembraneSynthProps {
     options: any,
     calcCallbacks: any,
     removePropertyLocks: any,
+    ccMaps: any,
     propertyUpdateCallbacks: any,
+    midiLearn: (property: string) => void,
     index: number,
     trackId: number,
     events: event[],
@@ -28,6 +30,8 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
     options,
     events,
     trackId,
+    ccMaps,
+    midiLearn,
     properties,
     removePropertyLocks,
     selected,
@@ -104,7 +108,8 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     removePropertyLock={removePropertyLocks.envelope.attack}
                                     label={'Attack'}
                                     max={envelopeAttack[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.attack') }}
+                                    ccMap={getNested(ccMaps.current, 'envelope.attack')}
                                     min={envelopeAttack[1][0]}
                                     type={'knob'}
                                     unit={envelopeAttack[2]}
@@ -120,7 +125,8 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     label={'Decay'}
                                     removePropertyLock={removePropertyLocks.envelope.decay}
                                     max={envelopeDecay[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.decay') }}
+                                    ccMap={getNested(ccMaps.current, 'envelope.decay')}
                                     curve={envelopeDecay[4]}
                                     min={envelopeDecay[1][0]}
                                     type={'knob'}
@@ -139,12 +145,13 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     selectedLock={false}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.sustain') }}
                                     min={envelopeSustain[1][0]}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     detail={'envelopeZero'}
                                     type={'knob'}
                                     curve={envelopeSustain[4]}
+                                    ccMap={getNested(ccMaps.current, 'envelope.sustain')}
                                     unit={envelopeSustain[2]}
                                     value={getPropertyValue('envelope.sustain')}
                                     indicatorId={`instrument${trackId}:envelope.sustain`}
@@ -158,8 +165,9 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.release}
                                     max={envelopeRelease[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('envelope.release') }}
                                     min={envelopeRelease[1][0]}
+                                    ccMap={getNested(ccMaps.current, 'envelope.release')}
                                     curve={envelopeRelease[4]}
                                     type={'knob'}
                                     unit={envelopeRelease[2]}
@@ -190,10 +198,11 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.detune}
                                     selectedLock={false}
                                     label={'Detune'}
+                                    ccMap={getNested(ccMaps.current, 'detune')}
                                     removePropertyLock={removePropertyLocks.detune}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     max={detune[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('detune') }}
                                     min={detune[1][0]}
                                     type={'knob'}
                                     curve={detune[4]}
@@ -210,8 +219,9 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                     label={'Portamento'}
                                     max={portamento[1][1]}
                                     removePropertyLock={removePropertyLocks.portamento}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => { midiLearn('portamento') }}
                                     min={portamento[1][0]}
+                                    ccMap={getNested(ccMaps.current, 'portamento')}
                                     type={'knob'}
                                     detail={'port'}
                                     unit={portamento[2]}
@@ -229,7 +239,8 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                                 removePropertyLock={removePropertyLocks.volume}
                                 label={'Volume'}
                                 max={volume[1][1]}
-                                midiLearn={() => { }}
+                                ccMap={getNested(ccMaps.current, 'volume')}
+                                midiLearn={() => { midiLearn('volume') }}
                                 min={volume[1][0]}
                                 type={'slider'}
                                 detail={'volume'}
@@ -252,7 +263,8 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             label={'Octaves'}
                             tabIndex={widgetTabIndexTrkStart + index}
                             max={octaves[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('octaves') }}
+                            ccMap={getNested(ccMaps.current, 'octaves')}
                             min={octaves[1][0]}
                             type={'knob'}
                             removePropertyLock={removePropertyLocks.octaves}
@@ -267,7 +279,8 @@ const MembraneSynth: React.FC<MembraneSynthProps> = ({
                             selectedLock={false}
                             label={'pitchDecay'}
                             max={pitchDecay[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('pitchDecay') }}
+                            ccMap={getNested(ccMaps.current, 'pitchDecay')}
                             min={pitchDecay[1][0]}
                             tabIndex={widgetTabIndexTrkStart + index}
                             type={'knob'}

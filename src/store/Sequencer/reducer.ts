@@ -12,7 +12,7 @@ import { RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions, trackActions } from "../Track";
 
 const initialTrack = {
-	events: Array(16).fill({ instrument: { note: [] }, fx: [], offset: 0 }),
+	events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
 	// events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
 	length: 16,
 	noteLength: "16n",
@@ -542,6 +542,7 @@ export function sequencerReducer(
 					]
 				const prevValueFX = getNested(draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex], property)
 				let valFx;
+				console.log('should be locking effect')
 
 				if (isContinuous) {
 					valFx = cc ? valueFromCC(movement, effectValues[1][0], effectValues[1][1], effectValues[4])

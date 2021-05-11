@@ -16,6 +16,8 @@ export interface ModulationSynthProps {
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
     removePropertyLocks: any,
+    midiLearn: (property: string) => void,
+    ccMaps: any,
     index: number,
     trackId: number,
     events: event[],
@@ -29,6 +31,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
     options,
     removePropertyLocks,
     events,
+    ccMaps,
+    midiLearn,
     properties,
     selected,
     voice,
@@ -36,6 +40,7 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
     index,
     trackId,
 }) => {
+
     const dispatch = useDispatch()
     const envelopeAttack = options.envelope.attack;
     const envelopeDecay = options.envelope.decay;
@@ -97,7 +102,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                     selectedLock={false}
                     label={'ModIdx'}
                     max={modulationIndex[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => {midiLearn('modulationIndex')}}
+                    ccMap={getNested(ccMaps.current, 'modulationIndex')}
                     min={modulationIndex[1][0]}
                     removePropertyLock={removePropertyLocks.modulationIndex}
                     type={'slider'}
@@ -124,9 +130,10 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.attack}
                                     label={'Attack'}
                                     max={envelopeAttack[1][1]}
+                                    ccMap={getNested(ccMaps.current, 'envelope.attack')}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.attack}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('envelope.attack')}}
                                     min={envelopeAttack[1][0]}
                                     type={'knob'}
                                     unit={envelopeAttack[2]}
@@ -143,7 +150,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     max={envelopeDecay[1][1]}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.envelope.decay}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('envelope.decay')}}
+                                    ccMap={getNested(ccMaps.current, 'envelope.decay')}
                                     curve={envelopeDecay[4]}
                                     min={envelopeDecay[1][0]}
                                     type={'knob'}
@@ -161,7 +169,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('envelope.sustain')}}
+                                    ccMap={getNested(ccMaps.current, 'envelope.sustain')}
                                     min={envelopeSustain[1][0]}
                                     detail={'envelopeZero'}
                                     type={'knob'}
@@ -179,8 +188,9 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     label={'Release'}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     max={envelopeRelease[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('envelope.release')}}
                                     removePropertyLock={removePropertyLocks.envelope.release}
+                                    ccMap={getNested(ccMaps.current, 'envelope.release')}
                                     min={envelopeRelease[1][0]}
                                     curve={envelopeRelease[4]}
                                     type={'knob'}
@@ -214,7 +224,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Detune'}
                                     max={detune[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('detune')}}
+                                    ccMap={getNested(ccMaps.current, 'envelope.detune')}
                                     min={detune[1][0]}
                                     type={'knob'}
                                     curve={detune[4]}
@@ -232,7 +243,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     label={'Portamento'}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     max={portamento[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('portamento')}}
+                                    ccMap={getNested(ccMaps.current, 'portamento')}
                                     min={portamento[1][0]}
                                     type={'knob'}
                                     detail={'port'}
@@ -251,7 +263,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 tabIndex={widgetTabIndexTrkStart + index}
                                 label={'Volume'}
                                 max={volume[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => {midiLearn('volume')}}
+                                ccMap={getNested(ccMaps.current, 'volume')}
                                 min={volume[1][0]}
                                 removePropertyLock={removePropertyLocks.volume}
                                 type={'slider'}
@@ -277,7 +290,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.attack}
                                     label={'Attack'}
                                     max={modulationEnvelopeAttack[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('modulationEnvelope.attack')}}
+                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.attack')}
                                     min={modulationEnvelopeAttack[1][0]}
                                     type={'knob'}
                                     unit={modulationEnvelopeAttack[2]}
@@ -294,11 +308,12 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     label={'Decay'}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     max={modulationEnvelopeDecay[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('modulationEnvelope.decay')}}
                                     curve={modulationEnvelopeDecay[4]}
                                     removePropertyLock={removePropertyLocks.modulationEnvelope.decay}
                                     min={modulationEnvelopeDecay[1][0]}
                                     type={'knob'}
+                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.decay')}
                                     unit={modulationEnvelopeDecay[2]}
                                     value={getPropertyValue('modulationEnvelope.decay')}
                                     valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.decay}
@@ -314,7 +329,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     removePropertyLock={removePropertyLocks.modulationEnvelope.sustain}
                                     max={modulationEnvelopeSustain[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('modulationEnvelope.sustain')}}
+                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.sustain')}
                                     curve={modulationEnvelopeSustain[4]}
                                     min={modulationEnvelopeSustain[1][0]}
                                     type={'knob'}
@@ -331,7 +347,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                     label={'Release'}
                                     removePropertyLock={removePropertyLocks.modulationEnvelope.release}
                                     max={modulationEnvelopeRelease[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('modulationEnvelope.release')}}
+                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.release')}
                                     curve={modulationEnvelopeRelease[4]}
                                     min={modulationEnvelopeRelease[1][0]}
                                     type={'knob'}
@@ -365,7 +382,8 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                                 tabIndex={widgetTabIndexTrkStart + index}
                                 label={'Harm'}
                                 max={harmonicity[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => {midiLearn('harmonicity')}}
+                                ccMap={getNested(ccMaps.current, 'harmonicity')}
                                 min={harmonicity[1][0]}
                                 removePropertyLock={removePropertyLocks.harmonicity}
                                 type={'slider'}

@@ -14,6 +14,8 @@ export interface FeedbackDelayProps {
     options: any,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     propertyUpdateCallbacks: any,
     trackIndex: number,
     trackId: number,
@@ -29,6 +31,8 @@ const FeedbackDelay: React.FC<FeedbackDelayProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -96,7 +100,8 @@ const FeedbackDelay: React.FC<FeedbackDelayProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 // detail={'envelopeZero'}
@@ -114,7 +119,8 @@ const FeedbackDelay: React.FC<FeedbackDelayProps> = ({
                 label={'MaxDelay'}
                 removePropertyLock={removeEffectPropertyLocks.maxDelay}
                 max={maxDelay[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('maxDelay') }}
+                ccMap={getNested(ccMaps.current, 'maxDelay')}
                 min={maxDelay[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}
@@ -131,7 +137,8 @@ const FeedbackDelay: React.FC<FeedbackDelayProps> = ({
                 label={'DelayTime'}
                 removePropertyLock={removeEffectPropertyLocks.delayTime}
                 max={delayTime[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('delayTime') }}
+                ccMap={getNested(ccMaps.current, 'delayTime')}
                 min={delayTime[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}
@@ -148,7 +155,8 @@ const FeedbackDelay: React.FC<FeedbackDelayProps> = ({
                 label={'Feedback'}
                 removePropertyLock={removeEffectPropertyLocks.feedback}
                 max={feedback[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('feedback') }}
+                ccMap={getNested(ccMaps.current, 'feedback')}
                 min={feedback[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}

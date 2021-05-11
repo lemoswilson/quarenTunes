@@ -100,6 +100,7 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Attack'}
                                     removePropertyLock={removePropertyLocks.envelope.attack}
+                                    ccMap={getNested(ccMap.current, 'envelope.attack')}
                                     max={envelopeAttack[1][1]}
                                     midiLearn={() => {midiLearn('envelope.attack')}}
                                     min={envelopeAttack[1][0]}
@@ -116,9 +117,10 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     label={'Decay'}
+                                    midiLearn={() => {midiLearn('envelope.decay')}}
+                                    ccMap={getNested(ccMap.current, 'envelope.decay')}
                                     max={envelopeDecay[1][1]}
                                     removePropertyLock={removePropertyLocks.envelope.decay}
-                                    midiLearn={() => { }}
                                     curve={envelopeDecay[4]}
                                     min={envelopeDecay[1][0]}
                                     type={'knob'}
@@ -134,16 +136,17 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
                                     tabIndex={widgetTabIndexTrkStart + index}
                                     selectedLock={false}
+                                    ccMap={getNested(ccMap.current, 'envelope.sustain')}
                                     removePropertyLock={removePropertyLocks.envelope.sustain}
                                     label={'Sustain'}
                                     max={envelopeSustain[1][1]}
-                                    midiLearn={() => { }}
                                     min={envelopeSustain[1][0]}
                                     detail={'envelopeZero'}
                                     type={'knob'}
                                     curve={envelopeSustain[4]}
                                     unit={envelopeSustain[2]}
                                     value={getPropertyValue('envelope.sustain')}
+                                    midiLearn={() => {midiLearn('envelope.sustain')}}
                                     indicatorId={`instrument${trackId}:envelope.sustain`}
                                     valueUpdateCallback={propertyUpdateCallbacks.envelope.sustain}
                                     className={styles.envelopeSustain}
@@ -155,7 +158,8 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     label={'Release'}
                                     max={envelopeRelease[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('envelope.release')}}
+                                    ccMap={getNested(ccMap.current, 'envelope.release')}
                                     min={envelopeRelease[1][0]}
                                     curve={envelopeRelease[4]}
                                     type={'knob'}
@@ -182,7 +186,8 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     label={'FadeIn'}
                                     max={fadeIn[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('noise.fadeIn')}}
+                                    ccMap={getNested(ccMap.current, 'noise.fadeIn')}
                                     removePropertyLock={removePropertyLocks.noise.fadeIn}
                                     min={fadeIn[1][0]}
                                     type={'knob'}
@@ -201,7 +206,8 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     label={'FadeOut'}
                                     max={fadeOut[1][1]}
                                     removePropertyLock={removePropertyLocks.noise.fadeOut}
-                                    midiLearn={() => { }}
+                                    ccMap={getNested(ccMap.current, 'noise.fadeOut')}
+                                    midiLearn={() => {midiLearn('noise.fadeOut')}}
                                     min={fadeOut[1][0]}
                                     type={'knob'}
                                     curve={fadeOut[4]}
@@ -222,7 +228,8 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                 selectedLock={false}
                                 label={'Volume'}
                                 max={volume[1][1]}
-                                midiLearn={() => { }}
+                                midiLearn={() => {midiLearn('volume')}}
+                                ccMap={getNested(ccMap.current, 'volume')}
                                 min={volume[1][0]}
                                 type={'slider'}
                                 detail={'volume'}
@@ -241,7 +248,8 @@ const NoiseSynth: React.FC<NoiseSynthProps> = ({
                                     selectedLock={false}
                                     label={'Rate'}
                                     max={rate[1][1]}
-                                    midiLearn={() => { }}
+                                    midiLearn={() => {midiLearn('rate')}}
+                                    ccMap={getNested(ccMap.current, 'rate')}
                                     min={rate[1][0]}
                                     type={'knob'}
                                     curve={rate[4]}

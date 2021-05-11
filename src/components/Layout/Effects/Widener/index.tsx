@@ -14,6 +14,8 @@ export interface WidenerProps {
     options: any,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     propertyUpdateCallbacks: any,
     trackIndex: number,
     trackId: number,
@@ -29,6 +31,8 @@ const Widener: React.FC<WidenerProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -94,7 +98,8 @@ const Widener: React.FC<WidenerProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 // detail={'envelopeZero'}
@@ -112,7 +117,8 @@ const Widener: React.FC<WidenerProps> = ({
                 label={'Width'}
                 removePropertyLock={removeEffectPropertyLocks.width}
                 max={width[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('width') }}
+                ccMap={getNested(ccMaps.current, 'width')}
                 min={width[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}

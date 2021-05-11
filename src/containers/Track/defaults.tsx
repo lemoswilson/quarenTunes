@@ -69,6 +69,7 @@ const dampeningRange = [20, 7000];
 const attackNoiseRange = [0.1, 20]
 export const noiseTypeOptions = ['white', 'brown', 'pink']
 const oscillatorTypeOptions = ['sine', 'pulse', 'sawtooth', 'triangle'];
+const vibratoOscillatorTypeOptions = ['sine', 'square', 'sawtooth', 'triangle'];
 const envelopeCurveOptions = [curveTypes.LINEAR, curveTypes.EXPONENTIAL];
 
 // data that will be used to generate the indicators/selectors
@@ -374,6 +375,7 @@ export const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "
 const wet = [1, drywetRange, drywetUnit, drywetIndicator, curveTypes.LINEAR];
 const halfwet = [0.5, drywetIndicator, drywetUnit, drywetIndicator, curveTypes.LINEAR]
 const oscillatorType = ['sine', oscillatorTypeOptions, undefined, oscillatorTypeIndicator];
+const vibratoOscillatorType = ['sine', vibratoOscillatorTypeOptions, undefined, oscillatorTypeIndicator];
 const effectsFrequency = [15, timeOptions('frequency'), timeUnit('frequency'), timeIndicator("frequency"), curveTypes.EXPONENTIAL, ['frequency', 'subdivision']];
 const depth = [1, normalRange, normalUnit, frequencyIndicator, curveTypes.LINEAR];
 const chorusDepth = [0.5, normalRange, normalUnit, frequencyIndicator, curveTypes.EXPONENTIAL];
@@ -540,7 +542,8 @@ export const getEffectsInitials = (type: effectTypes) => {
             return {
                 wet: wet,
                 frequency: vibratoFrequency,
-                type: oscillatorType,
+                // type: oscillatorType,
+                type: vibratoOscillatorType,
                 depth: depth,
                 spread: spread,
                 maxDelay: vibratoMaxDelay,

@@ -14,6 +14,8 @@ export interface AutoPanProps {
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     trackIndex: number,
     trackId: number,
     fxId: number,
@@ -29,6 +31,8 @@ const AutoPan: React.FC<AutoPanProps> = ({
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
     trackIndex,
+    ccMaps,
+    midiLearn,
     trackId,
     fxIndex,
     fxId,
@@ -96,7 +100,8 @@ const AutoPan: React.FC<AutoPanProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -113,7 +118,8 @@ const AutoPan: React.FC<AutoPanProps> = ({
                 label={'frequency'}
                 removePropertyLock={removeEffectPropertyLocks.frequency}
                 max={frequency[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('frequency') }}
+                ccMap={getNested(ccMaps.current, 'frequency')}
                 min={frequency[1][0]}
                 type={'knob'}
                 curve={frequency[4]}
@@ -129,7 +135,8 @@ const AutoPan: React.FC<AutoPanProps> = ({
                 label={'Depth'}
                 removePropertyLock={removeEffectPropertyLocks.depth}
                 max={depth [1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('depth') }}
+                ccMap={getNested(ccMaps.current, 'depth')}
                 min={depth [1][0]}
                 type={'knob'}
                 curve={depth [4]}
@@ -142,6 +149,7 @@ const AutoPan: React.FC<AutoPanProps> = ({
                 selectWaveform={(wave) => { propertyUpdateCallbacks.type(wave) }}
                 tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 selected={options.type[0]}
+                square={true}
             />
         </div>
 

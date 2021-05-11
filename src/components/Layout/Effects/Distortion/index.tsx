@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { event } from '../../../../store/Sequencer';
 import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/defaults';
 import SteppedIndicator from '../../SteppedIndicator';
+import { effectLayoutProps } from '../../../../containers/Track/Effects'
 
 export interface DistortionProps {
     // options: initialsArray,
@@ -22,10 +23,12 @@ export interface DistortionProps {
     properties: any[];
 }
 
-const Distortion: React.FC<DistortionProps> = ({
+const Distortion: React.FC<effectLayoutProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
+    ccMaps,
+    midiLearn,
     removeEffectPropertyLocks,
     trackIndex,
     trackId,
@@ -95,7 +98,8 @@ const Distortion: React.FC<DistortionProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -128,7 +132,8 @@ const Distortion: React.FC<DistortionProps> = ({
                 label={'Distortion'}
                 removePropertyLock={removeEffectPropertyLocks.distortion}
                 max={distortion[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={distortion[1][0]}
                 type={'knob'}
                 curve={distortion [4]}

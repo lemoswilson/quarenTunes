@@ -114,7 +114,12 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_listenCC = useRef<controlChangeEvent>();
     const ref_midiInput = useRef<false | Input>(false);
     const ref_onHoldNotes = useRef<{ [key: string]: any }>({});
+
     const prev_voice = usePrevious(voice);
+    const ref_voice = useRef(voice);
+    useEffect(() => {
+        ref_voice.current = voice;
+    }, [voice])
 
 
 
@@ -131,11 +136,17 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_options = useRef(options);
     useEffect(() => { ref_options.current = options }, [options])
 
+    const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack);
+    const ref_selectedTrkIdx = useRef(selectedTrkIdx)
+    useEffect(() => {
+        ref_selectedTrkIdx.current = selectedTrkIdx;
+    }, [selectedTrkIdx])
+
     const ref_index = useRef(index);
     useEffect(() => { ref_index.current = index }, [index])
 
-    const idRef = useRef(id);
-    useEffect(() => { idRef.current = id }, [id])
+    const ref_id = useRef(id);
+    useEffect(() => { ref_id.current = id }, [id])
 
     const pattTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
     const ref_pattTracker = useRef(pattTracker);
@@ -532,7 +543,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
         dispatch(
             noteInput(
                 pattern,
-                idRef.current,
+                ref_id.current,
                 step,
                 offset,
                 noteName,
@@ -560,25 +571,27 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const midiInCallback = useCallback((e: InputEventNoteon) => {
         const noteNumber = e.note.number;
         const noteName = e.note.name + e.note.octave;
+        // const velocity = e.velocity * 127;
         const velocity = e.velocity * 127;
         const time = Date.now() / 1000;
 
         if (midi.device && midi.channel) {
             dispatch(noteOn([noteNumber], midi.device, midi.channel));
         }
-
         noteInCallback(noteNumber, noteName, time, velocity)
+
     }, [midi.device, midi.channel])
 
     const midiOffCallback = useCallback((e: InputEventNoteoff) => {
         const noteNumber = e.note.number;
         const noteName = e.note.name + e.note.octave;
+
         if (midi.device && midi.channel) {
             dispatch(noteOff([noteNumber], midi.device, midi.channel))
         }
-
         noteOffCallback(noteNumber, noteName)
-    }, [])
+
+    }, [midi.device, midi.channel])
 
 
 
@@ -612,16 +625,23 @@ export const Instrument = <T extends xolombrisxInstruments>({
         } else if (ref_selectedSteps.current && ref_selectedSteps.current.length === 0){
             // no selected steps, should be playing notes
             console.log('should be playing notes');
-            if (voice === xolombrisxInstruments.NOISESYNTH) {
+
+            if (ref_voice.current === xolombrisxInstruments.NOISESYNTH) {
+                console.log('voice is noisesynth')
                 const jab: any = ref_ToneInstrument.current
                 jab.triggerAttack(0, velocity/127)
 
-                // ref_ToneInstrument.current?.triggerAttack(0, velocity)
             } else {
+                console.log('voice is NOT noisesynth')
+                // const jab: any = ref_ToneInstrument.current
+                // console.log(`instrument is ${jab}`)
+                // jab.triggerAttack(noteName)
                 ref_ToneInstrument.current?.triggerAttack(noteName, 0, velocity/127);
             }
+
         }
     }, [noteLock,
+        voice,
         setNoteInput,
         ref_activePatt,
         ref_arrgMode,
@@ -663,9 +683,9 @@ export const Instrument = <T extends xolombrisxInstruments>({
         // } else if (!(ref_selectedSteps.current && ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
         } else if (ref_selectedSteps.current?.length === 0 && !ref_isRec.current) {
             if (
-                voice === xolombrisxInstruments.MEMBRANESYNTH 
-                || voice === xolombrisxInstruments.METALSYNTH
-                || voice === xolombrisxInstruments.NOISESYNTH
+                ref_voice.current === xolombrisxInstruments.MEMBRANESYNTH 
+                || ref_voice.current === xolombrisxInstruments.METALSYNTH
+                || ref_voice.current === xolombrisxInstruments.NOISESYNTH
             ) {
                 const d: any = ref_ToneInstrument.current
                 d.triggerRelease()
@@ -692,7 +712,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
         if (Object.keys(noteDict).includes(key)) {
             const noteNumber = noteDict[key] + (keyboardRangeRef.current * 12)
             const noteName = numberToNote(noteNumber);
-            if (noteNumber < 127 && midi.device === 'onboardKey' && midi.channel === 'all') {
+            if (noteNumber < 127 && midi.device === 'onboardKey' && midi.channel === 'all' && ref_index.current === ref_selectedTrkIdx.current) {
                 const time = Date.now() / 1000;
                 dispatch(noteOn([noteNumber], 'onboardKey', 'all'));
                 noteInCallback(noteNumber, noteName, time)
@@ -729,11 +749,15 @@ export const Instrument = <T extends xolombrisxInstruments>({
         cc: number,
         property: string
     ) => {
+        console.log(`should be binding to ${device}, channel ${channel}, cc ${cc}`)
+
         const calculationCallback = wrapBind(
             getNested(
                 propertiesIncDec,
                 property
-            ), cc);
+            ), cc
+        );
+
         setNestedValue(
             property
             , {
@@ -744,6 +768,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
             },
             ref_CCMaps.current
         )
+
         if (device && channel) {
             let i = WebMidi.getInputByName(device)
             if (i) {
@@ -754,10 +779,16 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 );
             }
         }
+
+        WebMidi.inputs.forEach(input => {
+            input.removeListener('controlchange', 'all', ref_listenCC.current)
+        })
+        ref_listenCC.current = undefined;
     }
 
     // const midiLearn = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => {
     const midiLearn = (property: string) => {
+        console.log('should be learning', property);
         // event.preventDefault()
         // event.stopPropagation()
         let locked = false;
@@ -775,6 +806,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
             }
         }
         if (!locked) {
+            console.log('not locked, should be adding listener')
             ref_listenCC.current = (e: InputEventControlchange): void => {
                 return bindCCtoParameter(
                     e.target.name,
@@ -783,6 +815,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     property,
                 )
             }
+
             WebMidi.inputs.forEach(input => {
                 if (ref_listenCC.current) {
                     input.addListener(
@@ -833,13 +866,17 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
     // keyboard note/midi input listeners
     useEffect(() => {
+        const v = midi.channel !== 'all'  && !Number.isNaN(Number(midi.channel)) ? Number(midi.channel) : midi.channel
         // console.log(instrumentRef.current.get())
-        if (midi.channel && midi.device && midi.device !== 'onboardKey') {
+        // if (!Number.isNaN(midi.channel) && midi.device && midi.device !== 'onboardKey') {
+        if (v && midi.device && midi.device !== 'onboardKey') {
+            console.log(' there\'s a device and a channel')
             ref_midiInput.current = WebMidi.getInputByName(midi.device);
             if (
                 ref_midiInput.current
-                && !ref_midiInput.current.hasListener('noteon', midi.channel, midiInCallback)
+                // && !ref_midiInput.current.hasListener('noteon', midi.channel, midiInCallback)
             ) {
+                console.log('should be adding midi event listener')
                 ref_midiInput.current.addListener('noteon', midi.channel, midiInCallback);
                 ref_midiInput.current.addListener('noteoff', midi.channel, midiOffCallback);
             }
@@ -931,8 +968,10 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const Component = voice === xolombrisxInstruments.FMSYNTH
         ? <ModulationSynth
             calcCallbacks={propertiesIncDec}
+            midiLearn={midiLearn}
             removePropertyLocks={removePropertyLockCallbacks}
             options={options}
+            ccMaps={ref_CCMaps}
             index={index}
             trackId={id}
             events={events[activePatt]}
@@ -958,6 +997,8 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     removePropertyLocks={removePropertyLockCallbacks}
                     calcCallbacks={propertiesIncDec}
                     trackId={id}
+                    ccMaps={ref_CCMaps}
+                    midiLearn={midiLearn}
                     options={options}
                     index={index}
                     events={events[activePatt]}
@@ -969,6 +1010,8 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     ? <MembraneSynth
                         calcCallbacks={propertiesIncDec}
                         trackId={id}
+                        midiLearn={midiLearn}
+                        ccMaps={ref_CCMaps}
                         removePropertyLocks={removePropertyLockCallbacks}
                         events={events[activePatt]}
                         index={index}
@@ -980,6 +1023,8 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     : voice === xolombrisxInstruments.METALSYNTH
                         ? <MetalSynth
                             calcCallbacks={propertiesIncDec}
+                            midiLearn={midiLearn}
+                            ccMaps={ref_CCMaps}
                             removePropertyLocks={removePropertyLockCallbacks}
                             events={events[activePatt]}
                             trackId={id}
@@ -1004,6 +1049,8 @@ export const Instrument = <T extends xolombrisxInstruments>({
                             : voice === xolombrisxInstruments.DRUMRACK
                                 ? <DrumRack
                                     removePropertyLocks={removePropertyLockCallbacks}
+                                    midiLearn={midiLearn}
+                                    ccMaps={ref_CCMaps}
                                     calcCallbacks={propertiesIncDec}
                                     events={events[activePatt]}
                                     index={index}

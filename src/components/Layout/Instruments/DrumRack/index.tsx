@@ -11,8 +11,10 @@ import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 export interface DrumRack {
     // options: initialsArray,
     options: any,
+    ccMaps: any,
     calcCallbacks: any,
     propertyUpdateCallbacks: any,
+    midiLearn: (property: string) => void,
     index: number,
     trackId: number,
     selected?: number[],
@@ -24,6 +26,8 @@ export interface DrumRack {
 const DrumRack: React.FC<DrumRack> = ({
     calcCallbacks,
     options,
+    ccMaps,
+    midiLearn,
     propertyUpdateCallbacks,
     removePropertyLocks,
     index,
@@ -139,7 +143,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_0.attack}
                             label={'Attack'}
                             max={attackPad0[1][1]}
-                            midiLearn={() => { }}
+                            ccMap={getNested(ccMaps.current, 'PAD_0.attack')}
+                            midiLearn={() => { midiLearn('PAD_0.attack')}}
                             min={attackPad0[1][0]}
                             type={'knob'}
                             unit={attackPad0[2]}
@@ -154,7 +159,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_0.release}
                             label={'Release'}
                             max={releasePad0[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_0.release') }}
+                            ccMap={getNested(ccMaps.current, 'PAD_0.release')}
                             min={releasePad0[1][0]}
                             type={'knob'}
                             unit={releasePad0[2]}
@@ -170,7 +176,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_0.volume}
                             label={'Volume'}
                             max={volumePad0[1][1]}
-                            midiLearn={() => { }}
+                            ccMap={getNested(ccMaps.current, 'PAD_0.volume')}
+                            midiLearn={() => { midiLearn('PAD_0.volume') }}
                             detail={'volume'}
                             tabIndex={widgetTabIndexTrkStart + index}
                             min={volumePad0[1][0]}
@@ -198,8 +205,9 @@ const DrumRack: React.FC<DrumRack> = ({
                             removePropertyLock={removePropertyLocks.PAD_1.attack}
                             tabIndex={widgetTabIndexTrkStart + index}
                             max={attackPad1[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_1.attack') }}
                             min={attackPad1[1][0]}
+                            ccMap={getNested(ccMaps.current, 'PAD_1.attack')}
                             type={'knob'}
                             unit={attackPad1[2]}
                             value={getPropertyValue('PAD_1.attack')}
@@ -214,7 +222,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             label={'Release'}
                             removePropertyLock={removePropertyLocks.PAD_1.release}
                             max={releasePad1[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_1.release') }}
+                            ccMap={getNested(ccMaps.current, 'PAD_1.release')}
                             min={releasePad1[1][0]}
                             type={'knob'}
                             unit={releasePad1[2]}
@@ -230,7 +239,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             tabIndex={widgetTabIndexTrkStart + index}
                             removePropertyLock={removePropertyLocks.PAD_1.volume}
                             max={volumePad1[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_1.volume') }}
+                            ccMap={getNested(ccMaps.current, 'PAD_1.volume')}
                             detail={'volume'}
                             min={volumePad1[1][0]}
                             type={'knob'}
@@ -256,8 +266,9 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_2.attack}
                             label={'Attack'}
+                            ccMap={getNested(ccMaps.current, 'PAD_2.attack')}
                             max={attackPad2[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_2.attack') }}
                             min={attackPad2[1][0]}
                             type={'knob'}
                             removePropertyLock={removePropertyLocks.PAD_2.attack}
@@ -272,8 +283,9 @@ const DrumRack: React.FC<DrumRack> = ({
                             tabIndex={widgetTabIndexTrkStart + index}
                             ccMouseCalculationCallback={calcCallbacks.PAD_2.release}
                             label={'Release'}
+                            ccMap={getNested(ccMaps.current, 'PAD_2.release')}
                             max={releasePad2[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_2.release') }}
                             min={releasePad2[1][0]}
                             type={'knob'}
                             removePropertyLock={removePropertyLocks.PAD_2.release}
@@ -287,9 +299,10 @@ const DrumRack: React.FC<DrumRack> = ({
                             selectedLock={false}
                             ccMouseCalculationCallback={calcCallbacks.PAD_2.volume}
                             tabIndex={widgetTabIndexTrkStart + index}
+                            ccMap={getNested(ccMaps.current, 'PAD_2.volume')}
                             label={'Volume'}
                             max={volumePad2[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_2.volume') }}
                             detail={'volume'}
                             min={volumePad2[1][0]}
                             removePropertyLock={removePropertyLocks.PAD_2.volume}
@@ -315,8 +328,9 @@ const DrumRack: React.FC<DrumRack> = ({
                             ccMouseCalculationCallback={calcCallbacks.PAD_3.attack}
                             label={'Attack'}
                             max={attackPad3[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_3.attack') }}
                             min={attackPad3[1][0]}
+                            ccMap={getNested(ccMaps.current, 'PAD_3.attack')}
                             tabIndex={widgetTabIndexTrkStart + index}
                             type={'knob'}
                             removePropertyLock={removePropertyLocks.PAD_3.attack}
@@ -332,7 +346,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             label={'Release'}
                             tabIndex={widgetTabIndexTrkStart + index}
                             max={releasePad3[1][1]}
-                            midiLearn={() => { }}
+                            midiLearn={() => { midiLearn('PAD_3.release') }}
+                            ccMap={getNested(ccMaps.current, 'PAD_3.release')}
                             min={releasePad3[1][0]}
                             removePropertyLock={removePropertyLocks.PAD_3.release}
                             type={'knob'}
@@ -348,7 +363,8 @@ const DrumRack: React.FC<DrumRack> = ({
                             ccMouseCalculationCallback={calcCallbacks.PAD_3.volume}
                             label={'Volume'}
                             max={volumePad3[1][1]}
-                            midiLearn={() => { }}
+                            ccMap={getNested(ccMaps.current, 'PAD_3.volume')}
+                            midiLearn={() => { midiLearn('PAD_3.volume') }}
                             detail={'volume'}
                             removePropertyLock={removePropertyLocks.PAD_3.volume}
                             min={volumePad3[1][0]}

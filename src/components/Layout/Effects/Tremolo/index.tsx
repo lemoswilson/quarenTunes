@@ -14,6 +14,8 @@ export interface TremoloProps {
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     trackIndex: number,
     trackId: number,
     fxId: number,
@@ -28,6 +30,8 @@ const Tremolo: React.FC<TremoloProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn, 
     trackIndex,
     trackId,
     fxIndex,
@@ -97,7 +101,8 @@ const Tremolo: React.FC<TremoloProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -114,7 +119,8 @@ const Tremolo: React.FC<TremoloProps> = ({
                 label={'frequency'}
                 removePropertyLock={removeEffectPropertyLocks.frequency}
                 max={frequency[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('frequency') }}
+                ccMap={getNested(ccMaps.current, 'frequency')}
                 min={frequency[1][0]}
                 type={'knob'}
                 curve={frequency[4]}
@@ -127,6 +133,7 @@ const Tremolo: React.FC<TremoloProps> = ({
                 selectWaveform={(wave) => { propertyUpdateCallbacks.type(wave) }}
                 tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                 selected={options.type[0]}
+                square={true}
             />
             <ContinuousIndicator
                 ccMouseCalculationCallback={calcCallbacks.depth}
@@ -135,7 +142,8 @@ const Tremolo: React.FC<TremoloProps> = ({
                 label={'Depth'}
                 removePropertyLock={removeEffectPropertyLocks.depth}
                 max={depth [1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('depth') }}
+                ccMap={getNested(ccMaps.current, 'depth')}
                 min={depth [1][0]}
                 type={'knob'}
                 curve={depth [4]}
@@ -151,7 +159,8 @@ const Tremolo: React.FC<TremoloProps> = ({
                 label={'Spread'}
                 removePropertyLock={removeEffectPropertyLocks.spread}
                 max={spread[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('spread') }}
+                ccMap={getNested(ccMaps.current, 'spread')}
                 min={spread[1][0]}
                 type={'knob'}
                 curve={spread[4]}

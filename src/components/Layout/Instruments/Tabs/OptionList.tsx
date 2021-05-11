@@ -102,7 +102,7 @@ const OptionList: React.FC<OptionListProps> = ({
                     )
                 }) 
             }
-            {label === 'Midi Channel' ? <ListItem item={'all'} onAction={onAction} style={selectedColor('all')}/> : null}
+            {/* {label === 'Midi Channel' ? <ListItem item={'all'} onAction={onAction} style={selectedColor('all')}/> : null} */}
 
         </ul>
 

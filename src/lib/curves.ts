@@ -1,6 +1,7 @@
 import { curveTypes } from "../containers/Track/defaults";
 
 export default function valueFromCC(value: number, min: number, max: number, curveType: curveTypes): number {
+    // console.log('getting value from cc', value);
     return curveType === curveTypes.EXPONENTIAL
         ? exponentialScale(value, min, max)
         : linearScale(value, min, max);
@@ -85,11 +86,15 @@ function getBaseLog(base: number, number: number): number {
 };
 
 function linearScale(value: number, min: number, max: number): number {
-    return (min - max) * value + min
+    value = value/127
+    // return (value/127) * ()
+    return ( max - min ) * value + min
 };
 
 function exponentialScale(value: number, min: number, max: number): number {
-    value = 127 * value;
-    let c = getBaseLog(127, max - min);
-    return min + value ** c;
+    value = value/127
+    return min*(Math.pow(Math.E, (Math.log(max/min)*value)))
+    // value = 127 * value;
+    // let c = getBaseLog(127, max - min);
+    // return min + value ** c;
 };

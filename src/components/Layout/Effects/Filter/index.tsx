@@ -7,27 +7,16 @@ import { event } from '../../../../store/Sequencer';
 import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/defaults';
 import SteppedIndicator from '../../SteppedIndicator';
 import WaveformSelector from '../../WaveformSelector';
+import { effectLayoutProps } from '../../../../containers/Track/Effects'
 
-export interface FilterProps {
-    // options: initialsArray,
-    options: any,
-    calcCallbacks: any,
-    removeEffectPropertyLocks: any,
-    propertyUpdateCallbacks: any,
-    trackIndex: number,
-    trackId: number,
-    fxId: number,
-    fxIndex: number,
-    selected?: number[],
-    events: event[],
-    properties: any[];
-}
 
-const Filter: React.FC<FilterProps> = ({
+const Filter: React.FC<effectLayoutProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -92,114 +81,6 @@ const Filter: React.FC<FilterProps> = ({
        <React.Fragment>
         <div className={styles.title}>Filter</div>
         <div className={styles.wrapper}>
-            {/* <ContinuousIndicator
-                ccMouseCalculationCallback={calcCallbacks.Q}
-                // className={styles.Q}
-                selectedLock={false}
-                tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
-                label={'Q'}
-                removePropertyLock={removeEffectPropertyLocks.Q}
-                max={Q[1][1]}
-                midiLearn={() => { }}
-                min={Q[1][0]}
-                type={'knob'}
-                curve={Q[4]}
-                unit={Q[2]}
-                value={getPropertyValue('Q')}
-                indicatorId={`instrument${trackId}:effect${fxId}:Q`}
-                valueUpdateCallback={propertyUpdateCallbacks.Q}
-            />
-            <div className={styles.doubleKnob}>
-                <div className={styles.block}>
-                    <ContinuousIndicator
-                        ccMouseCalculationCallback={calcCallbacks.detune}
-                        selectedLock={false}
-                        tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
-                        label={'Detune'}
-                        removePropertyLock={removeEffectPropertyLocks.detune}
-                        max={detune[1][1]}
-                        midiLearn={() => { }}
-                        min={detune[1][0]}
-                        type={'knob'}
-                        curve={detune[4]}
-                        unit={detune[2]}
-                        value={getPropertyValue('detune')}
-                        indicatorId={`instrument${trackId}:effect${fxId}:detune`}
-                        valueUpdateCallback={propertyUpdateCallbacks.detune}
-                    />
-                <SteppedIndicator
-                    tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
-                    ccMouseCalculationCallback={calcCallbacks.rolloff}
-                    label={'Rolloff'}
-                    className={styles.steppedKnob}
-                    titleClassName={styles.titleClass}
-                    midiLearn={() => { }}
-                    options={rolloff[1]}
-                    selected={
-                        selected && selected.length > 1 && !parameterLockValues.rolloff[0] && !parameterLockValues.rolloff[2]
-                            ? '*'
-                            : parameterLockValues.rolloff[0]
-                                ? parameterLockValues.rolloff[1]
-                                : getNested(options, 'rolloff')[0]
-                    }
-                    unit={''}
-                    valueUpdateCallback={propertyUpdateCallbacks.rolloff}
-                />
-                </div>
-                <div className={styles.block}>
-                    <ContinuousIndicator
-                        ccMouseCalculationCallback={calcCallbacks.frequency}
-                        selectedLock={false}
-                        tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
-                        label={'Frequency'}
-                        removePropertyLock={removeEffectPropertyLocks.frequency}
-                        max={frequency[1][1]}
-                        midiLearn={() => { }}
-                        min={frequency[1][0]}
-                        type={'knob'}
-                        curve={frequency[4]}
-                        unit={frequency[2]}
-                        value={getPropertyValue('frequency')}
-                        indicatorId={`instrument${trackId}:effect${fxId}:frequency`}
-                        valueUpdateCallback={propertyUpdateCallbacks.frequency}
-                />
-                <SteppedIndicator
-                    tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
-                    ccMouseCalculationCallback={calcCallbacks.type}
-                    label={'Type'}
-                    className={styles.steppedKnob}
-                    titleClassName={styles.titleClass}
-                    midiLearn={() => { }}
-                    options={type[1]}
-                    selected={
-                        selected && selected.length > 1 && !parameterLockValues.type[0] && !parameterLockValues.type[2]
-                            ? '*'
-                            : parameterLockValues.type[0]
-                                ? parameterLockValues.type[1]
-                                : getNested(options, 'type')[0]
-                    }
-                    unit={''}
-                    valueUpdateCallback={propertyUpdateCallbacks.type}
-                />
-                </div>
-                <ContinuousIndicator
-                    ccMouseCalculationCallback={calcCallbacks.gain}
-                    selectedLock={false}
-                    tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
-                    label={'Gain'}
-                    className={styles.gain}
-                    removePropertyLock={removeEffectPropertyLocks.gain}
-                    max={gain[1][1]}
-                    midiLearn={() => { }}
-                    min={gain[1][0]}
-                    type={'knob'}
-                    curve={gain[4]}
-                    unit={gain[2]}
-                    value={getPropertyValue('gain')}
-                    indicatorId={`instrument${trackId}:effect${fxId}:gain`}
-                    valueUpdateCallback={propertyUpdateCallbacks.gain}
-                />
-            </div> */}
                 <SteppedIndicator
                     tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                     ccMouseCalculationCallback={calcCallbacks.type}
@@ -226,7 +107,8 @@ const Filter: React.FC<FilterProps> = ({
                 label={'Q'}
                 removePropertyLock={removeEffectPropertyLocks.Q}
                 max={Q[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('Q') }}
+                ccMap={getNested(ccMaps.current, 'Q')}
                 min={Q[1][0]}
                 type={'knob'}
                 curve={Q[4]}
@@ -242,7 +124,8 @@ const Filter: React.FC<FilterProps> = ({
                         label={'Detune'}
                         removePropertyLock={removeEffectPropertyLocks.detune}
                         max={detune[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('detune') }}
+                        ccMap={getNested(ccMaps.current, 'detune')}
                         min={detune[1][0]}
                         type={'knob'}
                         curve={detune[4]}
@@ -259,7 +142,8 @@ const Filter: React.FC<FilterProps> = ({
                         label={'Frequency'}
                         removePropertyLock={removeEffectPropertyLocks.frequency}
                         max={frequency[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('frequency') }}
+                        ccMap={getNested(ccMaps.current, 'frequency')}
                         min={frequency[1][0]}
                         type={'knob'}
                         curve={frequency[4]}
@@ -277,7 +161,8 @@ const Filter: React.FC<FilterProps> = ({
                     // className={styles.gain}
                     removePropertyLock={removeEffectPropertyLocks.gain}
                     max={gain[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('gain') }}
+                    ccMap={getNested(ccMaps.current, 'gain')}
                     min={gain[1][0]}
                     type={'knob'}
                     curve={gain[4]}

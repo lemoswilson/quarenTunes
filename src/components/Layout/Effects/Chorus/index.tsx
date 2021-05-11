@@ -7,28 +7,16 @@ import { event } from '../../../../store/Sequencer';
 import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/defaults';
 import SteppedIndicator from '../../SteppedIndicator';
 import WaveformSelector from '../../WaveformSelector';
+import { effectLayoutProps } from '../../../../containers/Track/Effects'
 
-export interface ChorusProps {
-    // options: initialsArray,
-    options: any,
-    calcCallbacks: any,
-    removeEffectPropertyLocks: any,
-    propertyUpdateCallbacks: any,
-    trackIndex: number,
-    trackId: number,
-    fxId: number,
-    fxIndex: number,
-    selected?: number[],
-    events: event[],
-    properties: any[];
-}
-
-const Chorus: React.FC<ChorusProps> = ({
+const Chorus: React.FC<effectLayoutProps> = ({
     calcCallbacks,
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
     trackIndex,
+    ccMaps,
+    midiLearn,
     trackId,
     fxIndex,
     fxId,
@@ -101,7 +89,8 @@ const Chorus: React.FC<ChorusProps> = ({
                     label={'DryWet'}
                     removePropertyLock={removeEffectPropertyLocks.wet}
                     max={wet[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('wet') }}
+                    ccMap={getNested(ccMaps.current, 'wet')}
                     min={wet[1][0]}
                     keyFunction={getPercentage}
                     type={'knob'}
@@ -119,7 +108,8 @@ const Chorus: React.FC<ChorusProps> = ({
                     label={'Frequency'}
                     removePropertyLock={removeEffectPropertyLocks.frequency}
                     max={frequency[1][1]}
-                    midiLearn={() => { }}
+                    midiLearn={() => { midiLearn('frequency') }}
+                    ccMap={getNested(ccMaps.current, 'frequency')}
                     min={frequency[1][0]}
                     type={'knob'}
                     curve={frequency[4]}
@@ -137,7 +127,8 @@ const Chorus: React.FC<ChorusProps> = ({
                         label={'Depth'}
                         removePropertyLock={removeEffectPropertyLocks.depth}
                         max={depth[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('depth') }}
+                        ccMap={getNested(ccMaps.current, 'depth')}
                         min={depth[1][0]}
                         type={'knob'}
                         curve={depth[4]}
@@ -155,7 +146,8 @@ const Chorus: React.FC<ChorusProps> = ({
                         className={styles.knob}
                         removePropertyLock={removeEffectPropertyLocks.feedback}
                         max={feedback[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('feedback') }}
+                        ccMap={getNested(ccMaps.current, 'feedback')}
                         min={feedback[1][0]}
                         type={'knob'}
                         curve={feedback[4]}
@@ -171,6 +163,7 @@ const Chorus: React.FC<ChorusProps> = ({
                     selectWaveform={(wave) => { propertyUpdateCallbacks.type(wave) }}
                     tabIndex={widgetTabIndexTrkStart + trackMax + fxIndex + 1}
                     selected={options.type[0]}
+                    square={true}
                 />
             </div>
             <div className={styles.doubleKnob}>
@@ -182,7 +175,8 @@ const Chorus: React.FC<ChorusProps> = ({
                         label={'delayTime'}
                         removePropertyLock={removeEffectPropertyLocks.delayTime}
                         max={delayTime[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('delayTime') }}
+                        ccMap={getNested(ccMaps.current, 'delayTime')}
                         min={delayTime[1][0]}
                         type={'knob'}
                         curve={delayTime[4]}
@@ -200,7 +194,8 @@ const Chorus: React.FC<ChorusProps> = ({
                         label={'Spread'}
                         removePropertyLock={removeEffectPropertyLocks.spread}
                         max={spread[1][1]}
-                        midiLearn={() => { }}
+                        midiLearn={() => { midiLearn('spread') }}
+                        ccMap={getNested(ccMaps.current, 'spread')}
                         min={spread[1][0]}
                         type={'knob'}
                         curve={spread[4]}

@@ -13,6 +13,8 @@ export interface BitcrusherProps {
     options: any,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     propertyUpdateCallbacks: any,
     trackIndex: number,
     trackId: number,
@@ -28,6 +30,8 @@ const Bitcrusher : React.FC<BitcrusherProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -95,7 +99,8 @@ const Bitcrusher : React.FC<BitcrusherProps> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -112,7 +117,8 @@ const Bitcrusher : React.FC<BitcrusherProps> = ({
                 label={'Bits'}
                 removePropertyLock={removeEffectPropertyLocks.bits}
                 max={bits [1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('bits') }}
+                ccMap={getNested(ccMaps.current, 'bits')}
                 min={bits [1][0]}
                 type={'knob'}
                 curve={bits [4]}

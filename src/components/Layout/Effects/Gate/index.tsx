@@ -14,6 +14,8 @@ export interface GateProps {
     options: any,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     propertyUpdateCallbacks: any,
     trackIndex: number,
     trackId: number,
@@ -29,6 +31,8 @@ const Gate: React.FC<GateProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -87,7 +91,8 @@ const Gate: React.FC<GateProps> = ({
                 removePropertyLock={removeEffectPropertyLocks.smoothing}
                 label={'Smoothing'}
                 max={smoothing[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('smoothing') }}
+                ccMap={getNested(ccMaps.current, 'smoothing')}
                 min={smoothing[1][0]}
                 type={'knob'}
                 unit={smoothing[2]}
@@ -104,7 +109,8 @@ const Gate: React.FC<GateProps> = ({
                 label={'Threshold'}
                 removePropertyLock={removeEffectPropertyLocks.threshold}
                 max={threshold[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('threshold') }}
+                ccMap={getNested(ccMaps.current, 'threshold')}
                 min={threshold[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}

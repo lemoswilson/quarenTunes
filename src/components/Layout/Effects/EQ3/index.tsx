@@ -13,6 +13,8 @@ export interface EQ3Props {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
@@ -29,6 +31,8 @@ const EQ3: React.FC<EQ3Props> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -90,7 +94,8 @@ const EQ3: React.FC<EQ3Props> = ({
                 label={'LowFreq'}
                 removePropertyLock={removeEffectPropertyLocks.lowFrequency}
                 max={lowFrequency[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('lowFrequency') }}
+                ccMap={getNested(ccMaps.current, 'lowFrequency')}
                 min={lowFrequency[1][0]}
                 // keyFunction={getPercentage}
                 // detail={'envelopeZero'}
@@ -108,7 +113,8 @@ const EQ3: React.FC<EQ3Props> = ({
                 label={'LowGain'}
                 removePropertyLock={removeEffectPropertyLocks.low}
                 max={low[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('low') }}
+                ccMap={getNested(ccMaps.current, 'low')}
                 min={low[1][0]}
                 detail={'detune'}
                 // keyFunction={getPercentage}
@@ -127,7 +133,8 @@ const EQ3: React.FC<EQ3Props> = ({
                 label={'MidGain'}
                 removePropertyLock={removeEffectPropertyLocks.mid}
                 max={mid[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('mid') }}
+                ccMap={getNested(ccMaps.current, 'mid')}
                 min={mid[1][0]}
                 detail={'detune'}
                 // detail={'envelopeZero'}
@@ -145,7 +152,8 @@ const EQ3: React.FC<EQ3Props> = ({
                 label={'HighFreq'}
                 removePropertyLock={removeEffectPropertyLocks.highFrequency}
                 max={highFrequency[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('highFrequency') }}
+                ccMap={getNested(ccMaps.current, 'highFrequency')}
                 min={highFrequency[1][0]}
                 // keyFunction={getPercentage}
                 // detail={'envelopeZero'}
@@ -164,7 +172,8 @@ const EQ3: React.FC<EQ3Props> = ({
                 removePropertyLock={removeEffectPropertyLocks.high}
                 detail={'detune'}
                 max={high[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('high') }}
+                ccMap={getNested(ccMaps.current, 'high')}
                 min={high[1][0]}
                 // keyFunction={getPercentage}
                 // detail={'envelopeZero'}

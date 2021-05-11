@@ -6,7 +6,9 @@ import { useEffectProperties } from '../../../hooks/useProperty';
 import { useDispatch, useSelector } from 'react-redux';
 import { effectTypes, toneEffects, increaseDecreaseEffectProperty } from '../../../store/Track';
 import { updateEffectState } from '../../../store/Track/actions'
+import { event } from '../../../store/Sequencer'
 import { parameterLockEffect, parameterLockEffectIncreaseDecrease, removeEffectPropertyLock } from '../../../store/Sequencer/actions'
+
 
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
 
@@ -59,6 +61,22 @@ import AutoFilter from '../../../components/Layout/Effects/AutoFilter';
 import Chorus from '../../../components/Layout/Effects/Chorus';
 import Filter from '../../../components/Layout/Effects/Filter';
 
+export interface effectLayoutProps {
+    // options: initialsArray,
+    options: any,
+    calcCallbacks: any,
+    removeEffectPropertyLocks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
+    propertyUpdateCallbacks: any,
+    trackIndex: number,
+    trackId: number,
+    fxId: number,
+    fxIndex: number,
+    selected?: number[],
+    events: event[],
+    properties: any[];
+}
 
 const Effect: React.FC<effectsProps> = ({ fxId, 
     fxIndex, 
@@ -90,45 +108,45 @@ const Effect: React.FC<effectsProps> = ({ fxId,
 
     const ref_fxIndex = useRef(fxIndex)
     useEffect(() => { ref_fxIndex.current = fxIndex}, [fxIndex])
-    const CCMaps = useRef<any>({});
-    const listenCC = useRef<controlChangeEvent>();
+    const ref_CCMaps = useRef<any>({});
+    const ref_listenCC = useRef<controlChangeEvent>();
 
-    const lockedParameters: MutableRefObject<effectsInitials> = useRef({});
-    const inputRef = useRef<false | Input>(false);
+    const ref_lockedParameters: MutableRefObject<effectsInitials> = useRef({});
+    const ref_input = useRef<false | Input>(false);
 
-    const trackIdRef = useRef(trackId);
-    useEffect(() => { trackIdRef.current = trackId }, [trackId])
+    const ref_trackId = useRef(trackId);
+    useEffect(() => { ref_trackId.current = trackId }, [trackId])
 
-    const optionsRef = useRef(options)
-    useEffect(() => { optionsRef.current = options }, [options])
+    const ref_options = useRef(options)
+    useEffect(() => { ref_options.current = options }, [options])
 
     // const re_index = useRef(fxIndex);
     // useEffect(() => { re_index.current = fxIndex }, [fxIndex]);
 
-    const patternTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
-    const patternTrackerRef = useRef(patternTracker);
-    useEffect(() => { patternTrackerRef.current = patternTracker }, [patternTracker]);
+    const pattTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
+    const ref_pattTracker = useRef(pattTracker);
+    useEffect(() => { ref_pattTracker.current = pattTracker }, [pattTracker]);
 
     const fxCount = useSelector((state: RootState) => state.track.present.tracks[trackIndex].fx.length)
 
-    const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
-    const arrangerModeRef = useRef(arrangerMode);
-    useEffect(() => { arrangerModeRef.current = arrangerMode }, [arrangerMode]);
+    const arrgMode = useSelector((state: RootState) => state.arranger.present.mode);
+    const ref_arrgMode = useRef(arrgMode);
+    useEffect(() => { ref_arrgMode.current = arrgMode }, [arrgMode]);
 
-    const activePattern = useSelector((state: RootState) => state.sequencer.present.activePattern);
-    const ref_activePatt = useRef(activePattern);
-    useEffect(() => { ref_activePatt.current = activePattern }, [activePattern]);
+    const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
+    const ref_activePatt = useRef(activePatt);
+    useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
     const selectedSteps = useSelector((state: RootState) => {
-        if (state.sequencer.present.patterns[activePattern] && state.sequencer.present.patterns[activePattern].tracks[trackIndex])
-            return state.sequencer.present.patterns[activePattern].tracks[trackIndex].selected
+        if (state.sequencer.present.patterns[activePatt] && state.sequencer.present.patterns[activePatt].tracks[trackIndex])
+            return state.sequencer.present.patterns[activePatt].tracks[trackIndex].selected
     });
     const ref_selectedSteps = useRef(selectedSteps);
     useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps]);
 
-    const isRecording = useSelector((state: RootState) => state.transport.present.recording);
-    const isRecordingRef = useRef(isRecording);
-    useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
+    const isRec = useSelector((state: RootState) => state.transport.present.recording);
+    const ref_isRec = useRef(isRec);
+    useEffect(() => { ref_isRec.current = isRec }, [isRec])
 
     useEffect(() => {
         console.log(`effect ${fxIndex}, type ${type} just mounted`)
@@ -138,12 +156,12 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         console.log(`effect ${fxIndex}, type ${type} just had index updates`)
     }, [fxIndex])
 
-    const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
-    const isPlayingRef = useRef(isPlaying);
-    useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying]);
-    const previousPlaying = usePrevious(isPlaying);
+    const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
+    const ref_isPlay = useRef(isPlay);
+    useEffect(() => { ref_isPlay.current = isPlay }, [isPlay]);
+    const prev_isPlay = usePrevious(isPlay);
 
-    const patternLengths = useSelector(
+    const pattLens = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -153,11 +171,13 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             return o;
         }
     );
-    // const patternLengths = useQuickRef(patLen);
-    const patternLengthsRef = useRef(patternLengths);
-    useEffect(() => { patternLengthsRef.current = patternLengths }, [patternLengths])
 
-    const trackPatternLength = useSelector(
+    // const patternLengths = useQuickRef(patLen);
+
+    const ref_pattLens = useRef(pattLens);
+    useEffect(() => { ref_pattLens.current = pattLens }, [pattLens])
+
+    const trkPattLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -167,8 +187,8 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             return o;
         }
     );
-    const trackPatternLengthRef = useRef(trackPatternLength);
-    useEffect(() => { trackPatternLengthRef.current = trackPatternLength }, [trackPatternLength])
+    const ref_trkPattLen = useRef(trkPattLen);
+    useEffect(() => { ref_trkPattLen.current = trkPattLen }, [trkPattLen])
 
     const events = useSelector(
         (state: RootState) => {
@@ -181,15 +201,15 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         }
     );
     // const events = useQuickRef(ev);
-    const eventsRef = useRef(events);
-    useEffect(() => { eventsRef.current = events }, [events])
+    const ref_events = useRef(events);
+    useEffect(() => { ref_events.current = events }, [events])
 
     const propertiesUpdate: any = useMemo(() => {
         let o = {}
         let callArray = fxProps.map((property) => {
             return (value: any) => {
                 if (ref_ToneEffect.current && getNested(ref_ToneEffect.current.get(), property)
-                    === getNested(optionsRef.current, property)[0]) {
+                    === getNested(ref_options.current, property)[0]) {
                     let temp = setNestedValue(property, value)
                     // instrumentRef.current.set(temp);
                     // dispatch(updateEffectState(indexRef.current, temp));
@@ -206,14 +226,14 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         fxIndex,
         ref_fxIndex,
         fxProps,
-        optionsRef,
+        ref_options,
     ]);
 
     const propertiesIncDec: any = useMemo(() => {
         const callArray = fxProps.map((property) => {
             return (e: any) => {
 
-                const propertyArr = getNested(optionsRef.current, property);
+                const propertyArr = getNested(ref_options.current, property);
                 const indicatorType = propertyArr[3]
                 const stateValue = propertyArr[0]
 
@@ -228,7 +248,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                             ref_activePatt.current,
                             ref_trackIndex.current,
                             step,
-                            fxIndex, // fx have order between them (chainning) 
+                            ref_fxIndex.current, // fx have order between them (chainning) 
                             cc ? e.value : e.movementY,
                             property,
                             propertyArr,
@@ -268,7 +288,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         dispatch,
         ref_activePatt,
         ref_fxIndex,
-        optionsRef,
+        ref_options,
         ref_selectedSteps,
         fxProps,
     ]);
@@ -355,31 +375,31 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     useEffectProperties(ref_ToneEffect, options)
 
     // get handle of input object
-    useEffect(() => {
-        if (midi.channel && midi.device && midi.device !== 'onboardKey') {
-            inputRef.current = WebMidi.getInputByName(midi.device);
-        }
-    })
+    // useEffect(() => {
+    //     if (midi.channel && midi.device && midi.device !== 'onboardKey') {
+    //         inputRef.current = WebMidi.getInputByName(midi.device);
+    //     }
+    // })
 
 
     // reset locked property values after stopping playback
     useEffect(() => {
-        if (!isPlaying && previousPlaying) {
-            let p = propertiesToArray(lockedParameters.current);
+        if (!isPlay && prev_isPlay) {
+            let p = propertiesToArray(ref_lockedParameters.current);
             p.forEach((property) => {
-                const d = copyToNew(lockedParameters.current, property)
+                const d = copyToNew(ref_lockedParameters.current, property)
                 // effectRef.current.set(d);
                 dispatch(updateEffectState(trackId, d, fxIndex));
             });
         }
-        isPlayingRef.current = isPlaying;
+        ref_isPlay.current = isPlay;
     }, [
-        isPlaying,
+        isPlay,
         dispatch,
         trackId,
         fxIndex,
-        previousPlaying,
-        isPlayingRef
+        prev_isPlay,
+        ref_isPlay
     ]
     );
 
@@ -387,17 +407,17 @@ const Effect: React.FC<effectsProps> = ({ fxId,
 
         fxProps.forEach(property => {
 
-            const currVal = getNested(optionsRef.current, property);
+            const currVal = getNested(ref_options.current, property);
             const callbackVal = getNested(value, property);
-            const lockVal = getNested(lockedParameters.current, property);
+            const lockVal = getNested(ref_lockedParameters.current, property);
 
             if (callbackVal && callbackVal !== currVal[0]) {
                 propertiesUpdate[property](callbackVal);
-                setNestedValue(property, callbackVal, lockedParameters);
+                setNestedValue(property, callbackVal, ref_lockedParameters);
 
             } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
                 propertiesUpdate[property](lockVal);
-                deleteProperty(lockedParameters.current, property);
+                deleteProperty(ref_lockedParameters.current, property);
 
                 // setNestedValue(property, undefined, lockedParameters.current)
             }
@@ -408,7 +428,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         propertiesUpdate,
         // activePattern,
         // arrangerMode,
-        optionsRef,
+        ref_options,
         // patternTracker,
     ])
 
@@ -418,7 +438,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     // is different than current effect
     useEffect(() => {
         if (previousType && previousType !== type) {
-            ref_ToneEffect.current = returnEffect(type, optionsRef.current);
+            ref_ToneEffect.current = returnEffect(type, ref_options.current);
             // toneRefEmitter.emit(
             //     trackEventTypes.CHANGE_EFFECT,
             //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
@@ -461,13 +481,14 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         fxIndex,
         trackIndex,
         ToneObjectsContext,
-        optionsRef
+        ref_options
     ]);
 
 
 
 
     const wrapBind = (f: Function, cc: number): (e: InputEventControlchange) => void => {
+
         const functRect = (e: InputEventControlchange) => {
             if (e.controller.number === cc) {
                 f(e)
@@ -475,6 +496,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
         }
         return functRect
     }
+
     const bindCCtoParameter = (
         device: string,
         channel: number,
@@ -486,12 +508,18 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 propertiesIncDec,
                 property
             ), cc);
-        setNestedValue(CCMaps.current, {
-            func: f,
-            device: device,
-            channel: channel,
-            cc: cc,
-        })
+
+        setNestedValue(
+            property,
+             {
+                func: f,
+                device: device,
+                channel: channel,
+                cc: cc,
+            },
+            ref_CCMaps.current
+        )
+
         if (device && channel) {
             let i = WebMidi.getInputByName(device)
             if (i) {
@@ -502,11 +530,17 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 );
             }
         }
+
+        WebMidi.inputs.forEach(input => {
+            input.removeListener('controlchange', 'all', ref_listenCC.current)
+        })
+        ref_listenCC.current = undefined;
+        
     }
 
     const midiLearn = (property: string) => {
         let locked = false;
-        const p = getNested(CCMaps.current, property);
+        const p = getNested(ref_CCMaps.current, property);
         if (p) {
             locked = true;
             let device = WebMidi.getInputByName(p.device);
@@ -516,11 +550,11 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                     p.channel,
                     p.func,
                 )
-                deleteProperty(CCMaps.current, property);
+                deleteProperty(ref_CCMaps.current, property);
             }
         }
         if (!locked) {
-            listenCC.current = (e: InputEventControlchange): void => {
+            ref_listenCC.current = (e: InputEventControlchange): void => {
                 return bindCCtoParameter(
                     e.target.name,
                     e.channel,
@@ -529,11 +563,11 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 )
             }
             WebMidi.inputs.forEach(input => {
-                if (listenCC.current) {
+                if (ref_listenCC.current) {
                     input.addListener(
                         'controlchange',
                         'all',
-                        listenCC.current
+                        ref_listenCC.current
                     )
                 }
             });
@@ -545,7 +579,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             ? <Compressor
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps}
+                events={events[activePatt]}
                 trackId={trackId}
                 fxId={fxId}
                 fxIndex={fxIndex}
@@ -559,9 +595,11 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             ? <Gate 
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 trackId={trackId}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxId={fxId}
                 options={options}
                 properties={fxProps}
@@ -573,8 +611,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             ? <Limiter
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 trackId={trackId}
                 fxId={fxId}
                 options={options}
@@ -587,7 +627,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             ? <FreqShifter 
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
-                events={events[activePattern]}
+                events={events[activePatt]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxIndex={fxIndex}
                 trackId={trackId}
                 fxId={fxId}
@@ -601,9 +643,11 @@ const Effect: React.FC<effectsProps> = ({ fxId,
             ? <Widener 
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -617,7 +661,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -630,8 +676,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -645,7 +693,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -658,8 +708,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -672,8 +724,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -687,7 +741,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -701,7 +757,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -715,8 +773,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 options={options}
                 properties={fxProps}
                 propertyUpdateCallbacks={propertiesUpdate}
@@ -729,8 +789,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 options={options}
                 properties={fxProps}
                 propertyUpdateCallbacks={propertiesUpdate}
@@ -743,8 +805,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 options={options}
                 properties={fxProps}
                 propertyUpdateCallbacks={propertiesUpdate}
@@ -757,9 +821,11 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 properties={fxProps}
                 propertyUpdateCallbacks={propertiesUpdate}
                 selected={selectedSteps}
@@ -771,8 +837,10 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                events={events[activePatt]}
                 fxIndex={fxIndex}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
                 options={options}
                 properties={fxProps}
                 propertyUpdateCallbacks={propertiesUpdate}
@@ -785,7 +853,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -799,7 +869,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -813,7 +885,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}
@@ -827,7 +901,9 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 calcCallbacks={propertiesIncDec}
                 trackId={trackId}
                 fxId={fxId}
-                events={events[activePattern]}
+                midiLearn={midiLearn}
+                ccMaps={ref_CCMaps} 
+                events={events[activePatt]}
                 fxIndex={fxIndex}
                 options={options}
                 properties={fxProps}

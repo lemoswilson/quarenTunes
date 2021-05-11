@@ -13,6 +13,8 @@ export interface LimiterProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
@@ -29,6 +31,8 @@ const Limiter: React.FC<LimiterProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -86,7 +90,8 @@ const Limiter: React.FC<LimiterProps> = ({
                 label={'Threshold'}
                 removePropertyLock={removeEffectPropertyLocks.threshold}
                 max={threshold[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('threshold') }}
+                ccMap={getNested(ccMaps.current, 'threshold')}
                 min={threshold[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}

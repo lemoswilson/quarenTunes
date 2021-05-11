@@ -13,6 +13,8 @@ export interface FreqShifterProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
     trackIndex: number,
@@ -29,6 +31,8 @@ const FreqShifter: React.FC<FreqShifterProps> = ({
     options,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
+    ccMaps,
+    midiLearn,
     trackIndex,
     trackId,
     fxIndex,
@@ -94,7 +98,8 @@ const FreqShifter: React.FC<FreqShifterProps> = ({
                 label={'Dry/Wet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 // detail={'envelopeZero'}
@@ -112,7 +117,8 @@ const FreqShifter: React.FC<FreqShifterProps> = ({
                 label={'Frequency'}
                 removePropertyLock={removeEffectPropertyLocks.frequency}
                 max={frequency[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('frequency') }}
+                ccMap={getNested(ccMaps.current, 'frequency')}
                 min={frequency[1][0]}
                 // detail={'envelopeZero'}
                 type={'knob'}

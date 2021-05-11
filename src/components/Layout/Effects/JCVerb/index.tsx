@@ -9,6 +9,8 @@ import { widgetTabIndexTrkStart, trackMax} from '../../../../containers/Track/de
 export interface JCVerb {
     // options: initialsArray,
     options: any,
+    ccMaps: any,
+    midiLearn: (property: string) => void,
     calcCallbacks: any,
     removeEffectPropertyLocks: any,
     propertyUpdateCallbacks: any,
@@ -24,6 +26,8 @@ export interface JCVerb {
 const JCVerb: React.FC<JCVerb> = ({
     calcCallbacks,
     options,
+    ccMaps,
+    midiLearn,
     propertyUpdateCallbacks,
     removeEffectPropertyLocks,
     trackIndex,
@@ -93,7 +97,8 @@ const JCVerb: React.FC<JCVerb> = ({
                 label={'DryWet'}
                 removePropertyLock={removeEffectPropertyLocks.wet}
                 max={wet[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={wet[1][0]}
                 keyFunction={getPercentage}
                 type={'knob'}
@@ -110,7 +115,8 @@ const JCVerb: React.FC<JCVerb> = ({
                 label={'RoomSize'}
                 removePropertyLock={removeEffectPropertyLocks.roomSize}
                 max={roomSize[1][1]}
-                midiLearn={() => { }}
+                midiLearn={() => { midiLearn('wet') }}
+                ccMap={getNested(ccMaps.current, 'wet')}
                 min={roomSize[1][0]}
                 type={'knob'}
                 curve={roomSize[4]}
