@@ -153,6 +153,9 @@ export function arrangerReducer(
 						draft.songs[song].events[from]
 					]
 				break;
+			case arrangerActions.TOGGLE_MODE:
+				draft.mode = draft.mode === arrangerMode.ARRANGER ? arrangerMode.PATTERN : arrangerMode.ARRANGER
+				break;
 		}
 	});
 }

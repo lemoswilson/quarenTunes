@@ -1,3 +1,5 @@
+import { transportActions, transportActionTypes } from "../Transport";
+
 export enum arrangerMode {
 	ARRANGER = "arranger",
 	PATTERN = "pattern",
@@ -45,7 +47,12 @@ export enum arrangerActions {
 	SET_TIMER = "SET_TIMER",
 	RENAME_SONG = "RENAME_SONG",
 	INC_DEC_REPEAT = "INC_DEC_REPEAT",
-	SWAP_EVENTS = "SWAP_EVENTS"
+	SWAP_EVENTS = "SWAP_EVENTS",
+	TOGGLE_MODE = "TOGGLE_MODE"
+}
+
+export interface toggleModeAction {
+	type: arrangerActions.TOGGLE_MODE,
 }
 
 export interface swapEventsAction {
@@ -186,5 +193,6 @@ export type arrangerActionTypes =
 	| setTimerAction
 	| increaseDecreaseRepeatAction
 	| renameSongAction
+	| toggleModeAction
 	| swapEventsAction
 	| removePatternAction;

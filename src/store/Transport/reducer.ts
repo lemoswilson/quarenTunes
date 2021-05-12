@@ -14,16 +14,19 @@ export function transportReducer(
 	return produce(state, (draft) => {
 		switch (action.type) {
 			case transportActions.START:
-				if (!state.isPlaying) state.isPlaying = true;
+				if (!state.isPlaying) draft.isPlaying = true;
 				break;
 			case transportActions.STOP:
-				if (state.isPlaying) state.isPlaying = false;
+				if (state.isPlaying) draft.isPlaying = false;
 				break;
 			case transportActions.RECORD:
-				state.recording = !state.recording;
+				draft.recording = !state.recording;
 				break;
 			case transportActions.SET_BPM:
-				state.bpm = action.payload.bpm;
+				draft.bpm = action.payload.bpm;
+				break;
+			case transportActions.INC_DEC_BPM:
+				draft.bpm = draft.bpm + action.payload.amount;
 		}
 	});
 }

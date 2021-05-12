@@ -1,8 +1,13 @@
 @import '../../../../style/variables';
 
 .svg {
-    margin-left: 0.16rem;
+    margin-left: 0.23rem;
     margin-top: 0.2rem;
+
+    .color {
+        fill: $dark;
+    }
+
 }
 
 .hover {

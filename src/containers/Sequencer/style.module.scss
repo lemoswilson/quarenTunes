@@ -19,7 +19,7 @@
             width: 89%;
             height: 93%;
             border-radius: 2rem;
-            background-color: white;
+            background-color: $white;
             @include shadow(7px, 9px, 5px);
             display: flex;
             @include center;
@@ -36,7 +36,7 @@
             margin-top: 1rem;
             margin-left: 1rem;
             border-radius: 2rem;
-            background-color: white;
+            background-color: $white;
             width: 95%;
             // border: 1px solid black;
             height: 93%;

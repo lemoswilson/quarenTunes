@@ -8,12 +8,106 @@ interface TrashCan {
     onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
+const TrashCanSVG: React.FC = () => {
+    return (
+            // <svg className={styles.svg}  xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 40.56 46.56">
+            <svg className={styles.svg}  xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 30 30 ">
+                <defs>
+                    <linearGradient id="a" x1="8.1" y1="6.11" x2="20.79" y2="25.48" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#f0f0f0" stop-opacity="0.3"/>
+                        {/* <stop offset="0.98" stop-color="#ededed" stop-opacity="0.3"/> */}
+                        <stop offset="0.98" stop-color="#ededed" stop-opacity="0.3"/>
+                    </linearGradient>
+                    <image id="m" width="31" height="39" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAnCAYAAAD3h5P5AAAACXBIWXMAAAsSAAALEgHS3X78AAABKElEQVRYR+2XXQ7CMAyDU8SNdv8j7EzlhUpWGiceqHQPfNJU6NbZpr+03rvt4lE9sJK/+Ba2ij+rByLO82y+7jiOy9OmqVMtEmSoRkpxIhrVTS+qTKTiTlhObmAkM0DFibBioLuSGlAGnBfODPT3fSwpYXJIjWVmwqftvi5Kryb3Jnx6TDlSj8+UaZEJUg/ahcu3C2dNlbwSwMQMer8SR5h4RGXIzHRxFPM/rTcgjXQzbWNhKdM+DuonFPFl3F58Wi7hOy4mWI8lRR1wbBBh3bSqVajiZvyFXlwSNqvFqxfh/U4uytTnsAFkfVxdvt3HG8to5PsX57E3XKY2M+kwwcqIyMRXh4mREssM1m0T9zzDDbadXpEt5/aIn/9jWYGysSzjL76FreIvkCSkMMabVQUAAAAASUVORK5CYII="/>
+                </defs>
+                <title>lixoso</title>
+                <g style={{isolation: "isolate"}}>
+                    <g>
+                        <g>
+                            <g>
+                            <path d="M17.78,25.89h-9a3.2,3.2,0,0,1-3.2-3.2V9.13H21V22.69A3.2,3.2,0,0,1,17.78,25.89Z" style={{fill: "url(#a)"}}/>
+                            <path d="M17.78,25.89h-9a3.2,3.2,0,0,1-3.2-3.2V9.13H21V22.69A3.2,3.2,0,0,1,17.78,25.89Z" style={{fill: "url(#a)"}}/>
+                            </g>
+                            <g>
+                            <path d="M16.1,5.48H10.45a2.83,2.83,0,1,1,5.65,0Z" style={{fill: "url(#a)"}}/>
+                            <path d="M16.1,5.48H10.45a2.83,2.83,0,1,1,5.65,0Z" style={{fill: "url(#a)"}}/>
+                            </g>
+                            <g>
+                            <path d="M16.1,5.48h4.82a1.43,1.43,0,0,1,1.43,1.43V7.7a1.44,1.44,0,0,1-1.43,1.44H5.63A1.44,1.44,0,0,1,4.2,7.7V6.91A1.43,1.43,0,0,1,5.63,5.48h4.82" style={{fill: "url(#a)"}}/>
+                            <path d="M16.1,5.48h4.82a1.43,1.43,0,0,1,1.43,1.43V7.7a1.44,1.44,0,0,1-1.43,1.44H5.63A1.44,1.44,0,0,1,4.2,7.7V6.91A1.43,1.43,0,0,1,5.63,5.48h4.82" style={{fill: "url(#a)"}}/>
+                            </g>
+
+                            <g>
+                                <g>
+                                    <line x1="9.24" y1="22.47" x2="9.24" y2="14.27" style={{fill: "url(#a)"}}/>
+                                    <line x1="9.24" y1="22.47" x2="9.24" y2="14.27" style={{fill: "url(#a)"}}/>
+                                </g>
+                                <g>
+                                    <line x1="13.41" y1="22.47" x2="13.41" y2="14.27" style={{fill: "url(#a)"}}/>
+                                    <line x1="13.41" y1="22.47" x2="13.41" y2="14.27" style={{fill: "url(#a)"}}/>
+                                </g>
+                                <g>
+                                    <line x1="17.57" y1="22.47" x2="17.57" y2="14.27" style={{fill: "url(#a)"}}/>
+                                    <line x1="17.57" y1="22.47" x2="17.57" y2="14.27" style={{fill: "url(#a)"}}/>
+                                </g>
+                            </g>
+                        </g>
+                        <g>
+                            <g>
+                                <image width="26" height="28" transform="translate(2 6)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAdCAYAAABbjRdIAAAACXBIWXMAAAsSAAALEgHS3X78AAAB7klEQVRIS+2WTU/bQBCGH2OXAJFaCQqi4sK14uj//w+Sf8ChEpVKoYBSaBJw4u3hnbHXVkgcPsqhjLSa9cfsszNrz0wSQuBfSeaT4XCY2LSt15EQ6zzPG54kIQQHJUCKNpDa9TrAYGMOzEyHGJgMBgNf9AOwDfRNZ8AG3YABKBFkAvwxXRABPYwpAuwBh8BnYAdtoCusAMbAL+AcuKLeACBYYroPfAG+AscIvIm8WyUl8IAA39CaU+AeCycs9uwYOEHgbbrDJsAPu75A3qXxS+6Zn1kf2EWhPEKhbBg8InMUwoCAfeojqI7BPfObGdBDkB0z6goD2fRoOlFJVk+rhxs20mh0kZTaduFv0+U8XkzeYS8i/w8sROMpstTeYZ61S/SDzm3eFdq293nDPqPeyQwlzjHKc1OUDWB15p+hrD+18UCdgCugZ5A5Ao2AS5RIP9qzLZafrZeXEXBj4xatV8YvumeeSC9RiXDQAauTcUCeXCPb7zafEJUXaHo2QbBTu/cb2EewOIe2xWEj4AwBr1A4PUEDzR4kQyH7hCD7yMMedU+ySPy8x8ijn6ha3wFFnudVKBNv5SLgJiqaS8tFJP4RFCg6/oEVQNloeOK+0YDt8tKly3Lgo50VtGDwrP4xxLoNggWw15Q3zY2vKn8BM229W7f2+04AAAAASUVORK5CYII=" style={{opacity: 0.5, mixBlendMode: "multiply"}}/>
+                                {/* <path d="M17.78,25.89h-9a3.2,3.2,0,0,1-3.2-3.2V9.13H21V22.69A3.2,3.2,0,0,1,17.78,25.89Z" style="fill: #d4d4d4"/> */}
+                                <path d="M17.78,25.89h-9a3.2,3.2,0,0,1-3.2-3.2V9.13H21V22.69A3.2,3.2,0,0,1,17.78,25.89Z" className={styles.color}/>
+                            </g>
+                            <g>
+                                <image width="16" height="13" transform="translate(7)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAOCAYAAADJ7fe0AAAACXBIWXMAAAsSAAALEgHS3X78AAABHUlEQVQoU6XSy0oDQRCF4W9MovFCXCguom4UBNfzHHn0vIIgLrKIEhTFS+K0i65OJiYrLWiqpyn+OVV1qpSSdozH4yquJUOCuq7Xi0thGxKAHXTiVAH4jtNsAy0hAehiF/vox/cCH3jHFxa/QVVKqQ3o4xinOMEePvGERzwHcA3UjbyDHgY4xxUucYg3PODOqrUmMuiMRqNK7v8QZ7jGLW5wISvryIre5Lbmk8kkDYdDbCo5kNUM4t6X/9p+60X9Mrqrq4Q5XjGNtzKTabzPo24tCqSRBzbDvSz7yGo7r/JgZ1HXtCFlO6WdvjybfSvZjazgPeAfmNd1vQQVJaWVRvbCi2y0YraylUXkTZ+w1e4bti95q9n+G2ur+mv8AEzCdULhkIQiAAAAAElFTkSuQmCC" style={{opacity: 0.5, mixBlendMode: "multiply"}}/>
+                                {/* <path d="M16.1,5.48H10.45a2.83,2.83,0,1,1,5.65,0Z" style="fill: #d4d4d4"/> */}
+                                <path d="M16.1,5.48H10.45a2.83,2.83,0,1,1,5.65,0Z" className={styles.color}/>
+                            </g>
+                            <g>
+                                <image width="30" height="15" transform="translate(0 2)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAQCAYAAADu+KTsAAAACXBIWXMAAAsSAAALEgHS3X78AAABLUlEQVQ4T8XUy05CMRAG4O+AUTReMEYTN8aFbtzy/o/AG7hgZyLxbkCIelx0qoWgSLzwJ5O2c9r/n5nOaVXXtWVhZdrR7XarmE6Pi6Aux06nMzPDqsw8hBtoFlZZLIA67KWw11kBvIuHcBOr2Ahbk6rz3QCy8DNGGISN8TIdQFXXdZnxGnawjwO0w5crMA854xFucYk+7sI3UYHyzptYl4RPcYJDbJrRG1/gGY+4wHn4xuF/LTdm0lzydezhGGc4wpaP0s9DLvkDdmN+HTaI9czMq1i3JMF2EGxbXHwF9xJPyyfnS/F88EmK/FYSzmSLiOfzDxLfRMYZWTw3yhBX6MW3Gz+7857EN5T4JwIoSbN4P9Z3fq/bs/gElv+fZyzthctY2tv+32jM2/CXeAOF0ZegOFMeYQAAAABJRU5ErkJggg==" style={{opacity: 0.5, mixBlendMode: "multiply"}}/>
+                                {/* <path d="M16.1,5.48h4.82a1.43,1.43,0,0,1,1.43,1.43V7.7a1.44,1.44,0,0,1-1.43,1.44H5.63A1.44,1.44,0,0,1,4.2,7.7V6.91A1.43,1.43,0,0,1,5.63,5.48h4.82" style="fill: #d4d4d4"/> */}
+                                <path d="M16.1,5.48h4.82a1.43,1.43,0,0,1,1.43,1.43V7.7a1.44,1.44,0,0,1-1.43,1.44H5.63A1.44,1.44,0,0,1,4.2,7.7V6.91A1.43,1.43,0,0,1,5.63,5.48h4.82" className={styles.color}/>
+                            </g>
+                            <g>
+                                <g>
+                                    <use transform="translate(0.56 7.56)" xlinkHref="#m" style={{opacity: 0.5, mixBlendMode: "multiply"}}/>
+                                    <g>
+                                        {/* <line x1="9.24" y1="22.47" x2="9.24" y2="14.27" style="fill: #fff"/> */}
+                                        <line x1="9.24" y1="22.47" x2="9.24" y2="14.27" className={styles.white}/>
+                                        <line x1="9.24" y1="22.47" x2="9.24" y2="14.27" style={{fill: "none", stroke: "#ebebeb", strokeMiterlimit: 10, strokeWidth: "0.25px"}}/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <use transform="translate(4.56 7.56)" xlinkHref="#m" style={{opacity: 0.5, mixBlendMode: "multiply"}}/>
+                                    <g>
+                                    {/* <line x1="13.41" y1="22.47" x2="13.41" y2="14.27" style="fill: #fff"/> */}
+                                    <line x1="13.41" y1="22.47" x2="13.41" y2="14.27" className={styles.white}/>
+                                    <line x1="13.41" y1="22.47" x2="13.41" y2="14.27" style={{fill: "none", stroke: "#ebebeb", strokeMiterlimit: 10, strokeWidth: "0.25px"}}/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <image width="32" height="39" transform="translate(8.56 7.56)" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAnCAYAAABuf0pMAAAACXBIWXMAAAsSAAALEgHS3X78AAABKElEQVRYR+2XawoDIQyEY+mN9v5H2DPZPxWGMWMii9iCA2KbXc2X+NxSa7WdekUvrNYBOADv6AWl+74L267rml5SZWYZek6VsjApAOHYs3WdRSAhADlPZ8AAZgQxBBDOMxCVagmRnYTsfARRv8+xlpIZgOixHoFw1JVtXhZmMsAgnAWMtkXffku5G5ETfVOZKNzOXU2ZDEROMHIl+TwDgFIAniIoM5sDQIecZoZIrQCz/GGkoh2OuWPvlAVYpr8B6LZW+I8bDtqxlpqZhGpioa3b/SLNAJjpThkg5dwsBxB1hs+rKFLuHIBDYzTmUeF2jw6j1pDHG9c5Q4fRm1n6QqJqTx7I4wtJixbrkdQQdvrtO2HT1lsxatt3gactX0YrlD2MlukAHIAPtD2kMKrvhzAAAAAASUVORK5CYII=" style={{opacity: 0.5, mixBlendMode: "multiply"}}/>
+                                    <g>
+                                    <line x1="17.57" y1="22.47" x2="17.57" y2="14.27" className={styles.white}/>
+                                    <line x1="17.57" y1="22.47" x2="17.57" y2="14.27" style={{fill: "none", stroke: "#ebebeb", strokeMiterlimit: 10, strokeWidth: "0.25px"}}/>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                </svg>
+
+    )
+};
+
 
 
 const TrashCan: React.FC<TrashCan> = ({ className, onClick }) => {
     return (
         <ButtonBackground onClick={onClick} className={`${className} ${styles.hover}`}>
-            <img className={styles.svg} src={Trash} alt='remove' width='150%' height='150%' />
+            {/* <img className={styles.svg} src={Trash} alt='remove' width='150%' height='150%' /> */}
+            <TrashCanSVG/>
         </ButtonBackground>
     )
 }

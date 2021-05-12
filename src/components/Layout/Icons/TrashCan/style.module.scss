@@ -2,8 +2,20 @@
 
 
 .svg {
-    margin-left: 0.13rem;
+    margin-left: 0.25rem;
     margin-top: 0.1rem;
+
+    .color {
+        fill: $dark;
+    }
+
+    .light {
+        stop-color: $light;
+    }
+
+    .white {
+        fill: $white;
+    }
 }
 
 .hover {

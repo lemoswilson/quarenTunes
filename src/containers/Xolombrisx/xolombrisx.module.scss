@@ -29,11 +29,13 @@ html {
                 // border-bottom: 1px solid black;
     
                 .transport {
-                    border-radius: 0.5rem;
+                    border-radius: 1rem;
                     background-color: white;
                     @include shadow(7px, 9px, 5px);
-                    height: 90%;
-                    width: 13%;
+                    height: 100%;
+                    width: 15%;
+                    display: flex;
+                    @include center;
                 }
             }
     
@@ -55,7 +57,7 @@ html {
                         width: 89%;
                         margin-right: 1rem;
                         border-radius: 2rem;
-                        background-color: white;
+                        background-color: $white;
                         margin-bottom: 1rem;
                         display: flex;
                         @include center;

@@ -9,6 +9,12 @@ interface Play {
     className?: string;
 }
 
+// const PlaySVG: React.FC = () => {
+//     return (
+
+//     )
+// }
+
 const Play: React.FC<Play> = ({ onClick, className }) => {
 
     return (

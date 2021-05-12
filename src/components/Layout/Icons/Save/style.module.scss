@@ -1,9 +1,17 @@
 @import '../../../../style/variables';
 
+.cc {
+    fill: $dark;
+}
+
+.white {
+    fill: $white;
+}
 
 .svg {
     height: 95%;
     width: 95%;
+
 }
 
 .hover {

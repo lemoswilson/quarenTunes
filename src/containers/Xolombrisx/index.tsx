@@ -33,8 +33,11 @@ import { onlyValues } from '../../lib/objectDecompose';
 import DrumRackInstrument from '../../lib/DrumRack';
 import { userProps } from '../../App';
 import styles from './xolombrisx.module.scss'
+
 import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
+import Transport from '../../containers/Transport';
+
 import { initialsArray, effectsInitials, effectsInitialsArray } from '../../containers/Track/Instruments/'
 import Arranger from "../Arranger";
 
@@ -638,7 +641,9 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                                         <WebMidiComponent/>
                                                         <div className={styles.content}>
                                                             <div className={styles.top}>
-                                                                <div className={styles.transport}></div>
+                                                                <div className={styles.transport}>
+                                                                    <Transport/>
+                                                                </div>
                                                             </div>
                                                             <div className={styles.gap}></div>
                                                             <div className={styles.mid}>

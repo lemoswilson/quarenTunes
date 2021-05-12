@@ -1,0 +1,18 @@
+@import '../../style/variables';
+
+.overlay {
+    background-color: $light;
+    display: flex;
+    @include center;
+    width: 95%;
+    height: 80%;
+    border-radius: 1rem;
+
+    .grouper {
+        display: flex;
+        height: 100%;
+        width: 92%;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

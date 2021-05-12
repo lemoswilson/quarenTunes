@@ -11,6 +11,10 @@
     .svg {
         padding-left: 0.15rem;
         order: 1;
+
+        .knob {
+            fill: $light;
+        }
     }
 
     .title {

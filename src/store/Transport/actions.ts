@@ -1,5 +1,14 @@
 import { transportActionTypes, transportActions } from "./types";
 
+export function increaseDecreaseBPM(amount: number): transportActionTypes {
+	return {
+		type: transportActions.INC_DEC_BPM,
+		payload: {
+			amount: amount,
+		}
+	}
+}
+
 export function startPlayback(): transportActionTypes {
 	return {
 		type: transportActions.START,

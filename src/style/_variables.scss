@@ -4,18 +4,37 @@
 
 $jost: 'Jost', serif;
 $PTSans: 'PT Sans', sans-serif;
+
+// https://coolors.co/ffb5a7-fcd5ce-f8edeb-f9dcc4-fec89a
+
+// light #909190
+// shadow #7a7a7a
+
+// $blue: #ffe8d6;
+// $light: #ddbea9;
+// $dark: #a38c7d;
+// $textColor: #79685c;;
+// $textShadow: #f7c1b1bf;
+// $white: white;
+// $textColorTitle: rgb(194, 194, 194);
+// @mixin shadow($x, $y, $b) {
+//         box-shadow: $x $y $b rgba(126, 126, 126, 0.5);
+// }
+
 $blue: #f5f8fa;
 $light: #ededed;
 $dark: #d4d4d4;
-$red: #ea8686;
-$shadow: #cccccc;
 $textColor: #c8c9c8;
 $textShadow: rgba(220, 223, 224, 0.75);
+$textColorTitle: rgb(194, 194, 194);
 $white: rgba(255, 255, 255, 1);
-
 @mixin shadow($x, $y, $b) {
         box-shadow: $x $y $b rgba(204,204,204,0.5);
 }
+
+$red: #ea8686;
+$shadow: #cccccc;
+
 
 @mixin center {
         justify-content: center;

@@ -3,6 +3,7 @@ export enum transportActions {
 	STOP = "STOP",
 	RECORD = "RECORD",
 	SET_BPM = "SET_BPM",
+	INC_DEC_BPM = "INC_DEC_BPM",
 }
 
 export interface Transport {
@@ -23,6 +24,13 @@ export interface toggleRecordingAction {
 	type: transportActions.RECORD;
 }
 
+export interface increaseDecreaseBPMAction {
+	type: transportActions.INC_DEC_BPM,
+	payload: {
+		amount: number,
+	}
+}
+
 export interface setBPMAction {
 	type: transportActions.SET_BPM;
 	payload: {
@@ -34,4 +42,5 @@ export type transportActionTypes =
 	| startAction
 	| stopAction
 	| toggleRecordingAction
+	| increaseDecreaseBPMAction
 	| setBPMAction;

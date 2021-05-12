@@ -1,5 +1,11 @@
 import { arrangerActionTypes, arrangerMode, arrangerActions } from "./types";
 
+export function toggleMode(): arrangerActionTypes {
+	return {
+		type: arrangerActions.TOGGLE_MODE,
+	}
+}
+
 export function removePatternArranger(index: number): arrangerActionTypes {
 	return {
 		type: arrangerActions.REMOVE_PATTERN,

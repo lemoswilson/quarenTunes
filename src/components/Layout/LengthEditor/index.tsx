@@ -37,17 +37,17 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
 
     useEffect(() => {
         const inp = ref_input.current
-        // ref_input.current?.addEventListener('keydown', keydown)
         inp?.addEventListener('keydown', keydown)
+
         return () => {
             inp?.removeEventListener('keydown', keydown)
-            // ref_input.current?.removeEventListener('keydown', keydown)
         }
+
     }, [])
 
     useEffect(() => {
+
         if (ref_input.current) {
-            // console.log('just updated, length is now', length);
             ref_input.current.value = String(length);
         }
 
@@ -64,7 +64,13 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
             <div className={styles.display}>
                 <div className={styles.box}>
                     <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
-                        <input ref={ref_input} disabled={disabled} type={"text"} defaultValue={length} placeholder={String(length)} />
+                        <input 
+                            ref={ref_input} 
+                            disabled={disabled} 
+                            type={"text"} 
+                            defaultValue={length} 
+                            placeholder={String(length)}
+                        />
                     </form>
                 </div>
             </div>

@@ -1,0 +1,23 @@
+@import '../../../style/variables';
+
+.patternMode {
+    width: 85%;
+    height: 85%;
+    padding-left: 0.2rem;
+    padding-top: 0.17rem;
+
+    .color {
+        fill: $dark;
+    }
+}
+
+.arrangerMode {
+    width: 85%;
+    height: 85%;
+    padding-left: 0.15rem;
+    padding-top: 0.20rem;
+
+    .color {
+        fill: $dark;
+    }
+}
