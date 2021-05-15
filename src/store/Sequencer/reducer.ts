@@ -18,7 +18,8 @@ const initialTrack = {
 	noteLength: "16n",
 	page: 0,
 	selected: [],
-	velocity: 60
+	velocity: 60,
+	fxCount: 1,
 }
 export const initialState: Sequencer = {
 	activePattern: 0,
@@ -110,26 +111,40 @@ export function sequencerReducer(
 				);
 				break;
 			case sequencerActions.ADD_PATTERN:
+
+				const anyPattern = Number(Object.keys(draft.patterns)[0]);
+				const trackCount = draft.patterns[anyPattern].tracks.length;
+
+				draft.activePattern = draft.counter
 				draft.patterns[draft.counter] = {
 					name: `Pattern ${draft.counter + 1}`,
+					// name: `colxo`,
 					patternLength: 16,
 					tracks: [],
 				};
-				const anyPattern = Number(Object.keys(draft.patterns)[0]);
-				const trackCount = Object.keys(draft.patterns[anyPattern].tracks).length;
-				[...Array(trackCount).keys()].forEach((i) => {
-					const fxNumber = draft.patterns[anyPattern].tracks[0].events[0].fx.length
+
+
+				[...Array(trackCount).keys()].forEach((_, i, __) => {
+					// const fxNumber = draft.patterns[anyPattern].tracks[i].events[0].fx.length
+
+					const fxNumber = draft.patterns[anyPattern].tracks[i].fxCount
 					draft.patterns[draft.counter].tracks[i] = {
 						length: 16,
-						events: Array(16).fill({ instrument: { note: [] }, fx: Array(fxNumber).map(v => { }), offset: 0 }),
+						// events: Array(16).fill({ instrument: { note: [] }, fx: [...Array(fxNumber).keys()].map(_ => new Object()), offset: 0 }),
+						events: Array(16).fill({ instrument: { note: [] }, fx: [...Array(fxNumber).keys()].map(_ => Object.create({})), offset: 0 }),
 						// eventsFx: Array(16).fill({}),
 						velocity: 60,
 						noteLength: "16n",
 						page: 0,
 						selected: [],
+						fxCount: 1,
 					};
 				});
-				draft.counter = draft.counter + 1;
+
+				console.log(`active pattern now should be ${draft.counter}`);
+				// draft.activePattern = draft.counter 
+				// draft.counter = draft.counter + 1;
+				draft.counter ++;
 				break;
 			case sequencerActions.CHANGE_PAGE:
 				[page, pattern, trackIndex] = [
@@ -442,6 +457,7 @@ export function sequencerReducer(
 					const p = parseInt(pattern)
 					const l = draft.patterns[p].tracks[trackIndex].events.length
 					let i = 0
+					draft.patterns[p].tracks[trackIndex].fxCount ++ 
 					while (i < l) {
 						draft.patterns[p].tracks[trackIndex].events[i].fx.splice(fxIndex, 0, {});
 						i++
@@ -453,6 +469,7 @@ export function sequencerReducer(
 				Object.keys(draft.patterns).forEach(pattern => {
 					const p = parseInt(pattern)
 					let l = draft.patterns[p].tracks[trackIndex].events.length
+					draft.patterns[p].tracks[trackIndex].fxCount --
 					let i = 0
 					while (i < l) {
 						draft.patterns[p].tracks[trackIndex].events[i].fx.splice(fxIndex, 1);

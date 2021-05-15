@@ -14,9 +14,9 @@ const TrashCanSVG: React.FC = () => {
             <svg className={styles.svg}  xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 30 30 ">
                 <defs>
                     <linearGradient id="a" x1="8.1" y1="6.11" x2="20.79" y2="25.48" gradientUnits="userSpaceOnUse">
-                        <stop offset="0" stop-color="#f0f0f0" stop-opacity="0.3"/>
+                        <stop offset="0" stopColor="#f0f0f0" stopOpacity="0.3"/>
                         {/* <stop offset="0.98" stop-color="#ededed" stop-opacity="0.3"/> */}
-                        <stop offset="0.98" stop-color="#ededed" stop-opacity="0.3"/>
+                        <stop offset="0.98" stopColor="#ededed" stopOpacity="0.3"/>
                     </linearGradient>
                     <image id="m" width="31" height="39" xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAnCAYAAAD3h5P5AAAACXBIWXMAAAsSAAALEgHS3X78AAABKElEQVRYR+2XXQ7CMAyDU8SNdv8j7EzlhUpWGiceqHQPfNJU6NbZpr+03rvt4lE9sJK/+Ba2ij+rByLO82y+7jiOy9OmqVMtEmSoRkpxIhrVTS+qTKTiTlhObmAkM0DFibBioLuSGlAGnBfODPT3fSwpYXJIjWVmwqftvi5Kryb3Jnx6TDlSj8+UaZEJUg/ahcu3C2dNlbwSwMQMer8SR5h4RGXIzHRxFPM/rTcgjXQzbWNhKdM+DuonFPFl3F58Wi7hOy4mWI8lRR1wbBBh3bSqVajiZvyFXlwSNqvFqxfh/U4uytTnsAFkfVxdvt3HG8to5PsX57E3XKY2M+kwwcqIyMRXh4mREssM1m0T9zzDDbadXpEt5/aIn/9jWYGysSzjL76FreIvkCSkMMabVQUAAAAASUVORK5CYII="/>
                 </defs>

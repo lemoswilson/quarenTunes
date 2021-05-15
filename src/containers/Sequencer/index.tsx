@@ -42,7 +42,7 @@ import { upOctaveKey, downOctaveKey, keyDict, noteDict, numberNoteDict } from '.
 
 
 // import Tone from '../../lib/tone';
-// import * as Tone from 'tone';
+import * as Tone from 'tone';
 import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
 import MenuEmitter, { menuEmitterEventTypes } from '../../lib/MenuEmitter';
 import DropdownEmitter, { dropdownEventTypes } from '../../lib/dropdownEmitter';
@@ -58,9 +58,11 @@ import styles from './style.module.scss';
 import { xolombrisxInstruments } from '../../store/Track';
 
 import ToneObjectsContext from '../../context/ToneObjectsContext';
-import ToneContext from '../../context/ToneContext';
+// import ToneContext from '../../context/ToneContext';
 import menuContext from '../../context/MenuContext';
 import dropdownContext from '../../context/DropdownContext';
+
+import { getFinalStep as finalStep, timeObjFromEvent } from '../../lib/utility';
 
 interface copySteps {
     steps: event[], 
@@ -72,7 +74,7 @@ const Sequencer: FunctionComponent = () => {
     const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_newPattern = useRef(false);
     const [isNote, setIsNote] = useState(false)
-    const Tone = useContext(ToneContext);
+    // const Tone = useContext(ToneContext);
     const patternQueue: MutableRefObject<number[] | null> = useRef(null)
 
     const ref_copiedSteps = useRef<copySteps | null>(null)
@@ -98,6 +100,7 @@ const Sequencer: FunctionComponent = () => {
     const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
     const ref_activePatt = useRef(activePatt);
     useEffect(() => { ref_activePatt.current = activePatt }, [activePatt])
+    const prev_activePatt = usePrevious(activePatt);
 
 
     const selectedTrkIndex = useSelector((state: RootState) => state.track.present.selectedTrack)
@@ -113,7 +116,11 @@ const Sequencer: FunctionComponent = () => {
         ref_voice.current = voice
     }, [voice])
 
-    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].selected);
+    // const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].selected);
+    const selectedSteps = useSelector((state: RootState) => { 
+        // console.log('inside selector, state is ', state.sequencer.present);
+        return state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].selected 
+    });
     const ref_selectedSteps = useRef(selectedSteps);
     useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps])
 
@@ -131,11 +138,15 @@ const Sequencer: FunctionComponent = () => {
 
     const patternLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].patternLength)
     const patternNoteLength = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].noteLength)
+
     const trackLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].length)
     const ref_trackLen = useRef(trackLen)
     useEffect(() => {
         ref_trackLen.current = trackLen;
     }, [trackLen])
+    const prev_trackLen = usePrevious(trackLen);
+
+    const effectsLength = useSelector((state: RootState) => state.track.present.tracks.map(track => track.fx.length));
 
     const events = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].events);
     const eventsRef = useRef(events);
@@ -185,7 +196,7 @@ const Sequencer: FunctionComponent = () => {
     const _addPatt = useCallback(() => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
         dispatch(addPattern());
-        ref_newPattern.current = true;
+        // ref_newPattern.current = true;
     }, [
         dispatch,
         counter
@@ -197,8 +208,9 @@ const Sequencer: FunctionComponent = () => {
         if (newLength <= 64 && newLength >= 1) {
             if (ref_toneObjects.current) {
 
-                const nl = bbsFromSixteenth(newLength)
-                ref_toneObjects.current.patterns[activePatt][selectedTrkIndex].instrument.loopEnd = nl;
+                // const nl = bbsFromSixteenth(newLength)
+                const nl = {'16n': newLength}
+                    ref_toneObjects.current.patterns[activePatt][selectedTrkIndex].instrument.loopEnd = nl;
                 let i = 0;
                 // while (i < 4) {
                 while (i < ref_toneObjects.current.patterns[activePatt][selectedTrkIndex].effects.length) {
@@ -210,11 +222,101 @@ const Sequencer: FunctionComponent = () => {
         }
     };
 
+    // setting up initial events in first render
+    useEffect(() => {
+        console.log('should be setting initial events');
+        if (ref_toneObjects.current)
+        Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
+            const s = Number(patt)
+            for (let i = 0; i < trackCount ; i ++)
+                patterns[s].tracks[i].events.forEach((event, eventIdx, arr) => {
+                    const time = timeObjFromEvent(eventIdx, event, true)
+                    ref_toneObjects.current?.patterns[s][i].instrument.at(time, event.instrument)
+
+                    for (let j = 0; j < effectsLength[i]; j ++)
+                        ref_toneObjects.current?.patterns[s][i].effects[j].at(time, event.fx[j])
+                })
+        })
+    }, [])
+
     useEffect(() => {
         if (arrangerMode === "pattern") {
-            Tone.Transport.loopEnd = patternLength;
+            console.log('should be setting tone transport to loop');
+            Tone.Transport.loop = true;
+            Tone.Transport.loopEnd = {"16n": patternLength};
+            // Tone.Transport.setLoopPoints(0, bbsFromSixteenth(patternLength))
+            // Tone.Transport.setLoopPoints(0, {"16n": patternLength})
+            console.log(`tone transport loop ${Tone.Transport.loop}, tone transport loopstart, ${Tone.Transport.loopStart}, loop end, ${Tone.Transport.loopEnd}`)
         }
     }, [arrangerMode, patternLength])
+
+    useEffect(() => {
+        if (prev_activePatt && prev_activePatt === activePatt) {
+            console.log('scheduling frmo trackLength');
+            scheduleOrStop('schedule')
+        }
+    }, [trackLen])
+
+    const scheduleOrStop = (option: 'schedule' | 'stop', start?: boolean) => {
+        Tone.Transport.loop = true;
+        // Tone.Transport.loopEnd = patternLength;
+        // Tone.Transport.loopStart = 0;
+
+        [...Array(trackCount).keys()].forEach((__, trk, _) => {
+            if (ref_toneObjects.current) {
+
+                if (option === 'schedule'){
+                    ref_toneObjects.current.patterns[activePatt][trk].instrument.loopEnd = {'16n': activePatternObj.tracks[trk].length}
+                    ref_toneObjects.current.patterns[activePatt][trk].instrument.loop = true
+
+                    if (start){
+                        ref_toneObjects.current.patterns[activePatt][trk].instrument.start(0)
+                        console.log(`should be setting start part active patt ${activePatt}, track ${trk}, activePatternTRkLength ${activePatternObj.tracks[trk].length}`)
+                    }
+
+                    for (let i = 0; i < effectsLength[trk]; i ++) {
+                        ref_toneObjects.current.patterns[activePatt][trk].effects[i].loopEnd = {'16n': activePatternObj.tracks[trk].length}
+                        ref_toneObjects.current.patterns[activePatt][trk].effects[i].loop = true;
+                        if (start) {
+                            ref_toneObjects.current.patterns[activePatt][trk].effects[i].start(0)
+                            console.log(`should be setting start part active patt ${activePatt}, track ${trk}, effect${i}`)
+                        }
+                    }
+
+                } else {
+                    ref_toneObjects.current.patterns[activePatt][trk].instrument.cancel()
+                    ref_toneObjects.current.patterns[activePatt][trk].instrument.stop()
+
+                    for (let i = 0; i < effectsLength[trk]; i ++) {
+                        ref_toneObjects.current?.patterns[activePatt][trk].effects[i].cancel() 
+                        ref_toneObjects.current?.patterns[activePatt][trk].effects[i].stop() 
+                    }
+                }
+
+
+            }
+        })   
+
+    }
+
+    useEffect(() => {
+
+        console.log('shceduling from arranger mode change');
+        scheduleOrStop(
+            arrangerMode === 'pattern' 
+            ? 'schedule' 
+            : 'stop',
+            true
+        )
+
+    }, [arrangerMode])
+
+    useEffect(() => {
+        console.log('scheduling from active patter');
+        if (Tone.Transport.state !== 'started') 
+            scheduleOrStop('schedule', true);
+
+    }, [activePatt])
 
     const _changePattLen = useCallback((newLength: number): void => {
         if (newLength >= 1) {
@@ -230,66 +332,53 @@ const Sequencer: FunctionComponent = () => {
         dispatch(incDecTrackLength(amount, activePatt, selectedTrkIndex))
     }, [activePatt, dispatch, selectedTrkIndex])
 
-    // const dispatchSelectPattern = (e: ChangeEvent<HTMLInputElement>): void => {
     const _selectPatt = (key: string): void => {
-        // e.preventDefault();
-        // let nextPattern: number = e.currentTarget.valueAsNumber;
+        console.log('pattern selected is', key) 
         let nextPattern: number = Number(key);
-        let loopEnd = patterns[nextPattern].patternLength;
         let currPatt = activePatt;
-        if (Tone.Transport.state === "started" && arrangerMode === 'pattern') {
 
-            // if transport is active and pattern mode selected, this should queue
-            // the pattern to start looping at 
-            if (patternQueue.current && patternQueue.current.length > 0) {
-                currPatt = patternQueue.current[0]
-                patternQueue.current.pop()
-            } else if (patternQueue.current && patternQueue.current.length === 0){
-                patternQueue.current.push(currPatt)
-            }
+        if (arrangerMode === 'pattern'){
+            if (Tone.Transport.state === 'started') {
 
-            [...Array(trackCount).keys()].forEach((_, track, arr) => {
-                ref_toneObjects.current?.patterns[currPatt][track].instrument.stop(0);
-                ref_toneObjects.current?.patterns[nextPattern][track].instrument.start(0)
-                let l = ref_toneObjects.current?.patterns[currPatt][track].effects.length
-                l = l ? l : 0 
-                for (let j = 0; j < l; j++) {
-                    ref_toneObjects.current?.patterns[currPatt][track].effects[j].stop(0);
-                    ref_toneObjects.current?.patterns[nextPattern][track].effects[j].start(0)
+                // if transport is active and pattern mode selected, this should queue
+                // the pattern to start looping at 
+
+                if (patternQueue.current && patternQueue.current.length > 0) {
+                    currPatt = patternQueue.current[0]
+                    patternQueue.current.pop()
+                } else if (patternQueue.current && patternQueue.current.length === 0){
+                    patternQueue.current.push(currPatt)
                 }
 
-                Tone.Transport.scheduleOnce(() => {
-                    Tone.Transport.loopEnd = bbsFromSixteenth(loopEnd);
-                    if (ref_toneObjects.current){
-                        ref_toneObjects.current.patterns[currPatt][track].instrument.mute = true;
-                        ref_toneObjects.current.patterns[nextPattern][track].instrument.mute = false;
-                        const l = ref_toneObjects.current.patterns[currPatt][track].effects.length
-                        for (let j = 0; j < l; j++) {
-                            ref_toneObjects.current.patterns[currPatt][track].effects[j].mute = true;
-                            ref_toneObjects.current.patterns[nextPattern][track].effects[j].mute = false;
-                        }
+                [...Array(trackCount).keys()].forEach((_, track, arr) => {
+                    ref_toneObjects.current?.patterns[currPatt][track].instrument.cancel();
+                    ref_toneObjects.current?.patterns[currPatt][track].instrument.stop(0);
+
+                    ref_toneObjects.current?.patterns[nextPattern][track].instrument.start(0)
+
+                    const fxLength = effectsLength[track];
+
+                    for (let j = 0; j < fxLength; j++) {
+                        ref_toneObjects.current?.patterns[currPatt][track].effects[j].cancel();
+                        ref_toneObjects.current?.patterns[currPatt][track].effects[j].stop(0);
+
+                        ref_toneObjects.current?.patterns[nextPattern][track].effects[j].start(0)
                     }
-                }, 0);
-            });
 
-            Tone.Transport.scheduleOnce((time) => {
-                Tone.Draw.schedule(() => {
-                    dispatch(selectPattern(nextPattern));
-                }, time)
-            }, 0);
-            return
+                    Tone.Transport.scheduleOnce(() => {
+                        // Tone.Transport.loopEnd = bbsFromSixteenth(loopEnd);
+                        if (ref_toneObjects.current){
+                            // will set the transport loop length at the useEffect[pattern]
+                            dispatch(selectPattern(nextPattern))
+                        }
+                    }, 0);
+                });
+
+            } else {
+                scheduleOrStop('stop');
+                dispatch(selectPattern(nextPattern));
+            }
         }
-        if (arrangerMode === 'pattern') {
-            [...Array(trackCount).keys()].forEach((_, track, __) => {
-                ref_toneObjects.current?.patterns[activePatt][track].instrument.stop();
-                let l = ref_toneObjects.current?.patterns[activePatt][track].effects.length
-                l = l ? l : 0
-                for (let j = 0; j < l; j++) {
-                    ref_toneObjects.current?.patterns[activePatt][track].effects[j].stop();
-                }
-            });
-        }
-        dispatch(selectPattern(nextPattern));
     };
 
     const dispatchChangePatternName = useCallback((name: string): void => {
@@ -543,10 +632,7 @@ const Sequencer: FunctionComponent = () => {
     }
 
     function getFinalStep(){
-        const pageInit = ref_activePage.current * 16
-        const stepAmount = ref_trackLen.current - pageInit
-        const finalStep = pageInit + Math.min(16, stepAmount) - 1
-        return finalStep
+        return finalStep(ref_activePage.current, ref_trackLen.current)
     }
 
     // keyboardevent checkers and helpers 
@@ -798,7 +884,7 @@ const Sequencer: FunctionComponent = () => {
             //     ref_toneObjects?.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             } else if (voice === xolombrisxInstruments.FMSYNTH || voice === xolombrisxInstruments.AMSYNTH) {
                 console.log('should be playing note with fm or am synth');
-                ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.connect(ref_toneObjects.current?.tracks[selectedTrkIndex].chain.in)
+                // ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.connect(ref_toneObjects.current?.tracks[selectedTrkIndex].chain.in)
                 ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(noteName, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             } else {
                 ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(noteName, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
@@ -831,32 +917,38 @@ const Sequencer: FunctionComponent = () => {
         dispatch(renamePattern(activePatt, name));
     };
 
-    useEffect(() => {
-        if (ref_newPattern.current) {
-            const patternNumbers = Object.keys(patterns).map(k => Number(k))
-            ref_newPattern.current = false;
-            dispatch(selectPattern(Math.max(...patternNumbers)))
-        }
-    }, [ dispatch, patterns])
+    // useEffect(() => {
+    //     if (ref_newPattern.current) {
+
+    //         const patternNumbers = Object.keys(patterns).map(k => Number(k))
+    //         ref_newPattern.current = false;
+    //         dispatch(selectPattern(Math.max(...patternNumbers)))
+
+    //     }
+    // }, [ dispatch, patterns])
 
     return (
         <div className={styles.bottom}>
             <div className={styles.arrangerColumn}>
                 <div className={styles.patterns}>
                     <Patterns
+
                         renamePattern={dispatchRenamePattern}
                         incDecOffset={dispatchIncDecOffset}
                         note={isNote}
+
                         setOffset={dispatchSetOffset}
+
                         setVelocity={{
                             pattTrk: dispatchSetPatternTrackVelocity,
                             step: dispatchSetVelocity,
                         }}
-                        // incDecVelocity={dispatchIncDecStepVelocity}
+
                         incDecVelocity={{
                             patternTrack: dispatchIncDecPTVelocity,
                             step: dispatchIncDecStepVelocity,
                         }}
+
                         incDecPatLength={_incDecPattLen}
                         incDecTrackLength={_incDecTrkLen}
                         activePattern={activePatt}
@@ -870,8 +962,6 @@ const Sequencer: FunctionComponent = () => {
                         selectPattern={_selectPatt}
                         selected={selectedSteps}
                         patterns={patterns}
-                        // selected={[1, 4]}
-                        // setNoteLength={dispatchSetNoteLength}
                         trackLength={trackLen}
                     ></Patterns>
                 </div>
@@ -881,9 +971,7 @@ const Sequencer: FunctionComponent = () => {
                     <div className={styles.border}>
                         <div className={styles.stepSequencer}>
                             <StepSequencer
-                                // finalStep={finalStep}
                                 selectStep={dispatchSelectStep}
-                                // changePage={dispatchChangePage}
                                 changePage={pageClickHandler}
                                 activePattern={activePatt}
                                 events={events}

@@ -96,7 +96,7 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                                         event={events[step]}
                                         index={step}
                                         selectedTrack={selectedTrack}
-                                        un={`${activePattern}:${selectedTrack}:${step}`}
+                                        un={`activePatt${activePattern}:track${selectedTrack}:step${step}`}
                                         onTime={false}
                                         selected={selected.includes(step)}
                                     />

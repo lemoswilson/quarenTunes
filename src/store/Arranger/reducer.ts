@@ -56,7 +56,7 @@ export function arrangerReducer(
 					name: `song ${draft.counter + 1}`,
 					events: [
 						{
-							pattern: draft.songs[Number(Object.keys(draft.songs)[0])].events[0].pattern,
+							pattern: action.payload.initPatt,
 							repeat: 1,
 							mute: [],
 							id: 0,
@@ -83,7 +83,7 @@ export function arrangerReducer(
 				break;
 			case arrangerActions.REMOVE_SONG:
 				delete draft.songs[draft.selectedSong];
-				draft.selectedSong = Number(Object.keys(draft.songs)[0])
+				draft.selectedSong = action.payload.nextSong
 				break;
 			case arrangerActions.SELECT_SONG:
 				draft.selectedSong = action.payload.song;

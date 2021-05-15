@@ -9,13 +9,13 @@ export function increaseDecreaseBPM(amount: number): transportActionTypes {
 	}
 }
 
-export function startPlayback(): transportActionTypes {
+export function start(): transportActionTypes {
 	return {
 		type: transportActions.START,
 	};
 }
 
-export function stopPlayback(): transportActionTypes {
+export function stop(): transportActionTypes {
 	return {
 		type: transportActions.STOP,
 	};

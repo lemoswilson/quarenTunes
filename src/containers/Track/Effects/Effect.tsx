@@ -19,9 +19,9 @@ import valueFromCC, { optionFromCC, valueFromMouse } from '../../../lib/curves';
 import { onlyValues, propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
 import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
 // import Tone from '../../../lib/tone'
-// import * as Tone from 'tone';
+import * as Tone from 'tone';
 import { Gain } from 'tone';
-import ToneContext from '../../../context/ToneContext';
+// import ToneContext from '../../../context/ToneContext';
 
 import { sixteenthFromBBS } from '../../Arranger'
 import { effectsInitials, effectsInitialsArray } from '../Instruments';
@@ -78,7 +78,8 @@ export interface effectLayoutProps {
     properties: any[];
 }
 
-const Effect: React.FC<effectsProps> = ({ fxId, 
+const Effect: React.FC<effectsProps> = ({ 
+    fxId, 
     fxIndex, 
     midi, 
     options, 
@@ -92,7 +93,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     // const ref_toneTriggCtx = useContext(triggContext);
     const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
-    const Tone = useContext(ToneContext);
+    // const Tone = useContext(ToneContext);
     // const effectRef = useRef(returnEffect(type, options))
     const dispatch = useDispatch();
     const fxProps = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
@@ -328,24 +329,27 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                 if (ref_toneObjects.current) {
                     let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
                     let chain = ref_toneObjects.current.tracks[trackIndex].chain;
+                    
                     // ref_ToneEffect.current.chain()
                     // ref_ToneEffect.current.disconnect()
+                    
                     if ( fxIndex >= lgth ) {
                         // console.log(`adding a new `)
                         ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current) 
 
-                        Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                            // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
-                            let k = parseInt(key);
-                            if (ref_toneObjects.current){
-                                if (fxIndex >= ref_toneObjects.current.patterns[k][trackIndex].effects.length)
-                                    ref_toneObjects.current.patterns[k][trackIndex].effects.push(new Tone.Part())
+                        // Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                        //     // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
+                        //     let k = parseInt(key);
+                        //     if (ref_toneObjects.current){
+                        //         if (fxIndex >= ref_toneObjects.current.patterns[k][trackIndex].effects.length)
+                        //             ref_toneObjects.current.patterns[k][trackIndex].effects.push(new Tone.Part())
 
-                                ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                            }
-                        });
+                        //         ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                        //     }
+                        // });
                     }
                     else if (fxIndex < lgth - 1) {
+
                         ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
 
                         Object.keys(ref_toneObjects.current.patterns).forEach(key => {
@@ -358,6 +362,27 @@ const Effect: React.FC<effectsProps> = ({ fxId,
 
                         });
                     }
+
+                    Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                        // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
+                        let k = parseInt(key);
+                        if (ref_toneObjects.current){
+                            if (fxIndex >= ref_toneObjects.current.patterns[k][trackIndex].effects.length)
+                                ref_toneObjects.current.patterns[k][trackIndex].effects.push(new Tone.Part())
+
+                            ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback;
+                        }
+                    });
+
+                    ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                        if (ref_toneObjects.current) {
+                            if (fxIndex >= ref_toneObjects.current.arranger[idx][trackIndex].effects.length)
+                                ref_toneObjects.current.arranger[idx][trackIndex].effects.push(new Tone.Part())
+                            
+                            ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
+                        }
+                    })
+
                     for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
                         ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
 
@@ -404,6 +429,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
     );
 
     const effectCallback = useCallback((time: number, value: any) => {
+        console.log(`this is the effect callback, track ${trackId}, effect ${fxId}`);
 
         fxProps.forEach(property => {
 
@@ -413,7 +439,7 @@ const Effect: React.FC<effectsProps> = ({ fxId,
 
             if (callbackVal && callbackVal !== currVal[0]) {
                 propertiesUpdate[property](callbackVal);
-                setNestedValue(property, callbackVal, ref_lockedParameters);
+                setNestedValue(property, callbackVal, ref_lockedParameters.current);
 
             } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
                 propertiesUpdate[property](lockVal);
@@ -470,6 +496,11 @@ const Effect: React.FC<effectsProps> = ({ fxId,
                     if (ref_toneObjects.current)
                         ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
                 });
+
+                ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+                    if (ref_toneObjects.current)
+                        ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback
+                })
             }
         }
 

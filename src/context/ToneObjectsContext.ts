@@ -22,6 +22,7 @@ export interface trackObjects {
 export interface ToneObjects {
     tracks: trackObjects[],
     patterns: triggObjects,
+    arranger: triggs[][],
 }
 
 class Dummy {
@@ -34,7 +35,8 @@ class Dummy {
                 tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
                 patterns: {
                     0: [{instrument: new Part(), effects: []}]
-                }
+                },
+                arranger: []
             }
     }
 }

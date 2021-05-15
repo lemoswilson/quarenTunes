@@ -2,6 +2,7 @@ import React, { useRef, useEffect, MutableRefObject, useState } from "react";
 import WebMidiComponent from '../../lib/WebMidi';
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
+import { useLocation } from 'react-router-dom';
 import undoable, { newHistory, includeAction } from 'redux-undo';
 import Div100vh from 'react-div-100vh';
 
@@ -17,10 +18,10 @@ import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
 import InputContext from '../../context/InputContext';
 import DropdownContext, { dropDownContext } from '../../context/DropdownContext';
-import ToneContext from '../../context/ToneContext';
+// import ToneContext from '../../context/ToneContext';
 
-// import * as Tone from 'tone';
-import Tone from '../../lib/tone';
+import * as Tone from 'tone';
+// import Tone from '../../lib/tone';
 
 import { arrangerActions } from '../../store/Arranger'
 import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
@@ -32,14 +33,17 @@ import { timeObjFromEvent } from "../../lib/utility";
 import { onlyValues } from '../../lib/objectDecompose';
 import DrumRackInstrument from '../../lib/DrumRack';
 import { userProps } from '../../App';
+import Layout, { LayoutState, newPatternObject } from '../../components/Layout';
+
+
 import styles from './xolombrisx.module.scss'
 
 import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
 import Transport from '../../containers/Transport';
+import Arranger from "../Arranger";
 
 import { initialsArray, effectsInitials, effectsInitialsArray } from '../../containers/Track/Instruments/'
-import Arranger from "../Arranger";
 
 declare global {
     interface Window {
@@ -176,6 +180,10 @@ const store = createStore(rootReducer, {
 }, composeEnhancers());
 
 export type RootState = ReturnType<typeof rootReducer>;
+export type ArrangerType = ReturnType<typeof arrangerReducer>;
+export type SequencerType = ReturnType<typeof sequencerReducer>;
+export type TrackType = ReturnType<typeof trackReducer>;
+
 
 interface XolombrisxProps extends userProps {
     children?: React.ReactNode,
@@ -198,6 +206,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     // const context = useRef(new Tone.Context({ latencyHint: 'balanced', lookAhead: 0.5 }))
     const appRef = useRef<HTMLDivElement>(null);
     const [firstRender, setRender] = useState(true);
+    const state  = useLocation<LayoutState | undefined>().state
 
     // let triggRef = useRef<triggContext>({
     //     0: [{
@@ -209,13 +218,18 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
 
     useEffect(() => {
-        ref_toneObjects.current = {
-            tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
-            patterns: {
-                0: [{instrument: new Tone.Part(), effects: [new Tone.Part()]}]
+        if (firstRender){
+            // const state = location.state 
+            
+            ref_toneObjects.current = {
+                tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
+                patterns: {
+                    0: [{instrument: new Tone.Part(), effects: [new Tone.Part()]}]
+                },
+                arranger: [[{instrument: new Tone.Part(), effects: [new Tone.Part()]}]]
             }
+            setRender(false)
         }
-        setRender(false)
     }, [])
 
     // 0: {
@@ -232,17 +246,18 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
     // context manager actions 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
+        console.log('the trigger is emitting');
         let patN = payload.pattern
-        const selectedTrack = store.getState().track.present.selectedTrack;
         const trackCount = store.getState().track.present.trackCount
         if (ref_toneObjects.current)
             ref_toneObjects.current.patterns[patN] = new Array(trackCount);
 
         [...Array(trackCount)].forEach((idx, track, arr) => {
             const effectsLength = store.getState().track.present.tracks[track].fx.length
+            // console.log(`should be generating parts for new pattern, track is ${track}, fx length is ${effectsLength}, state gotten is:`, store.getState().track.present.tracks)
             if (ref_toneObjects.current) {
                 ref_toneObjects.current.patterns[patN][track] = {
-                    effects: Array(effectsLength).map(v => new Tone.Part()),
+                    effects: [...Array(effectsLength).keys()].map(v => new Tone.Part()),
                     instrument: new Tone.Part(),
                 }
                 // triggRef.current[patN][track].instrument = new Tone.Part();
@@ -341,13 +356,27 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
 
     const addTrack = (payload: ExtractTriggPayload<triggEventTypes.ADD_TRACK>): void => {
-        if (ref_toneObjects.current)
+        if (ref_toneObjects.current) {
             Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
                 ref_toneObjects.current?.patterns[parseInt(patt)].push({
                     instrument: new Tone.Part(),
-                    effects: [],
+                    effects: [new Tone.Part()],
                 })
             });
+
+            // const isPlaying = store.getState().transport.present.isPlaying;
+            // const arrangerMode = store.getState().arranger.present.mode;
+            // if (isPlaying && arrangerMode === "pattern"){
+            //     const activePatt = store.getState().sequencer.present.activePattern;
+            //     const l = ref_toneObjects.current.patterns[activePatt].length - 1
+            // }
+
+            for (let i = 0; i < ref_toneObjects.current.arranger.length ; i ++)
+                ref_toneObjects.current.arranger[i].push({
+                    instrument: new Tone.Part(),
+                    effects: [new Tone.Part()],
+                })
+        }
     };
 
 
@@ -627,13 +656,20 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
     return (
         <React.Fragment>
-            <ToneContext.Provider value={Tone}>
+            {/* <ToneContext.Provider value={Tone}> */}
                 <InputContext.Provider value={inputsRef}>
                     <MenuContext.Provider value={menuRef}>
                         <DropdownContext.Provider value={dropdownContextRef}>
                             <AppContext.Provider value={appRef}>
                                 <ToneObjectsContext.Provider value={ref_toneObjects}>
                                         <Provider store={store}>
+                                            {/* <Layout 
+                                                appRef={appRef} 
+                                                arranger={state?.arranger} 
+                                                sequencer={state?.sequencer} 
+                                                track={state?.track}
+                                            /> */}
+
                                             <Div100vh className={styles.app}>
                                                 {
                                                     !firstRender
@@ -666,7 +702,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                         </DropdownContext.Provider>
                     </MenuContext.Provider>
                 </InputContext.Provider>
-            </ToneContext.Provider>
+            {/* </ToneContext.Provider> */}
         </React.Fragment >
     );
 }

@@ -38,9 +38,11 @@ import {
     copyToNew
 } from '../../../lib/objectDecompose'
 
-// import * as Tone from 'tone';
+import * as Tone from 'tone';
 // import Tone from '../../../lib/tone';
 import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
+import TriggEmitter, {ExtractTriggPayload, triggEventTypes} from '../../../lib/triggEmitter'
+
 
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
 import ToneContext from '../../../context/ToneContext';
@@ -65,6 +67,7 @@ import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
 import PluckSynth from '../../../components/Layout/Instruments/PluckSynth';
 import DrumRack from '../../../components/Layout/Instruments/DrumRack';
 import Chain from '../../../lib/fxChain';
+import { arrangerMode } from '../../../store/Arranger';
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
@@ -79,7 +82,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
 }: InstrumentProps<T>) => {
 
 
-    const Tone = useContext(ToneContext);
+    // const Tone = useContext(ToneContext);
     const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
 
 
@@ -89,13 +92,30 @@ export const Instrument = <T extends xolombrisxInstruments>({
             setRender(false)
         }
 
-        if (ref_toneObjects.current)
-            Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                let keyNumber = parseInt(key);
-                if (ref_toneObjects.current && ref_toneObjects.current.patterns[keyNumber][index])
-                    ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
-            });
+        // if (ref_toneObjects.current)
+        //     Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+        //         let keyNumber = parseInt(key);
+        //         if (ref_toneObjects.current && ref_toneObjects.current.patterns[keyNumber][index])
+        //             ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
+        //     });
 
+            
+
+    }, [])
+
+    function onNewEvent(payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>){
+        const eventIndex = payload.eventIndex
+        if (ref_toneObjects.current) {
+            // ref_toneObjects.current.arranger[eventIndex][ref_index.current].instrument.callback = instrumentCallback
+            ref_toneObjects.current.arranger[eventIndex][index].instrument.callback = instrumentCallback
+        }
+    }
+
+    useEffect(() => {
+        TriggEmitter.on(triggEventTypes.NEW_EVENT, onNewEvent)
+        return () => {
+            TriggEmitter.off(triggEventTypes.NEW_EVENT, onNewEvent)
+        }
     }, [])
 
     // instrument properties array
@@ -399,7 +419,75 @@ export const Instrument = <T extends xolombrisxInstruments>({
     ]
     );
 
-    const instrumentCallback = useCallback((time: number, value: eventOptions) => {
+    // const instrumentCallback = useCallback((time: number, value: eventOptions) => {
+    //     console.log('instrument callback is being called');
+    //     let velocity: number = value.velocity
+    //         ? value.velocity
+    //         : ref_arrgMode.current === "pattern"
+    //             ? ref_pattVelocities.current[ref_activePatt.current]
+    //             : ref_pattVelocities.current[ref_pattTracker.current[0]]
+    //     let length: string | number | undefined = value.length
+    //         ? value.length
+    //         : ref_arrgMode.current === "pattern"
+    //             ? ref_pattNoteLen.current[ref_activePatt.current]
+    //             : ref_pattNoteLen.current[ref_pattTracker.current[0]]
+    //     let notes: string[] | undefined = value.note ? value.note : undefined;
+
+    //     // note playback
+
+    //     const eventProperties = propertiesToArray(value);
+
+    //     eventProperties.forEach(eventProperty => {
+    //         if (
+    //             eventProperty !== 'velocity'
+    //             && eventProperty !== 'length'
+    //             && eventProperty !== 'note'
+    //         ) {
+    //             const currVal = getNested(ref_options.current, eventProperty);
+    //             const callbackVal = getNested(value, eventProperty);
+    //             const lockVal = getNested(ref_lockedParameters.current, eventProperty);
+    //             if (callbackVal && callbackVal !== currVal[0]) {
+    //                 propertiesUpdate[eventProperty](callbackVal);
+    //                 setNestedValue(eventProperty, callbackVal, ref_lockedParameters);
+    //             } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
+    //                 propertiesUpdate[eventProperty](lockVal);
+    //                 deleteProperty(ref_lockedParameters.current, eventProperty);
+    //                 // setNestedValue(property, undefined, lockedParameters.current)
+    //             }
+    //         }
+    //     })
+
+    //     if (notes) {
+    //         // should fix this 
+    //         notes.forEach(note => {
+    //             if (note && ref_ToneInstrument.current) {
+    //                 ref_ToneInstrument.current.triggerAttackRelease(
+    //                     note,
+    //                     length ? length : 0,
+    //                     time,
+    //                     velocity / 127,
+    //                     voice === xolombrisxInstruments.DRUMRACK
+    //                         ? DrumRackInstrument.checkNote(note)
+    //                         : undefined
+    //                 );
+    //             }
+    //         })
+    //     }
+    // }, [
+    //     instProps,
+    //     propertiesUpdate,
+    //     ref_activePatt,
+    //     ref_arrgMode,
+    //     ref_options,
+    //     ref_pattNoteLen,
+    //     ref_pattTracker,
+    //     ref_pattVelocities,
+    // ]
+    // );
+
+    const instrumentCallback = (time: number, value: eventOptions) => {
+        console.log(`instrument callback is being called, instrument ${id}`);
+        console.log(`tone transport state of loop is ${Tone.Transport.loop}`);
         let velocity: number = value.velocity
             ? value.velocity
             : ref_arrgMode.current === "pattern"
@@ -427,7 +515,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 const lockVal = getNested(ref_lockedParameters.current, eventProperty);
                 if (callbackVal && callbackVal !== currVal[0]) {
                     propertiesUpdate[eventProperty](callbackVal);
-                    setNestedValue(eventProperty, callbackVal, ref_lockedParameters);
+                    setNestedValue(eventProperty, callbackVal, ref_lockedParameters.current);
                 } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
                     propertiesUpdate[eventProperty](lockVal);
                     deleteProperty(ref_lockedParameters.current, eventProperty);
@@ -440,29 +528,29 @@ export const Instrument = <T extends xolombrisxInstruments>({
             // should fix this 
             notes.forEach(note => {
                 if (note && ref_ToneInstrument.current) {
-                    ref_ToneInstrument.current.triggerAttackRelease(
-                        note,
-                        length ? length : 0,
-                        time,
-                        velocity / 127,
-                        voice === xolombrisxInstruments.DRUMRACK
-                            ? DrumRackInstrument.checkNote(note)
-                            : undefined
-                    );
+                    const t: any = ref_ToneInstrument.current;
+                    if (voice === xolombrisxInstruments.NOISESYNTH) {
+                        t.triggerAttackRelease(
+                            length ? length : 0,
+                            time,
+                            velocity / 127
+                        )
+                    } else  {
+                        t.triggerAttackRelease(note, length ? length : 0, time, velocity / 127)
+                    } 
                 }
             })
         }
-    }, [
-        instProps,
-        propertiesUpdate,
-        ref_activePatt,
-        ref_arrgMode,
-        ref_options,
-        ref_pattNoteLen,
-        ref_pattTracker,
-        ref_pattVelocities,
-    ]
-    );
+    }
+    // ref_ToneInstrument.current.triggerAttackRelease(
+    //     note,
+    //     length ? length : 0,
+    //     time,
+    //     velocity / 127,
+    //     voice === xolombrisxInstruments.DRUMRACK
+    //         ? DrumRackInstrument.checkNote(note)
+    //         : undefined
+    // );
 
     const returnStep = useCallback((t: string): number => {
         let result;
@@ -848,11 +936,21 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 // refsContext.current[id].instrument.dispose();
                 ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
                 // should be setting Part callback = instrumentCallback at each new render ? 
-                // Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                //     let keyNumber = parseInt(key);
-                //     if (ref_toneObjects.current)
-                //         ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
-                // });
+                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                    let keyNumber = parseInt(key);
+                    if (ref_toneObjects.current)
+                        ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
+                });
+
+                ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                    if (ref_toneObjects.current){
+                        // if (index > ref_toneObjects.current.arranger[idx].length)
+                        //     ref_toneObjects.current.arranger[idx].push({instrument: new Tone.Part(), effects: [new Tone.Part()]})
+    
+                        // console.log(`should be init and setting arranger callback of instruments, event idx ${idx}, insrtument ${index} `)
+                        ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
+                    }
+                })
             }
         }
 
@@ -954,9 +1052,25 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
             Object.keys(ref_toneObjects.current.patterns).forEach(key => {
                 let k = parseInt(key)
-                if (ref_toneObjects.current && index > ref_toneObjects.current.patterns[k].length) {
-                    ref_toneObjects.current.patterns[k].push({instrument: new Tone.Part(), effects: []})
+                if (ref_toneObjects.current){
+                    if (index > ref_toneObjects.current.patterns[k].length) 
+                        ref_toneObjects.current.patterns[k].push({instrument: new Tone.Part(), effects: [new Tone.Part()]})
+
+                    console.log(`should be init and setting pattern callback of instruments, pattern ${k}, instrument ${index}`)
                     ref_toneObjects.current.patterns[k][index].instrument.callback = instrumentCallback;
+                    if (arrgMode === arrangerMode.PATTERN){
+                        ref_toneObjects.current.patterns[k][index].instrument.start(0);
+                    }
+                }
+            })
+
+            ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                if (ref_toneObjects.current){
+                    if (index > ref_toneObjects.current.arranger[idx].length)
+                        ref_toneObjects.current.arranger[idx].push({instrument: new Tone.Part(), effects: [new Tone.Part()]})
+
+                    console.log(`should be init and setting arranger callback of instruments, event idx ${idx}, insrtument ${index} `)
+                    ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
                 }
             })
             setRender(false);

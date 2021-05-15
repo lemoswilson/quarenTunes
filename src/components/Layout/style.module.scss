@@ -1,0 +1,111 @@
+@import '../../style/variables';
+
+
+html {
+
+    .app {
+        width: 100vw;
+        display: flex;
+        @include center;
+        background-color: $light;
+
+    }
+
+    .wrapson {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        @include center;
+        
+        .content {
+            display: grid;
+            width: 98rem;
+            height: 56rem;
+            // border: 1px solid black;
+            grid-template-rows: 2.5rem 1rem 34rem auto;
+    
+            .top {
+                display: flex;
+                @include center;
+                // border-bottom: 1px solid black;
+    
+                .transport {
+                    border-radius: 1rem;
+                    background-color: white;
+                    @include shadow(7px, 9px, 5px);
+                    height: 100%;
+                    width: 15%;
+                    display: flex;
+                    @include center;
+                }
+            }
+    
+            .mid {
+                // display: grid;
+                // grid-template-columns: 18.6rem 38.5rem auto;
+                display: flex;
+                flex-direction: row;
+    
+                .arrangerColumn {
+                    width: 18.6rem;
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: flex-end;
+                    // border-right: 1px solid black;
+    
+                    .box {
+                        height: 31rem;
+                        width: 89%;
+                        margin-right: 1rem;
+                        border-radius: 2rem;
+                        background-color: $white;
+                        margin-bottom: 1rem;
+                        display: flex;
+                        @include center;
+                        @include shadow(7px, 9px, 5px);
+    
+                    }
+                }
+            }
+        }
+    }
+    
+
+    @media screen and (min-width: 1366px) {
+        // iPad PRO, HD ready and FullHD 
+
+        // here things will be relative to width of the viewport 
+        // height is also gonna be relative to width of viewport 
+        font-size: 1vw;
+
+    }
+
+    @media screen and (max-width: 1920px) and (min-width: 1724px){
+        // here things are gonna be relative to em (fixed font-size to keep ratio)
+        font-size: 17.4737px ;
+    }
+
+    @media screen and (min-width: 1024px) and (max-width: 1365px) {
+        // most android tablets and ipads in landscape mode, older desktop/laptop monitors;
+        font-size: 1vw;
+
+        .content {
+            width: 98rem;
+            height: 53rem;
+            // border: 1px solid black;
+        }
+    }
+
+    @media screen and (min-width: 768px) and (max-width: 1023px) {
+        // most android tablets and iPads in portrait mode (if orientation portrait force landscape?
+    }
+
+    @media screen and (min-width: 421px) and (max-width: 767px) {
+        // most smartphones in landscape mode
+    }
+
+    @media screen and (max-width: 420px) {
+        // smartphones in portrait mode;
+    }
+
+}

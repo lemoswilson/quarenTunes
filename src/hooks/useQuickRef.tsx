@@ -5,7 +5,8 @@ export default function useQuickRef<T>(value: T) {
     useEffect(() => {
         console.log('updating quickref')
         ref.current = value;
-    }, [value, ref]);
+    }, [value]);
+
     return ref;
     // return ref.current as T;
 }

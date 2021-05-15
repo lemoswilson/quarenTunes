@@ -94,17 +94,21 @@ export function setFollow(follow: boolean): arrangerActionTypes {
 	};
 }
 
-export function addSong(): arrangerActionTypes {
+export function addSong(initPatt: number): arrangerActionTypes {
 	return {
 		type: arrangerActions.ADD_SONG,
+		payload: {
+			initPatt: initPatt,
+		}
 	};
 }
 
-export function removeSong(songIndex: number): arrangerActionTypes {
+export function removeSong(songIndex: number, nextSong: number): arrangerActionTypes {
 	return {
 		type: arrangerActions.REMOVE_SONG,
 		payload: {
-			songIndex: songIndex,
+			songId: songIndex,
+			nextSong: nextSong,
 		},
 	};
 }

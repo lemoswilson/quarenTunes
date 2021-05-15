@@ -10,6 +10,7 @@ export enum triggEventTypes {
     ADD_EFFECT = 'ADD_EFFECT',
     REMOVE_EFFECT = 'REMOVE_EFFECT',
     CHANGE_EFFECT_INDEX = 'CHANGE_EFFECT_INDEX',
+    NEW_EVENT = 'NEW_EVENT',
 }
 
 export type TriggEvent =
@@ -48,6 +49,10 @@ export type TriggEvent =
         trackIndex: number,
         from: number,
         to: number
+    }
+    | {
+        event: triggEventTypes.NEW_EVENT,
+        eventIndex: number,
     }
 
 type EventType = TriggEvent['event']

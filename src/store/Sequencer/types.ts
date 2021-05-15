@@ -72,6 +72,7 @@ export interface trackSeqData {
 	events: event[];
 	page: number;
 	selected: number[];
+	fxCount: number,
 };
 
 export type Pattern = {

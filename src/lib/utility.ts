@@ -26,6 +26,12 @@ export function typeMovement(ind: indicators, e: any): number {
     return e.movementY
 };
 
+export function getFinalStep(activePage: number, trackLen: number){
+  const pageInit = activePage * 16
+  const stepAmount = trackLen - pageInit
+  return pageInit + Math.min(16, stepAmount) - 1 
+}
+
 export function bisect(sortedList: number[], el: number){
     if(!sortedList.length) return 0;
   

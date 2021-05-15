@@ -84,7 +84,7 @@ export const useDrumRackProperty = (
         if (a) {
             let v: any;
             if (isObject) {
-                console.log()
+                // console.log()
                 v = {
                     [prop]: onlyValues(a),
                 }
@@ -203,6 +203,8 @@ export const useEffectProperties = (
     useEffectProperty(effectRef, options, 'windowSize');
 }
 
+// should use trigg in an react.fragment componente 
+//rendered in the event component (from arranger) 
 export const useTrigg = (
     // trig: Part | undefined,
     // triggFx: Part[] | undefined,
@@ -236,9 +238,11 @@ export const useTrigg = (
     const f4Opt = fxOptions[3]
 
     useEffect(() => {
-        if (trig && un === prevUn) {
+        if (trig && prevUn && un === prevUn) {
+            // console.log('should be updating trigg value, un is', un);
             // console.log('updating stuff')
             const now = timeObjFromEvent(step, off)
+            // console.log('now is ', now, 'instrumentOptions is', instrumentOptions);
             trig.at(now, instrumentOptions)
         }
     }, [instrumentOptions, trig, un, prevUn, off])

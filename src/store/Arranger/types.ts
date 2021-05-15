@@ -145,12 +145,16 @@ export interface setFollowAction {
 
 export interface addSongAction {
 	type: arrangerActions.ADD_SONG;
+	payload: {
+		initPatt: number,
+	}
 }
 
 export interface removeSongAction {
 	type: arrangerActions.REMOVE_SONG;
 	payload: {
-		songIndex: number;
+		songId: number;
+		nextSong: number,
 	};
 }
 

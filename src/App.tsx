@@ -1,5 +1,5 @@
 import React, { useState, Suspense, lazy } from "react";
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Link, Route, Switch } from 'react-router-dom'
 import Header from './components/Layout/Header/Header';
 import HomePage from './components/Layout/HomePage/HomePage';
 import SignUp from './components/Layout/SignUp/SignUp';
@@ -36,7 +36,7 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 				<Suspense fallback={<SuspenseFallback />}>
 					{/* <Header {...user} updateUser={updateUser} /> */}
 					<Switch>
-						<Route path={'/app'} render={() => <Xolombrisx {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/app'} render={( ) => <Xolombrisx {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/signin'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/signup'} render={() => <SignUp  {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/contact'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
