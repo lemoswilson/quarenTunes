@@ -60,7 +60,7 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
             <div className={styles.label}>
                 <div className={styles.box}>{label}</div>
             </div>
-            <div className={styles.decrease}><Minus onClick={decrease} /></div>
+            <div className={styles.decrease}>{!disabled ? <Minus onClick={decrease} /> : null}</div>
             <div className={styles.display}>
                 <div className={styles.box}>
                     <form onBlur={onBlur} onSubmit={onSubmit} className={styles.text}>
@@ -74,7 +74,7 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
                     </form>
                 </div>
             </div>
-            <div className={styles.increase}><Plus onClick={increase} /></div>
+            <div className={styles.increase}>{!disabled ? <Plus onClick={increase} /> : null }</div>
         </div>
     )
 }

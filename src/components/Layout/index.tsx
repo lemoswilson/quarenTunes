@@ -90,12 +90,23 @@ const Layout: React.FC <LayoutProps> = ({
         }
     }, [])
 
+    const initializeFlags = useCallback(() => {
+        if (track){
+            track.tracks.forEach((__, idx, _) => {
+                ref_toneObjects.current?.flagObjects.push({
+                    instrument: {callback: undefined, flag: false}, 
+                    effects: [...Array(track.tracks[idx].fx.length).keys()].map(v => ({callback: undefined, flag: false}))
+                })
+            })
+        }
+    }, [])
+
     useEffect(() => {
         if (firstRender){
-            ref_toneObjects.current = {patterns: {}, tracks:[], arranger: []}
+            ref_toneObjects.current = {patterns: {}, tracks:[], arranger: [], flagObjects: []}
             initializeArranger()
             initializePattern()
-
+            initializeFlags()
             setRender(false)
         }
 

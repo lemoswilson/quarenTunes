@@ -3,7 +3,7 @@ import WebMidiComponent from '../../lib/WebMidi';
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
 import { useLocation } from 'react-router-dom';
-import undoable, { newHistory, includeAction } from 'redux-undo';
+import undoable, { newHistory, includeAction, ActionCreators } from 'redux-undo';
 import Div100vh from 'react-div-100vh';
 
 import Chain from '../../lib/fxChain';
@@ -42,6 +42,7 @@ import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
 import Transport from '../../containers/Transport';
 import Arranger from "../Arranger";
+import CounterContext from '../../context/CounterContext';
 
 import { initialsArray, effectsInitials, effectsInitialsArray } from '../../containers/Track/Instruments/'
 
@@ -137,7 +138,7 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
 export const rootReducer = combineReducers({
     arranger: undoable(arrangerReducer, {
         filter: includeAction([
-            arrangerActions.SET_TRACKER,
+            // arrangerActions.SET_TRACKER,
             arrangerActions.SET_TIMER
         ])
     }),
@@ -216,17 +217,21 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     // })
 
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
+    const ref_counter: MutableRefObject<number | null> = useRef(null);
 
     useEffect(() => {
         if (firstRender){
             // const state = location.state 
+
+            ref_counter.current = -1;
             
             ref_toneObjects.current = {
                 tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
                 patterns: {
                     0: [{instrument: new Tone.Part(), effects: [new Tone.Part()]}]
                 },
-                arranger: [[{instrument: new Tone.Part(), effects: [new Tone.Part()]}]]
+                arranger: [[{instrument: new Tone.Part(), effects: [new Tone.Part()]}]],
+                flagObjects: [{instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]}]
             }
             setRender(false)
         }
@@ -256,18 +261,18 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             const effectsLength = store.getState().track.present.tracks[track].fx.length
             // console.log(`should be generating parts for new pattern, track is ${track}, fx length is ${effectsLength}, state gotten is:`, store.getState().track.present.tracks)
             if (ref_toneObjects.current) {
+
                 ref_toneObjects.current.patterns[patN][track] = {
                     effects: [...Array(effectsLength).keys()].map(v => new Tone.Part()),
                     instrument: new Tone.Part(),
                 }
-                // triggRef.current[patN][track].instrument = new Tone.Part();
-                // let i = 0;
-                // while (i < 4) {
-                // while (i < triggRef.current[patN][track].effects.length) {
-                // while (i < store.getState().track.present.tracks[selectedTrack].fx.length) {
-                //     triggRef.current[patN][track].effects[i] = new Tone.Part();
-                //     i++
-                // }
+
+                ref_toneObjects.current.patterns[patN][track].instrument.callback = ref_toneObjects.current.flagObjects[track].instrument.callback;
+
+                [...Array(effectsLength).keys()].forEach((_, idx, __) => {
+                    if (ref_toneObjects.current)
+                        ref_toneObjects.current.patterns[patN][track].effects[idx].callback = ref_toneObjects.current.flagObjects[track].effects[idx].callback;
+                })
             }
         });
     };
@@ -306,20 +311,45 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     }
 
     const addEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.ADD_EFFECT>): void => {
+
         let [trackIndex, index] = [payload.trackIndex, payload.fxIndex];
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
-        [...Array(patternCount).keys()].forEach(pat => {
-            ref_toneObjects.current?.patterns[pat][trackIndex].effects.splice(index, 0, new Tone.Part())
-        });
+        // [...Array(patternCount).keys()].forEach(pat => {
+        if (ref_toneObjects.current) {
+            Object.keys(ref_toneObjects.current.patterns).forEach((pat) => {
+                const p = Number(pat)
+                ref_toneObjects.current?.patterns[p][trackIndex].effects.splice(index, 0, new Tone.Part())
+            });
+
+            ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                if (ref_toneObjects.current)
+                    ref_toneObjects.current.arranger[idx].splice(index, 0)
+            })
+
+            ref_toneObjects.current.flagObjects[trackIndex].effects.splice(index, 0, {callback: undefined, flag: false})
+
+        }
     };
 
     const removeEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_EFFECT>): void => {
         let [trackIndex, fxIndex] = [payload.trackIndex, payload.fxIndex];
         let patterns = Object.keys(store.getState().sequencer.present.patterns)
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
+
         patterns.forEach(pat => {
+            ref_toneObjects.current?.patterns[Number(pat)][trackIndex].effects[fxIndex].dispose();
             ref_toneObjects.current?.patterns[Number(pat)][trackIndex].effects.splice(fxIndex, 1);
         })
+
+        ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+            ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIndex].dispose();
+            ref_toneObjects.current?.arranger[idx][trackIndex].effects.splice(fxIndex, 1);
+        })
+
+        if (ref_toneObjects.current)
+            ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].flag = true
+
+        // ref_toneObjects.current?.flagObjects[trackIndex].effects.splice(fxIndex, 1);
         // [...Array(patternCount).keys()].forEach(pat => {
         //     triggRef.current[pat][trackId].effects.splice(index, 1);
         // });
@@ -329,12 +359,23 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         let [trackIndex, from, to] = [payload.trackIndex, payload.from, payload.to];
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
         let patterns = Object.keys(store.getState().sequencer.present.patterns);
+
         Object.keys(patterns).forEach(pat => {
             let p = Number(pat);
             if(ref_toneObjects.current)
             [ref_toneObjects.current.patterns[p][trackIndex].effects[to], ref_toneObjects.current.patterns[p][trackIndex].effects[from]] =
                 [ref_toneObjects.current.patterns[p][trackIndex].effects[from], ref_toneObjects.current.patterns[p][trackIndex].effects[to]];
         });
+        ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+            if (ref_toneObjects.current)
+            [ref_toneObjects.current.arranger[idx][trackIndex].effects[from], ref_toneObjects.current.arranger[idx][trackIndex].effects[to]] = 
+            [ref_toneObjects.current.arranger[idx][trackIndex].effects[to], ref_toneObjects.current.arranger[idx][trackIndex].effects[from]]
+        })
+
+        if (ref_toneObjects.current)
+            [ ref_toneObjects.current.flagObjects[trackIndex].effects[from],  ref_toneObjects.current.flagObjects[trackIndex].effects[to]  ] = 
+            [ ref_toneObjects.current.flagObjects[trackIndex].effects[to],  ref_toneObjects.current.flagObjects[trackIndex].effects[from]  ]
+
     }
 
 
@@ -356,6 +397,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
 
     const addTrack = (payload: ExtractTriggPayload<triggEventTypes.ADD_TRACK>): void => {
+
         if (ref_toneObjects.current) {
             Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
                 ref_toneObjects.current?.patterns[parseInt(patt)].push({
@@ -376,13 +418,19 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                     instrument: new Tone.Part(),
                     effects: [new Tone.Part()],
                 })
+
+            ref_toneObjects.current.flagObjects.push({instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]})
         }
     };
 
 
     const removeTrack = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_TRACK>): void => {
         let trackIndex: number = payload.trackIndex;
-        if (ref_toneObjects.current)
+        const fxLen = store.getState().track.present.tracks[trackIndex].fx.length;
+        if (ref_toneObjects.current) {
+            // dispose of tracks and fx triggs in pattern obj as well as arranger obj
+            // and set flag of objects and effects to true, so they can have their newPattern and newEvent emitters
+            // removed
             Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
                 if ( ref_toneObjects.current && trackIndex < ref_toneObjects.current?.patterns[parseInt(patt)].length) {
                     ref_toneObjects.current?.patterns[parseInt(patt)][trackIndex].instrument.dispose();
@@ -395,6 +443,27 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                     ref_toneObjects.current?.patterns[parseInt(patt)].splice(trackIndex, 1)
                 }
             });
+
+
+            ref_toneObjects.current.arranger.forEach((_, idx,__) => {
+                ref_toneObjects.current?.arranger[idx][trackIndex].instrument.dispose();
+                [...Array(fxLen).keys()].forEach((_, fxIdx, __) => {
+                    ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIdx].dispose()
+
+                })
+                ref_toneObjects.current?.arranger[idx].splice(trackIndex, 1)
+            })
+
+            ref_toneObjects.current.flagObjects.splice(trackIndex, 1)
+
+            // ref_toneObjects.current.flagObjects[trackIndex].instrument.flag = true;
+            // [...Array(fxLen).keys()].forEach((_, idx, __) => {
+            //     if (ref_toneObjects.current)
+            //         ref_toneObjects.current.flagObjects[trackIndex].effects[idx].flag = true;
+            // })
+        }
+
+
     };
 
     // const addEffect = (payload: ExtractTrackPayload<trackEventTypes.ADD_EFFECT>): void => {
@@ -545,7 +614,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             prev.disconnect();
             effects[effectIndex].disconnect();
             effects[effectIndex].dispose()
-            effects.splice(effectIndex, 1)
+            ref_toneObjects.current.tracks[trackIndex].effects.splice(effectIndex, 1)
             prev.connect(next);
         }
     };
@@ -560,6 +629,23 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             ref_toneObjects.current.tracks.splice(trackIndex,1);
         }
     };
+
+    const newEvent = (payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>): void => {
+        const trackCount = store.getState().track.present.tracks.length;
+
+        [...Array(trackCount).keys()].forEach((_, idx, __) => {
+            const fxCount = store.getState().track.present.tracks[idx].fx.length
+            if (ref_toneObjects.current) {
+                ref_toneObjects.current.arranger[payload.eventIndex][idx].instrument.callback = ref_toneObjects.current.flagObjects[idx].instrument.callback;
+
+                [...Array(fxCount).keys()].forEach((_, fxIdx, __) => {
+                    if (ref_toneObjects.current)
+                        ref_toneObjects.current.arranger[payload.eventIndex][idx].effects[fxIdx].callback = ref_toneObjects.current.flagObjects[idx].effects[fxIdx].callback;
+                })
+            }
+        })
+
+    }
 
     const escapeDropdown = (payload: ExtractDropdownPayload<dropdownEventTypes.ESCAPE>): void => {
         Object.keys(dropdownContextRef.current).forEach(k => {
@@ -609,6 +695,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         triggEmitter.on(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
         triggEmitter.on(triggEventTypes.ADD_EFFECT, addEffectTrigg);
         triggEmitter.on(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
+        triggEmitter.on(triggEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndexTrigg);
+        triggEmitter.on(triggEventTypes.NEW_EVENT, newEvent);
 
         // toneRefsEmitter.on(trackEventTypes.ADD_EFFECT, addEffect);
         // toneRefsEmitter.on(trackEventTypes.ADD_INSTRUMENT, addInstrument);
@@ -633,6 +721,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
             triggEmitter.off(triggEventTypes.DUPLICATE_PATTERN, duplicatePattern);
             triggEmitter.off(triggEventTypes.ADD_EFFECT, addEffectTrigg);
             triggEmitter.off(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
+            triggEmitter.off(triggEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndexTrigg);
+            triggEmitter.off(triggEventTypes.NEW_EVENT, newEvent);
 
 
             // toneRefsEmitter.off(trackEventTypes.ADD_EFFECT, addEffect);
@@ -657,51 +747,52 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     return (
         <React.Fragment>
             {/* <ToneContext.Provider value={Tone}> */}
-                <InputContext.Provider value={inputsRef}>
-                    <MenuContext.Provider value={menuRef}>
-                        <DropdownContext.Provider value={dropdownContextRef}>
-                            <AppContext.Provider value={appRef}>
-                                <ToneObjectsContext.Provider value={ref_toneObjects}>
-                                        <Provider store={store}>
-                                            {/* <Layout 
-                                                appRef={appRef} 
-                                                arranger={state?.arranger} 
-                                                sequencer={state?.sequencer} 
-                                                track={state?.track}
-                                            /> */}
-
-                                            <Div100vh className={styles.app}>
-                                                {
-                                                    !firstRender
-                                                    ? <div ref={appRef} className={styles.wrapson}>
-                                                        <WebMidiComponent/>
-                                                        <div className={styles.content}>
-                                                            <div className={styles.top}>
-                                                                <div className={styles.transport}>
-                                                                    <Transport/>
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.gap}></div>
-                                                            <div className={styles.mid}>
-                                                                <div className={styles.arrangerColumn}>
-                                                                    <div className={styles.box}>
-                                                                        <Arranger />
+                <CounterContext.Provider value={ref_counter}>
+                    <InputContext.Provider value={inputsRef}>
+                        <MenuContext.Provider value={menuRef}>
+                            <DropdownContext.Provider value={dropdownContextRef}>
+                                <AppContext.Provider value={appRef}>
+                                    <ToneObjectsContext.Provider value={ref_toneObjects}>
+                                            <Provider store={store}>
+                                                {/* <Layout
+                                                    appRef={appRef}
+                                                    arranger={state?.arranger}
+                                                    sequencer={state?.sequencer}
+                                                    track={state?.track}
+                                                /> */}
+                                                <Div100vh className={styles.app}>
+                                                    {
+                                                        !firstRender
+                                                        ? <div ref={appRef} className={styles.wrapson}>
+                                                            <WebMidiComponent/>
+                                                            <div className={styles.content}>
+                                                                <div className={styles.top}>
+                                                                    <div className={styles.transport}>
+                                                                        <Transport/>
                                                                     </div>
                                                                 </div>
-                                                                <Track></Track>
+                                                                <div className={styles.gap}></div>
+                                                                <div className={styles.mid}>
+                                                                    <div className={styles.arrangerColumn}>
+                                                                        <div className={styles.box}>
+                                                                            <Arranger />
+                                                                        </div>
+                                                                    </div>
+                                                                    <Track></Track>
+                                                                </div>
+                                                                <Sequencer></Sequencer>
                                                             </div>
-                                                            <Sequencer></Sequencer>
                                                         </div>
-                                                    </div>
-                                                    : null
-                                                }
-                                            </Div100vh>
-                                        </Provider>
-                                </ToneObjectsContext.Provider>
-                            </AppContext.Provider>
-                        </DropdownContext.Provider>
-                    </MenuContext.Provider>
-                </InputContext.Provider>
+                                                        : null
+                                                    }
+                                                </Div100vh>
+                                            </Provider>
+                                    </ToneObjectsContext.Provider>
+                                </AppContext.Provider>
+                            </DropdownContext.Provider>
+                        </MenuContext.Provider>
+                    </InputContext.Provider>
+                </CounterContext.Provider>
             {/* </ToneContext.Provider> */}
         </React.Fragment >
     );

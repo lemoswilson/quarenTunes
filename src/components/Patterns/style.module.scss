@@ -75,6 +75,8 @@
                 // border: 1px solid black;
                 display: flex;
                 @include center;
+                width: $boxWidth;
+                margin-left: 0.6rem;
             }
 
             .decrease {
@@ -82,6 +84,7 @@
                 display: flex;
                 @include center;
                 margin-right: 0.8rem;
+                width: $boxWidth;
             }
             
         }

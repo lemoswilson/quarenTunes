@@ -221,6 +221,7 @@ export function trackReducer(
 				break;
 			case trackActions.UPDATE_INSTRUMENT_STATE:
 				[trackIndex, options] = [action.payload.trackIndex, action.payload.options];
+				console.log('updating instrument state from track reducer', options);
 				const props = propertiesToArray(options);
 				props.forEach(
 					prop => {
@@ -236,6 +237,7 @@ export function trackReducer(
 					action.payload.options,
 					action.payload.fxIndex
 				]
+				console.log('should be updating effect value');
 				const properties = propertiesToArray(options)
 				properties.forEach(prop => {
 					let v = getNested(options, prop)

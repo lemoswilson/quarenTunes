@@ -68,6 +68,7 @@ const Track: FunctionComponent = () => {
     const _removeInstrument = (trackIndex: number, trackId: number): void => {
         toneRefsEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackIndex: trackIndex })
         triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { trackIndex: trackIndex })
+        
         batch(() => {
             dispatch(removeInstrument(trackIndex));
             dispatch(removeInstrumentFromSequencer(trackIndex));

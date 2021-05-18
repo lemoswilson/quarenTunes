@@ -52,7 +52,8 @@ export enum sequencerActions {
 	COPY_EVENTS = "COPY_EVENTS",
 	REMOVE_PROPERTY_LOCK = "REMOVE_PROPERTY_LOCK",
 	REMOVE_EFFECT_PROPERTY_LOCK = "REMOVE_EFFECT_PROPERTY_LOCK",
-	SELECT_STEPS_BATCH = "SELECT_STEPS_BATCH"
+	SELECT_STEPS_BATCH = "SELECT_STEPS_BATCH",
+	SET_ACTIVE_STEP = "SET_ACTIVE_STEP",
 };
 
 // export type fxOptions = effectsInitials;
@@ -89,11 +90,31 @@ export interface Sequencer {
 		[key: number]: Pattern;
 	};
 	activePattern: number;
-	step: number | undefined;
+	step: number;
 	counter: number;
 	override: boolean;
 	quantizeRecording: boolean;
 };
+
+// export interface setActiveStepArrgAction {
+// 	type: sequencerActions.SET_ACTIVE_STEP,
+// 	payload: {
+// 		counter: number,
+// 		trackIndex: number,
+// 		pattern: number,
+// 	}
+// }
+
+export interface setActiveStepAction {
+	type: sequencerActions.SET_ACTIVE_STEP,
+	payload: {
+		counter: number,
+		trackIndex: number,
+		pattern: number,
+	}
+}
+
+
 
 export interface selectStepBatchAction {
 	type: sequencerActions.SELECT_STEPS_BATCH,
@@ -271,6 +292,7 @@ export interface removePatternAction {
 	type: sequencerActions.REMOVE_PATTERN;
 	payload: {
 		pattern: number;
+		nextPattern: number,
 	};
 };
 
@@ -549,4 +571,5 @@ export type sequencerActionTypes =
 	| removePropertyLockAction
 	| removeEffectPropertyLockAction
 	| selectStepBatchAction
+	| setActiveStepAction
 	| removeInstrumentFromSequencerAction;

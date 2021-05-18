@@ -6,13 +6,19 @@ import {
 	Arranger,
 	arrangerActionTypes,
 } from "./types";
+import { sequencerActions } from '../Sequencer';
 
 export const initialState: Arranger = {
 	mode: arrangerMode.PATTERN,
 	following: false,
 	selectedSong: 0,
+	step: 0,
 	counter: 1,
-	patternTracker: [],
+	patternTracker: {
+		activeEventIndex: -1,
+		patternPlaying: -1,
+		playbackStart: 0,
+	},
 	songs: {
 		0: {
 			name: "song 1",
@@ -125,17 +131,26 @@ export function arrangerReducer(
 			case arrangerActions.RENAME_SONG:
 				draft.songs[action.payload.song].name = action.payload.name;
 				break;
-			case arrangerActions.REMOVE_PATTERN:
-				let index = action.payload.index;
+			// case arrangerActions.REMOVE_PATTERN:
+			case sequencerActions.REMOVE_PATTERN:
+				let pattern = action.payload.pattern;
+				let next = action.payload.nextPattern;
 				Object.keys(draft.songs).forEach((k) =>
 					draft.songs[parseInt(k)].events.forEach((x, idx, arr) => {
-						if (arr[idx].pattern === index) arr[idx].pattern = -1;
+						if (arr[idx].pattern === pattern) arr[idx].pattern = next;
 					})
 				);
 				break
-			case arrangerActions.SET_TRACKER:
-				let tracker: number[] = action.payload.tracker;
-				draft.patternTracker = tracker;
+			// case arrangerActions.SET_TRACKER:
+			// 	let tracker: number[] = action.payload.tracker;
+			// 	draft.patternTracker = tracker;
+			// 	break;
+			case arrangerActions.SET_ACTIVE_PLAYER:
+				draft.patternTracker.patternPlaying = action.payload.patternPlaying;
+				draft.patternTracker.activeEventIndex = action.payload.activeEventIndex;
+				break;
+			case arrangerActions.SET_PLAYBACK_START:
+				draft.patternTracker.playbackStart = action.payload.startEventIndex
 				break;
 			case arrangerActions.SET_TIMER:
 				const timer = action.payload.timer;

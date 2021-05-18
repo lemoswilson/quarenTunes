@@ -101,7 +101,7 @@ const Effect: React.FC<effectsProps> = ({
     const previousType = usePrevious(type)
 
     useEffect(() => {
-        console.log('effect index', fxIndex, 'type', type, 'options', options)
+        // console.log('effect index', fxIndex, 'type', type, 'options', options)
     }, [fxIndex, type])
 
     const ref_trackIndex = useRef(trackIndex);
@@ -138,24 +138,13 @@ const Effect: React.FC<effectsProps> = ({
     const ref_activePatt = useRef(activePatt);
     useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
-    const selectedSteps = useSelector((state: RootState) => {
-        if (state.sequencer.present.patterns[activePatt] && state.sequencer.present.patterns[activePatt].tracks[trackIndex])
-            return state.sequencer.present.patterns[activePatt].tracks[trackIndex].selected
-    });
+    const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[trackIndex].selected)
     const ref_selectedSteps = useRef(selectedSteps);
     useEffect(() => { ref_selectedSteps.current = selectedSteps }, [selectedSteps]);
 
     const isRec = useSelector((state: RootState) => state.transport.present.recording);
     const ref_isRec = useRef(isRec);
     useEffect(() => { ref_isRec.current = isRec }, [isRec])
-
-    useEffect(() => {
-        console.log(`effect ${fxIndex}, type ${type} just mounted`)
-    }, [])
-
-    useEffect(() => {
-        console.log(`effect ${fxIndex}, type ${type} just had index updates`)
-    }, [fxIndex])
 
     const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
     const ref_isPlay = useRef(isPlay);
@@ -209,13 +198,11 @@ const Effect: React.FC<effectsProps> = ({
         let o = {}
         let callArray = fxProps.map((property) => {
             return (value: any) => {
-                if (ref_ToneEffect.current && getNested(ref_ToneEffect.current.get(), property)
-                    === getNested(ref_options.current, property)[0]) {
-                    let temp = setNestedValue(property, value)
-                    // instrumentRef.current.set(temp);
-                    // dispatch(updateEffectState(indexRef.current, temp));
-                    dispatch(updateEffectState(ref_trackIndex.current, temp, ref_fxIndex.current));
-                };
+                // console.log('should be calling properties update fx, property:', property);
+                let temp = setNestedValue(property, value)
+                // instrumentRef.current.set(temp);
+                // dispatch(updateEffectState(indexRef.current, temp));
+                dispatch(updateEffectState(ref_trackIndex.current, temp, ref_fxIndex.current));
             }
         });
         callArray.forEach((call, idx, arr) => {
@@ -243,8 +230,9 @@ const Effect: React.FC<effectsProps> = ({
 
                 const cc = e.controller && e.controller.number
 
-                if (ref_selectedSteps.current && ref_selectedSteps.current.length >= 1) {
+                if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
                     ref_selectedSteps.current.forEach(step => {
+                        console.log(`dispatching parameterlock effect step ${step}`)
                         dispatch(parameterLockEffectIncreaseDecrease(
                             ref_activePatt.current,
                             ref_trackIndex.current,
@@ -317,84 +305,58 @@ const Effect: React.FC<effectsProps> = ({
         return o
     }, [type])
 
-        // add effect first render logic 
-        useEffect(() => {
-            if (firstRender) {
-                // toneRefEmitter.emit(
-                //     trackEventTypes.ADD_EFFECT,
-                //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
-                // );
-                ref_ToneEffect.current = returnEffect(type, options)
+    // add effect first render logic 
+    useEffect(() => {
+        if (firstRender) {
+            // toneRefEmitter.emit(
+            //     trackEventTypes.ADD_EFFECT,
+            //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
+            // );
+            ref_ToneEffect.current = returnEffect(type, options)
+            
+            if (ref_toneObjects.current) {
+                let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
+                let chain = ref_toneObjects.current.tracks[trackIndex].chain;
+                
+                // ref_ToneEffect.current.chain()
+                // ref_ToneEffect.current.disconnect()
+                
+                // splice actually pushes to array if index passed is === length
 
-                if (ref_toneObjects.current) {
-                    let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
-                    let chain = ref_toneObjects.current.tracks[trackIndex].chain;
-                    
-                    // ref_ToneEffect.current.chain()
-                    // ref_ToneEffect.current.disconnect()
-                    
-                    if ( fxIndex >= lgth ) {
-                        // console.log(`adding a new `)
-                        ref_toneObjects.current.tracks[trackIndex].effects.push(ref_ToneEffect.current) 
+                ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
 
-                        // Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                        //     // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
-                        //     let k = parseInt(key);
-                        //     if (ref_toneObjects.current){
-                        //         if (fxIndex >= ref_toneObjects.current.patterns[k][trackIndex].effects.length)
-                        //             ref_toneObjects.current.patterns[k][trackIndex].effects.push(new Tone.Part())
-
-                        //         ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                        //     }
-                        // });
-                    }
-                    else if (fxIndex < lgth - 1) {
-
-                        ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
-
-                        Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                            // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
-                            let k = parseInt(key);
-                            if (ref_toneObjects.current){
-                                ref_toneObjects.current.patterns[k][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
-                                ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                            }
-
-                        });
+                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                    // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
+                    let k = parseInt(key);
+                    if (ref_toneObjects.current){
+                        // ref_toneObjects.current.patterns[k][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
+                        ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
                     }
 
-                    Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                        // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
-                        let k = parseInt(key);
-                        if (ref_toneObjects.current){
-                            if (fxIndex >= ref_toneObjects.current.patterns[k][trackIndex].effects.length)
-                                ref_toneObjects.current.patterns[k][trackIndex].effects.push(new Tone.Part())
+                });
 
-                            ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback;
-                        }
-                    });
+                ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                    if (ref_toneObjects.current) {
+                        // ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
+                        ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
+                    }
+                })
 
-                    ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-                        if (ref_toneObjects.current) {
-                            if (fxIndex >= ref_toneObjects.current.arranger[idx][trackIndex].effects.length)
-                                ref_toneObjects.current.arranger[idx][trackIndex].effects.push(new Tone.Part())
-                            
-                            ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
-                        }
-                    })
+                // ref_toneObjects.current.flagObjects[trackIndex].effects.splice(fxIndex, 0, {callback: effectCallback, flag: false})
+                ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
 
-                    for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
-                        ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
+                for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
+                    ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
 
-                    ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
-                    chain.in.disconnect()
+                ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
+                chain.in.disconnect()
 
-                    ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
-                }
-                setRender(false);
+                ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
             }
+            setRender(false);
+        }
 
-        }, [])
+    }, [])
 
 
     useEffectProperties(ref_ToneEffect, options)
@@ -405,6 +367,8 @@ const Effect: React.FC<effectsProps> = ({
     //         inputRef.current = WebMidi.getInputByName(midi.device);
     //     }
     // })
+    
+
 
 
     // reset locked property values after stopping playback
@@ -429,7 +393,7 @@ const Effect: React.FC<effectsProps> = ({
     );
 
     const effectCallback = useCallback((time: number, value: any) => {
-        console.log(`this is the effect callback, track ${trackId}, effect ${fxId}`);
+        // console.log(`this is the effect callback, track ${trackId}, effect ${fxId}`);
 
         fxProps.forEach(property => {
 
@@ -438,11 +402,17 @@ const Effect: React.FC<effectsProps> = ({
             const lockVal = getNested(ref_lockedParameters.current, property);
 
             if (callbackVal && callbackVal !== currVal[0]) {
-                propertiesUpdate[property](callbackVal);
-                setNestedValue(property, callbackVal, ref_lockedParameters.current);
+                // propertiesUpdate[property](callbackVal);
+                console.log('should be updating the vallue inside effect callback');
+                ref_toneObjects.current?.tracks[ref_trackIndex.current].effects[ref_fxIndex.current].set(setNestedValue(property, callbackVal));
+                getNested(propertiesUpdate, property)(callbackVal);
+                if (!lockVal)
+                    setNestedValue(property, currVal[0], ref_lockedParameters.current);
 
             } else if (!callbackVal && lockVal && currVal[0] !== lockVal) {
-                propertiesUpdate[property](lockVal);
+                // propertiesUpdate[property](lockVal);
+                ref_toneObjects.current?.tracks[ref_trackIndex.current].effects[ref_fxIndex.current].set(setNestedValue(property, lockVal));
+                getNested(propertiesUpdate, property)(lockVal);
                 deleteProperty(ref_lockedParameters.current, property);
 
                 // setNestedValue(property, undefined, lockedParameters.current)
@@ -501,6 +471,9 @@ const Effect: React.FC<effectsProps> = ({
                     if (ref_toneObjects.current)
                         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback
                 })
+
+                ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
+                
             }
         }
 
@@ -947,7 +920,7 @@ const Effect: React.FC<effectsProps> = ({
 
 
     return (
-        <div className={styles.fx}>
+        <div onClick={() => console.log(ref_selectedSteps.current)} className={styles.fx}>
             <div className={styles.box}>
                 <div className={styles.border}>
                     <div className={styles.deviceManager}>
@@ -961,7 +934,7 @@ const Effect: React.FC<effectsProps> = ({
                             selected={''}
                         />
                     </div>
-                    { Component}
+                    { Component }
                 </div>
             </div>
             <Tabs 

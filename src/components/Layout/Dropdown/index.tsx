@@ -28,7 +28,6 @@ const Dropdown: React.FC<Dropdown> = ({
     small,
     forceClose,
     dropdownId
-    // ref
 }) => {
     const [Open, toggleState] = useState(false);
     const [renderCount, increaseCounter] = useState(0)

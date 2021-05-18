@@ -1,4 +1,27 @@
 import { arrangerActionTypes, arrangerMode, arrangerActions } from "./types";
+import { sequencerActions } from '../Sequencer';
+
+export function setActivePlayer(
+	patternPlaying: number,
+	activeEventIndex: number,
+): arrangerActionTypes {
+	return {
+		type: arrangerActions.SET_ACTIVE_PLAYER,
+		payload: {
+			patternPlaying: patternPlaying,
+			activeEventIndex: activeEventIndex,
+		}
+	}
+}
+
+export function setPlaybackStart(startEventIndex: number): arrangerActionTypes {
+	return {
+		type: arrangerActions.SET_PLAYBACK_START,
+		payload: {
+			startEventIndex: startEventIndex,
+		}
+	}
+}
 
 export function toggleMode(): arrangerActionTypes {
 	return {
@@ -6,11 +29,13 @@ export function toggleMode(): arrangerActionTypes {
 	}
 }
 
-export function removePatternArranger(index: number): arrangerActionTypes {
+export function removePatternArranger(index: number, nextPattern: number): arrangerActionTypes {
 	return {
-		type: arrangerActions.REMOVE_PATTERN,
+		// type: arrangerActions.REMOVE_PATTERN,
+		type: sequencerActions.REMOVE_PATTERN,
 		payload: {
-			index: index,
+			pattern: index,
+			nextPattern: nextPattern,
 		},
 	};
 }
@@ -24,14 +49,14 @@ export function setMode(mode: arrangerMode): arrangerActionTypes {
 	};
 }
 
-export function setTracker(tracker: number[]): arrangerActionTypes {
-	return {
-		type: arrangerActions.SET_TRACKER,
-		payload: {
-			tracker: tracker,
-		}
-	}
-}
+// export function setTracker(tracker: number[]): arrangerActionTypes {
+// 	return {
+// 		type: arrangerActions.SET_TRACKER,
+// 		payload: {
+// 			tracker: tracker,
+// 		}
+// 	}
+// }
 
 export function prependRow(): arrangerActionTypes {
 	return {

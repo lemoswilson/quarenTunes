@@ -37,7 +37,7 @@ import {
     copyNotes,
     event,
 } from '../../store/Sequencer';
-import { incDecOffset, incDecPatLength, incDecTrackLength, incDecStepVelocity, renamePattern, setPatternTrackVelocity, incDecPTVelocity, cycleSteps } from '../../store/Sequencer/actions';
+import { incDecOffset, incDecPatLength, incDecTrackLength, incDecStepVelocity, renamePattern, setPatternTrackVelocity, incDecPTVelocity, cycleSteps, setActiveStep } from '../../store/Sequencer/actions';
 import { upOctaveKey, downOctaveKey, keyDict, noteDict, numberNoteDict } from '../../store/MidiInput';
 
 
@@ -51,16 +51,17 @@ import StepSequencer from '../../components/StepSequencer';
 import Patterns from '../../components/Patterns/Patterns';
 import InputKeys from '../../components/Layout/InputKeys';
 
-import { bbsFromSixteenth } from '../Arranger'
+import { bbsFromSixteenth, sixteenthFromBBSOG } from '../Arranger'
 import { RootState } from '../Xolombrisx';
 
 import styles from './style.module.scss';
 import { xolombrisxInstruments } from '../../store/Track';
 
-import ToneObjectsContext from '../../context/ToneObjectsContext';
 // import ToneContext from '../../context/ToneContext';
+import ToneObjectsContext from '../../context/ToneObjectsContext';
 import menuContext from '../../context/MenuContext';
 import dropdownContext from '../../context/DropdownContext';
+import CounterContext from '../../context/CounterContext';
 
 import { getFinalStep as finalStep, timeObjFromEvent } from '../../lib/utility';
 
@@ -74,6 +75,8 @@ const Sequencer: FunctionComponent = () => {
     const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_newPattern = useRef(false);
     const [isNote, setIsNote] = useState(false)
+    const ref_shouldReset: MutableRefObject<number | null> = useRef(null);
+    const ref_counter = useContext(CounterContext);
     // const Tone = useContext(ToneContext);
     const patternQueue: MutableRefObject<number[] | null> = useRef(null)
 
@@ -93,14 +96,21 @@ const Sequencer: FunctionComponent = () => {
 
     const arrangerMode = useSelector((state: RootState) => state.arranger.present.mode);
     const counter = useSelector((state: RootState) => state.sequencer.present.counter);
-    const trackCount = useSelector((state: RootState) => state.track.present.trackCount)
+    const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
     const MenuContext = useContext(menuContext);
     const DropdownContext = useContext(dropdownContext);
-
+    const activeStep = useSelector((state: RootState) => state.sequencer.present.step);
+    
+    const trackCount = useSelector((state: RootState) => state.track.present.trackCount)
+    const ref_trackCount = useRef(trackCount);
+    useEffect(() => {ref_trackCount.current = trackCount}, [trackCount]);
+    
     const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
     const ref_activePatt = useRef(activePatt);
     useEffect(() => { ref_activePatt.current = activePatt }, [activePatt])
     const prev_activePatt = usePrevious(activePatt);
+
+    const activeSongPattern = useSelector((state: RootState) => state.arranger.present.patternTracker.patternPlaying);
 
 
     const selectedTrkIndex = useSelector((state: RootState) => state.track.present.selectedTrack)
@@ -176,7 +186,8 @@ const Sequencer: FunctionComponent = () => {
 
 
     const _removePatt = (): void => {
-        dispatch(removePattern(activePatt))
+        const next = Number(Object.keys(patterns).find(v => Number(v) !== activePatt))
+        dispatch(removePattern(activePatt, next))
         triggEmitter.emit(triggEventTypes.REMOVE_PATTERN, { pattern: activePatt });
     };
 
@@ -195,6 +206,8 @@ const Sequencer: FunctionComponent = () => {
 
     const _addPatt = useCallback(() => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
+        console.log('adding a patter, should be stopping this modafucking thing');
+        scheduleOrStop('stop');
         dispatch(addPattern());
         // ref_newPattern.current = true;
     }, [
@@ -224,7 +237,7 @@ const Sequencer: FunctionComponent = () => {
 
     // setting up initial events in first render
     useEffect(() => {
-        console.log('should be setting initial events');
+        // console.log('should be setting initial events');
         if (ref_toneObjects.current)
         Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
             const s = Number(patt)
@@ -241,18 +254,18 @@ const Sequencer: FunctionComponent = () => {
 
     useEffect(() => {
         if (arrangerMode === "pattern") {
-            console.log('should be setting tone transport to loop');
+            // console.log('should be setting tone transport to loop');
             Tone.Transport.loop = true;
             Tone.Transport.loopEnd = {"16n": patternLength};
             // Tone.Transport.setLoopPoints(0, bbsFromSixteenth(patternLength))
             // Tone.Transport.setLoopPoints(0, {"16n": patternLength})
-            console.log(`tone transport loop ${Tone.Transport.loop}, tone transport loopstart, ${Tone.Transport.loopStart}, loop end, ${Tone.Transport.loopEnd}`)
+            // console.log(`tone transport loop ${Tone.Transport.loop}, tone transport loopstart, ${Tone.Transport.loopStart}, loop end, ${Tone.Transport.loopEnd}`)
         }
     }, [arrangerMode, patternLength])
 
     useEffect(() => {
         if (prev_activePatt && prev_activePatt === activePatt) {
-            console.log('scheduling frmo trackLength');
+            // console.log('scheduling frmo trackLength');
             scheduleOrStop('schedule')
         }
     }, [trackLen])
@@ -262,34 +275,36 @@ const Sequencer: FunctionComponent = () => {
         // Tone.Transport.loopEnd = patternLength;
         // Tone.Transport.loopStart = 0;
 
-        [...Array(trackCount).keys()].forEach((__, trk, _) => {
+        // [...Array(trackCount).keys()].forEach((__, trk, _) => {
+        [...Array(ref_trackCount.current).keys()].forEach((__, trk, _) => {
             if (ref_toneObjects.current) {
 
                 if (option === 'schedule'){
-                    ref_toneObjects.current.patterns[activePatt][trk].instrument.loopEnd = {'16n': activePatternObj.tracks[trk].length}
-                    ref_toneObjects.current.patterns[activePatt][trk].instrument.loop = true
+                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.loopEnd = {'16n': activePatternObj.tracks[trk].length}
+                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.loop = true
 
                     if (start){
                         ref_toneObjects.current.patterns[activePatt][trk].instrument.start(0)
-                        console.log(`should be setting start part active patt ${activePatt}, track ${trk}, activePatternTRkLength ${activePatternObj.tracks[trk].length}`)
+                        // console.log(`should be setting start part active patt ${activePatt}, track ${trk}, activePatternTRkLength ${activePatternObj.tracks[trk].length}`)
                     }
 
                     for (let i = 0; i < effectsLength[trk]; i ++) {
-                        ref_toneObjects.current.patterns[activePatt][trk].effects[i].loopEnd = {'16n': activePatternObj.tracks[trk].length}
-                        ref_toneObjects.current.patterns[activePatt][trk].effects[i].loop = true;
+                        ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].loopEnd = {'16n': activePatternObj.tracks[trk].length}
+                        ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].loop = true;
                         if (start) {
-                            ref_toneObjects.current.patterns[activePatt][trk].effects[i].start(0)
-                            console.log(`should be setting start part active patt ${activePatt}, track ${trk}, effect${i}`)
+                            ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].start(0)
+                            // console.log(`should be setting start part active patt ${activePatt}, track ${trk}, effect${i}`)
                         }
                     }
 
                 } else {
-                    ref_toneObjects.current.patterns[activePatt][trk].instrument.cancel()
-                    ref_toneObjects.current.patterns[activePatt][trk].instrument.stop()
+                    console.log('should be stopping patterns, inside scheduleStop callback');
+                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.cancel()
+                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.stop()
 
                     for (let i = 0; i < effectsLength[trk]; i ++) {
-                        ref_toneObjects.current?.patterns[activePatt][trk].effects[i].cancel() 
-                        ref_toneObjects.current?.patterns[activePatt][trk].effects[i].stop() 
+                        ref_toneObjects.current?.patterns[ref_activePatt.current][trk].effects[i].cancel() 
+                        ref_toneObjects.current?.patterns[ref_activePatt.current][trk].effects[i].stop() 
                     }
                 }
 
@@ -301,7 +316,7 @@ const Sequencer: FunctionComponent = () => {
 
     useEffect(() => {
 
-        console.log('shceduling from arranger mode change');
+        // console.log('shceduling from arranger mode change');
         scheduleOrStop(
             arrangerMode === 'pattern' 
             ? 'schedule' 
@@ -312,7 +327,7 @@ const Sequencer: FunctionComponent = () => {
     }, [arrangerMode])
 
     useEffect(() => {
-        console.log('scheduling from active patter');
+        console.log('should be scheduling next pattern');
         if (Tone.Transport.state !== 'started') 
             scheduleOrStop('schedule', true);
 
@@ -333,11 +348,12 @@ const Sequencer: FunctionComponent = () => {
     }, [activePatt, dispatch, selectedTrkIndex])
 
     const _selectPatt = (key: string): void => {
-        console.log('pattern selected is', key) 
+        // console.log('pattern selected is', key) 
         let nextPattern: number = Number(key);
         let currPatt = activePatt;
 
         if (arrangerMode === 'pattern'){
+            console.log('selecting pattern, tone trasport state is ', Tone.Transport.state);
             if (Tone.Transport.state === 'started') {
 
                 // if transport is active and pattern mode selected, this should queue
@@ -350,7 +366,8 @@ const Sequencer: FunctionComponent = () => {
                     patternQueue.current.push(currPatt)
                 }
 
-                [...Array(trackCount).keys()].forEach((_, track, arr) => {
+                // [...Array(trackCount).keys()].forEach((_, track, arr) => {
+                [...Array(ref_trackCount.current).keys()].forEach((_, track, arr) => {
                     ref_toneObjects.current?.patterns[currPatt][track].instrument.cancel();
                     ref_toneObjects.current?.patterns[currPatt][track].instrument.stop(0);
 
@@ -375,6 +392,7 @@ const Sequencer: FunctionComponent = () => {
                 });
 
             } else {
+                console.log('should be stopping pattern ')
                 scheduleOrStop('stop');
                 dispatch(selectPattern(nextPattern));
             }
@@ -402,7 +420,7 @@ const Sequencer: FunctionComponent = () => {
 
     const pageClickHandler = useCallback((e: MouseEvent, pageIndex: number): void => {
         if (e.shiftKey) {
-            console.log('should be mimicking and dispatching select steps')
+            // console.log('should be mimicking and dispatching select steps')
             mimicSelectedFromTo(ref_activePage.current, pageIndex)
         } else {
             dispatchChangePage(pageIndex)
@@ -804,7 +822,7 @@ const Sequencer: FunctionComponent = () => {
 
         // copy events or steps 
         if (shouldCopy(e, char)){
-            console.log('should copy')
+            // console.log('should copy')
             const ev = ref_selectedSteps.current
             .map(step => eventsRef.current[step])
 
@@ -871,19 +889,19 @@ const Sequencer: FunctionComponent = () => {
 
         // toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease('C3', '16n')
         if (ref_selectedSteps.current.length > 0) {
-            console.log('should be dispatching note')
+            // console.log('should be dispatching note')
             dispatchSetNote(noteName);
         } else if (typeof patternNoteLength === 'string') {
             if (voice === xolombrisxInstruments.NOISESYNTH) {
                 // toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, activePatternObj.tracks[selectedTrack].velocity)
                 let t: any = ref_toneObjects.current?.tracks[selectedTrkIndex].instrument
-                console.log('trackIndex', selectedTrkIndex);
+                // console.log('trackIndex', selectedTrkIndex);
                 // t.triggerAttackRelease(patternNoteLength, undefined, activePatternObj.tracks[ref_selectedTrkIndex.current].velocity)
                 t.triggerAttackRelease(patternNoteLength)
             // } else if (voice === xolombrisxInstruments.PLUCKSYNTH) {
             //     ref_toneObjects?.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             } else if (voice === xolombrisxInstruments.FMSYNTH || voice === xolombrisxInstruments.AMSYNTH) {
-                console.log('should be playing note with fm or am synth');
+                // console.log('should be playing note with fm or am synth');
                 // ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.connect(ref_toneObjects.current?.tracks[selectedTrkIndex].chain.in)
                 ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(noteName, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             } else {
@@ -917,6 +935,21 @@ const Sequencer: FunctionComponent = () => {
         dispatch(renamePattern(activePatt, name));
     };
 
+    useEffect(() => {
+        if (arrangerMode === 'pattern')
+            ref_shouldReset.current = Tone.Transport.scheduleRepeat((time) => {
+                // console.log(sixteenthFromBBSOG(Tone.Transport.position.toString()));
+                dispatch(setActiveStep(sixteenthFromBBSOG(Tone.Transport.position.toString()), ref_selectedTrkIndex.current, ref_activePatt.current))
+            }, "16n")
+        
+        if (arrangerMode === 'arranger' && !Number.isNaN(Number(ref_shouldReset.current))) {
+            const c: any = ref_shouldReset.current
+            Tone.Transport.clear(c)
+            ref_shouldReset.current = null;
+        }
+
+    }, [arrangerMode])
+
     // useEffect(() => {
     //     if (ref_newPattern.current) {
 
@@ -932,7 +965,7 @@ const Sequencer: FunctionComponent = () => {
             <div className={styles.arrangerColumn}>
                 <div className={styles.patterns}>
                     <Patterns
-
+                        isPlay={isPlay}
                         renamePattern={dispatchRenamePattern}
                         incDecOffset={dispatchIncDecOffset}
                         note={isNote}
@@ -973,12 +1006,15 @@ const Sequencer: FunctionComponent = () => {
                             <StepSequencer
                                 selectStep={dispatchSelectStep}
                                 changePage={pageClickHandler}
+                                activeSongPattern={activeSongPattern}
                                 activePattern={activePatt}
                                 events={events}
                                 length={trackLen}
                                 page={activePage}
                                 selected={selectedSteps}
                                 selectedTrack={selectedTrkIndex}
+                                activeStep={activeStep}
+                                arrgMode={arrangerMode}
                             ></StepSequencer>
                         </div>
                         <div className={styles.keyInput}>

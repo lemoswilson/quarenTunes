@@ -41,6 +41,7 @@ const Vibrato: React.FC<effectLayoutProps> = ({
                 selected && selected.length > 0
                     ? selectedPropertyArray?.every((v, idx, arr) => v && v === arr[0])
                     : false;
+
             const noValuesInSelected =
                 selected && selected.length > 0
                     ? selectedPropertyArray?.every(v => v === undefined)
@@ -50,7 +51,7 @@ const Vibrato: React.FC<effectLayoutProps> = ({
                 property,
                 [
                     allValuesEqual,
-                    allValuesEqual && selectedPropertyArray? selectedPropertyArray[0] : false,
+                    allValuesEqual && selectedPropertyArray ? selectedPropertyArray[0] : false,
                     noValuesInSelected
                 ],
                 o,

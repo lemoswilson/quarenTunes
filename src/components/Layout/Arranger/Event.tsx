@@ -14,6 +14,7 @@ import Minus from '../Icons/Minus';
 import Plus from '../Icons/Plus';
 import NumberBox from '../NumberBox';
 import ToneObjects from '../../../context/ToneObjectsContext';
+import { arrangerMode } from '../../../store/Arranger';
 import { bbsFromSixteenth } from '../../../containers/Arranger';
 import { startEndRange, timeObjFromEvent, getFinalStep } from '../../../lib/utility';
 import EventsHandler from '../../../containers/Arranger/EventsHandler';
@@ -25,6 +26,8 @@ interface EventProps {
     eventsLength: number,
     pattsObj: pattObjs
     arr: songEvent[],
+    isPlay: boolean,
+    arrgMode: arrangerMode,
     _removeRow: (index: number) => void,
     _setEventPattern: (eventIndex: number, pattern: number) => void,
     _incDecRepeat: (amount: number, song: number, eventIndex: number) => void,
@@ -43,6 +46,8 @@ const Event: React.FC<EventProps> = ({
     eventsLength, 
     arr,
     pattsObj, 
+    isPlay,
+    arrgMode,
     _removeRow,
     _setEventPattern,
     _incDecRepeat,
@@ -160,7 +165,7 @@ const Event: React.FC<EventProps> = ({
                     className={styles.div} 
                 >
                     {
-                        eventsLength > 1 
+                        eventsLength > 1 && !(arrgMode === arrangerMode.ARRANGER && isPlay)
                         ? <div className={styles.delete}> 
                                 <Minus onClick={() => { _removeRow(idx) }} small={true} />
                         </div> 
@@ -201,7 +206,7 @@ const Event: React.FC<EventProps> = ({
                         />
                     </div>
                     <div className={styles.add}>
-                        <Plus onClick={() => { _addRow(idx) }} small={true} />
+                        { !(arrgMode === arrangerMode.ARRANGER && isPlay) ? <Plus onClick={() => { _addRow(idx) }} small={true} /> : null}
                     </div>
                 </div>
             )}

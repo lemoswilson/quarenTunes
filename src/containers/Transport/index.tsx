@@ -67,9 +67,9 @@ const Transport: FunctionComponent = () => {
 
 	useEffect(() => {
 		Tone.Transport.bpm.value = bpm;
-		Tone.Transport.scheduleOnce((time) => {
-			console.log(`should be starting now `);
-		}, 0)
+		// Tone.Transport.scheduleOnce((time) => {
+		// 	// console.log(`should be starting now `);
+		// }, 0)
 	}, [])
 
 
@@ -78,14 +78,15 @@ const Transport: FunctionComponent = () => {
 	}, [bpm])
 
 	useEffect(() => {
-		console.log('is play', isPlay, 'if true shuold be starting');
+		// console.log('is play', isPlay, 'if true shuold be starting');
 		isPlay ? Tone.Transport.start() : Tone.Transport.stop();
 	}, [isPlay]);
 
 	const _start = (): void => {
 		if (Tone.context.state !== "running") {
 			Tone.context.resume();
-			Tone.context.latencyHint = "interactive";
+			console.log('tone context is', Tone.context.latencyHint);
+			// Tone.context.latencyHint = "interactive";
 			Tone.context.lookAhead = 0;
 		}
 		dispatch(start());

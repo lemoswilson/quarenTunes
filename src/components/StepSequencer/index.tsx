@@ -6,18 +6,24 @@ import { range, startEndRange, bisect } from '../../lib/utility';
 import styles from './style.module.scss';
 import PrevNext from '../Layout/PrevNext';
 import StepLayout from '../Layout/Step';
+import { arrangerMode } from '../../store/Arranger';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../containers/Xolombrisx';
 
 interface StepSequencerProps {
     page: number,
     length: number,
     events: event[],
     activePattern: number,
+    activeSongPattern: number,
     selectedTrack: number,
     selected: number[],
     className?: string,
+    arrgMode: arrangerMode,
     // changePage: (pageIndex: number) => void,
     changePage: (e: MouseEvent, pageIndex: number) => void,
     selectStep: (step: number) => void,
+    activeStep: number,
     // finalStep: () => number,
 }
 
@@ -25,6 +31,9 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
     activePattern,
     changePage,
     selectStep,
+    activeStep,
+    activeSongPattern,
+    arrgMode,
     // finalStep,
     className,
     events,
@@ -34,6 +43,8 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
     selectedTrack,
     children
 }) => {
+
+    const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
 
     const finalStep = () => {
         if ((page === 0 && length <= 16)
@@ -97,7 +108,12 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                                         index={step}
                                         selectedTrack={selectedTrack}
                                         un={`activePatt${activePattern}:track${selectedTrack}:step${step}`}
-                                        onTime={false}
+                                        onTime={isPlay && (
+                                            arrgMode === arrangerMode.PATTERN 
+                                            || (arrgMode === arrangerMode.ARRANGER 
+                                            && activePattern === activeSongPattern)
+                                        ) 
+                                        && activeStep === step }
                                         selected={selected.includes(step)}
                                     />
                                 </div>

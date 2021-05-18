@@ -45,7 +45,7 @@ export const initialState: Sequencer = {
 		},
 	},
 	quantizeRecording: false,
-	step: undefined,
+	step: 0,
 };
 
 export function sequencerReducer(
@@ -85,7 +85,8 @@ export function sequencerReducer(
 			counter: number = draft.counter
 		switch (action.type) {
 			case sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER:
-				let trackNumber: number = draft.patterns[0].tracks.length;
+				let an = Number(Object.keys(draft.patterns)[0])
+				let trackNumber: number = draft.patterns[an].tracks.length;
 				console.log('should be adding to sequencer.');
 				Object.keys(draft.patterns).forEach(
 					(v) =>
@@ -301,7 +302,8 @@ export function sequencerReducer(
 			case sequencerActions.REMOVE_PATTERN:
 				pattern = action.payload.pattern;
 				delete draft.patterns[pattern];
-				draft.activePattern = Number(Object.keys(draft.patterns)[0])
+				// draft.activePattern = Number(Object.keys(draft.patterns)[0])
+				draft.activePattern = action.payload.nextPattern;
 				break;
 			case sequencerActions.SELECT_PATTERN:
 				pattern = action.payload.pattern;
@@ -559,7 +561,7 @@ export function sequencerReducer(
 					]
 				const prevValueFX = getNested(draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex], property)
 				let valFx;
-				console.log('should be locking effect')
+				console.log(`should be locking effect, pattern is ${pattern}, track is ${trackIndex}, fx is ${fxIndex}, step is ${step}`);
 
 				if (isContinuous) {
 					valFx = cc ? valueFromCC(movement, effectValues[1][0], effectValues[1][1], effectValues[4])
@@ -573,13 +575,15 @@ export function sequencerReducer(
 								? property
 								: undefined
 						);
+					console.log('val fx is ', valFx);
 					if (valFx === -Infinity) {
 						setNestedValue(property, valFx, draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex])
 					} else if (valFx >= effectValues[1][0] && valFx <= effectValues[1][1]) {
+						console.log('not equal inifinity');
 						setNestedValue(property, Number(valFx.toFixed(4)), draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex])
 					}
 				} else {
-					val = cc ? optionFromCC(movement, effectValues[1]) : steppedCalc(movement, effectValues[1], prevValueFX ? prevValueFX : effectValues[0])
+					valFx = cc ? optionFromCC(movement, effectValues[1]) : steppedCalc(movement, effectValues[1], prevValueFX ? prevValueFX : effectValues[0])
 					setNestedValue(property, valFx, draft.patterns[pattern].tracks[trackIndex].events[step].fx[fxIndex])
 				}
 				break;
@@ -705,6 +709,12 @@ export function sequencerReducer(
 				]
 				console.log('should be batching', steps);
 				draft.patterns[pattern].tracks[trackIndex].selected.push(...steps);
+				break;
+			// case sequencerActions.SET_ACTIVE_STEP:
+			// 	draft.step = action.payload.counter % draft.patterns[draft.activePattern].tracks[action.payload.trackIndex].length
+			// 	break;
+			case sequencerActions.SET_ACTIVE_STEP:
+				draft.step = (action.payload.counter % draft.patterns[action.payload.pattern].patternLength) % draft.patterns[action.payload.pattern].tracks[action.payload.trackIndex].length
 				break;
 		}
 	});

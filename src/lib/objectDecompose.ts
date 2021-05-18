@@ -124,25 +124,26 @@ export function getNested(obj: any, property: string): any {
 
 }
 export function copyToNew(obj: any, property: string): any {
-    if (typeof obj !== 'object') return
-    const fields = property.split('.');
-    let n: any = {}
-    let cur = obj,
-        last = fields.pop();
+    // if (typeof obj !== 'object') return
+    // const fields = property.split('.');
+    // let n: any = {}
+    // let cur = obj,
+    //     last = fields.pop();
 
-    if (fields.length >= 1) {
-        fields.forEach((field: string) => {
-            if (cur[field]) {
-                cur = cur[field]
-                n[field] = {}
-            } else return false
-        });
-    }
+    // if (fields.length >= 1) {
+    //     fields.forEach((field: string) => {
+    //         if (cur[field]) {
+    //             cur = cur[field]
+    //             n[field] = {}
+    //         } else return false
+    //     });
+    // }
 
-    if (last) {
-        n[last] = obj[last]
-        return obj
-    } else return undefined;
+    // if (last) {
+    //     n[last] = obj[last]
+    //     return obj
+    // } else return undefined;
+    return setNestedValue(property, getNested(obj, property));
 
 }
 

@@ -1,4 +1,5 @@
 import { transportActions, transportActionTypes } from "../Transport";
+import { sequencerActions } from '../Sequencer';
 
 export enum arrangerMode {
 	ARRANGER = "arranger",
@@ -24,10 +25,15 @@ export interface Arranger {
 	following: boolean;
 	selectedSong: number;
 	counter: number;
-	patternTracker: number[];
+	patternTracker: {
+		patternPlaying: number,
+		activeEventIndex: number,
+		playbackStart: any,
+	};
 	songs: {
 		[key: number]: Song;
 	};
+	step: number;
 }
 
 export enum arrangerActions {
@@ -48,12 +54,37 @@ export enum arrangerActions {
 	RENAME_SONG = "RENAME_SONG",
 	INC_DEC_REPEAT = "INC_DEC_REPEAT",
 	SWAP_EVENTS = "SWAP_EVENTS",
-	TOGGLE_MODE = "TOGGLE_MODE"
+	TOGGLE_MODE = "TOGGLE_MODE",
+	SET_ACTIVE_PLAYER = "SET_ACTIVE_PLAYER",
+	SET_PLAYBACK_START = "SET_PLAYBACK_START",
+}
+
+
+export interface setActivePlayerAction {
+	type: arrangerActions.SET_ACTIVE_PLAYER,
+	payload: {
+		patternPlaying: number,
+		activeEventIndex: number,
+	}
+}
+
+export interface setPlaybackStartAction {
+	type: arrangerActions.SET_PLAYBACK_START,
+	payload: {
+		startEventIndex: number,
+	}
 }
 
 export interface toggleModeAction {
 	type: arrangerActions.TOGGLE_MODE,
 }
+
+// export interface removePatternAction {
+// 	type: sequencerActions.REMOVE_PATTERN,
+// 	payload: {
+// 		pattern: number,
+// 	}
+// }
 
 export interface swapEventsAction {
 	type: arrangerActions.SWAP_EVENTS,
@@ -72,12 +103,12 @@ export interface renameSongAction {
 	}
 }
 
-export interface setTrackerAction {
-	type: arrangerActions.SET_TRACKER,
-	payload: {
-		tracker: number[],
-	}
-}
+// export interface setTrackerAction {
+// 	type: arrangerActions.SET_TRACKER,
+// 	payload: {
+// 		tracker: number[],
+// 	}
+// }
 
 export interface increaseDecreaseRepeatAction {
 	type: arrangerActions.INC_DEC_REPEAT,
@@ -97,9 +128,11 @@ export interface setTimerAction {
 }
 
 export interface removePatternAction {
-	type: arrangerActions.REMOVE_PATTERN;
+	// type: arrangerActions.REMOVE_PATTERN;
+	type: sequencerActions.REMOVE_PATTERN;
 	payload: {
-		index: number;
+		pattern: number;
+		nextPattern: number,
 	};
 }
 
@@ -193,7 +226,9 @@ export type arrangerActionTypes =
 	| setMuteAction
 	| setPatternAction
 	| setRepeatAction
-	| setTrackerAction
+	// | setTrackerAction
+	| setActivePlayerAction
+	| setPlaybackStartAction
 	| setTimerAction
 	| increaseDecreaseRepeatAction
 	| renameSongAction

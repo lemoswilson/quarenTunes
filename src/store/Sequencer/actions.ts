@@ -2,6 +2,21 @@ import { sequencerActions, sequencerActionTypes, event } from "./types";
 import { eventOptions, RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions, trackActions } from "../Track";
 
+export function setActiveStep (
+	counter: number,
+	trackIndex: number,
+	pattern: number,
+): sequencerActionTypes {
+	return {
+			type: sequencerActions.SET_ACTIVE_STEP,
+			payload: {
+				counter: counter, 
+				trackIndex: trackIndex,
+				pattern: pattern,
+			}
+	}
+}
+
 export function selectStepsBatch(
 	pattern: number,
 	trackIndex: number,
@@ -146,11 +161,12 @@ export function incDecTrackLength(amount: number, pattern: number, trackIndex: n
 	}
 }
 
-export function removePattern(patternKey: number): sequencerActionTypes {
+export function removePattern(patternKey: number, nextPattern: number): sequencerActionTypes {
 	return {
 		type: sequencerActions.REMOVE_PATTERN,
 		payload: {
 			pattern: patternKey,
+			nextPattern:  nextPattern,
 		},
 	};
 }
