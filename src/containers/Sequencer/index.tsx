@@ -136,6 +136,8 @@ const Sequencer: FunctionComponent = () => {
 
     const pattTrkVelocity = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].velocity);
 
+    const isFollow = useSelector((state: RootState) => state.arranger.present.following);
+
     const activePage = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].page);
     const ref_activePage = useRef(activePage);
     useEffect(() => { ref_activePage.current = activePage }, [activePage])
@@ -271,7 +273,7 @@ const Sequencer: FunctionComponent = () => {
     }, [trackLen])
 
     const scheduleOrStop = (option: 'schedule' | 'stop', start?: boolean) => {
-        Tone.Transport.loop = true;
+        // Tone.Transport.loop = true;
         // Tone.Transport.loopEnd = patternLength;
         // Tone.Transport.loopStart = 0;
 
@@ -317,21 +319,23 @@ const Sequencer: FunctionComponent = () => {
     useEffect(() => {
 
         // console.log('shceduling from arranger mode change');
-        scheduleOrStop(
-            arrangerMode === 'pattern' 
-            ? 'schedule' 
-            : 'stop',
-            true
-        )
+        if (!isPlay)
+            scheduleOrStop(
+                arrangerMode === 'pattern' 
+                ? 'schedule' 
+                : 'stop',
+                true
+            )
 
-    }, [arrangerMode])
+    }, [arrangerMode, activePatt])
 
-    useEffect(() => {
-        console.log('should be scheduling next pattern');
-        if (Tone.Transport.state !== 'started') 
-            scheduleOrStop('schedule', true);
+    // useEffect(() => {
+    //     console.log('should be scheduling next pattern');
+    //     if (arrangerMode)
+    //     if (Tone.Transport.state !== 'started') 
+    //         scheduleOrStop('schedule', true);
 
-    }, [activePatt])
+    // }, [activePatt])
 
     const _changePattLen = useCallback((newLength: number): void => {
         if (newLength >= 1) {
@@ -396,6 +400,9 @@ const Sequencer: FunctionComponent = () => {
                 scheduleOrStop('stop');
                 dispatch(selectPattern(nextPattern));
             }
+        } else {
+            if (!isFollow)
+                dispatch(selectPattern(nextPattern));
         }
     };
 

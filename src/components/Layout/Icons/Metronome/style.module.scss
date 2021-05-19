@@ -1,0 +1,16 @@
+@import '../../../../style/variables';
+
+.svg {
+    padding-left: 0.33rem;
+    padding-top: 0.1rem;
+
+    .active {
+        fill: $dark;
+    }
+
+    .inactive {
+        fill: $light;
+    }
+
+}
+

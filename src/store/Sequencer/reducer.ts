@@ -10,6 +10,8 @@ import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from "../../li
 import { startEndRange, bisect } from "../../lib/utility";
 import { RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions, trackActions } from "../Track";
+import { transportActions } from "../Transport";
+import { arrangerMode } from "../Arranger";
 
 const initialTrack = {
 	events: Array(16).fill({ instrument: { note: [] }, fx: [{}], offset: 0 }),
@@ -714,8 +716,12 @@ export function sequencerReducer(
 			// 	draft.step = action.payload.counter % draft.patterns[draft.activePattern].tracks[action.payload.trackIndex].length
 			// 	break;
 			case sequencerActions.SET_ACTIVE_STEP:
+				console.log(`setting active step, payload pattern is ${action.payload.pattern}`);
 				draft.step = (action.payload.counter % draft.patterns[action.payload.pattern].patternLength) % draft.patterns[action.payload.pattern].tracks[action.payload.trackIndex].length
 				break;
+			case transportActions.STOP:
+				draft.step = 0
+				break
 		}
 	});
 }

@@ -77,6 +77,27 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
         }
     }
 
+    const patternPageStyle = (p: number) => (
+        { 
+            backgroundColor: 
+                p === page 
+                ? "#ea8686" 
+                : Math.floor(activeStep / 16) === p && isPlay
+                ? "#ff9f1c" : "white" 
+        }
+    )
+
+    const arrangerPageStyle = (p: number) => {
+        if (activePattern === activeSongPattern)
+            return patternPageStyle(p)
+        else return ({
+            backgroundColor: 
+                p === page
+                ? "#ea8686"
+                : "white"
+        })
+    }
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.title}>
@@ -91,7 +112,10 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
                             return (
                                 // <div key={p} onClick={() => { changePage(p) }} className={styles.pageSelector}>
                                 <div key={p} onClick={(e) => { changePage(e,p) }} className={styles.pageSelector}>
-                                    <div style={{ backgroundColor: p === page ? "#ea8686" : "white" }} className={styles.indicator}></div>
+                                    {/* <div style={{ backgroundColor: p === page ? "#ea8686" :  "white" }} className={styles.indicator}></div> */}
+                                    <div style={arrgMode === arrangerMode.PATTERN ? patternPageStyle(p) : arrangerPageStyle(p)} 
+                                        className={styles.indicator}
+                                    ></div>
                                 </div>
                             )
                         })}

@@ -59,7 +59,6 @@ export enum arrangerActions {
 	SET_PLAYBACK_START = "SET_PLAYBACK_START",
 }
 
-
 export interface setActivePlayerAction {
 	type: arrangerActions.SET_ACTIVE_PLAYER,
 	payload: {

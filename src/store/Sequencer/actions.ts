@@ -1,6 +1,14 @@
 import { sequencerActions, sequencerActionTypes, event } from "./types";
 import { eventOptions, RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions, trackActions } from "../Track";
+import { transportActions } from "../Transport";
+import { arrangerMode } from "../Arranger";
+
+export function stopTransport(mode: arrangerMode): sequencerActionTypes {
+	return {
+		type: transportActions.STOP,
+	}
+}
 
 export function setActiveStep (
 	counter: number,

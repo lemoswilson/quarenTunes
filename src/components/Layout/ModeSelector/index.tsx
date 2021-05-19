@@ -51,8 +51,8 @@ const ArrangerMode: React.FC = () => {
         <svg className={styles.arrangerMode} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 25 15">
             <defs>
                 <linearGradient id="a" x1="9.1" y1="2.73" x2="14.97" y2="11.7" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#f0f0f0" stop-opacity="0.3"/>
-                <stop offset="0.98" stop-color="#ededed" stop-opacity="0.3"/>
+                <stop offset="0" stopColor="#f0f0f0" stopOpacity="0.3"/>
+                <stop offset="0.98" stopColor="#ededed" stopOpacity="0.3"/>
                 </linearGradient>
             </defs>
             <title>singleArrow</title>

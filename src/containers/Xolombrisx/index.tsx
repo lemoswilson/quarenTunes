@@ -36,7 +36,8 @@ import { userProps } from '../../App';
 import Layout, { LayoutState, newPatternObject } from '../../components/Layout';
 
 
-import styles from './xolombrisx.module.scss'
+// import styles from './xolombrisx.module.scss'
+import styles from '../../components/Layout/style.module.scss';
 
 import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
@@ -631,6 +632,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     };
 
     const newEvent = (payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>): void => {
+        console.log(' new event, payload event index is:', payload.eventIndex);
         const trackCount = store.getState().track.present.tracks.length;
 
         [...Array(trackCount).keys()].forEach((_, idx, __) => {

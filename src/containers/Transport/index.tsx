@@ -4,6 +4,7 @@ import {
 	toggleRecording,
 	setBPM,
 	increaseDecreaseBPMAction,
+	toggleMetronome,
 	increaseDecreaseBPM,
 } from "../../store/Transport";
 import React, { useEffect, FunctionComponent, useContext, useRef, MutableRefObject } from "react";
@@ -20,8 +21,11 @@ import Stop from '../../components/Layout/Stop'
 import Rec from '../../components/Layout/Record'
 import ModeSelector from '../../components/Layout/ModeSelector'
 import BPMSelector from '../../components/Layout/BPMSelector';
-import { bbsFromSixteenth } from "../Arranger";
-import { FMSynth } from "tone";
+import Metronome from '../../components/Layout/Icons/Metronome';
+import { bbsFromSixteenth, sixteenthFromBBSOG } from "../Arranger";
+import { FMSynth, Sampler } from "tone";
+import strong from '../../assets/strong.mp3'
+import weak from '../../assets/weak.mp3'
 
 const Transport: FunctionComponent = () => {
 	// const Tone = useContext(ToneContext);
@@ -32,9 +36,14 @@ const Transport: FunctionComponent = () => {
 		(state: RootState) => state.transport.present.isPlaying
 	);
 
+	const metronomeState = useSelector(
+		(state: RootState) => state.transport.present.metronome
+	)
+
 	const mode = useSelector(
 		(state: RootState) => state.arranger.present.mode
 	)
+
 
 	const isRec = useSelector(
 		(state: RootState) => state.transport.present.recording
@@ -47,23 +56,47 @@ const Transport: FunctionComponent = () => {
 		return state.sequencer.present.patterns[activePatt].patternLength
 	})
 
-	const metronome: MutableRefObject<FMSynth | null> = useRef(null);
-	const metronomeLoop: MutableRefObject<any> = useRef(null);
+	// const metronome: MutableRefObject<FMSynth | null> = useRef(null);
+	const metronome: MutableRefObject<Sampler | null> = useRef(null);
+	const metronomeLoop: MutableRefObject<Tone.Loop | null> = useRef(null);
 
 	useEffect(() => {
-		// function playNote(time: any) {
-		// 	metronome.current?.triggerAttackRelease('A4', '16n', time);
-		// }
-		// metronome.current = new Tone.FMSynth().toDestination()
-		// metronomeLoop.current = new Tone.Loop(playNote, '4n');
-		// metronomeLoop.current.start(0);
+		function playNote(time: any) {
+			metronome.current?.triggerAttackRelease(
+				sixteenthFromBBSOG(Tone.Transport.position.toLocaleString()) % 16 === 0
+				? 'C3'
+				: 'D3',
+				'16n',
+				time
+			)
+		}
 
+		metronome.current = new Tone.Sampler({
+			urls: {
+				C3: strong,
+				D3: weak,
+			},
+			// baseUrl: "/assets/",
+			onload: () => {
+				console.log('loaded samples')
+			},
+			onerror: (error) => {
+				console.log('error, the error is:', error)
+			},
+		}).toDestination()
 
-
-		// Tone.Transport.scheduleRepeat((time) => {
-		// 	metronome.current?.triggerAttackRelease('C3', '16n', "+0");
-		// }, '4n')
+		metronomeLoop.current = new Tone.Loop(playNote, '4n');
 	}, [])
+
+	useEffect(() => {
+
+		if (metronomeState && metronomeLoop.current){
+			metronomeLoop.current.start(0)
+		} else {
+			metronomeLoop.current?.stop()
+		}
+
+	}, [metronomeState])
 
 	useEffect(() => {
 		Tone.Transport.bpm.value = bpm;
@@ -112,6 +145,10 @@ const Transport: FunctionComponent = () => {
         input.blur()
     };
 
+	const _toggleMetronome = () => {
+		dispatch(toggleMetronome());
+	}
+
 	// useEffect(() => {
 	// 	Tone.Transport.scheduleRepeat((time) => {
 	// 		console.log(`tone transport callback, time ${time}`)
@@ -144,6 +181,7 @@ const Transport: FunctionComponent = () => {
 					<Stop onClick={_stop}/>
 					<Rec onClick={record}/>
 					<ModeSelector mode={mode} onClick={() => {dispatch(toggleMode())}}/>
+					<Metronome toggleMetronome={_toggleMetronome} active={metronomeState}/>
 				</div>
 			</div>
 	)	

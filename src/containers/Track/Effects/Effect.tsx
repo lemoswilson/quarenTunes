@@ -230,42 +230,40 @@ const Effect: React.FC<effectsProps> = ({
 
                 const cc = e.controller && e.controller.number
 
-                if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
-                    ref_selectedSteps.current.forEach(step => {
-                        console.log(`dispatching parameterlock effect step ${step}`)
-                        dispatch(parameterLockEffectIncreaseDecrease(
-                            ref_activePatt.current,
-                            ref_trackIndex.current,
-                            step,
-                            ref_fxIndex.current, // fx have order between them (chainning) 
-                            cc ? e.value : e.movementY,
-                            property,
-                            propertyArr,
-                            cc,
-                            isContinuous
-                        ))
-                    })
-                    // } else if (stateValue === getNested(
-                    //     instrumentRef.current.get(),
-                    //     property
-                    // )) {
-                } else {
-                    dispatch(increaseDecreaseEffectProperty(
-                        ref_trackIndex.current,
-                        ref_fxIndex.current,
-                        property,
-                        cc ? e.value : e.movementY,
-                        cc,
-                        isContinuous
-                    ))
-                    // console.log(
-                    //     'increasing decreasing',
-                    //     'property:', property,
-                    //     'cc:', cc,
-                    //     'isContinuous:', isContinuous,
-                    //     'e', e,
-                    // )
-                }
+                // if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
+                //     ref_selectedSteps.current.forEach(step => {
+                //         console.log(`dispatching parameterlock effect step ${step}`)
+                //         dispatch(parameterLockEffectIncreaseDecrease(
+                //             ref_activePatt.current,
+                //             ref_trackIndex.current,
+                //             step,
+                //             ref_fxIndex.current, // fx have order between them (chainning) 
+                //             cc ? e.value : e.movementY,
+                //             property,
+                //             // propertyArr,
+                //             getNested(ref_options.current, property),
+                //             cc,
+                //             isContinuous
+                //         ))
+                //     })
+                // } else {
+                //     dispatch(increaseDecreaseEffectProperty(
+                //         ref_trackIndex.current,
+                //         ref_fxIndex.current,
+                //         property,
+                //         cc ? e.value : e.movementY,
+                //         cc,
+                //         isContinuous
+                //     ))
+                // }
+                dispatch(increaseDecreaseEffectProperty(
+                    ref_trackIndex.current,
+                    ref_fxIndex.current,
+                    property,
+                    cc ? e.value : e.movementY,
+                    cc,
+                    isContinuous
+                ))
             }
         })
         let o = {};

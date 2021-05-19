@@ -5,6 +5,7 @@ export const initialState: Transport = {
 	isPlaying: false,
 	recording: false,
 	bpm: 120,
+	metronome: false,
 };
 
 export function transportReducer(
@@ -27,6 +28,10 @@ export function transportReducer(
 				break;
 			case transportActions.INC_DEC_BPM:
 				draft.bpm = draft.bpm + action.payload.amount;
+				break;
+			case transportActions.TOGGLE_METRONOME:
+				draft.metronome = !draft.metronome;
+				break;
 		}
 	});
 }

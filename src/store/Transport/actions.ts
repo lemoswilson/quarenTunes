@@ -1,5 +1,11 @@
 import { transportActionTypes, transportActions } from "./types";
 
+export function toggleMetronome(): transportActionTypes {
+	return {
+		type: transportActions.TOGGLE_METRONOME,
+	}
+}
+
 export function increaseDecreaseBPM(amount: number): transportActionTypes {
 	return {
 		type: transportActions.INC_DEC_BPM,

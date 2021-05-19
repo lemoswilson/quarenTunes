@@ -31,6 +31,7 @@ import {
 	setActivePlayer
 } from "../../store/Arranger";
 import { goToActive, selectPattern, setActiveStep } from '../../store/Sequencer'
+import { stop } from '../../store/Transport';
 // import ToneContext from '../../context/ToneContext';
 import { RootState } from "../Xolombrisx";
 import styles from './style.module.scss';
@@ -82,22 +83,22 @@ const Arranger: FunctionComponent = () => {
 
 	const ref_toneObjects = useContext(ToneObjectsContext);
 	const ref_schedulerPart: MutableRefObject<Part | null> = useRef(null);
+	const ref_arrangerStopper: MutableRefObject<number | null> = useRef(null);
 	const dispatch = useDispatch();
 
 	const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
 	const ref_activePatt = useRef(activePatt);
-	const prev_activePatt = usePrevious(activePatt);
-	useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
+	const prev_activePatt = usePrevious(activePatt); useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
-	const ref_shouldReset: MutableRefObject<number | null> = useRef(null);
+	const ref_activeStepTracker: MutableRefObject<number | null> = useRef(null);
 
 	const activePattLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].patternLength);
 	const prev_activePattLen = usePrevious(activePattLen)
 
-	const isPlaying = useSelector((state: RootState) => state.transport.present.isPlaying);
-	const isPlayingRef = useRef(isPlaying);
-	useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
-	const previousPlaying = usePrevious(isPlaying);
+	const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
+	const ref_isPlay = useRef(isPlay);
+	useEffect(() => { ref_isPlay.current = isPlay }, [isPlay])
+	const prev_isPlay = usePrevious(isPlay);
 
 	const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack);
 	const ref_selectedTrkIdx = useRef(selectedTrkIdx)
@@ -166,335 +167,11 @@ const Arranger: FunctionComponent = () => {
 		ref_effectLengths.current = effectLengths;
 	}, [effectLengths])
 
-	// what does this shit do?
-	// ¿¿ reimplement arranger logic ??? 
-
-	// const timers = useCallback((pt: number[], repeats: number[]) => {
-	// 	const f = pt.map((pat, idx, arr) => {
-	// 		if (idx === 0) return 0
-	// 		else {
-	// 			const repeat = repeats[idx] < 2 ? 1 : repeats[idx]
-	// 			console.log('pat', pat, 'patternsRef', ref_pattsObj.current);
-	// 			const length = ref_pattsObj.current[pat].patternLength * repeat
-	// 			return bbsFromSixteenth(length)
-	// 		}
-	// 	})
-	// 	return f
-	// }, [ref_pattsObj])
-
-	// should rewrite this disgrace of function
-	// can't read this
-	// probably will end up writing this again
-	// const scheduleFromIndex = useCallback((...args: any) => {
-	// 	const events: songEvent[] = args[1] ? args[1] : ref_songEvents.current;
-
-	// 	if (Tone.Transport.loop) {
-	// 		Tone.Transport.loop = false;
-	// 	}
-
-	// 	if (events.length >= 1) {
-	// 		Tone.Transport.cancel(0);
-	// 		let timeCounter: number = 0;
-	// 		const eventsLength: number = events.length - 1;
-
-	// 		events.forEach((v, idx, arr) => {
-	// 			const secondaryTime: number = timeCounter;
-	// 			const repeat: number = v.repeat + 1;
-	// 			const rowEnd = v.pattern >= 0 ? bbsFromSixteenth(ref_pattsObj.current[v.pattern].patternLength * repeat) : 0;
-
-	// 			if (v.pattern >= 0) {
-
-	// 				if (idx === 0) {
-	// 					Tone.Transport.schedule((time) => {
-	// 						dispatch(setTracker([v.pattern, 0]));
-	// 						[...Array(ref_trkCount.current).keys()].forEach(track => {
-	// 							if (ref_toneObjects.current) {
-	// 								const trackLength: number | string = ref_pattsObj.current[v.pattern].tracks[track].length;
-	// 								const b = bbsFromSixteenth(trackLength)
-	// 								const instrumentTrigg = ref_toneObjects.current?.patterns[v.pattern][track].instrument;
-	// 								const fxTriggs = ref_toneObjects.current?.patterns[v.pattern][track].effects
-	// 								const l = fxTriggs.length
-	// 								if (!v.mute.includes(track)) {
-	// 									for (let i = 0; i < l; i++) {
-	// 										fxTriggs[i].mute = false;
-	// 										fxTriggs[i].loop = true;
-	// 										fxTriggs[i].loopEnd = b;
-	// 										fxTriggs[i].start("+0");
-	// 									}
-	// 									instrumentTrigg.mute = false;
-	// 									instrumentTrigg.loop = true;
-	// 									instrumentTrigg.loopEnd = b;
-	// 									instrumentTrigg.start("+0");
-	// 								}
-	// 							}
-	// 						});
-	// 					}, 0);
-	// 				} else {
-	// 					Tone.Transport.schedule((time) => {
-	// 						dispatch(setTracker([v.pattern, secondaryTime]));
-	// 						[...Array(ref_trkCount.current).keys()].forEach(track => {
-	// 							if (ref_toneObjects.current){
-
-	// 								const instrumentTrigg = ref_toneObjects.current.patterns[v.pattern][track].instrument;
-	// 								const fxTriggs = ref_toneObjects.current.patterns[v.pattern][track].effects
-	// 								const pastFxTriggs = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].effects
-	// 								const pastInstrumentTrigg = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].instrument;
-	// 								const trackLength: number = ref_pattsObj.current[v.pattern].tracks[track].length;
-	// 								if (arr[idx - 1].pattern === v.pattern) {
-	// 									if (!v.mute.includes(track)) {
-	// 										if (instrumentTrigg.state !== "started") instrumentTrigg.start("+0");
-	// 										for (let i = 0; i < fxTriggs.length; i++) {
-	// 											if (fxTriggs[i].state !== "started") fxTriggs[i].start("+0")
-	// 										}
-	// 									}
-	// 								} else {
-	// 									if (arr[idx - 1].pattern >= 0) {
-	// 										pastInstrumentTrigg.stop();
-	// 										pastInstrumentTrigg.mute = true;
-	// 										pastInstrumentTrigg.loop = false;
-	// 										if (!v.mute.includes(track)) {
-	// 											instrumentTrigg.loop = true;
-	// 											instrumentTrigg.loopEnd = bbsFromSixteenth(trackLength);
-	// 											instrumentTrigg.mute = false;
-	// 											instrumentTrigg.start("+0");
-	// 										}
-	// 										for (let i = 0; i < fxTriggs.length; i++) {
-	// 											pastFxTriggs[i].mute = true
-	// 											pastFxTriggs[i].loop = false
-	// 											pastFxTriggs[i].stop();
-	// 											if (v.mute.includes(track)) {
-	// 												fxTriggs[i].mute = false;
-	// 												fxTriggs[i].loop = true;
-	// 												fxTriggs[i].loopEnd = bbsFromSixteenth(trackLength);
-	// 												fxTriggs[i].start("+0");
-	// 											}
-	// 										}
-	// 									}
-	// 								}
-	// 							}
-	// 						});
-	// 					}, timeCounter);
-	// 				}
-
-	// 			} else {
-	// 				if (idx > 0 && arr[idx - 1].pattern >= 0) {
-	// 					Tone.Transport.schedule((time) => {
-	// 						[...Array(ref_trkCount.current).keys()].forEach(track => {
-	// 							if (ref_toneObjects.current){
-	// 								const pastInstrumentTriggs = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].instrument;
-	// 								const pastEffectTriggs = ref_toneObjects.current.patterns[arr[idx - 1].pattern][track].effects
-	// 								for (let i = 0; i < pastEffectTriggs.length; i++) {
-	// 									pastEffectTriggs[i].stop();
-	// 									pastEffectTriggs[i].mute = true;
-	// 								}
-	// 								pastInstrumentTriggs.stop();
-	// 								pastInstrumentTriggs.mute = true;
-	// 							}
-	// 						});
-	// 					}, timeCounter);
-	// 				}
-	// 			}
-	// 			timeCounter = timeCounter + Tone.Time(rowEnd).toSeconds();
-	// 		});
-	// 		if (ref_pattsObj.current[events[eventsLength].pattern]) {
-	// 			// Stopping patterns
-	// 			Tone.Transport.schedule((time) => {
-	// 				[...Array(ref_trkCount.current).keys()].forEach(track => {
-	// 					if (ref_toneObjects.current){
-
-	// 						const lastTriggInstrument =
-	// 							ref_toneObjects.current.patterns[events[eventsLength].pattern][track].instrument;
-	// 						const lastTriggFx = ref_toneObjects.current.patterns[events[eventsLength].pattern][track].effects
-	// 						for (let i = 0; i < lastTriggFx.length; i++) {
-	// 							lastTriggFx[i].stop();
-	// 							lastTriggFx[i].mute = true;
-	// 						}
-	// 						lastTriggInstrument.stop();
-	// 						lastTriggInstrument.mute = true;
-	// 					}
-	// 				});
-	// 			}, timeCounter);
-	// 		}
-	// 	}
-	// }, [
-	// 	dispatch,
-	// 	ref_toneObjects,
-	// 	ref_pattsObj,
-	// 	ref_trkCount,
-	// ]
-	// )
-
-
-	// const setupPatternMode = useCallback(() => {
-	// 	if (!Tone.Transport.loop) {
-	// 		Tone.Transport.loop = true;
-	// 	}
-
-	// 	Tone.Transport.loopStart = 0;
-	// 	Tone.Transport.loopEnd = bbsFromSixteenth(pattsObj[activePatt].patternLength);
-	// 	[...Array(trkCount)]
-	// 		.map((_, i) => i)
-	// 		.forEach((trackIndex: number) => {
-	// 			if (ref_toneObjects.current){
-
-	// 				const b = bbsFromSixteenth(pattsObj[activePatt].tracks[trackIndex].length)
-	// 				const InstrumentTrigg = ref_toneObjects.current.patterns[activePatt][trackIndex].instrument
-	// 				const fxTriggs = ref_toneObjects.current.patterns[activePatt][trackIndex].effects
-	// 				InstrumentTrigg.loop = true;
-	// 				InstrumentTrigg.loopStart = 0;
-	// 				InstrumentTrigg.loopEnd = b;
-	// 				InstrumentTrigg.mute = false;
-	// 				InstrumentTrigg.start(0);
-	// 				for (let i = 0; i < fxTriggs.length; i++) {
-	// 					fxTriggs[i].mute = false;
-	// 					fxTriggs[i].loop = true;
-	// 					fxTriggs[i].loopEnd = b;
-	// 					fxTriggs[i].loopStart = 0;
-	// 					fxTriggs[i].start(0);
-	// 				}
-
-	// 			}
-	// 		});
-	// }, [
-	// 	activePatt,
-	// 	ref_toneObjects,
-	// 	trkCount
-	// ])
-
-
-	// const goTo = useCallback(() => {
-	// 	let pageToGo: number | undefined = undefined;
-	// 	const nowTime: string = String(Tone.Transport.position).split('.')[0];
-	// 	const patternToUse: number = ref_pattTracker.current[0] ? ref_pattTracker.current[0] : ref_songEvents.current[0].pattern;
-	// 	const timeb: number = ref_pattTracker.current[1] ? ref_pattTracker.current[1] : 0;
-	// 	const patternToGo: number = patternToUse;
-	// 	const timeBBS: string = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
-	// 	const step: number = sixteenthFromBBS(nowTime) - sixteenthFromBBS(timeBBS);
-	// 	const patternLocation: number = step % ref_pattsObj.current[ref_pattTracker.current[0]].patternLength;
-	// 	const trackStep: number =
-	// 		ref_pattsObj.current[patternToUse].tracks[ref_selectedTrkIdx.current].length
-	// 			< ref_pattsObj.current[ref_pattTracker.current[0]].patternLength
-	// 			? patternLocation % ref_pattsObj.current[ref_pattTracker.current[0]].tracks[ref_selectedTrkIdx.current].length
-	// 			: patternLocation;
-	// 	pageToGo = Math.floor(trackStep / 16);
-
-	// 	if (
-	// 		ref_activePatt.current !== pageToGo
-	// 		&& ref_activePage.current !== pageToGo
-	// 	) {
-	// 		dispatch(
-	// 			goToActive(
-	// 				pageToGo,
-	// 				ref_selectedTrkIdx.current,
-	// 				patternToGo
-	// 			)
-	// 		);
-	// 	} else if (
-	// 		ref_activePatt.current === patternToGo
-	// 		&& ref_activePage.current !== pageToGo
-	// 	) {
-	// 		dispatch(goToActive(pageToGo, ref_selectedTrkIdx.current, undefined));
-	// 	} else if (
-	// 		ref_activePatt.current !== patternToGo
-	// 		&& pageToGo === ref_activePage.current
-	// 	) {
-	// 		dispatch(goToActive(undefined, ref_selectedTrkIdx.current, patternToGo));
-	// 	}
-	// }, [
-	// 	ref_activePatt,
-	// 	ref_activePage,
-	// 	dispatch,
-	// 	selectedTrkIdx,
-	// 	ref_pattsObj,
-	// ])
-
-	// setup pattern or arranger playback
-	// useEffect(() => {
-	// 	if (Tone.Transport.state !== "started") {
-	// 		if (arrgMode === "pattern") {
-	// 			Tone.Transport.cancel(0);
-	// 			// setupPatternMode();
-	// 		} else {
-	// 			if (prev_arrgMode === "pattern") {
-	// 				[...Array(trkCount).keys()].forEach(track => {
-	// 					if (ref_toneObjects.current){
-	// 						const fxTriggs = ref_toneObjects.current.patterns[activePatt][track].effects
-	// 						ref_toneObjects.current.patterns[activePatt][track].instrument.stop();
-	// 						ref_toneObjects.current.patterns[activePatt][track].instrument.mute = true;
-	// 						for (let i = 0; i < fxTriggs.length; i++) {
-	// 							fxTriggs[i].mute = true;
-	// 							fxTriggs[i].stop();
-	// 						}
-	// 					}
-	// 				})
-	// 			}
-	// 			Tone.Transport.loop = false;
-	// 			Tone.Transport.cancel(0);
-	// 			scheduleFromIndex(0);
-	// 		}
-	// 	}
-	// }, [
-	// 	arrgMode,
-	// 	activePatt,
-	// 	trkCount,
-	// 	scheduleFromIndex,
-	// 	// setupPatternMode,
-	// 	prev_arrgMode,
-	// 	ref_toneObjects
-	// ]
-	// );
-
-
-	// useEffect(() => {
-	// 	const f = timers(songPatts, songRepeats)
-	// 	// dispatch(setTimer(f, currentSong));
-	// 	scheduleFromIndex(0)
-	// }, [
-	// 	songMutes,
-	// 	songPatts,
-	// 	songRepeats,
-	// 	scheduleFromIndex,
-	// 	currentSong,
-	// 	timers,
-	// 	dispatch
-	// ])
-
-	// set following scheduler
-	// useEffect(() => {
-	// 	let newSchedulerId: number
-	// 	if (
-	// 		isFollow
-	// 		&& !schedulerID
-	// 		&& arrgMode === "arranger"
-	// 	) {
-
-	// 		ref_schedulerPart.current = new Tone.Part(() => {
-	// 			goTo();
-	// 		}, [0]);
-	// 		ref_schedulerPart.current.start(0);
-	// 		ref_schedulerPart.current.loop = true;
-	// 		ref_schedulerPart.current.loopEnd = '16n';
-	// 		newSchedulerId = 1;
-	// 		setSchedulerID(newSchedulerId);
-
-	// 	} else if (
-	// 		(!isFollow && schedulerID)
-	// 		|| (!isPlaying && previousPlaying)
-	// 	) {
-	// 		setSchedulerID(0)
-	// 	}
-	// }, [
-	// 	isFollow,
-	// 	schedulerID,
-	// 	isPlaying,
-	// 	arrgMode,
-	// 	goTo,
-	// 	previousPlaying
-	// ]);
-
 	const goToPattern = (pattern: number, eventIndex: number,) => {
+		console.log('should be going to pattern, pattern is', pattern, 'event index is', eventIndex);
 		dispatch(setActivePlayer(pattern, eventIndex))
 		if (ref_isFollow.current){
+			console.log('is following is real, go to pattern', pattern);
 			dispatch(selectPattern(pattern))
 		}
 	}
@@ -506,33 +183,37 @@ const Arranger: FunctionComponent = () => {
 		if (ref_toneObjects.current){
 			ref_toneObjects.current.arranger
 				.splice(
-					index, 
+					index + 1, 
 					0, 
 					newPatternObject(Tone, Track)
 					
 				)
 		}
 
-		triggEmitter.emit(triggEventTypes.NEW_EVENT, {eventIndex: index})
+		triggEmitter.emit(triggEventTypes.NEW_EVENT, {eventIndex: index + 1})
 
 		dispatch(addRow(index));
 	}
 
 	const scheduleOrStop = useCallback((option: 'schedule' | 'stop') => {
 		let time = 0;
+
+		console.log(`inside stop/schedulling callback, option is ${option === "schedule" ? 'scheduling' : 'stopping'}`)
+
 		ref_songEvents.current.forEach((songEvent, idx, __) => {
-		Tone.Transport.cancel()
+			const loopTime = ref_pattsObj.current[songEvent.pattern].patternLength * songEvent.repeat
+			const start = {'16n': time}
+			const end = {'16n': time + loopTime}
+			time = time + loopTime
 
 			if (ref_toneObjects.current){
-				for (let i = 0; i < trkCount ; i ++) {
-					const loopTime = ref_pattsObj.current[songEvent.pattern].patternLength * songEvent.repeat
+				for (let i = 0; i < ref_trkCount.current ; i ++) {
 					const fxCount = ref_effectLengths.current[i]
-					const start = {'16n': time}
-					const end = {'16n': time + loopTime}
 
 					ref_toneObjects.current.arranger[idx][i].instrument.cancel()
 
 					if (option === 'schedule'){
+						console.log(`should be scheduling event ${idx}, of instrument ${i}, to start at ${start}`)
 						ref_toneObjects.current.arranger[idx][i].instrument.start(start)
 						ref_toneObjects.current.arranger[idx][i].instrument.stop(end)
 						Tone.Transport.schedule((time) => {
@@ -552,10 +233,13 @@ const Arranger: FunctionComponent = () => {
 							ref_toneObjects.current.arranger[idx][i].effects[j].stop()
 						}
 					}
-
+					
 				}
 			}
 		})	
+
+
+		// Tone.Transport.stop({'16n': time});
 	}, [])
 
 
@@ -564,28 +248,50 @@ const Arranger: FunctionComponent = () => {
 
 	useEffect(() => {
 		if (arrgMode === arrangerMode.ARRANGER){
-			// console.log('seting loop to false')
+			console.log('setting loop to false, arranger mode is on');
 			Tone.Transport.loop = false;
+
+			if (ref_arrangerStopper.current)
+				Tone.Transport.clear(ref_arrangerStopper.current)
+
 			scheduleOrStop('schedule')
+
+			ref_arrangerStopper.current = Tone.Transport.schedule((time) => {
+				dispatch(stop())
+			}, {'16n': songLength})
+
 		} 
 	}, [songLength, arrgMode, currentSong, trkCount])
 
 	useEffect(() => {
 		if (prev_arrgMode && arrgMode === arrangerMode.PATTERN){
 			scheduleOrStop('stop')
+			if (ref_arrangerStopper.current) {
+				Tone.Transport.clear(ref_arrangerStopper.current)
+				ref_arrangerStopper.current = null;
+			}
 
-			if (ref_shouldReset.current){
-				Tone.Transport.clear(ref_shouldReset.current);
+			if (ref_activeStepTracker.current){
+				Tone.Transport.clear(ref_activeStepTracker.current);
+				ref_activeStepTracker.current = null;
 			}
 
 		} else if (arrgMode === arrangerMode.ARRANGER) {
-			ref_shouldReset.current = Tone.Transport.scheduleRepeat((time) => {
-				const now = sixteenthFromBBSOG(Tone.Transport.position.toString())
-				const init = ref_eventsStartTimes.current[ref_pattTracker.current.activeEventIndex] 
-				dispatch(setActiveStep(now-init, ref_selectedTrkIdx.current, ref_pattTracker.current.patternPlaying))
-			}, '16n')
+			if (!ref_activeStepTracker.current)
+				ref_activeStepTracker.current = Tone.Transport.scheduleRepeat((time) => {
+					// console.log(`tone transport loop state is ${Tone.Transport.loop}`);
+					const now = sixteenthFromBBSOG(Tone.Transport.position.toString())
+					const init = ref_eventsStartTimes.current[ref_pattTracker.current.activeEventIndex] 
+					dispatch(setActiveStep(now-init, ref_selectedTrkIdx.current, ref_pattTracker.current.patternPlaying >= 0 ? ref_pattTracker.current.patternPlaying : ref_songEvents.current[ref_pattTracker.current.playbackStart].pattern))
+				}, '16n')
 		}
 	}, [arrgMode])
+
+	useEffect(() => {
+		if (prev_isPlay && !isPlay && arrgMode === arrangerMode.ARRANGER)
+			Tone.Transport.position = {'16n': eventStartTimes[pattTracker.playbackStart]}
+
+	}, [isPlay, arrgMode, prev_isPlay, pattTracker, eventStartTimes])
 
 
 	const updateToneObjs = (nextEv: number) => {
@@ -730,8 +436,8 @@ const Arranger: FunctionComponent = () => {
 							className={styles.dropdown}
 						/>
 					</div>
-					<div className={styles.increase}>{ arrgMode === 'pattern' || (arrgMode === arrangerMode.ARRANGER && !isPlaying) ? <Plus onClick={_addSong} /> : null }</div>
-					<div className={styles.decrease}>{Object.keys(songs).length > 1 && (arrgMode === arrangerMode.PATTERN || arrgMode === arrangerMode.ARRANGER && !isPlaying) ? <Minus onClick={_removeSong} /> : null}</div>
+					<div className={styles.increase}>{ arrgMode === 'pattern' || (arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Plus onClick={_addSong} /> : null }</div>
+					<div className={styles.decrease}>{Object.keys(songs).length > 1 && (arrgMode === arrangerMode.PATTERN || arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Minus onClick={_removeSong} /> : null}</div>
 				</div>
 			</div>
 			<div className={styles.bottom}>
@@ -748,7 +454,7 @@ const Arranger: FunctionComponent = () => {
 											<Event 
 												key={`song ${currentSong} event ${songEvent.id}`} 
 												arrgMode={arrgMode}
-												isPlay={isPlaying}
+												isPlay={isPlay}
 												_addRow={_addRow}
 												_incDecRepeat={_incDecRepeat}
 												_removeRow={_removeRow}

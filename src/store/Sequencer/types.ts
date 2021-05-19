@@ -3,6 +3,8 @@ import Tone from "../../lib/tone";
 import { RecursivePartial } from '../../containers/Track/Instruments'
 // import { Part } from "tone";
 import { generalEffectOptions, trackActions } from '../Track';
+import { transportActions } from "../Transport";
+import { arrangerMode } from "../Arranger";
 
 export type pLockType = number | string | boolean | Tone.TimeClass;
 
@@ -104,6 +106,10 @@ export interface Sequencer {
 // 		pattern: number,
 // 	}
 // }
+
+export interface stopTransportAction {
+	type: transportActions.STOP,
+}
 
 export interface setActiveStepAction {
 	type: sequencerActions.SET_ACTIVE_STEP,
@@ -572,4 +578,5 @@ export type sequencerActionTypes =
 	| removeEffectPropertyLockAction
 	| selectStepBatchAction
 	| setActiveStepAction
+	| stopTransportAction
 	| removeInstrumentFromSequencerAction;

@@ -4,12 +4,18 @@ export enum transportActions {
 	RECORD = "RECORD",
 	SET_BPM = "SET_BPM",
 	INC_DEC_BPM = "INC_DEC_BPM",
+	TOGGLE_METRONOME = "TOGGLE_METRONOME"
 }
 
 export interface Transport {
 	isPlaying: boolean;
 	recording: boolean;
 	bpm: number;
+	metronome: boolean;
+}
+
+export interface toggleMetronomeAction {
+	type: transportActions.TOGGLE_METRONOME,
 }
 
 export interface startAction {
@@ -43,4 +49,5 @@ export type transportActionTypes =
 	| stopAction
 	| toggleRecordingAction
 	| increaseDecreaseBPMAction
+	| toggleMetronomeAction
 	| setBPMAction;
