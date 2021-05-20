@@ -124,9 +124,8 @@ const Arranger: FunctionComponent = () => {
 	useEffect(() => { ref_songEvents.current = songEvents }, [songEvents])
 
 	const usedPatterns = songEvents.map(v => v.pattern);
+	const hashedPatterns = useSelector((state: RootState) => state.arranger.present.songs[currentSong].events.map(e => e.pattern).reduce((prev, next) => prev + next));
 
-	const repeatsLength = songEvents.map(s => s.repeat).reduce((prev, next) => prev + next);
-	const patternsHash = songEvents.map(s => s.pattern).reduce((prev, next) => (prev + next));
 
 	const songLength = songEvents.map(s => pattsObj[s.pattern].patternLength * s.repeat).reduce((prev, next) => prev + next)
 
@@ -143,10 +142,6 @@ const Arranger: FunctionComponent = () => {
 	const ref_eventsStartTimes = useRef(eventStartTimes);
 	useEffect(() => {ref_eventsStartTimes.current = eventStartTimes}, [eventStartTimes])
 
-	const songPatts = activeSongObj.events.map(v => v.pattern);
-	const songRepeats = activeSongObj.events.map(v => v.repeat);
-	const songMutes = activeSongObj.events.map(v => v.mute);
-	
 	const pattTracker = useSelector((state: RootState) => state.arranger.present.patternTracker);
 	const ref_pattTracker = useRef(pattTracker);
 	useEffect(() => { ref_pattTracker.current = pattTracker}, [pattTracker])
@@ -169,6 +164,8 @@ const Arranger: FunctionComponent = () => {
 
 	const goToPattern = (pattern: number, eventIndex: number,) => {
 		console.log('should be going to pattern, pattern is', pattern, 'event index is', eventIndex);
+
+
 		dispatch(setActivePlayer(pattern, eventIndex))
 		if (ref_isFollow.current){
 			console.log('is following is real, go to pattern', pattern);
@@ -198,7 +195,7 @@ const Arranger: FunctionComponent = () => {
 	const scheduleOrStop = useCallback((option: 'schedule' | 'stop') => {
 		let time = 0;
 
-		console.log(`inside stop/schedulling callback, option is ${option === "schedule" ? 'scheduling' : 'stopping'}`)
+		console.log(`arranger_container: inside stop/schedulling callback, option is ${option === "schedule" ? 'scheduling' : 'stopping'},`)
 
 		ref_songEvents.current.forEach((songEvent, idx, __) => {
 			const loopTime = ref_pattsObj.current[songEvent.pattern].patternLength * songEvent.repeat
@@ -213,7 +210,7 @@ const Arranger: FunctionComponent = () => {
 					ref_toneObjects.current.arranger[idx][i].instrument.cancel()
 
 					if (option === 'schedule'){
-						console.log(`should be scheduling event ${idx}, of instrument ${i}, to start at ${start}`)
+						console.log(`should be scheduling event ${idx}, of instrument ${i}, to start at `, start, 'end at', end, 'instrument is', ref_toneObjects.current.arranger[idx][i].instrument);
 						ref_toneObjects.current.arranger[idx][i].instrument.start(start)
 						ref_toneObjects.current.arranger[idx][i].instrument.stop(end)
 						Tone.Transport.schedule((time) => {
@@ -261,7 +258,8 @@ const Arranger: FunctionComponent = () => {
 			}, {'16n': songLength})
 
 		} 
-	}, [songLength, arrgMode, currentSong, trkCount])
+	}, [songLength, arrgMode, currentSong, trkCount, hashedPatterns]);
+	// }, [songLength, arrgMode, currentSong, trkCount]);
 
 	useEffect(() => {
 		if (prev_arrgMode && arrgMode === arrangerMode.PATTERN){
@@ -279,7 +277,6 @@ const Arranger: FunctionComponent = () => {
 		} else if (arrgMode === arrangerMode.ARRANGER) {
 			if (!ref_activeStepTracker.current)
 				ref_activeStepTracker.current = Tone.Transport.scheduleRepeat((time) => {
-					// console.log(`tone transport loop state is ${Tone.Transport.loop}`);
 					const now = sixteenthFromBBSOG(Tone.Transport.position.toString())
 					const init = ref_eventsStartTimes.current[ref_pattTracker.current.activeEventIndex] 
 					dispatch(setActiveStep(now-init, ref_selectedTrkIdx.current, ref_pattTracker.current.patternPlaying >= 0 ? ref_pattTracker.current.patternPlaying : ref_songEvents.current[ref_pattTracker.current.playbackStart].pattern))
@@ -288,8 +285,10 @@ const Arranger: FunctionComponent = () => {
 	}, [arrgMode])
 
 	useEffect(() => {
-		if (prev_isPlay && !isPlay && arrgMode === arrangerMode.ARRANGER)
+		if (prev_isPlay && !isPlay && arrgMode === arrangerMode.ARRANGER) {
 			Tone.Transport.position = {'16n': eventStartTimes[pattTracker.playbackStart]}
+			dispatch(setActivePlayer(-1, -1));
+		}
 
 	}, [isPlay, arrgMode, prev_isPlay, pattTracker, eventStartTimes])
 
@@ -346,8 +345,6 @@ const Arranger: FunctionComponent = () => {
 
 	const _setEventPattern = (eventIndex: number, pattern: number): void => {
 		dispatch(setPattern(pattern, eventIndex));
-		// Tone.Transport.cancel(0);
-		// scheduleFromIndex(0, dummye);
 	};
 
 	const _setRepeat = (repeat: number, eventIndex: number): void => {
@@ -360,8 +357,6 @@ const Arranger: FunctionComponent = () => {
 	}
 
 	const _removeRow = (index: number): void => {
-		// const dummye: songEvent[] = [...ref_songEvents.current];
-		// dummye.splice(index, 1);
 
 		if (ref_toneObjects.current){
 			for (let i = 0; i < trkCount; i ++)	{
@@ -378,18 +373,8 @@ const Arranger: FunctionComponent = () => {
 
 		dispatch(removeRow(index));
 
-		// Tone.Transport.cancel()
-		// scheduleFromIndex(0, dummye);
 	};
 
-	// const _setMute = (e: KeyboardEvent<HTMLInputElement>, eventIndex: number): void => {
-	// 	if (e.keyCode === 13) {
-	// 		let m: string | number[] = e.currentTarget.value;
-	// 		if (m === "") m = []
-	// 		else m = m.split(",").map(v => v.trim()).map(v => parseInt(v));
-	// 		dispatch(setMute(m, eventIndex));
-	// 	}
-	// };
 
 	// Conditional styles, elements and properties
 	const _renameSong = (event: React.FormEvent<HTMLFormElement>): void => {

@@ -54,9 +54,9 @@ const Event: React.FC<EventProps> = ({
     _setRepeat,
     _addRow,
 }) => {
+
     const ref_toneObjects = useContext(ToneObjects)
 
-    const repeat = songEvent.repeat;
     const pattern = songEvent.pattern;
     const pattObj = useSelector((state: RootState) => state.sequencer.present.patterns[pattern])
 
@@ -65,9 +65,6 @@ const Event: React.FC<EventProps> = ({
     const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern)
     const prev_activePatt = usePrevious(activePatt);
 
-    const activePattLen = useSelector((state:RootState) => state.sequencer.present.patterns[activePatt].patternLength)
-    const prev_activePattLen = usePrevious(activePattLen)
-    
     const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack)
     const prev_selectedTrkidx = usePrevious(selectedTrkIdx);
     const selectedTrkId = useSelector((state: RootState) => state.track.present.tracks[selectedTrkIdx].id);
@@ -77,25 +74,21 @@ const Event: React.FC<EventProps> = ({
     const page = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIdx].page)
     const stepEvents = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIdx].events)
 
-    // useEffect(() => {
-    //     console.log('event is rendered, selectedTrkPattLen is ', selectedTrkPattLen);
-    // }, [])
     
     const setupEventPart = (newEvents?: boolean, track?: number) => {
-            const trackNumber = Number(track);
-        
-            if (ref_toneObjects.current){
-                    for (let i = 0; i < trackCount; i ++){
+        const trackNumber = Number(track);
+    
+        if (ref_toneObjects.current){
+            for (let i = 0; i < trackCount; i ++){
                 if (!Number.isNaN(trackNumber) && i !== track)
                     continue
 
-                // ref_toneObjects.current.arranger[idx][i].instrument.loopEnd = bbsFromSixteenth(pattObj.tracks[i].length)
                 ref_toneObjects.current.arranger[idx][i].instrument.loopEnd = {'16n': pattObj.tracks[i].length}
                 ref_toneObjects.current.arranger[idx][i].instrument.loop = true;
 
                 if (newEvents) {
                     ref_toneObjects.current.arranger[idx][i].instrument.clear();
-    
+                    console.log('should be setting new events into arranger')
                     pattObj.tracks[i].events.forEach((event, step, arr) => {
                         ref_toneObjects.current
                         ?.arranger[idx][i].instrument
@@ -103,35 +96,37 @@ const Event: React.FC<EventProps> = ({
                             step, 
                             event, 
                             true
-                            ), event.instrument)
+                            ), 
+                        event.instrument)
+                    })
+                }
+                    
+                for (let j = 0; j < ref_toneObjects.current.arranger[idx][i].effects.length; j ++){
+                    ref_toneObjects.current.arranger[idx][i].effects[j].loopEnd = {'16n': pattObj.tracks[i].length}
+                    ref_toneObjects.current.arranger[idx][i].effects[j].loop = true;
+                    
+                    if (newEvents) {
+                        ref_toneObjects.current.arranger[idx][i].effects[j].clear();
+                        
+                        pattObj.tracks[i].events.forEach((event, step, arr) => {
+                            ref_toneObjects.current
+                            ?.arranger[idx][i].effects[j]
+                            .at(timeObjFromEvent(
+                                step, 
+                                event, 
+                                true
+                                ), event.fx[j])
                         })
                     }
-                    
-                    for (let j = 0; j < ref_toneObjects.current.arranger[idx][i].effects.length; j ++){
-                        ref_toneObjects.current.arranger[idx][i].effects[j].loopEnd = {'16n': pattObj.tracks[i].length}
-                        ref_toneObjects.current.arranger[idx][i].effects[j].loop = true;
                         
-                        if (newEvents) {
-                            ref_toneObjects.current.arranger[idx][i].effects[j].clear();
-                            
-                            pattObj.tracks[i].events.forEach((event, step, arr) => {
-                                ref_toneObjects.current
-                                ?.arranger[idx][i].effects[j]
-                                .at(timeObjFromEvent(
-                                    step, 
-                                    event, 
-                                    true
-                                    ), event.fx[j])
-                            })
-                        }
-                            
-                    }
+                }
             }
         }
     }
             
     // setting events after first render of 
     useEffect(() => {
+        console.log('pattern was changed, setting up event part')
         setupEventPart(true);
     }, [pattern])
 
@@ -179,7 +174,8 @@ const Event: React.FC<EventProps> = ({
                             selected={String(songEvent.pattern)} 
                         />
                         { 
-                            activePatt === pattern 
+                            // activePatt === pattern 
+                            true
                             ? <EventsHandler 
                                 page={page} 
                                 selectedTrkPattLen={selectedTrkPattLen}

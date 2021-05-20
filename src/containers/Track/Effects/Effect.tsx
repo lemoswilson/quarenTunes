@@ -336,6 +336,8 @@ const Effect: React.FC<effectsProps> = ({
                 ref_toneObjects.current.arranger.forEach((_, idx, __) => {
                     if (ref_toneObjects.current) {
                         // ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
+                        console.log(`inside arranger, should be setting callback into fx ${fxIndex}`)
+                        console.log('tone objects is ', ref_toneObjects.current);
                         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
                     }
                 })

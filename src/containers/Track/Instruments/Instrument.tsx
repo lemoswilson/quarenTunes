@@ -21,6 +21,7 @@ import {
     parameterLockIncreaseDecrease,
     removePropertyLock,
     setNote,
+    setVelocity,
 } from '../../../store/Sequencer';
 
 import WebMidi, {
@@ -180,6 +181,12 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const arrgMode = useSelector((state: RootState) => state.arranger.present.mode);
     const ref_arrgMode = useRef(arrgMode);
     useEffect(() => { ref_arrgMode.current = arrgMode }, [arrgMode])
+
+    const activeStep = useSelector((state: RootState) => state.sequencer.present.step);
+    const ref_activeStep = useRef(activeStep);
+    useEffect(() => {
+        ref_activeStep.current = activeStep;
+    }, [activeStep]);
 
     const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
     const ref_activePatt = useRef(activePatt);
@@ -671,38 +678,54 @@ export const Instrument = <T extends xolombrisxInstruments>({
         velocity: number,
         time: number,
     ): void => {
-        const e = {
-            ...eventsRef.current[pattern][step],
-            note: []
-        };
-        const pastTime = timeObjFromEvent(step, e);
-        e.offset = offset;
-        e.velocity = velocity;
-        if (overrideRef.current) {
-            e.note = [noteName];
-        } else if (!overrideRef && !e.note.includes(noteName)) {
-            e.note.push(noteName);
-        }
-        ref_toneObjects.current?.patterns[pattern][ref_index.current].instrument.remove(pastTime);
+
+        // const e = {
+        //     ...eventsRef.current[pattern][step],
+        //     note: []
+        // };
+        // const pastTime = timeObjFromEvent(step, e);
+        // e.offset = offset;
+        // e.velocity = velocity;
+        // if (overrideRef.current) {
+        //     e.note = [noteName];
+        // } else if (!overrideRef && !e.note.includes(noteName)) {
+        //     e.note.push(noteName);
+        // }
+        // dispatch(
+        //     noteInput(
+        //         pattern,
+        //         ref_index.current,
+        //         step,
+        //         offset,
+        //         noteName,
+        //         velocity
+        //     )
+        // );
+
         dispatch(
-            noteInput(
+            setNote(
                 pattern,
-                ref_id.current,
-                step,
-                offset,
+                ref_index.current,
                 noteName,
-                velocity
+                step,
             )
         );
+        dispatch( 
+            setVelocity(
+                pattern,
+                ref_index.current, 
+                step, 
+                velocity
+            )
+        )
+
         ref_onHoldNotes.current[noteName] = {
             pattern,
             index,
             step,
-            offset,
-            velocity,
             time,
-            e,
         }
+
     }, [
         dispatch,
         index,
@@ -740,24 +763,32 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
 
     const noteInCallback = useCallback((noteNumber: number, noteName: string, time: number, velocity?: number) => {
-        if (!velocity) 
-            velocity = 60
-            // velocity = 
-            //     ref_arrgMode.current === arrangerMode.PATTERN 
-            //     ? ref_pattVelocities.current[ref_activePatt.current] 
-            //     : ref_pattVelocities.current[
-            //         ref_pattTracker.current.patternPlaying > -1 
-            //         ? ref_pattTracker.current.patternPlaying 
-            //         : ref_songEvents.current[ref_pattTracker.current.activeEventIndex].pattern
-            //     ]
+        if (!velocity) {
+            console.log(ref_arrgMode.current, arrangerMode.PATTERN, ref_activePatt.current, ref_pattTracker.current.patternPlaying)
+            velocity = 
+                ref_arrgMode.current === arrangerMode.PATTERN 
+                ? ref_pattVelocities.current[ref_activePatt.current] 
+                : ref_pattVelocities.current[
+                    ref_pattTracker.current.patternPlaying > -1 
+                    ? ref_pattTracker.current.patternPlaying 
+                    : ref_songEvents.current[ref_pattTracker.current.playbackStart].pattern
+                ]
+        }
 
 
         // recording playiback logic 
         if (ref_isRec.current && ref_isPlay.current && ref_ToneInstrument.current) {
 
             ref_ToneInstrument.current.triggerAttack(noteName, 0, velocity/127);
+            const pattern = 
+                ref_arrgMode.current === arrangerMode.PATTERN 
+                ? ref_activePatt.current 
+                : ref_pattTracker.current.patternPlaying > -1 
+                ? ref_pattTracker.current.patternPlaying 
+                : ref_songEvents.current[ref_pattTracker.current.activeEventIndex].pattern
 
-            // setNoteInput(pattern, step, offset, noteName, velocity, time)
+            // parei aqui
+            setNoteInput(pattern, ref_activeStep.current, 0, noteName, velocity, time);
 
         } else if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0 && !ref_isRec.current) {
             noteLock(noteName, velocity, ref_activePatt.current);
@@ -803,8 +834,18 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const noteOffCallback = useCallback((noteNumber: number, noteName: string): void => {
         const noteObj = ref_onHoldNotes.current[noteName];
 
-        if (ref_isRec.current && ref_isPlay.current) {
-            // instrumentRef.current.triggerRelease(noteName);
+        // if (ref_isRec.current && ref_isPlay.current && noteObj) {
+        if (noteObj) {
+            if (
+                ref_voice.current === xolombrisxInstruments.METALSYNTH
+                || ref_voice.current === xolombrisxInstruments.NOISESYNTH
+            ){
+                const k: any = ref_ToneInstrument.current
+                k.triggerRelease()
+            } else {
+                ref_ToneInstrument.current?.triggerRelease(noteName);
+            }
+
             const now = Date.now() / 1000;
             const length = Tone.Time(now - noteObj.time, 's').toNotation();
             const pattern = noteObj.pattern
@@ -820,7 +861,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 )
             );
 
-            // ref_onHoldNotes.current[noteName] = {};
+            ref_onHoldNotes.current[noteName] = undefined;
         // } else if (!(ref_selectedSteps.current && ref_selectedSteps.current.length > 0) && !ref_isRec.current) {
         } else if (ref_selectedSteps.current?.length === 0 && !ref_isRec.current) {
             if (
@@ -828,7 +869,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                 ref_voice.current === xolombrisxInstruments.METALSYNTH
                 || ref_voice.current === xolombrisxInstruments.NOISESYNTH
             ) {
-                console.log('should be releasing membrane/metal/noise');
+                // console.log('should be releasing membrane/metal/noise');
                 const d: any = ref_ToneInstrument.current
                 d.triggerRelease();
             } else  {
@@ -1234,6 +1275,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
     return (
         <div
             className={styles.border}
+            onClick={() => {console.log(Tone.context.latencyHint)}}
             style={{ display: !selected ? 'none' : 'flex' }}>
             <div className={styles.deviceManager}>
                 <DevicePresetManager

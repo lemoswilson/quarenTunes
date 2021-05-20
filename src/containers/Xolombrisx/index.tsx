@@ -314,17 +314,20 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     const addEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.ADD_EFFECT>): void => {
 
         let [trackIndex, index] = [payload.trackIndex, payload.fxIndex];
+        console.log(`adding fx trig, index is ${index}`)
         let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
         // [...Array(patternCount).keys()].forEach(pat => {
         if (ref_toneObjects.current) {
             Object.keys(ref_toneObjects.current.patterns).forEach((pat) => {
+                console.log(`should be adding fx to pattern ${pat}`)
                 const p = Number(pat)
                 ref_toneObjects.current?.patterns[p][trackIndex].effects.splice(index, 0, new Tone.Part())
             });
 
             ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                console.log(`should be adding fx to arrg event idx ${idx}`)
                 if (ref_toneObjects.current)
-                    ref_toneObjects.current.arranger[idx].splice(index, 0)
+                    ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(index, 0, new Tone.Part())
             })
 
             ref_toneObjects.current.flagObjects[trackIndex].effects.splice(index, 0, {callback: undefined, flag: false})
@@ -638,6 +641,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         [...Array(trackCount).keys()].forEach((_, idx, __) => {
             const fxCount = store.getState().track.present.tracks[idx].fx.length
             if (ref_toneObjects.current) {
+                console.log('should be setting callbacks of new event')
                 ref_toneObjects.current.arranger[payload.eventIndex][idx].instrument.callback = ref_toneObjects.current.flagObjects[idx].instrument.callback;
 
                 [...Array(fxCount).keys()].forEach((_, fxIdx, __) => {

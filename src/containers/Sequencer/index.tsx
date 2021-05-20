@@ -126,9 +126,7 @@ const Sequencer: FunctionComponent = () => {
         ref_voice.current = voice
     }, [voice])
 
-    // const selectedSteps = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].selected);
     const selectedSteps = useSelector((state: RootState) => { 
-        // console.log('inside selector, state is ', state.sequencer.present);
         return state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].selected 
     });
     const ref_selectedSteps = useRef(selectedSteps);
@@ -256,28 +254,20 @@ const Sequencer: FunctionComponent = () => {
 
     useEffect(() => {
         if (arrangerMode === "pattern") {
-            // console.log('should be setting tone transport to loop');
             Tone.Transport.loop = true;
             Tone.Transport.loopEnd = {"16n": patternLength};
-            // Tone.Transport.setLoopPoints(0, bbsFromSixteenth(patternLength))
-            // Tone.Transport.setLoopPoints(0, {"16n": patternLength})
-            // console.log(`tone transport loop ${Tone.Transport.loop}, tone transport loopstart, ${Tone.Transport.loopStart}, loop end, ${Tone.Transport.loopEnd}`)
         }
     }, [arrangerMode, patternLength])
 
     useEffect(() => {
         if (prev_activePatt && prev_activePatt === activePatt) {
-            // console.log('scheduling frmo trackLength');
             scheduleOrStop('schedule')
         }
     }, [trackLen])
 
     const scheduleOrStop = (option: 'schedule' | 'stop', start?: boolean) => {
-        // Tone.Transport.loop = true;
-        // Tone.Transport.loopEnd = patternLength;
-        // Tone.Transport.loopStart = 0;
+        console.log('sequencer_container: inside scheduleOrStop, should be ', option);
 
-        // [...Array(trackCount).keys()].forEach((__, trk, _) => {
         [...Array(ref_trackCount.current).keys()].forEach((__, trk, _) => {
             if (ref_toneObjects.current) {
 
@@ -287,7 +277,6 @@ const Sequencer: FunctionComponent = () => {
 
                     if (start){
                         ref_toneObjects.current.patterns[activePatt][trk].instrument.start(0)
-                        // console.log(`should be setting start part active patt ${activePatt}, track ${trk}, activePatternTRkLength ${activePatternObj.tracks[trk].length}`)
                     }
 
                     for (let i = 0; i < effectsLength[trk]; i ++) {
@@ -295,12 +284,11 @@ const Sequencer: FunctionComponent = () => {
                         ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].loop = true;
                         if (start) {
                             ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].start(0)
-                            // console.log(`should be setting start part active patt ${activePatt}, track ${trk}, effect${i}`)
                         }
                     }
 
                 } else {
-                    console.log('should be stopping patterns, inside scheduleStop callback');
+
                     ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.cancel()
                     ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.stop()
 
@@ -318,7 +306,6 @@ const Sequencer: FunctionComponent = () => {
 
     useEffect(() => {
 
-        // console.log('shceduling from arranger mode change');
         if (!isPlay)
             scheduleOrStop(
                 arrangerMode === 'pattern' 
@@ -328,14 +315,6 @@ const Sequencer: FunctionComponent = () => {
             )
 
     }, [arrangerMode, activePatt])
-
-    // useEffect(() => {
-    //     console.log('should be scheduling next pattern');
-    //     if (arrangerMode)
-    //     if (Tone.Transport.state !== 'started') 
-    //         scheduleOrStop('schedule', true);
-
-    // }, [activePatt])
 
     const _changePattLen = useCallback((newLength: number): void => {
         if (newLength >= 1) {
@@ -352,12 +331,12 @@ const Sequencer: FunctionComponent = () => {
     }, [activePatt, dispatch, selectedTrkIndex])
 
     const _selectPatt = (key: string): void => {
-        // console.log('pattern selected is', key) 
         let nextPattern: number = Number(key);
         let currPatt = activePatt;
 
         if (arrangerMode === 'pattern'){
-            console.log('selecting pattern, tone trasport state is ', Tone.Transport.state);
+            console.log('sequencer_container.tsx: selecting pattern, tone trasport state is ', Tone.Transport.state);
+
             if (Tone.Transport.state === 'started') {
 
                 // if transport is active and pattern mode selected, this should queue
@@ -396,7 +375,7 @@ const Sequencer: FunctionComponent = () => {
                 });
 
             } else {
-                console.log('should be stopping pattern ')
+                console.log('sequencer_container.tsx: selecting pattern, tone transport is stopped')
                 scheduleOrStop('stop');
                 dispatch(selectPattern(nextPattern));
             }
@@ -506,28 +485,6 @@ const Sequencer: FunctionComponent = () => {
         if (ref_selectedSteps.current.length >= 1) {
             ref_selectedSteps.current.forEach(step => {
 
-                // first remove events from instrument triggs
-                // but it will actually be remove in the 
-                // step component ??
-                // keep the coded comment in here just in case 
-                // let stepEvent = { 
-                //     ...activePatternObj
-                //     .tracks[selectedTrack]
-                //     .events[step] 
-                // }
-                // let time = timeObjFromEvent(step, stepEvent)
-                // triggRef.current[activePattern][selectedTrack]
-                // .instrument.remove(time);
-
-                //     // then remove for effect triggs
-                // const l = triggRef.current[activePattern][selectedTrack]
-                // .effects.length
-                // for (let j = 0; j < l; j++) {
-                //     triggRef.current[activePattern][selectedTrack]
-                //     .effects[j].remove(time);
-                // }
-
-                // delete events from store
                 dispatch(
                     deleteEvents(
                         ref_activePatt.current,
@@ -597,7 +554,6 @@ const Sequencer: FunctionComponent = () => {
     };
 
     const dispatchIncDecStepVelocity = (amount: number): void => {
-        // if (selected.length > 0) {
             selectedSteps.forEach(step => {
                 dispatch(
                     incDecStepVelocity(
@@ -608,12 +564,6 @@ const Sequencer: FunctionComponent = () => {
                     )
                 )
             })
-        // }
-        // } else {
-        //     dispatch(
-        //         incDecVelocity(amount, activePattern, selectedTrack, -1)
-        //     )
-        // }
     }
 
     const dispatchIncDecPTVelocity = (amount: number): void => {
@@ -812,10 +762,6 @@ const Sequencer: FunctionComponent = () => {
         const dir = getDirection(e, char)
         if (dir) {
             const finalStep = getFinalStep()
-            // const pageInit = ref_activePage.current * 16
-            // const stepAmount = ref_trackLen.current - pageInit
-            // const finalStep = pageInit + Math.min(16, stepAmount) - 1
-
             dispatch(cycleSteps(
                 dir,
                 ref_activePatt.current,
@@ -829,7 +775,6 @@ const Sequencer: FunctionComponent = () => {
 
         // copy events or steps 
         if (shouldCopy(e, char)){
-            // console.log('should copy')
             const ev = ref_selectedSteps.current
             .map(step => eventsRef.current[step])
 
@@ -878,14 +823,6 @@ const Sequencer: FunctionComponent = () => {
 
     function keyup(e: KeyboardEvent): void {
         let char = e.key.toLowerCase();
-        // colocar o condicional pra ver se não tem foco em um input box
-        // if (Object.keys(keyDict).includes(char)) {
-        //     if (e.repeat) { return }
-        //     let index = (activePageRef.current + 1) * keyDict[char];
-        //     if (index <= selLenRef.current) {
-        //         dispatchSelectStep(index);
-        //     }
-        // }
     };
 
     function keyboardOnClick(noteName: string): void {
@@ -894,49 +831,26 @@ const Sequencer: FunctionComponent = () => {
             Tone.context.resume();
         }
 
-        // toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease('C3', '16n')
         if (ref_selectedSteps.current.length > 0) {
-            // console.log('should be dispatching note')
+
             dispatchSetNote(noteName);
         } else if (typeof patternNoteLength === 'string') {
             if (voice === xolombrisxInstruments.NOISESYNTH) {
-                // toneRefs?.current[selectedTrack].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, activePatternObj.tracks[selectedTrack].velocity)
+
                 let t: any = ref_toneObjects.current?.tracks[selectedTrkIndex].instrument
-                // console.log('trackIndex', selectedTrkIndex);
-                // t.triggerAttackRelease(patternNoteLength, undefined, activePatternObj.tracks[ref_selectedTrkIndex.current].velocity)
                 t.triggerAttackRelease(patternNoteLength)
-            // } else if (voice === xolombrisxInstruments.PLUCKSYNTH) {
-            //     ref_toneObjects?.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(patternNoteLength, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
+
             } else if (voice === xolombrisxInstruments.FMSYNTH || voice === xolombrisxInstruments.AMSYNTH) {
-                // console.log('should be playing note with fm or am synth');
-                // ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.connect(ref_toneObjects.current?.tracks[selectedTrkIndex].chain.in)
+
                 ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(noteName, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             } else {
+
                 ref_toneObjects.current?.tracks[selectedTrkIndex].instrument?.triggerAttackRelease(noteName, patternNoteLength, undefined, activePatternObj.tracks[selectedTrkIndex].velocity/127)
             }
         }
     }
 
-    // const finalStep = () => {
-    //     if ((activePageRef.current === 0 && trackLengthRef.current <= 16)
-    //         || (activePageRef.current === 1 && trackLengthRef.current <= 32)
-    //         || (activePageRef.current === 2 && trackLengthRef.current <= 48)
-    //         || (activePageRef.current === 3 && trackLengthRef.current <= 64)
-    //     ) {
-    //         return trackLengthRef.current - 1
-    //     } else if (activePageRef.current === 1 && trackLengthRef.current > 32) {
-    //         return 31
-    //     } else if (activePageRef.current === 2 && trackLengthRef.current > 48) {
-    //         return 47
-    //     } else {
-    //         return 15
-    //     }
-    // };
 
-    const lookup = (key: string) => {
-        if (patterns[Number(key)]) return patterns[Number(key)].name;
-        else return ''
-    }
 
     const dispatchRenamePattern = (name: string) => {
         dispatch(renamePattern(activePatt, name));
@@ -944,12 +858,13 @@ const Sequencer: FunctionComponent = () => {
 
     useEffect(() => {
         if (arrangerMode === 'pattern')
+
             ref_shouldReset.current = Tone.Transport.scheduleRepeat((time) => {
-                // console.log(sixteenthFromBBSOG(Tone.Transport.position.toString()));
                 dispatch(setActiveStep(sixteenthFromBBSOG(Tone.Transport.position.toString()), ref_selectedTrkIndex.current, ref_activePatt.current))
             }, "16n")
         
         if (arrangerMode === 'arranger' && !Number.isNaN(Number(ref_shouldReset.current))) {
+
             const c: any = ref_shouldReset.current
             Tone.Transport.clear(c)
             ref_shouldReset.current = null;
@@ -957,15 +872,6 @@ const Sequencer: FunctionComponent = () => {
 
     }, [arrangerMode])
 
-    // useEffect(() => {
-    //     if (ref_newPattern.current) {
-
-    //         const patternNumbers = Object.keys(patterns).map(k => Number(k))
-    //         ref_newPattern.current = false;
-    //         dispatch(selectPattern(Math.max(...patternNumbers)))
-
-    //     }
-    // }, [ dispatch, patterns])
 
     return (
         <div className={styles.bottom}>
@@ -1037,14 +943,9 @@ const Sequencer: FunctionComponent = () => {
                             </InputKeys>
                         </div>
                     </div>
-                    {/* <Playground></Playground> */}
                 </div>
             </div>
         </div>
-        // <div>
-
-
-        // </div>
     )
 }
 

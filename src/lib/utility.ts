@@ -1,4 +1,6 @@
 import { indicators } from "../containers/Track/defaults";
+import { triggs } from '../context/ToneObjectsContext';
+import * as Tone from 'tone';
 
 export function range(size: number, startAt: number = 0): number[] {
     return [...Array(size).keys()].map(i => i + startAt);
@@ -77,7 +79,22 @@ export function bisect(sortedList: number[], el: number){
   
       return bisect(lbound, rbound);
     }
+}
+
+export function scheduleEventStartEnd(triggs: triggs[], start: any, end: any){
+  const trkCount = triggs.length;
+  for (let i = 0; i < trkCount; i ++){
+    triggs[i].instrument.start(start)
+    triggs[i].instrument.stop(end)
+
+    const fxCount = triggs[i].effects.length
+    for (let j = 0; j < fxCount ; j ++){
+      triggs[i].effects[j].start(start)
+      triggs[i].effects[j].stop(end)
+    }
   }
+};
+
 
 // let time = {
 //     '16n': s,

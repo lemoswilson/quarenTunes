@@ -118,8 +118,8 @@ const Transport: FunctionComponent = () => {
 	const _start = (): void => {
 		if (Tone.context.state !== "running") {
 			Tone.context.resume();
-			console.log('tone context is', Tone.context.latencyHint);
-			// Tone.context.latencyHint = "interactive";
+			// console.log('tone context is', Tone.context.latencyHint);
+			Tone.context.latencyHint = "interactive";
 			Tone.context.lookAhead = 0;
 		}
 		dispatch(start());
@@ -160,10 +160,9 @@ const Transport: FunctionComponent = () => {
 		dispatch(stop()) 
 		// Tone.Transport.position = 0;
 	};
-	const record = (): void => { dispatch(toggleRecording()) };
+	const _toggleRecording = (): void => { dispatch(toggleRecording()) };
 	const stopCallback = (): void => { Tone.Transport.cancel() };
 	const _setBPM = (bpm: number): void => { dispatch(setBPM(bpm)) };
-	const toggleRec = (): void => { dispatch(toggleRecording()) };
 
 	useEffect(() => {
 		// Tone.Transport.loop = mode === arrangerMode.ARRANGER ? false : true;
@@ -179,7 +178,7 @@ const Transport: FunctionComponent = () => {
 					<BPMSelector bpm={bpm} increaseDecrease={_increaseDecreaseBPM} disabled={false} onSubmit={submitBPM}/>
 					<Play onClick={_start}/>
 					<Stop onClick={_stop}/>
-					<Rec onClick={record}/>
+					<Rec onClick={_toggleRecording} active={isRec}/>
 					<ModeSelector mode={mode} onClick={() => {dispatch(toggleMode())}}/>
 					<Metronome toggleMetronome={_toggleMetronome} active={metronomeState}/>
 				</div>

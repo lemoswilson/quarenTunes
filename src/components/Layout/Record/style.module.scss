@@ -8,3 +8,18 @@
     padding-left: 0.36em;
     padding-top: 0.4em;
 }
+
+.color {
+    fill: $dark;
+}
+
+.svg {
+    padding-left: 0.3rem;
+    padding-top: 0.34rem;
+    width: 72%;
+    height: 72%;
+}
+
+.inactive {
+    fill: $light;
+}

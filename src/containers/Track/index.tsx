@@ -90,7 +90,7 @@ const Track: FunctionComponent = () => {
     const _addEffect = (effect: effectTypes, trackIndex: number, fxIndex: number): void => {
         // tone effect ref will be dealt in effect rendering
         
-        triggEmitter.emit(triggEventTypes.ADD_EFFECT, {fxIndex: fxIndex, trackIndex: trackIndex})        // 
+        triggEmitter.emit(triggEventTypes.ADD_EFFECT, {fxIndex: fxIndex + 1, trackIndex: trackIndex})        // 
         batch(() => {
             dispatch(addEffect(fxIndex, trackIndex, effect));
             dispatch(addEffectSequencer(fxIndex, trackIndex))

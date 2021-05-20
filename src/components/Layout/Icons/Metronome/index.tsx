@@ -30,7 +30,7 @@ const Metronome: React.FC<MetronomeProps> = ({toggleMetronome, className, active
     return (
         <ButtonBackground 
             small={true} 
-            className={className} 
+            className={`${className} ${styles.pointer}`} 
             onClick={toggleMetronome}
         >
             <MetronomeSVG active={active}/>

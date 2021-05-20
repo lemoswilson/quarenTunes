@@ -195,18 +195,18 @@ export function trackReducer(
 				break;
 			case trackActions.ADD_EFFECT:
 				console.log(`adding effect to track ${action.payload.trackIndex}, effect index ${action.payload.effectIndex}`)
-				if (action.payload.effectIndex + 1 < draft.tracks[action.payload.trackIndex].fx.length)
+				// if (action.payload.effectIndex + 1 < draft.tracks[action.payload.trackIndex].fx.length)
 					draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex + 1, 0, {
 						fx: action.payload.effect,
 						id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
 						options: getEffectsInitials(action.payload.effect)
 					});
-				else 
-					draft.tracks[action.payload.trackIndex].fx.push({
-						fx: action.payload.effect,
-						id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
-						options: getEffectsInitials(action.payload.effect)
-					})
+				// else 
+				// 	draft.tracks[action.payload.trackIndex].fx.push({
+				// 		fx: action.payload.effect,
+				// 		id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
+				// 		options: getEffectsInitials(action.payload.effect)
+				// 	})
 				draft.tracks[action.payload.trackIndex].fxCounter ++
 					// draft.tracks[action.payload.trackIndex].fxCounter + 1;
 				break;
