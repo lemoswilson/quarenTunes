@@ -3,11 +3,12 @@ import { midi, xolombrisxInstruments } from '../../../../store/Track';
 import styles from './instrumentTab.module.scss';
 import MenuButton from './MenuButton';
 import InstrumentMenu from './InstrumentMenu';
-import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/MenuEmitter';
+import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';
 import MenuContext from '../../../../context/MenuContext';
 import { TypeFlags } from 'typescript';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../../containers/Xolombrisx';
+// import { RootState } from '../../../../containers/Xolombrisx';
+import { RootState } from '../../../../store';
 import { StateTimeline } from 'tone';
 
 // import midi interfce handlers 

@@ -5,7 +5,7 @@ import styles from './style.module.scss';
 import menuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
 import OptionList from '../../Instruments/Tabs/OptionList';
 import MenuContext from '../../../../context/MenuContext';
-import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/MenuEmitter';
+import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';
 import mais from '../../../../assets/plus.svg'
 import optionListStyles from '../../Instruments/Tabs/optionList.module.scss';
 import instrumentMenuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';

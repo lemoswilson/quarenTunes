@@ -1,7 +1,7 @@
+import { effectTypes, xolombrisxInstruments } from "../../store/Track";
 import DrumRack from "../../components/Layout/Instruments/DrumRack";
 import { onlyValues } from "../../lib/objectDecompose";
 import { range, startEndRange } from "../../lib/utility";
-import { effectTypes, xolombrisxInstruments } from "../../store/Track";
 
 export const trackMax = 4;
 export const effectMax = 4;
@@ -373,12 +373,12 @@ const filterTypeOptions = ["allpass", "bandpass", "highpass", "highshelf", "lowp
 export const subdivisionOptions = ["1m", "1n", "1n.", "2n", "2n.", "2t", "4n", "4n.", "4t", "8n", "8n.", "8t", "16n", "16n.", "16t", "32n", "32n.", "32t", "64n", "64n.", "64t"]
 
 const wet = [1, drywetRange, drywetUnit, drywetIndicator, curveTypes.LINEAR];
-const halfwet = [0.5, drywetIndicator, drywetUnit, drywetIndicator, curveTypes.LINEAR]
+const halfwet = [0.5, [0, 1], drywetUnit, drywetIndicator, curveTypes.LINEAR]
 const oscillatorType = ['sine', oscillatorTypeOptions, undefined, oscillatorTypeIndicator];
 const vibratoOscillatorType = ['sine', vibratoOscillatorTypeOptions, undefined, oscillatorTypeIndicator];
 const effectsFrequency = [15, timeOptions('frequency'), timeUnit('frequency'), timeIndicator("frequency"), curveTypes.EXPONENTIAL, ['frequency', 'subdivision']];
 const depth = [1, normalRange, normalUnit, frequencyIndicator, curveTypes.LINEAR];
-const chorusDepth = [0.5, normalRange, normalUnit, frequencyIndicator, curveTypes.EXPONENTIAL];
+const chorusDepth = [0.5, normalRange, normalUnit, frequencyIndicator, curveTypes.LINEAR];
 const baseFrequency = [200, baseFrequencyRange, frequencyUnit, baseFrequnecyIndicator, curveTypes.EXPONENTIAL];
 const phaserBaseFrequency = [350, baseFrequencyRange, frequencyUnit, baseFrequnecyIndicator, curveTypes.EXPONENTIAL];
 const freqShifter = [0, baseFrequencyRange, frequencyUnit, baseFrequnecyIndicator, curveTypes.EXPONENTIAL];
@@ -396,7 +396,7 @@ const chorusFeedback = [0, feedbackRange, feedbackUnit, feedbackIndicator, curve
 const pitchShiftFeedback = [0, feedbackRange, feedbackUnit, feedbackIndicator, curveTypes.LINEAR];
 const chorusFrequency = [4, timeOptions('frequency'), timeUnit('frequency'), timeIndicator('frequency'), curveTypes.EXPONENTIAL, ['frequency', 'subdivision']]
 const phaserFrequency = [0.5, timeOptions('frequency'), timeUnit('frequency'), timeIndicator('frequency'), curveTypes.LINEAR];
-const delayTime = [2.5, timeOptions('ms'), timeUnit('ms'), timeIndicator('ms'), curveTypes.EXPONENTIAL, ['subdivision, ms']];
+const delayTime = [2.5, timeOptions('ms'), timeUnit('ms'), timeIndicator('ms'), curveTypes.LINEAR, ['subdivision, ms']];
 // const feedbackDelayTime = [0.25, timeOptions('ms'), timeUnit('ms'), timeIndicator('ms'), curveTypes.LINEAR, ['subdivision, ms']];
 const feedbackDelayTime = [0.25, [0,1], timeUnit('ms'), timeIndicator('ms'), curveTypes.LINEAR, ['subdivision, ms']];
 const pitchShiftDelayTime = [0, [0,1], timeUnit('ms'), timeIndicator('ms'), curveTypes.LINEAR, ['subdivision, ms']];
@@ -415,7 +415,7 @@ const pitch = [0, pitchRange, pitchUnit, pitchIndicator]
 const windowSize = [0.1, windowSizeRange, windowSizeUnit, windowSizeIndicator, curveTypes.EXPONENTIAL];
 const width = [0.5, normalRange, normalUnit, widthIndicator, curveTypes.LINEAR];
 const compressorAttack = [0.003, normalRange, compressorTimeUnit, envelopeTimeIndicator, curveTypes.LINEAR];
-const compressorRelease = [0.25, envelopeTimeRange, compressorTimeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
+const compressorRelease = [0.25, [0, 1], compressorTimeUnit, envelopeTimeIndicator, curveTypes.LINEAR];
 const ratio = [4, ratioRange, ratioUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL];
 const threshold = [-24, thresholdRange, decibel, thresholdIndicator, curveTypes.LINEAR];
 const knee = [30, kneeRange, decibel, kneeIndicator, curveTypes.LINEAR];

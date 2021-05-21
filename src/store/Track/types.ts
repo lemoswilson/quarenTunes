@@ -231,8 +231,9 @@ export interface updateEnvelopeCurveAction {
 	type: trackActions.UPDATE_ENVELOPE_CURVE,
 	payload: {
 		trackIndex: number,
-		target: 'envelope' | 'modulationEnvelope',
+		target: 'envelope' | 'modulationEnvelope' | 'drumrack',
 		curve: curveTypes,
+		padIdx?: number,
 	}
 };
 

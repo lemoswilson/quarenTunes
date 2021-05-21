@@ -10,8 +10,9 @@ import {
 
 export function updateEnvelopeCurve(
 	track: number,
-	target: 'envelope' | 'modulationEnvelope',
-	curve: curveTypes
+	target: 'envelope' | 'modulationEnvelope' | 'drumrack',
+	curve: curveTypes,
+	padIdx?: number,
 ): trackActionTypes {
 	return {
 		type: trackActions.UPDATE_ENVELOPE_CURVE,
@@ -19,6 +20,7 @@ export function updateEnvelopeCurve(
 			trackIndex: track,
 			target: target,
 			curve: curve,
+			padIdx: padIdx,
 		}
 	}
 };

@@ -6,7 +6,7 @@ import { trackMax } from '../../../../containers/Track/defaults';
 import mais from '../../../../assets/plus.svg';
 import OptionList from './OptionList';
 import MenuContext from '../../../../context/MenuContext';
-import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/MenuEmitter';
+import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';
 import menuStyles from './instrumentMenu.module.scss';
 
 

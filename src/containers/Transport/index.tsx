@@ -9,19 +9,20 @@ import {
 } from "../../store/Transport";
 import React, { useEffect, FunctionComponent, useContext, useRef, MutableRefObject } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../Xolombrisx";
+// import { RootState } from "../Xolombrisx";
+import { RootState } from "../../store";
 import { arrangerMode, toggleMode } from '../../store/Arranger';
 // import Tone from "../../lib/tone";
 import * as Tone from "tone";
 import styles from './style.module.scss';
 // import ToneContext from '../../context/ToneContext';
-import Save from '../../components/Layout/Icons/Save';
-import Play from '../../components/Layout/Play'
-import Stop from '../../components/Layout/Stop'
-import Rec from '../../components/Layout/Record'
-import ModeSelector from '../../components/Layout/ModeSelector'
-import BPMSelector from '../../components/Layout/BPMSelector';
-import Metronome from '../../components/Layout/Icons/Metronome';
+import Save from '../../components/UI/Save';
+import Play from '../../components/UI/Play'
+import Stop from '../../components/UI/Stop'
+import Rec from '../../components/UI/Record'
+import ModeSelector from '../../components/UI/ModeSelector'
+import BPMSelector from '../../components/UI/BPMSelector';
+import Metronome from '../../components/UI/Metronome';
 import { bbsFromSixteenth, sixteenthFromBBSOG } from "../Arranger";
 import { FMSynth, Sampler } from "tone";
 import strong from '../../assets/strong.mp3'

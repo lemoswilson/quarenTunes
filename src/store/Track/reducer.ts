@@ -36,9 +36,9 @@ export const initialState: Track = {
 			id: 0,
 			fx: [
 				{
-					// fx: effectTypes.COMPRESSOR,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.COMPRESSOR)
+					fx: effectTypes.COMPRESSOR,
+					id: 0,
+					options: getEffectsInitials(effectTypes.COMPRESSOR)
 					// fx: effectTypes.GATE,
 					// id: 0,
 					// options: getEffectsInitials(effectTypes.GATE)
@@ -84,9 +84,9 @@ export const initialState: Track = {
 					// fx: effectTypes.DISTORTION,
 					// id: 0,
 					// options: getEffectsInitials(effectTypes.DISTORTION)
-					fx: effectTypes.VIBRATO,
-					id: 0,
-					options: getEffectsInitials(effectTypes.VIBRATO)
+					// fx: effectTypes.VIBRATO,
+					// id: 0,
+					// options: getEffectsInitials(effectTypes.VIBRATO)
 					// fx: effectTypes.AUTOFILTER,
 					// id: 0,
 					// options: getEffectsInitials(effectTypes.AUTOFILTER)
@@ -125,7 +125,7 @@ export function trackReducer(
 			effect: effectTypes,
 			effectIndex: number,
 			property: string,
-			target: 'modulationEnvelope' | 'envelope',
+			target: 'modulationEnvelope' | 'envelope' | 'drumrack',
 			fxIndex: number,
 			isContinuous: boolean | undefined;
 
@@ -310,9 +310,13 @@ export function trackReducer(
 				break;
 			case trackActions.UPDATE_ENVELOPE_CURVE:
 				[trackIndex, target, curve] = [action.payload.trackIndex, action.payload.target, action.payload.curve]
-				draft.tracks[trackIndex].options[target].decayCurve[0] = curve
-				draft.tracks[trackIndex].options[target].attackCurve[0] = curve
-				draft.tracks[trackIndex].options[target].releaseCurve[0] = curve
+				if (target === 'drumrack'){
+					draft.tracks[trackIndex].options[`PAD_${action.payload.padIdx}`].curve[0] = curve;
+				} else {
+					draft.tracks[trackIndex].options[target].decayCurve[0] = curve
+					draft.tracks[trackIndex].options[target].attackCurve[0] = curve
+					draft.tracks[trackIndex].options[target].releaseCurve[0] = curve
+				}
 				break;
 			case trackActions.REMOVE_MIDI_DEVICE:
 				device = action.payload.device

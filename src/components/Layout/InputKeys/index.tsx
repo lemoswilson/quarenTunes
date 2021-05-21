@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { range as withRange } from '../../../lib/utility';
 
 import Keyboard from './Keyboard';
-import PrevNext from '../PrevNext';
-import Dropdown from '../Dropdown';
+import PrevNext from '../../UI/PrevNext';
+import Dropdown from '../../UI/Dropdown';
 
 import styles from './style.module.scss'
 

@@ -6,13 +6,14 @@ import { Draggable } from 'react-beautiful-dnd';
 import { songEvent } from '../../../store/Arranger';
 import { Pattern } from '../../../store/Sequencer';
 
-import { RootState } from '../../../containers/Xolombrisx';
+// import { RootState } from '../../../containers/Xolombrisx';
+import { RootState } from '../../../store';
 
-import Dropdown from '../Dropdown';
+import Dropdown from '../../UI/Dropdown';
 import styles from './event.module.scss';
-import Minus from '../Icons/Minus';
-import Plus from '../Icons/Plus';
-import NumberBox from '../NumberBox';
+import Minus from '../../UI/Minus';
+import Plus from '../../UI/Plus';
+import NumberBox from '../../UI/NumberBox';
 import ToneObjects from '../../../context/ToneObjectsContext';
 import { arrangerMode } from '../../../store/Arranger';
 import { bbsFromSixteenth } from '../../../containers/Arranger';

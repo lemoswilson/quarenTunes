@@ -30,7 +30,6 @@ export function valueFromMouse(
     min: number,
     max: number,
     curveType: curveTypes,
-    // extra?: 'volume' | 'detune' | 'PAD_0.volume',
     extra?: string,
 ): number {
     let r;
@@ -51,7 +50,6 @@ export function valueFromMouse(
         let volumeDelta = prevValue >= -20 && prevValue <= 6
             ? 0.1
             : 0.3
-        // let volumeDelta = 0.1;
 
         r = prevValue - volumeDelta * mouseMovement
     } else if (extra === 'detune') {
@@ -67,11 +65,6 @@ export function valueFromMouse(
         }
 
         r = prevValue - c
-        // return r < max && r > min
-        //     ? r
-        //     : r >= max
-        //         ? max
-        //         : min
     }
 
     return r < max && r > min
@@ -81,13 +74,8 @@ export function valueFromMouse(
             : min
 }
 
-function getBaseLog(base: number, number: number): number {
-    return Math.log(number) / Math.log(base)
-};
-
 function linearScale(value: number, min: number, max: number): number {
     value = value/127
-    // return (value/127) * ()
     return ( max - min ) * value + min
 };
 

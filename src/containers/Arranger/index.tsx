@@ -33,15 +33,16 @@ import {
 import { goToActive, selectPattern, setActiveStep } from '../../store/Sequencer'
 import { stop } from '../../store/Transport';
 // import ToneContext from '../../context/ToneContext';
-import { RootState } from "../Xolombrisx";
+// import { RootState } from "../Xolombrisx";
+import { RootState } from "../../store";
 import styles from './style.module.scss';
 
 import * as Tone from 'tone';
 
-import Dropdown from '../../components/Layout/Dropdown';
-import Minus from '../../components/Layout/Icons/Minus';
-import Plus from '../../components/Layout/Icons/Plus';
-import NumberBox from '../../components/Layout/NumberBox';
+import Dropdown from '../../components/UI/Dropdown';
+import Minus from '../../components/UI/Minus';
+import Plus from '../../components/UI/Plus';
+import NumberBox from '../../components/UI/NumberBox';
 
 import Event from '../../components/Layout/Arranger/Event';
 
@@ -49,7 +50,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import ToneObjectsContext from "../../context/ToneObjectsContext";
 import { newPatternObject } from '../../components/Layout';
 import { rootCertificates } from "tls";
-import triggEmitter, {ExtractTriggPayload, triggEventTypes} from "../../lib/triggEmitter";
+import triggEmitter, {ExtractTriggPayload, triggEventTypes} from "../../lib/Emitters/triggEmitter";
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;

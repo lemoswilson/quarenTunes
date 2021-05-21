@@ -1,0 +1,19 @@
+@import '../../../style/variables';
+
+.box {
+    background-color: white;
+    width: 1.85rem;
+    height: 1.85rem;
+    display: flex;
+    border-radius: 0.7rem;
+    @include shadow(0.4rem, 0.4rem, 0.2rem)
+    // @include center;
+}
+
+.transportBox {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    box-shadow: none;
+    @include shadow(0.2rem, 0.2rem, 0.2rem)
+}

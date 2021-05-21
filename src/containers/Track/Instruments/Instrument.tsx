@@ -9,20 +9,18 @@ import React, {
 } from 'react';
 import usePrevious from '../../../hooks/usePrevious';
 import { useProperties, useDrumRackProperties } from '../../../hooks/useProperty';
-// import { useProperty, useProperties } from '../../../hooks/useProperty';
 
 import { xolombrisxInstruments, updateInstrumentState, increaseDecreaseInstrumentProperty } from '../../../store/Track';
 import { noteOn, noteOff, noteDict, numberToNote } from '../../../store/MidiInput';
 import {
     parameterLock,
-    setNoteMidi,
-    noteInput,
     setNoteLengthPlayback,
     parameterLockIncreaseDecrease,
     removePropertyLock,
     setNote,
     setVelocity,
 } from '../../../store/Sequencer';
+import { arrangerMode } from '../../../store/Arranger';
 
 import WebMidi, {
     InputEventNoteoff,
@@ -38,37 +36,32 @@ import {
     deleteProperty,
     copyToNew
 } from '../../../lib/objectDecompose'
+import { returnInstrument } from '../../../lib/Tone/initializers';
 
 import * as Tone from 'tone';
-// import Tone from '../../../lib/tone';
-import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
-import TriggEmitter, {ExtractTriggPayload, triggEventTypes} from '../../../lib/triggEmitter'
 
 
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
-import ToneContext from '../../../context/ToneContext';
 import { InstrumentProps, initials } from './index'
 import { eventOptions } from './types';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { getInitials, indicators } from '../defaults';
-import { RootState, returnInstrument } from '../../Xolombrisx';
-import { sixteenthFromBBS } from '../../Arranger';
+// import { RootState } from '../../Xolombrisx';
+import { RootState } from '../../../store';
 
 import styles from './style.module.scss';
 
-import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
-import DrumRackInstrument from '../../../lib/DrumRack';
+import DevicePresetManager from '../../../components/UI/DevicePresetManager';
 
 
 import ModulationSynth from '../../../components/Layout/Instruments/ModulationSynth';
 import NoiseSynth from '../../../components/Layout/Instruments/NoiseSynth';
 import MembraneSynth from '../../../components/Layout/Instruments/MembraneSynth';
 import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
-import PluckSynth from '../../../components/Layout/Instruments/PluckSynth';
 import DrumRack from '../../../components/Layout/Instruments/DrumRack';
-import Chain from '../../../lib/fxChain';
-import { arrangerMode } from '../../../store/Arranger';
+import Chain from '../../../lib/Tone/fxChain';
+import InstrumentLoader from './InstrumentLoader';
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
@@ -91,38 +84,10 @@ export const Instrument = <T extends xolombrisxInstruments>({
     useEffect(() => {
         if (firstRender) {
             ref_ToneInstrument.current = returnInstrument(voice, options)
-            // setRender(false)
         }
 
-        // if (ref_toneObjects.current)
-        //     Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-        //         let keyNumber = parseInt(key);
-        //         if (ref_toneObjects.current && ref_toneObjects.current.patterns[keyNumber][index])
-        //             ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
-        //     });
-
-            
 
     }, [])
-
-    // function onNewEvent(payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>){
-    //     const eventIndex = payload.eventIndex
-    //     if (ref_toneObjects.current) {
-    //         // ref_toneObjects.current.arranger[eventIndex][ref_index.current].instrument.callback = instrumentCallback
-    //         ref_toneObjects.current.arranger[eventIndex][index].instrument.callback = instrumentCallback
-    //     }
-    // }
-
-    
-
-    // useEffect(() => {
-    //     TriggEmitter.on(triggEventTypes.NEW_EVENT, onNewEvent)
-    //     return () => {
-    //         if (ref_toneObjects.current && !ref_toneObjects.current.flagObjects[index].instrument.flag)
-    //             console.log(`flag is on on track ${index}`)
-    //         TriggEmitter.off(triggEventTypes.NEW_EVENT, onNewEvent)
-    //     }
-    // }, [])
 
     // instrument properties array
     // will be used to programatically set 
@@ -192,16 +157,16 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_activePatt = useRef(activePatt);
     useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
-    const selectedSong = useSelector((state: RootState) => state.arranger.present.selectedSong);
+    const currentSong = useSelector((state: RootState) => state.arranger.present.selectedSong);
 
-    const songEvents = useSelector((state: RootState) => state.arranger.present.songs[selectedSong].events);
+    const songEvents = useSelector((state: RootState) => state.arranger.present.songs[currentSong].events);
     const ref_songEvents = useRef(songEvents);
     useEffect(() => {
         ref_songEvents.current = songEvents;
     }, [songEvents]);
 
     const selectedSteps = useSelector((state: RootState) => {
-        if (state.sequencer.present.patterns[activePatt] && state.sequencer.present.patterns[activePatt].tracks[index])
+        // if (state.sequencer.present.patterns[activePatt] && state.sequencer.present.patterns[activePatt].tracks[index])
             return state.sequencer.present.patterns[activePatt].tracks[index].selected
     });
     const ref_selectedSteps = useRef(selectedSteps);
@@ -264,7 +229,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_pattsLen = useRef(pattsLen);
     useEffect(() => { ref_pattsLen.current = pattsLen }, [pattsLen])
 
-    const trkPattLen = useSelector(
+    const trkPattsLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -274,8 +239,6 @@ export const Instrument = <T extends xolombrisxInstruments>({
             return o;
         }
     );
-    const ref_trkPattLen = useRef(trkPattLen);
-    useEffect(() => { ref_trkPattLen.current = trkPattLen }, [trkPattLen])
 
     const events = useSelector(
         (state: RootState) => {
@@ -319,23 +282,20 @@ export const Instrument = <T extends xolombrisxInstruments>({
         let o = {}
         let callArray = instProps.map((property) => {
             return (value: any) => {
+
                 // parameter lock logic 
                 let temp = setNestedValue(property, value)
                 if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
                     ref_selectedSteps.current.forEach(s => {
                         dispatch(parameterLock(
                             ref_activePatt.current,
-                            // idRef.current,
                             ref_index.current,
                             s,
                             temp,
                             property
                         ))
                     })
-                    // } else if (getNested(instrumentRef.current.get(), property)
-                    //     === getNested(optionsRef.current, property)[0]) {
                 } else {
-                    // instrumentRef.current.set(temp);
                     dispatch(updateInstrumentState(ref_index.current, temp));
                 };
             }
@@ -380,10 +340,6 @@ export const Instrument = <T extends xolombrisxInstruments>({
                             isContinuous,
                         ))
                     })
-                    // } else if (stateValue === getNested(
-                    //     instrumentRef.current.get(),
-                    //     property
-                    // )) {
                 } else {
                     dispatch(increaseDecreaseInstrumentProperty(
                         ref_index.current,
@@ -590,43 +546,6 @@ export const Instrument = <T extends xolombrisxInstruments>({
             })
         }
     }
-    // ref_ToneInstrument.current.triggerAttackRelease(
-    //     note,
-    //     length ? length : 0,
-    //     time,
-    //     velocity / 127,
-    //     voice === xolombrisxInstruments.DRUMRACK
-    //         ? DrumRackInstrument.checkNote(note)
-    //         : undefined
-    // );
-
-    // const returnStep = useCallback((t: string): number => {
-    //     let result;
-    //     const n = sixteenthFromBBS(t)
-    //     if (ref_arrgMode.current === "pattern") {
-    //         result = ref_trkPattLen.current[ref_activePatt.current] >= ref_pattsLen.current[ref_activePatt.current]
-    //             ? n
-    //             : n % ref_trkPattLen.current[ref_activePatt.current]
-    //     } else {
-    //         const pattern = ref_pattTracker.current[0];
-    //         const timeb = ref_pattTracker.current[1] ? ref_pattTracker.current[1] : 0;
-    //         const timebbs = Tone.Time(timeb, 's').toBarsBeatsSixteenths();
-    //         const step = n - sixteenthFromBBS(timebbs);
-    //         const patternLocation = step % ref_pattsLen.current[pattern];
-    //         if (!patternLocation) return -1
-    //         result = ref_trkPattLen.current[pattern] < ref_pattsLen.current[ref_activePatt.current]
-    //             ? patternLocation % ref_trkPattLen.current[pattern]
-    //             : patternLocation;
-    //     };
-    //     return result;
-    // }, [
-    //     ref_arrgMode,
-    //     ref_pattTracker,
-    //     ref_pattsLen,
-    //     ref_activePatt,
-    //     ref_trkPattLen
-    // ]
-    // )
 
     const noteLock = useCallback((
         note: string,
@@ -678,29 +597,6 @@ export const Instrument = <T extends xolombrisxInstruments>({
         velocity: number,
         time: number,
     ): void => {
-
-        // const e = {
-        //     ...eventsRef.current[pattern][step],
-        //     note: []
-        // };
-        // const pastTime = timeObjFromEvent(step, e);
-        // e.offset = offset;
-        // e.velocity = velocity;
-        // if (overrideRef.current) {
-        //     e.note = [noteName];
-        // } else if (!overrideRef && !e.note.includes(noteName)) {
-        //     e.note.push(noteName);
-        // }
-        // dispatch(
-        //     noteInput(
-        //         pattern,
-        //         ref_index.current,
-        //         step,
-        //         offset,
-        //         noteName,
-        //         velocity
-        //     )
-        // );
 
         dispatch(
             setNote(
@@ -1040,7 +936,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     ref_toneObjects.current.patterns[k][index].instrument.callback = instrumentCallback;
                     if (arrgMode === 'pattern' && k === activePatt) {
                         ref_toneObjects.current.patterns[k][index].instrument.start(0)
-                        ref_toneObjects.current.patterns[k][index].instrument.loopEnd = {'16n': trkPattLen[k]}
+                        ref_toneObjects.current.patterns[k][index].instrument.loopEnd = {'16n': trkPattsLen[k]}
                     }
 
                     // if (arrgMode === arrangerMode.PATTERN){
@@ -1174,103 +1070,116 @@ export const Instrument = <T extends xolombrisxInstruments>({
     // 
 
 
-
-    const Component = voice === xolombrisxInstruments.FMSYNTH
-        ? <ModulationSynth
-            calcCallbacks={propertiesIncDec}
-            midiLearn={midiLearn}
-            removePropertyLocks={removePropertyLockCallbacks}
-            options={options}
-            ccMaps={ref_CCMaps}
-            index={index}
-            trackId={id}
-            events={events[activePatt]}
-            selected={selectedSteps}
-            voice={voice}
-            properties={instProps}
-            propertyUpdateCallbacks={propertiesUpdate} />
-        : voice === xolombrisxInstruments.NOISESYNTH
-            ? <NoiseSynth
-                calcCallbacks={propertiesIncDec}
-                trackId={id}
-                properties={instProps}
-                removePropertyLocks={removePropertyLockCallbacks}
-                ccMap={ref_CCMaps}
-                midiLearn={midiLearn}
-                events={events[activePatt]}
-                selected={selectedSteps}
-                options={options}
-                index={index}
-                propertyUpdateCallbacks={propertiesUpdate} />
-            : voice === xolombrisxInstruments.AMSYNTH
-                ? <ModulationSynth
-                    removePropertyLocks={removePropertyLockCallbacks}
-                    calcCallbacks={propertiesIncDec}
-                    trackId={id}
-                    ccMaps={ref_CCMaps}
-                    midiLearn={midiLearn}
-                    options={options}
-                    index={index}
-                    events={events[activePatt]}
-                    selected={selectedSteps}
-                    voice={voice}
-                    properties={instProps}
-                    propertyUpdateCallbacks={propertiesUpdate} />
-                : voice === xolombrisxInstruments.MEMBRANESYNTH
-                    ? <MembraneSynth
-                        calcCallbacks={propertiesIncDec}
-                        trackId={id}
+    const Component = <InstrumentLoader 
+                        removePropertyLock={removePropertyLockCallbacks}
+                        voice={voice}
                         midiLearn={midiLearn}
                         ccMaps={ref_CCMaps}
-                        removePropertyLocks={removePropertyLockCallbacks}
+                        calcCallbacks={propertiesIncDec}
                         events={events[activePatt]}
-                        index={index}
+                        trackIndex={index}
+                        trackId={id}
                         options={options}
                         properties={instProps}
                         propertyUpdateCallbacks={propertiesUpdate}
                         selected={selectedSteps}
                     />
-                    : voice === xolombrisxInstruments.METALSYNTH
-                        ? <MetalSynth
-                            calcCallbacks={propertiesIncDec}
-                            midiLearn={midiLearn}
-                            ccMaps={ref_CCMaps}
-                            removePropertyLocks={removePropertyLockCallbacks}
-                            events={events[activePatt]}
-                            trackId={id}
-                            index={index}
-                            options={options}
-                            properties={instProps}
-                            propertyUpdateCallbacks={propertiesUpdate}
-                            selected={selectedSteps}
-                        />
-                        // : voice === xolombrisxInstruments.PLUCKSYNTH
-                        //     ? <PluckSynth
-                        //         removePropertyLocks={removePropertyLockCallbacks}
-                        //         calcCallbacks={propertiesIncDec}
-                        //         trackId={id}
-                        //         events={events[activePatt]}
-                        //         index={index}
-                        //         options={options}
-                        //         properties={instProps}
-                        //         propertyUpdateCallbacks={propertiesUpdate}
-                        //         selected={selectedSteps}
-                        //     />
-                            : voice === xolombrisxInstruments.DRUMRACK
-                                ? <DrumRack
-                                    removePropertyLocks={removePropertyLockCallbacks}
-                                    midiLearn={midiLearn}
-                                    ccMaps={ref_CCMaps}
-                                    calcCallbacks={propertiesIncDec}
-                                    events={events[activePatt]}
-                                    index={index}
-                                    trackId={id}
-                                    options={options}
-                                    properties={instProps}
-                                    propertyUpdateCallbacks={propertiesUpdate}
-                                    selected={selectedSteps}
-                                />
-                                : null;
+    // const Component = voice === xolombrisxInstruments.FMSYNTH
+    //     ? <ModulationSynth
+    //         calcCallbacks={propertiesIncDec}
+    //         midiLearn={midiLearn}
+    //         removePropertyLocks={removePropertyLockCallbacks}
+    //         options={options}
+    //         ccMaps={ref_CCMaps}
+    //         index={index}
+    //         trackId={id}
+    //         events={events[activePatt]}
+    //         selected={selectedSteps}
+    //         voice={voice}
+    //         properties={instProps}
+    //         propertyUpdateCallbacks={propertiesUpdate} />
+    //     : voice === xolombrisxInstruments.NOISESYNTH
+    //         ? <NoiseSynth
+    //             calcCallbacks={propertiesIncDec}
+    //             trackId={id}
+    //             properties={instProps}
+    //             removePropertyLocks={removePropertyLockCallbacks}
+    //             ccMaps={ref_CCMaps}
+    //             midiLearn={midiLearn}
+    //             events={events[activePatt]}
+    //             selected={selectedSteps}
+    //             options={options}
+    //             index={index}
+    //             propertyUpdateCallbacks={propertiesUpdate} />
+    //         : voice === xolombrisxInstruments.AMSYNTH
+    //             ? <ModulationSynth
+    //                 removePropertyLocks={removePropertyLockCallbacks}
+    //                 calcCallbacks={propertiesIncDec}
+    //                 trackId={id}
+    //                 ccMaps={ref_CCMaps}
+    //                 midiLearn={midiLearn}
+    //                 options={options}
+    //                 index={index}
+    //                 events={events[activePatt]}
+    //                 selected={selectedSteps}
+    //                 voice={voice}
+    //                 properties={instProps}
+    //                 propertyUpdateCallbacks={propertiesUpdate} />
+    //             : voice === xolombrisxInstruments.MEMBRANESYNTH
+    //                 ? <MembraneSynth
+    //                     calcCallbacks={propertiesIncDec}
+    //                     trackId={id}
+    //                     midiLearn={midiLearn}
+    //                     ccMaps={ref_CCMaps}
+    //                     removePropertyLocks={removePropertyLockCallbacks}
+    //                     events={events[activePatt]}
+    //                     index={index}
+    //                     options={options}
+    //                     properties={instProps}
+    //                     propertyUpdateCallbacks={propertiesUpdate}
+    //                     selected={selectedSteps}
+    //                 />
+    //                 : voice === xolombrisxInstruments.METALSYNTH
+    //                     ? <MetalSynth
+    //                         calcCallbacks={propertiesIncDec}
+    //                         midiLearn={midiLearn}
+    //                         ccMaps={ref_CCMaps}
+    //                         removePropertyLocks={removePropertyLockCallbacks}
+    //                         events={events[activePatt]}
+    //                         trackId={id}
+    //                         index={index}
+    //                         options={options}
+    //                         properties={instProps}
+    //                         propertyUpdateCallbacks={propertiesUpdate}
+    //                         selected={selectedSteps}
+    //                     />
+    //                     // : voice === xolombrisxInstruments.PLUCKSYNTH
+    //                     //     ? <PluckSynth
+    //                     //         removePropertyLocks={removePropertyLockCallbacks}
+    //                     //         calcCallbacks={propertiesIncDec}
+    //                     //         trackId={id}
+    //                     //         events={events[activePatt]}
+    //                     //         index={index}
+    //                     //         options={options}
+    //                     //         properties={instProps}
+    //                     //         propertyUpdateCallbacks={propertiesUpdate}
+    //                     //         selected={selectedSteps}
+    //                     //     />
+    //                         : voice === xolombrisxInstruments.DRUMRACK
+    //                             ? <DrumRack
+    //                                 removePropertyLocks={removePropertyLockCallbacks}
+    //                                 midiLearn={midiLearn}
+    //                                 ccMaps={ref_CCMaps}
+    //                                 calcCallbacks={propertiesIncDec}
+    //                                 events={events[activePatt]}
+    //                                 index={index}
+    //                                 trackId={id}
+    //                                 options={options}
+    //                                 properties={instProps}
+    //                                 propertyUpdateCallbacks={propertiesUpdate}
+    //                                 selected={selectedSteps}
+    //                             />
+    //                             : null;
 
     return (
         <div

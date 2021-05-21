@@ -1,8 +1,8 @@
 import React, { MutableRefObject } from 'react'
 import { PolySynth, Part } from 'tone';
 import { toneEffects } from '../store/Track';
-import Chain from '../lib/fxChain';
-import { returnInstrument } from '../containers/Xolombrisx';
+import Chain from '../lib/Tone/fxChain';
+import { returnInstrument } from '../lib/Tone/initializers';
 
 export interface triggs {
     instrument: Part
@@ -37,22 +37,6 @@ export interface ToneObjects {
     flagObjects: flagObjects[],
 }
 
-// class Dummy {
-//     current: ToneObjects | null;
-//     constructor(obj?: ToneObjects | null){
-//         if (obj)
-//             this.current = obj
-//         else
-//             this.current = {
-//                 tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
-//                 patterns: {
-//                     0: [{instrument: new Part(), effects: []}]
-//                 },
-//                 arranger: [],
-//                 flagObjects: [{instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]}]
-//             }
-//     }
-// }
 
 class Dummy implements refWrapper<ToneObjects> {
     current: ToneObjects | null;

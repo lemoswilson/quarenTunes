@@ -1,15 +1,16 @@
 import { useEffect, MutableRefObject } from 'react';
 import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray } from '../containers/Track/Instruments'
-import { returnInstrument } from '../containers/Xolombrisx';
+// import { returnInstrument } from '../containers/Xolombrisx';
+import { returnInstrument } from '../lib/Tone/initializers'
 // import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray } from '../containers/Track/Instruments'
 import { RecursivePartial } from '../containers/Track/Instruments'
 import usePrevious from './usePrevious';
 import { onlyValues } from '../lib/objectDecompose'
 import { Part } from 'tone';
 import { timeObjFromEvent } from '../lib/utility';
-import { returnEffect } from '../containers/Xolombrisx/';
+import { returnEffect } from '../lib/Tone/initializers';
 import { xolombrisxInstruments } from '../store/Track';
-import DrumRack from '../lib/DrumRack';
+import DrumRack from '../lib/Tone/DrumRack';
 import { DrumRackSlotInitials } from '../containers/Track/defaults';
 import { generalEffectOptions } from '../store/Track';
 import { triggs } from '../context/ToneObjectsContext';

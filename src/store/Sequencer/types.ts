@@ -1,12 +1,10 @@
 import { eventOptions } from "../../containers/Track/Instruments";
-import Tone from "../../lib/tone";
 import { RecursivePartial } from '../../containers/Track/Instruments'
-// import { Part } from "tone";
+import { TimeClass } from "tone";
 import { generalEffectOptions, trackActions } from '../Track';
 import { transportActions } from "../Transport";
-import { arrangerMode } from "../Arranger";
 
-export type pLockType = number | string | boolean | Tone.TimeClass;
+export type pLockType = number | string | boolean | TimeClass;
 
 export enum sequencerActions {
 	REMOVE_PATTERN = "REMOVE_PATTERN",
@@ -97,15 +95,6 @@ export interface Sequencer {
 	override: boolean;
 	quantizeRecording: boolean;
 };
-
-// export interface setActiveStepArrgAction {
-// 	type: sequencerActions.SET_ACTIVE_STEP,
-// 	payload: {
-// 		counter: number,
-// 		trackIndex: number,
-// 		pattern: number,
-// 	}
-// }
 
 export interface stopTransportAction {
 	type: transportActions.STOP,

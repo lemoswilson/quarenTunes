@@ -1,7 +1,7 @@
 import React, { MouseEvent as ME, MutableRefObject, useEffect, useRef, useState } from 'react';
 import SelectionIndicator from './SelectionIndicator';
 import styles from './optionList.module.scss';
-import Polygon from '../../Dropdown/Polygon';
+import Polygon from '../../../UI/Dropdown/Polygon';
 
 interface ListItemProps {
     item: string | number,

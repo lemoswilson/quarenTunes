@@ -6,7 +6,7 @@ import { Sequencer as SequencerType } from '../../store/Sequencer';
 import { Track as TrackType } from '../../store/Track';
 
 import Div100vh from 'react-div-100vh';
-import WebMidiComponent from '../../lib/WebMidi';
+import WebMidiComponent from '../Ghosts/WebMidi';
 import ToneObjects, { ToneObjects as ToneObjectsType, triggs } from '../../context/ToneObjectsContext';
 
 import Arranger from '../../containers/Arranger';
@@ -16,7 +16,9 @@ import Transport from '../../containers/Transport';
 import * as Tone from 'tone';
 // import ToneContext from '../../context/ToneContext';
 
-import { ToneType } from '../../lib/tone';
+type ToneType = typeof Tone;
+
+// import { ToneType } from '../../lib/tone';
 
 export function newPatternObject(
     Tone: ToneType,

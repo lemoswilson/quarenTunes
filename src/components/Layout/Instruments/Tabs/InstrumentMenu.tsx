@@ -5,7 +5,8 @@ import OptionList from './OptionList';
 import optionListStyles from './optionList.module.scss';
 import { midi } from '../../../../store/Track'
 import { useSelector }  from 'react-redux';
-import { RootState } from '../../../../containers/Xolombrisx';
+// import { RootState } from '../../../../containers/Xolombrisx';
+import { RootState } from '../../../../store';
 import { startEndRange } from '../../../../lib/utility';
 
 interface MenuProps {

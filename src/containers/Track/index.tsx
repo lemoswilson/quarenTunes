@@ -15,23 +15,17 @@ import {
     effectTypes,
     changeEffect,
 } from '../../store/Track';
-import triggContext from '../../context/triggState';
+// import triggContext from '../../context/triggState';
 // import ToneContext from '../../context/ToneContext';
 
-import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/toneRefsEmitter';
+import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/Emitters/toneRefsEmitter';
 // import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/myCustomToneRefsEmitter';
-import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
+import triggEmitter, { triggEventTypes } from '../../lib/Emitters/triggEmitter';
 
 import { Instrument } from './Instruments'
 import Effect from './Effects/Effect'
-import { RootState } from '../Xolombrisx';
-import WaveformSelector from '../../components/Layout/WaveformSelector';
-import CurveSelector from '../../components/Layout/CurveSelector';
-import ContinuousIndicator from '../../components/Layout/ContinuousIndicator';
-import grayTriangle from '../../assets/grayTriangle.svg';
-import Dropdown from '../../components/Layout/Dropdown';
-import Playground from '../../components/Layout/Playground';
-import SteppedIndicator from '../../components/Layout/SteppedIndicator';
+// import { RootState } from '../Xolombrisx';
+import { RootState } from '../../store';
 import Tabs from '../../components/Layout/Instruments/Tabs';
 
 import styles from './style.module.scss';

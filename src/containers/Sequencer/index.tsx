@@ -43,16 +43,17 @@ import { upOctaveKey, downOctaveKey, keyDict, noteDict, numberNoteDict } from '.
 
 // import Tone from '../../lib/tone';
 import * as Tone from 'tone';
-import triggEmitter, { triggEventTypes } from '../../lib/triggEmitter';
-import MenuEmitter, { menuEmitterEventTypes } from '../../lib/MenuEmitter';
-import DropdownEmitter, { dropdownEventTypes } from '../../lib/dropdownEmitter';
+import triggEmitter, { triggEventTypes } from '../../lib/Emitters/triggEmitter';
+import MenuEmitter, { menuEmitterEventTypes } from '../../lib/Emitters/MenuEmitter';
+import DropdownEmitter, { dropdownEventTypes } from '../../lib/Emitters/dropdownEmitter';
 
-import StepSequencer from '../../components/StepSequencer';
-import Patterns from '../../components/Patterns/Patterns';
+import StepSequencer from '../../components/Layout/StepSequencer';
+import Patterns from '../../components/Layout/Patterns/Patterns';
 import InputKeys from '../../components/Layout/InputKeys';
 
 import { bbsFromSixteenth, sixteenthFromBBSOG } from '../Arranger'
-import { RootState } from '../Xolombrisx';
+// import { RootState } from '../Xolombrisx';
+import { RootState } from '../../store';
 
 import styles from './style.module.scss';
 import { xolombrisxInstruments } from '../../store/Track';
@@ -61,7 +62,6 @@ import { xolombrisxInstruments } from '../../store/Track';
 import ToneObjectsContext from '../../context/ToneObjectsContext';
 import menuContext from '../../context/MenuContext';
 import dropdownContext from '../../context/DropdownContext';
-import CounterContext from '../../context/CounterContext';
 
 import { getFinalStep as finalStep, timeObjFromEvent } from '../../lib/utility';
 
@@ -76,7 +76,6 @@ const Sequencer: FunctionComponent = () => {
     const ref_newPattern = useRef(false);
     const [isNote, setIsNote] = useState(false)
     const ref_shouldReset: MutableRefObject<number | null> = useRef(null);
-    const ref_counter = useContext(CounterContext);
     // const Tone = useContext(ToneContext);
     const patternQueue: MutableRefObject<number[] | null> = useRef(null)
 

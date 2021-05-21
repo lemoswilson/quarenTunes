@@ -14,31 +14,25 @@ import ToneObjectsContext from '../../../context/ToneObjectsContext';
 
 import WebMidi, { InputEventControlchange, Input } from 'webmidi';
 
-import { timeObjFromEvent, typeMovement } from '../../../lib/utility';
-import valueFromCC, { optionFromCC, valueFromMouse } from '../../../lib/curves';
-import { onlyValues, propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
-import toneRefEmitter, { trackEventTypes } from '../../../lib/toneRefsEmitter';
-// import Tone from '../../../lib/tone'
-import * as Tone from 'tone';
+import { propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
 import { Gain } from 'tone';
-// import ToneContext from '../../../context/ToneContext';
 
-import { sixteenthFromBBS } from '../../Arranger'
-import { effectsInitials, effectsInitialsArray } from '../Instruments';
+import { effectsInitials } from '../Instruments';
 import { controlChangeEvent } from '../Instruments'
-import { RootState } from '../../Xolombrisx';
+// import { RootState } from '../../Xolombrisx';
+import { RootState } from '../../../store';
 
 import { effectsProps } from './types';
 import { getEffectsInitials } from '../defaults';
 import { indicators } from '../defaults'
 
 import styles from './style.module.scss';
-import DevicePresetManager from '../../../components/Layout/DevicePresetManager';
+import DevicePresetManager from '../../../components/UI/DevicePresetManager';
 
 import Compressor from '../../../components/Layout/Effects/Compressor';
 
-import { returnEffect } from '../../Xolombrisx';
-import MenuButton from '../../../components/Layout/Instruments/Tabs/MenuButton';
+import { returnEffect } from '../../../lib/Tone/initializers';
+
 import Tabs from '../../../components/Layout/Effects/Tabs';
 import Gate from '../../../components/Layout/Effects/Gate';
 import Limiter from '../../../components/Layout/Effects/Limiter';
@@ -60,12 +54,13 @@ import Vibrato from '../../../components/Layout/Effects/Vibrato';
 import AutoFilter from '../../../components/Layout/Effects/AutoFilter';
 import Chorus from '../../../components/Layout/Effects/Chorus';
 import Filter from '../../../components/Layout/Effects/Filter';
+import EffectLoader, { EffectsLayoutProps } from './EffectLoader';
 
-export interface effectLayoutProps {
+export interface effectLayoutProps extends EffectsLayoutProps {
     // options: initialsArray,
     options: any,
     calcCallbacks: any,
-    removeEffectPropertyLocks: any,
+    removePropertyLock: any,
     ccMaps: any,
     midiLearn: (property: string) => void,
     propertyUpdateCallbacks: any,
@@ -90,11 +85,9 @@ const Effect: React.FC<effectsProps> = ({
     changeEffect, 
     addEffect 
 }) => {
-    // const ref_toneTriggCtx = useContext(triggContext);
     const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
-    // const Tone = useContext(ToneContext);
-    // const effectRef = useRef(returnEffect(type, options))
+
     const dispatch = useDispatch();
     const fxProps = useMemo(() => propertiesToArray(getEffectsInitials(type)), [type]);
     const [firstRender, setRender] = useState(true);
@@ -102,6 +95,7 @@ const Effect: React.FC<effectsProps> = ({
 
     useEffect(() => {
         // console.log('effect index', fxIndex, 'type', type, 'options', options)
+        // leave me here ? 
     }, [fxIndex, type])
 
     const ref_trackIndex = useRef(trackIndex);
@@ -151,7 +145,7 @@ const Effect: React.FC<effectsProps> = ({
     useEffect(() => { ref_isPlay.current = isPlay }, [isPlay]);
     const prev_isPlay = usePrevious(isPlay);
 
-    const pattLens = useSelector(
+    const pattsLen = useSelector(
         (state: RootState) => {
             let o: { [key: number]: any } = {}
             Object.keys(state.sequencer.present.patterns).forEach(key => {
@@ -164,8 +158,8 @@ const Effect: React.FC<effectsProps> = ({
 
     // const patternLengths = useQuickRef(patLen);
 
-    const ref_pattLens = useRef(pattLens);
-    useEffect(() => { ref_pattLens.current = pattLens }, [pattLens])
+    const ref_pattLens = useRef(pattsLen);
+    useEffect(() => { ref_pattLens.current = pattsLen }, [pattsLen])
 
     const trkPattLen = useSelector(
         (state: RootState) => {
@@ -220,7 +214,6 @@ const Effect: React.FC<effectsProps> = ({
     const propertiesIncDec: any = useMemo(() => {
         const callArray = fxProps.map((property) => {
             return (e: any) => {
-
                 const propertyArr = getNested(ref_options.current, property);
                 const indicatorType = propertyArr[3]
                 const stateValue = propertyArr[0]
@@ -578,10 +571,8 @@ const Effect: React.FC<effectsProps> = ({
         }
     }
 
-    const Component =
-        type === effectTypes.COMPRESSOR
-            ? <Compressor
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
+    const Component = <EffectLoader 
+                removePropertyLock={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
                 midiLearn={midiLearn}
                 ccMaps={ref_CCMaps}
@@ -593,331 +584,9 @@ const Effect: React.FC<effectsProps> = ({
                 properties={fxProps}
                 propertyUpdateCallbacks={propertiesUpdate}
                 selected={selectedSteps}
-                trackIndex={trackId}
-            />
-            : type === effectTypes.GATE 
-            ? <Gate 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                trackId={trackId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxId={fxId}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}
-            />
-            : type === effectTypes.LIMITER
-            ? <Limiter
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                trackId={trackId}
-                fxId={fxId}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}  
-            />
-            : type === effectTypes.FREQUENCYSHIFTER
-            ? <FreqShifter 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                events={events[activePatt]}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxIndex={fxIndex}
-                trackId={trackId}
-                fxId={fxId}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}   
-            />
-            : type === effectTypes.STEREOWIDENER
-            ? <Widener 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}   
-            />
-            : type === effectTypes.EQ3
-            ? <EQ3 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}     
-            />
-            : type === effectTypes.FEEDBACKDELAY
-            ? <FeedbackDelay 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}       
-            />
-            : type === effectTypes.JCREVERB
-            ? <JCVerb
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.FREEVERB
-            ? <FreeVerb
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.PHASER
-            ? <Phaser 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.PINGPONGDELAY
-            ? <PingPong 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.PITCHSHIFT
-            ? <PitchShifter 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.TREMOLO
-            ? <Tremolo 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.AUTOPANNER
-            ? <AutoPan 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.BITCRUSHER
-            ? <Bitcrusher 
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            />
-            : type === effectTypes.CHEBYSHEV
-            ? <Chebyshev
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            /> 
-            : type === effectTypes.DISTORTION
-            ? <Distortion
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            /> 
-            : type === effectTypes.VIBRATO
-            ? <Vibrato
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            /> 
-            : type === effectTypes.AUTOFILTER
-            ? <AutoFilter
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            /> 
-            : type === effectTypes.CHORUS
-            ? <Chorus
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            /> 
-            : type === effectTypes.FILTER
-            ? <Filter
-                removeEffectPropertyLocks={removeEffectPropertyLockCallbacks}
-                calcCallbacks={propertiesIncDec}
-                trackId={trackId}
-                fxId={fxId}
-                midiLearn={midiLearn}
-                ccMaps={ref_CCMaps} 
-                events={events[activePatt]}
-                fxIndex={fxIndex}
-                options={options}
-                properties={fxProps}
-                propertyUpdateCallbacks={propertiesUpdate}
-                selected={selectedSteps}
-                trackIndex={trackId}         
-            /> 
-            : null
-
-
+                trackIndex={trackIndex}
+                voice={type}
+                />
 
     return (
         <div onClick={() => console.log(ref_selectedSteps.current)} className={styles.fx}>

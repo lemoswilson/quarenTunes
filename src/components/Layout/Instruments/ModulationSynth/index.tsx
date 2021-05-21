@@ -1,119 +1,21 @@
-import React, { useMemo } from 'react';
-import { xolombrisxInstruments, updateEnvelopeCurve } from '../../../../store/Track';
-import { getNested } from '../../../../lib/objectDecompose';
+import React from 'react';
+import { xolombrisxInstruments } from '../../../../store/Track';
 import styles from './style.module.scss';
-import ContinuousIndicator from '../../ContinuousIndicator';
-import CurveSelector from '../../CurveSelector';
-import WaveformSelector from '../../WaveformSelector';
-import { setNestedValue } from '../../../../lib/objectDecompose';
-import { useDispatch } from 'react-redux';
-import { event } from '../../../../store/Sequencer'
-import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
+import { InstrumentLayoutProps } from '../../../../containers/Track/Instruments/InstrumentLoader'
 
-export interface ModulationSynthProps {
-    // options: initialsArray,
-    options: any,
-    calcCallbacks: any,
-    propertyUpdateCallbacks: any,
-    removePropertyLocks: any,
-    midiLearn: (property: string) => void,
-    ccMaps: any,
-    index: number,
-    trackId: number,
-    events: event[],
-    selected?: number[],
-    properties: any[],
-    voice: xolombrisxInstruments.AMSYNTH | xolombrisxInstruments.FMSYNTH
-}
 
-const ModulationSynth: React.FC<ModulationSynthProps> = ({
-    calcCallbacks,
-    options,
-    removePropertyLocks,
-    events,
-    ccMaps,
-    midiLearn,
-    properties,
-    selected,
-    voice,
-    propertyUpdateCallbacks,
-    index,
-    trackId,
+const ModulationSynth: React.FC<InstrumentLayoutProps> = ({
+    getContinuousIndicator,
+    getCurveSelector,
+    getSteppedKnob,
+    getWaveformSelector,
+    voice
 }) => {
-
-    const dispatch = useDispatch()
-    const envelopeAttack = options.envelope.attack;
-    const envelopeDecay = options.envelope.decay;
-    const envelopeSustain = options.envelope.sustain;
-    const envelopeRelease = options.envelope.release;
-    const modulationEnvelopeAttack = options.modulationEnvelope.attack;
-    const modulationEnvelopeDecay = options.modulationEnvelope.decay;
-    const modulationEnvelopeSustain = options.modulationEnvelope.sustain;
-    const modulationEnvelopeRelease = options.modulationEnvelope.release;
-    const modulationIndex = options.modulationIndex;
-    const detune = options.detune;
-    const portamento = options.portamento;
-    const harmonicity = options.harmonicity;
-    const volume = options.volume;
-
-    const parameterLockValues = useMemo(() => {
-
-        const o: any = {}
-        properties.forEach(property => {
-            const selectedPropertyArray = selected?.map(s => getNested(events[s].instrument, property))
-
-            const allValuesEqual =
-                selected && selected.length > 0
-                    ? selectedPropertyArray && selectedPropertyArray.every((v, idx, arr) => v && v === arr[0])
-                    : false;
-            const noValuesInSelected =
-                selected && selected.length > 0
-                    ? selectedPropertyArray && selectedPropertyArray.every(v => v === undefined)
-                    : false;
-
-            setNestedValue(
-                property,
-                [
-                    allValuesEqual,
-                    allValuesEqual ? selectedPropertyArray && selectedPropertyArray[0] : false,
-                    noValuesInSelected
-                ],
-                o,
-            )
-        })
-        return o
-    }, [properties, selected, events])
-
-    const getPropertyValue = (property: string): number | '*' => {
-        const pmValues: (number | boolean | string)[] = getNested(parameterLockValues, property)
-        return selected && selected.length > 1 && !pmValues[0] && !pmValues[2]
-            ? '*'
-            : pmValues[0]
-                ? pmValues[1]
-                : getNested(options, property)[0]
-    };
 
     const modulationIndexIndicator =
         voice === xolombrisxInstruments.FMSYNTH
             ? (
-                <ContinuousIndicator
-                    ccMouseCalculationCallback={calcCallbacks.modulationIndex}
-                    tabIndex={widgetTabIndexTrkStart + index}
-                    selectedLock={false}
-                    label={'ModIdx'}
-                    max={modulationIndex[1][1]}
-                    midiLearn={() => {midiLearn('modulationIndex')}}
-                    ccMap={getNested(ccMaps.current, 'modulationIndex')}
-                    min={modulationIndex[1][0]}
-                    removePropertyLock={removePropertyLocks.modulationIndex}
-                    type={'slider'}
-                    curve={modulationIndex[4]}
-                    unit={modulationIndex[2]}
-                    value={getPropertyValue('modulationIndex')}
-                    valueUpdateCallback={propertyUpdateCallbacks.modulationIndex}
-                    className={styles.modidx}
-                    indicatorId={`instrument${trackId}:modulationIndex`}
-                />
+                getContinuousIndicator?.('modulationIndex', 'modIdx', styles.modidx, undefined, true)
             ) : null
 
     return (
@@ -125,157 +27,24 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                     <div className={styles.indicators}>
                         <div className={styles.envelope}>
                             <div className={styles.box}>
-                                <ContinuousIndicator
-                                    selectedLock={false}
-                                    ccMouseCalculationCallback={calcCallbacks.envelope.attack}
-                                    label={'Attack'}
-                                    max={envelopeAttack[1][1]}
-                                    ccMap={getNested(ccMaps.current, 'envelope.attack')}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    removePropertyLock={removePropertyLocks.envelope.attack}
-                                    midiLearn={() => {midiLearn('envelope.attack')}}
-                                    min={envelopeAttack[1][0]}
-                                    type={'knob'}
-                                    unit={envelopeAttack[2]}
-                                    value={getPropertyValue('envelope.attack')}
-                                    curve={envelopeAttack[4]}
-                                    valueUpdateCallback={propertyUpdateCallbacks.envelope.attack}
-                                    className={styles.envelopeAttack}
-                                    indicatorId={`instrument${trackId}:envelope.attack`}
-                                />
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.envelope.decay}
-                                    selectedLock={false}
-                                    label={'Decay'}
-                                    max={envelopeDecay[1][1]}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    removePropertyLock={removePropertyLocks.envelope.decay}
-                                    midiLearn={() => {midiLearn('envelope.decay')}}
-                                    ccMap={getNested(ccMaps.current, 'envelope.decay')}
-                                    curve={envelopeDecay[4]}
-                                    min={envelopeDecay[1][0]}
-                                    type={'knob'}
-                                    unit={envelopeDecay[2]}
-                                    value={getPropertyValue('envelope.decay')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.envelope.decay}
-                                    className={styles.envelopeDecay}
-                                    indicatorId={`instrument${trackId}:envelope.decay`}
-                                />
+                                { getContinuousIndicator?.('envelope.attack', 'Attack', styles.envelopeAttack)}
+                                { getContinuousIndicator?.('envelope.decay', 'Decay', styles.envelopeDecay)}
                             </div>
                             <div className={styles.box}>
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.envelope.sustain}
-                                    selectedLock={false}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    label={'Sustain'}
-                                    max={envelopeSustain[1][1]}
-                                    midiLearn={() => {midiLearn('envelope.sustain')}}
-                                    ccMap={getNested(ccMaps.current, 'envelope.sustain')}
-                                    min={envelopeSustain[1][0]}
-                                    detail={'envelopeZero'}
-                                    type={'knob'}
-                                    curve={envelopeSustain[4]}
-                                    unit={envelopeSustain[2]}
-                                    removePropertyLock={removePropertyLocks.envelope.sustain}
-                                    value={getPropertyValue('envelope.sustain')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.envelope.sustain}
-                                    className={styles.envelopeSustain}
-                                    indicatorId={`instrument${trackId}:envelope.sustain`}
-                                />
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.envelope.release}
-                                    selectedLock={false}
-                                    label={'Release'}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    max={envelopeRelease[1][1]}
-                                    midiLearn={() => {midiLearn('envelope.release')}}
-                                    removePropertyLock={removePropertyLocks.envelope.release}
-                                    ccMap={getNested(ccMaps.current, 'envelope.release')}
-                                    min={envelopeRelease[1][0]}
-                                    curve={envelopeRelease[4]}
-                                    type={'knob'}
-                                    unit={envelopeRelease[2]}
-                                    value={getPropertyValue('envelope.release')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.envelope.release}
-                                    className={styles.envelopeRelease}
-                                    indicatorId={`instrument${trackId}:envelope.release`}
-                                />
+                                { getContinuousIndicator?.('envelope.sustain', 'Sustain', styles.envelopeSustain, 'envelopeZero')}
+                                { getContinuousIndicator?.('envelope.release', 'Release', styles.envelopeRelease)}
                             </div>
                         </div>
                         <div className={styles.selectors}>
-                            <CurveSelector
-                                display={'horizontal'}
-                                selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'envelope', curve))}
-                                tabIndex={widgetTabIndexTrkStart + index}
-                                selected={options.envelope.decayCurve[0]}
-                                className={styles.curve}
-                            />
-                            <WaveformSelector
-                                selectWaveform={(wave) => { propertyUpdateCallbacks.oscillator.type(wave) }}
-                                tabIndex={widgetTabIndexTrkStart + index}
-                                selected={options.oscillator.type[0]}
-                            />
+                            { getCurveSelector?.('envelope', 'horizontal', styles.curve)}
+                            { getWaveformSelector?.('oscillator.type') }
                         </div>
                         <div className={styles.voices}>
                             <div className={styles.detunePortamento}>
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.detune}
-                                    selectedLock={false}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    label={'Detune'}
-                                    max={detune[1][1]}
-                                    midiLearn={() => {midiLearn('detune')}}
-                                    ccMap={getNested(ccMaps.current, 'envelope.detune')}
-                                    min={detune[1][0]}
-                                    type={'knob'}
-                                    curve={detune[4]}
-                                    unit={detune[2]}
-                                    value={getPropertyValue('detune')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.detune}
-                                    removePropertyLock={removePropertyLocks.detune}
-                                    detail={'detune'}
-                                    className={styles.decay}
-                                    indicatorId={`instrument${trackId}:detune`}
-                                />
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.portamento}
-                                    selectedLock={false}
-                                    label={'Portamento'}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    max={portamento[1][1]}
-                                    midiLearn={() => {midiLearn('portamento')}}
-                                    ccMap={getNested(ccMaps.current, 'portamento')}
-                                    min={portamento[1][0]}
-                                    type={'knob'}
-                                    detail={'port'}
-                                    unit={portamento[2]}
-                                    removePropertyLock={removePropertyLocks.portamento}
-                                    curve={portamento[4]}
-                                    value={getPropertyValue('portamento')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.portamento}
-                                    className={styles.envelopeRelease}
-                                    indicatorId={`instrument${trackId}:portamento`}
-                                />
+                            { getContinuousIndicator?.('detune', 'Detune', styles.decay, 'detune')}
+                            { getContinuousIndicator?.('portamento', 'Portamento', styles.envelopeRelease, 'port')}
                             </div>
-                            <ContinuousIndicator
-                                ccMouseCalculationCallback={calcCallbacks.volume}
-                                selectedLock={false}
-                                tabIndex={widgetTabIndexTrkStart + index}
-                                label={'Volume'}
-                                max={volume[1][1]}
-                                midiLearn={() => {midiLearn('volume')}}
-                                ccMap={getNested(ccMaps.current, 'volume')}
-                                min={volume[1][0]}
-                                removePropertyLock={removePropertyLocks.volume}
-                                type={'slider'}
-                                detail={'volume'}
-                                curve={volume[4]}
-                                unit={volume[2]}
-                                value={getPropertyValue('volume')}
-                                valueUpdateCallback={propertyUpdateCallbacks.volume}
-                                className={styles.volume}
-                                indicatorId={`instrument${trackId}:volume`}
-                            />
+                            { getContinuousIndicator?.('volume', 'Volume', styles.volume, 'volume', true) }
                         </div>
                     </div>
                 </div>
@@ -284,117 +53,20 @@ const ModulationSynth: React.FC<ModulationSynthProps> = ({
                     <div className={styles.indicators}>
                         <div className={styles.envelope}>
                             <div className={styles.box}>
-                                <ContinuousIndicator
-                                    selectedLock={false}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.attack}
-                                    label={'Attack'}
-                                    max={modulationEnvelopeAttack[1][1]}
-                                    midiLearn={() => {midiLearn('modulationEnvelope.attack')}}
-                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.attack')}
-                                    min={modulationEnvelopeAttack[1][0]}
-                                    type={'knob'}
-                                    unit={modulationEnvelopeAttack[2]}
-                                    value={getPropertyValue('modulationEnvelope.attack')}
-                                    removePropertyLock={removePropertyLocks.modulationEnvelope.attack}
-                                    curve={modulationEnvelopeAttack[4]}
-                                    valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.attack}
-                                    className={styles.envelopeAttack}
-                                    indicatorId={`instrument${trackId}:modulationEnvelope.attack`}
-                                />
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.decay}
-                                    selectedLock={false}
-                                    label={'Decay'}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    max={modulationEnvelopeDecay[1][1]}
-                                    midiLearn={() => {midiLearn('modulationEnvelope.decay')}}
-                                    curve={modulationEnvelopeDecay[4]}
-                                    removePropertyLock={removePropertyLocks.modulationEnvelope.decay}
-                                    min={modulationEnvelopeDecay[1][0]}
-                                    type={'knob'}
-                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.decay')}
-                                    unit={modulationEnvelopeDecay[2]}
-                                    value={getPropertyValue('modulationEnvelope.decay')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.decay}
-                                    className={styles.envelopeDecay}
-                                    indicatorId={`instrument${trackId}:modulationEnvelope.decay`}
-                                />
+                            { getContinuousIndicator?.('modulationEnvelope.attack', 'Attack', styles.envelopeAttack)}
+                            { getContinuousIndicator?.('modulationEnvelope.decay', 'Decay', styles.envelopeDecay)}
                             </div>
                             <div className={styles.box}>
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.sustain}
-                                    selectedLock={false}
-                                    label={'Sustain'}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    removePropertyLock={removePropertyLocks.modulationEnvelope.sustain}
-                                    max={modulationEnvelopeSustain[1][1]}
-                                    midiLearn={() => {midiLearn('modulationEnvelope.sustain')}}
-                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.sustain')}
-                                    curve={modulationEnvelopeSustain[4]}
-                                    min={modulationEnvelopeSustain[1][0]}
-                                    type={'knob'}
-                                    unit={modulationEnvelopeSustain[2]}
-                                    value={getPropertyValue('modulationEnvelope.sustain')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.sustain}
-                                    className={styles.decay}
-                                    indicatorId={`instrument${trackId}:modulationEnvelope.sustain`}
-                                />
-                                <ContinuousIndicator
-                                    ccMouseCalculationCallback={calcCallbacks.modulationEnvelope.release}
-                                    tabIndex={widgetTabIndexTrkStart + index}
-                                    selectedLock={false}
-                                    label={'Release'}
-                                    removePropertyLock={removePropertyLocks.modulationEnvelope.release}
-                                    max={modulationEnvelopeRelease[1][1]}
-                                    midiLearn={() => {midiLearn('modulationEnvelope.release')}}
-                                    ccMap={getNested(ccMaps.current, 'modulationEnvelope.release')}
-                                    curve={modulationEnvelopeRelease[4]}
-                                    min={modulationEnvelopeRelease[1][0]}
-                                    type={'knob'}
-                                    unit={modulationEnvelopeRelease[2]}
-                                    value={getPropertyValue('modulationEnvelope.release')}
-                                    valueUpdateCallback={propertyUpdateCallbacks.modulationEnvelope.release}
-                                    className={styles.envelopeRelease}
-                                    indicatorId={`instrument${trackId}:modulationEnvelope.release`}
-                                />
+                            { getContinuousIndicator?.('modulationEnvelope.sustain', 'Sustain', styles.decay, 'envelopeZero')}
+                            { getContinuousIndicator?.('modulationEnvelope.release', 'Release', styles.envelopeRelease)}
                             </div>
                         </div>
                         <div className={styles.selectors}>
-                            <CurveSelector
-                                display={'horizontal'}
-                                tabIndex={widgetTabIndexTrkStart + index}
-                                selectCurve={(curve) => dispatch(updateEnvelopeCurve(index, 'modulationEnvelope', curve))}
-                                selected={options.modulationEnvelope.decayCurve[0]}
-                                className={styles.curve}
-                            />
-                            <WaveformSelector
-                                selectWaveform={(wave) => { propertyUpdateCallbacks.modulation.type(wave) }}
-                                tabIndex={widgetTabIndexTrkStart + index}
-                                selected={options.modulation.type[0]}
-                                className={styles.waveform}
-                            />
+                            { getCurveSelector?.('modulationEnvelope', 'horizontal', styles.curve)}
+                            { getWaveformSelector?.('modulation.type', styles.waveform)}
                         </div>
                         <div className={styles.voices}>
-                            <ContinuousIndicator
-                                ccMouseCalculationCallback={calcCallbacks.harmonicity}
-                                selectedLock={false}
-                                tabIndex={widgetTabIndexTrkStart + index}
-                                label={'Harm'}
-                                max={harmonicity[1][1]}
-                                midiLearn={() => {midiLearn('harmonicity')}}
-                                ccMap={getNested(ccMaps.current, 'harmonicity')}
-                                min={harmonicity[1][0]}
-                                removePropertyLock={removePropertyLocks.harmonicity}
-                                type={'slider'}
-                                unit={harmonicity[2]}
-                                curve={harmonicity[4]}
-                                // value={getNested(options, 'harmonicity')[0]}
-                                value={getPropertyValue('harmonicity')}
-                                valueUpdateCallback={propertyUpdateCallbacks.harmonicity}
-                                indicatorId={`instrument${trackId}:modulationEnvelope.harmonicity`}
-                                className={styles.harm}
-                            />
+                        { getContinuousIndicator?.('harmonicity', 'Harm', styles.harmonicity, undefined, true) }
                             {modulationIndexIndicator}
                         </div>
                     </div>

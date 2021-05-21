@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { updateEnvelopeCurve } from '../../../../store/Track';
 import { getNested, setNestedValue } from '../../../../lib/objectDecompose';
 import styles from './style.module.scss';
-import ContinuousIndicator from '../../ContinuousIndicator';
-import CurveSelector from '../../CurveSelector';
+import ContinuousIndicator from '../../../UI/ContinuousIndicator';
+import CurveSelector from '../../../UI/CurveSelector';
 import { useDispatch } from 'react-redux';
-import SteppedIndicator from '../../SteppedIndicator';
+import SteppedIndicator from '../../../UI/SteppedIndicator';
 import { event } from '../../../../store/Sequencer';
 import { widgetTabIndexTrkStart } from '../../../../containers/Track/defaults';
 

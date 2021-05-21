@@ -1,22 +1,23 @@
 import React, { useRef, useEffect, MutableRefObject, useState } from "react";
-import WebMidiComponent from '../../lib/WebMidi';
+// import WebMidiComponent from '../../lib/WebMidi';
+import WebMidiComponent from '../../components/Ghosts/WebMidi';
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
 import { useLocation } from 'react-router-dom';
 import undoable, { newHistory, includeAction, ActionCreators } from 'redux-undo';
 import Div100vh from 'react-div-100vh';
 
-import Chain from '../../lib/fxChain';
+import Chain from '../../lib/Tone/fxChain';
 import { trackActions, effectTypes } from '../../store/Track'
-import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/triggEmitter';
-import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/toneRefsEmitter';
-import dropdownEmitter, { dropdownEventTypes, ExtractDropdownPayload } from '../../lib/dropdownEmitter';
-import MenuEmitter, { menuEmitterEventTypes, ExtractMenuPayload } from "../../lib/MenuEmitter";
+import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/Emitters/triggEmitter';
+import toneRefsEmitter, { trackEventTypes, ExtractTrackPayload } from '../../lib/Emitters/toneRefsEmitter';
+import dropdownEmitter, { dropdownEventTypes, ExtractDropdownPayload } from '../../lib/Emitters/dropdownEmitter';
+import MenuEmitter, { menuEmitterEventTypes, ExtractMenuPayload } from "../../lib/Emitters/MenuEmitter";
 
 import ToneObjectsContext, { ToneObjects } from '../../context/ToneObjectsContext';
 import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
-import InputContext from '../../context/InputContext';
+// import InputContext from '../../context/InputContext';
 import DropdownContext, { dropDownContext } from '../../context/DropdownContext';
 // import ToneContext from '../../context/ToneContext';
 
@@ -31,7 +32,7 @@ import { transportReducer, initialState as TrsState, transportActions } from "..
 import { midiInputReducer, initialState as MidiState } from '../../store/MidiInput';
 import { timeObjFromEvent } from "../../lib/utility";
 import { onlyValues } from '../../lib/objectDecompose';
-import DrumRackInstrument from '../../lib/DrumRack';
+import DrumRackInstrument from '../../lib/Tone/DrumRack';
 import { userProps } from '../../App';
 import Layout, { LayoutState, newPatternObject } from '../../components/Layout';
 
@@ -43,9 +44,10 @@ import Sequencer from "../../containers/Sequencer";
 import Track from '../../containers/Track';
 import Transport from '../../containers/Transport';
 import Arranger from "../Arranger";
-import CounterContext from '../../context/CounterContext';
+// import CounterContext from '../../context/CounterContext';
 
 import { initialsArray, effectsInitials, effectsInitialsArray } from '../../containers/Track/Instruments/'
+// import store from '../../store/';
 
 declare global {
     interface Window {
@@ -59,87 +61,10 @@ const sequencerHistory = newHistory([], SeqInit, [])
 const trackHistory = newHistory([], TrkInit, [])
 const transportHistory = newHistory([], TrsState, [])
 
-export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
-    let options = onlyValues(opt);
-
-    switch (voice) {
-        case xolombrisxInstruments.AMSYNTH:
-            return new Tone.PolySynth(Tone.AMSynth, options);
-        case xolombrisxInstruments.FMSYNTH:
-            return new Tone.PolySynth(Tone.FMSynth, options);
-        case xolombrisxInstruments.MEMBRANESYNTH:
-            return new Tone.PolySynth(Tone.MembraneSynth, options);
-        case xolombrisxInstruments.METALSYNTH:
-            return new Tone.PolySynth(Tone.MetalSynth, options);
-        case xolombrisxInstruments.NOISESYNTH:
-            return new Tone.NoiseSynth(options);
-        // case xolombrisxInstruments.PLUCKSYNTH:
-        //     return new Tone.PluckSynth(options);
-        case xolombrisxInstruments.DRUMRACK:
-            // return new DrumRackInstrument(opt)
-            return new DrumRackInstrument(options)
-        default:
-            return new Tone.Sampler();
-    }
-}
-
-export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
-    let options = onlyValues(opt);
-
-    switch (type) {
-        case effectTypes.AUTOFILTER:
-            return new Tone.AutoFilter(options);
-        case effectTypes.AUTOPANNER:
-            return new Tone.AutoPanner(options);
-        case effectTypes.BITCRUSHER:
-            return new Tone.BitCrusher(options);
-        case effectTypes.CHEBYSHEV:
-            return new Tone.Chebyshev(options);
-        case effectTypes.CHORUS:
-            return new Tone.Chorus(options);
-        case effectTypes.COMPRESSOR:
-            return new Tone.Compressor(options);
-        case effectTypes.DISTORTION:
-            return new Tone.Distortion(options);
-        case effectTypes.EQ3:
-            return new Tone.EQ3(options);
-        case effectTypes.FEEDBACKDELAY:
-            return new Tone.FeedbackDelay(options);
-        case effectTypes.FILTER:
-            return new Tone.Filter(options);
-        case effectTypes.FREEVERB:
-            return new Tone.Freeverb(options);
-        case effectTypes.FREQUENCYSHIFTER:
-            return new Tone.FrequencyShifter(options);
-        case effectTypes.GATE:
-            return new Tone.Gate(options);
-        case effectTypes.JCREVERB:
-            return new Tone.JCReverb(options);
-        case effectTypes.LIMITER:
-            return new Tone.Limiter(options);
-        case effectTypes.MULTIBANDCOMPRESSOR:
-            return new Tone.MultibandCompressor(options);
-        case effectTypes.PHASER:
-            return new Tone.Phaser(options)
-        case effectTypes.PINGPONGDELAY:
-            return new Tone.PingPongDelay(options)
-        case effectTypes.PITCHSHIFT:
-            return new Tone.PitchShift(options)
-        case effectTypes.STEREOWIDENER:
-            return new Tone.StereoWidener(options)
-        case effectTypes.TREMOLO:
-            return new Tone.Tremolo(options)
-        case effectTypes.VIBRATO:
-            return new Tone.Vibrato(options)
-        default:
-            return new Tone.Vibrato(options)
-    }
-}
 
 export const rootReducer = combineReducers({
     arranger: undoable(arrangerReducer, {
         filter: includeAction([
-            // arrangerActions.SET_TRACKER,
             arrangerActions.SET_TIMER
         ])
     }),
@@ -218,13 +143,10 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     // })
 
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
-    const ref_counter: MutableRefObject<number | null> = useRef(null);
+    // const ref_counter: MutableRefObject<number | null> = useRef(null);
 
     useEffect(() => {
         if (firstRender){
-            // const state = location.state 
-
-            ref_counter.current = -1;
             
             ref_toneObjects.current = {
                 tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
@@ -238,11 +160,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         }
     }, [])
 
-    // 0: {
-    //     effects: [],
-    //     chain: new Chain(),
-    //     instrument: undefined,
-    // }
 
     let menuRef = useRef<any[]>([]);
     let inputsRef = useRef<any[]>([]);
@@ -753,8 +670,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     return (
         <React.Fragment>
             {/* <ToneContext.Provider value={Tone}> */}
-                <CounterContext.Provider value={ref_counter}>
-                    <InputContext.Provider value={inputsRef}>
+                {/* <CounterContext.Provider value={ref_counter}>
+                    <InputContext.Provider value={inputsRef}> */}
                         <MenuContext.Provider value={menuRef}>
                             <DropdownContext.Provider value={dropdownContextRef}>
                                 <AppContext.Provider value={appRef}>
@@ -797,8 +714,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                 </AppContext.Provider>
                             </DropdownContext.Provider>
                         </MenuContext.Provider>
-                    </InputContext.Provider>
-                </CounterContext.Provider>
+                    {/* </InputContext.Provider>
+                </CounterContext.Provider> */}
             {/* </ToneContext.Provider> */}
         </React.Fragment >
     );
