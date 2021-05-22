@@ -28,17 +28,17 @@ import {
     incDecPTVelocity, 
 } from '../../store/Sequencer';
 import { counterSelector } from '../../store/Sequencer/selectors';
-import { ToneObjects } from '../../context/ToneObjectsContext';
 import { arrangerMode } from '../../store/Arranger';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 
+
+export type SequencerDispatchers = ReturnType<typeof useSequencerDispatchers>;
 
 const useSequencerDispatchers = (
     ref_toneObjects: ToneObjectContextType,
     patterns: { [key: number]: Pattern },
     activePatt: number,
     ref_activePatt: MutableRefObject<number>,
-    selectedSteps: number[],
     ref_selectedSteps: MutableRefObject<number[]>,
     ref_activePage: MutableRefObject<number>,
     arrangerMode: arrangerMode,
@@ -237,7 +237,7 @@ const useSequencerDispatchers = (
 
     const _setPattNoteLen = (length: string) => {
         const d = length === '###PT' ? undefined : length
-        if (selectedSteps.length === 0) {
+        if (ref_selectedSteps.current.length === 0) {
             dispatch(
                 setPatternNoteLength(
                     activePatt,
@@ -340,7 +340,7 @@ const useSequencerDispatchers = (
 
 
     const _incDecStepVelocity = (amount: number): void => {
-            selectedSteps.forEach(step => {
+            ref_selectedSteps.current.forEach(step => {
                 dispatch(
                     incDecStepVelocity(
                         amount, 
@@ -361,7 +361,7 @@ const useSequencerDispatchers = (
     }
 
 
-    const _IncDecOffset = (amount: number): void => {
+    const _incDecOffset = (amount: number): void => {
         ref_selectedSteps.current.forEach(step => {
             dispatch(
                 incDecOffset(amount, activePatt, selectedTrkIdx, step)
@@ -392,7 +392,7 @@ const useSequencerDispatchers = (
         _setVelocity,
         _setPattTrkVelocity,
         _incDecPattTrkVelocity,
-        _IncDecOffset,
+        _incDecOffset,
         _selectStep,
         _renamePattern,
         pageClickHandler

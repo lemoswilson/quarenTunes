@@ -4,10 +4,9 @@ import styles from './style.module.scss';
 import Dropdown from '../../UI/Dropdown';
 import Plus from '../../UI/Plus';
 import Minus from '../../UI/Minus';
-import LengthEditor from '../../UI/LengthEditor';
+import NumberEditor from '../../UI/LengthEditor';
 import usePrevious from '../../../hooks/usePrevious';
-
-
+import { SequencerDispatchers } from '../../../hooks/store/useSequencerDispatchers';
 
 interface Patterns {
     activePattern: number,
@@ -15,54 +14,24 @@ interface Patterns {
     patternLength: string | number,
     patterns: { [key: number]: Pattern }
     trackLength: number,
-    changeTrackLength: (newLength: number) => void,
-    changePatternLength: (newLength: number) => void,
-    addPattern: () => void,
-    // selectPattern: (e: ChangeEvent<HTMLInputElement>) => void,
-    selectPattern: (key: string) => void,
-    removePattern: () => void,
-    incDecTrackLength: (amount: number) => void,
-    incDecPatLength: (amount: number) => void,
-    incDecVelocity: {
-        step: (amount: number) => void,
-        patternTrack: (amount: number) => void, 
-    },
-    incDecOffset: (amount: number) => void,
-    renamePattern: (name: string) => void,
+    sequencerDispatchers: SequencerDispatchers,
     patternTrackVelocity: number,
     events: event[],
     note: boolean,
-    setOffset: (offset: number) => void,
-    setVelocity: {
-        step: (amount: number) => void,
-        pattTrk: (amount: number) => void,
-    }
     isPlay: boolean,
-    // setNoteLength: (noteLength: number | string) => void,
 }
 
 const Patterns: React.FC<Patterns> = ({
     activePattern,
     isPlay,
-    setOffset,
-    addPattern,
-    renamePattern,
-    incDecPatLength,
-    incDecTrackLength,
-    incDecOffset,
-    incDecVelocity,
-    changePatternLength,
-    changeTrackLength,
-    setVelocity,
     patterns,
     patternLength,
     patternTrackVelocity,
-    removePattern,
     note,
     events,
-    selectPattern,
     selected,
     trackLength,
+    sequencerDispatchers,
 }) => {
     const previousSelected = usePrevious(selected.length > 0)
 
@@ -70,7 +39,7 @@ const Patterns: React.FC<Patterns> = ({
     const patternSelectorSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
-        renamePattern(input.value);
+        sequencerDispatchers._renamePattern(input.value);
     };
 
     const trackLengthSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
@@ -79,7 +48,7 @@ const Patterns: React.FC<Patterns> = ({
         let data = Number(trackLength);
         if (Number(input.value) >= 0 && Number(input.value) <= 64) {
             data = Number(input.value);
-            changeTrackLength(data);
+            sequencerDispatchers._changeTrkLength(data) 
         };
         input.value = String(data);
         input.blur()
@@ -91,35 +60,73 @@ const Patterns: React.FC<Patterns> = ({
         let data = Number(patternLength);
         if (Number(input.value) >= 0 && Number(input.value) <= 64) {
             data = Number(input.value);
-            changePatternLength(data);
+            sequencerDispatchers._changePattLen(data);
         };
         input.value = String(data);
         input.blur()
     };
+
+    function velocityOrLengthData(){
+
+        if (
+            selected.length >=1 && note 
+            && selectedVelocities 
+            && events[selected[0]].instrument.velocity
+        ) 
+            return Number(events[selected[0]].instrument.velocity)
+        
+        else if (
+            note && selected.length >= 1 
+            && selectedVelocities 
+            && !events[selected[0]].instrument.velocity
+        )
+            return `${patternTrackVelocity} (pattern)`
+        
+        else if (!note)
+            return trackLength
+        
+        else if (note && selected.length === 0)
+            return patternTrackVelocity
+
+        else return '*'
+        
+    }
+
+    function offsetOrLengthData(){
+
+        if (
+            note && selected.length >= 1 
+            && selectedOffset 
+            && events[selected[0]].offset
+        )
+            return Number(events[selected[0]].offset)
+        
+        else if (
+            note && selected.length >= 1 
+            && selectedOffset 
+            && !events[selected[0]].offset
+        )
+            return 0
+        
+        else if (!note) return patternLength
+
+        else return '*'
+
+    }
 
     // fix velocity submit and offset submit 
     const velocitySubmit = (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
         const val = Number(input.value)
-        // console.log('submiting velocity, val is', val)
-
-        let data =
-            selected.length >=1 && note && selectedVelocities && events[selected[0]].instrument.velocity
-            ? Number(events[selected[0]].instrument.velocity)
-            : (note && selected.length >= 1 && selectedVelocities && !events[selected[0]].instrument.velocity)
-                ? `${patternTrackVelocity} (pattern)`
-                : !note   
-                    ? trackLength
-                    : note && selected.length === 0
-                    ? patternTrackVelocity
-                    : '*'
+        let data = velocityOrLengthData()
 
         if (val >= 0 && val <= 127) {
             data = Number(input.value);
+
             selected.length > 0 
-                ? setVelocity.step(data) 
-                : setVelocity.pattTrk(data)
+            ? sequencerDispatchers._setVelocity(data) 
+            : sequencerDispatchers._setPattTrkVelocity(data) 
         };
 
         input.value = String(data);
@@ -130,21 +137,11 @@ const Patterns: React.FC<Patterns> = ({
         event.preventDefault();
         const input = event.currentTarget.getElementsByTagName('input')[0];
         const val = Number(input.value)
-
-        let data =
-            note && selected.length >= 1 && selectedOffset && events[selected[0]].offset
-            ? Number(events[selected[0]].offset)
-            : note && selected.length >= 1 && selectedOffset && !events[selected[0]].offset
-                ? 0
-                : !note
-                    ? patternLength
-                    // : selected.length === 0 && note
-                    // ? '*'
-                    : '*'
+        let data = offsetOrLengthData()
 
         if (val >= -100 && val <= 100) {
             data = val;
-            setOffset(val)
+            sequencerDispatchers._setOffset(val)
         };
 
         input.value = String(data);
@@ -165,36 +162,31 @@ const Patterns: React.FC<Patterns> = ({
 
     const incDecOffPat = (direction: number) => {
         if (note && selected.length > 0)
-            incDecOffset(direction)
-        // else if (selected.length === 0 && !note)
+            sequencerDispatchers._incDecOffset(direction)
         else if (!note)
-            incDecPatLength(direction)
+            sequencerDispatchers._incDecPattLen(direction) 
     }
 
     const OffPatSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         if (note && selected.length > 0)
             offsetSubmit(event)
-        // else if (selected.length === 0 && !note)
         else if (!note)
             patternLengthSubmit(event)
     }
 
     const incDecVelTrk = (direction: number) => {
         if (note && selected.length > 0)
-            incDecVelocity.step(direction)
-        // else if (selected.length === 0 && !note)
+            sequencerDispatchers._incDecStepVelocity(direction)
         else if (!note)
-            incDecTrackLength(direction)
+            sequencerDispatchers._incDecTrkLen(direction) 
         else if (note && selected.length === 0) {
-            // console.log('this bug')
-            incDecVelocity.patternTrack(direction)
+            sequencerDispatchers._incDecPattTrkVelocity(direction) 
         }
     }
 
     const VelTrkSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         if (note && selected.length > 0)
             velocitySubmit(event)
-        // else if (selected.length === 0 && !note)
         else if (!note)
             trackLengthSubmit(event)
         else if (note && selected.length === 0)
@@ -212,31 +204,31 @@ const Patterns: React.FC<Patterns> = ({
                     <div className={styles.selector}>
                         <Dropdown
                             forceClose={selected.length === 0 && previousSelected ? true : false}
-                            keyValue={Object.keys(patterns).map(k => [String(k), patterns[Number(k)].name])}
                             onSubmit={patternSelectorSubmit}
-                            select={selectPattern}
+                            select={ sequencerDispatchers._selectPatt}
                             renamable={true}
                             dropdownId='patterns'
                             selected={String(activePattern)}
                             className={styles.dropdown}
+                            keyValue={Object.keys(patterns).map(
+                                k => [String(k), patterns[Number(k)].name])
+                            }
                         />
                     </div>
-                    <div className={styles.increase}>{ !isPlay ? <Plus onClick={() => { addPattern() }} /> : null }</div>
-                    <div className={styles.decrease}>{Object.keys(patterns).length > 1 && !isPlay ? < Minus onClick={() => { removePattern() }} /> : null}</div>
+                    <div className={styles.increase}>
+                        { !isPlay ? <Plus onClick={sequencerDispatchers._addPatt} /> : null }
+                    </div>
+                    <div className={styles.decrease}>
+                        {
+                            Object.keys(patterns).length > 1 && !isPlay 
+                            ? < Minus onClick={sequencerDispatchers._removePatt} /> 
+                            : null
+                        }
+                    </div>
                 </div>
                 <div className={styles.mid} style={{ marginTop: note ? '0' : '1rem' }}>
-                    <LengthEditor
-                        length={
-                            selected.length >=1 && note && selectedVelocities && events[selected[0]].instrument.velocity
-                                ? Number(events[selected[0]].instrument.velocity)
-                                : (note && selected.length >= 1 && selectedVelocities && !events[selected[0]].instrument.velocity)
-                                    ? `${patternTrackVelocity} (pattern)`
-                                    : !note   
-                                        ? trackLength
-                                        : note && selected.length === 0
-                                        ? patternTrackVelocity
-                                        : '*'
-                        }
+                    <NumberEditor
+                        value={velocityOrLengthData()}
                         disabled={!note && isPlay}
                         decrease={() => {incDecVelTrk(-1)}}
                         increase={() => {incDecVelTrk(1)}}
@@ -245,18 +237,8 @@ const Patterns: React.FC<Patterns> = ({
                     />
                 </div>
                 <div className={styles.bottom}>
-                    <LengthEditor
-                        length={
-                            note && selected.length >= 1 && selectedOffset && events[selected[0]].offset
-                                ? Number(events[selected[0]].offset)
-                                : note && selected.length >= 1 && selectedOffset && !events[selected[0]].offset
-                                    ? 0
-                                    : !note
-                                        ? patternLength
-                                        // : selected.length === 0 && note
-                                        // ? '*'
-                                        : '*'
-                        }
+                    <NumberEditor
+                        value={offsetOrLengthData()}
                         disabled={(note && selected.length === 0) || !note && isPlay}
                         decrease={() => {incDecOffPat(-1)}}
                         increase={() => {incDecOffPat(1)}}

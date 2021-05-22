@@ -6,27 +6,27 @@ import Minus from '../Minus';
 interface LegnthEditorProps {
     increase: () => void;
     decrease: () => void;
-    label: string;
     onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
+    label: string;
     className?: string;
-    length: number | string;
+    value: number | string;
     disabled: boolean,
 }
 
-const LengthEditor: React.FC<LegnthEditorProps> = ({
+const NumberEditor: React.FC<LegnthEditorProps> = ({
     decrease,
     increase,
     label,
     onSubmit,
     className,
-    length,
+    value,
     disabled,
     children,
 }) => {
 
     const onBlur = (event: React.FocusEvent<HTMLFormElement>) => {
         const input = event.currentTarget.getElementsByTagName('input')[0]
-        input.value = String(length);
+        input.value = String(value);
     }
 
 
@@ -48,10 +48,10 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
     useEffect(() => {
 
         if (ref_input.current) {
-            ref_input.current.value = String(length);
+            ref_input.current.value = String(value);
         }
 
-    }, [length])
+    }, [value])
 
     const ref_input = useRef<HTMLInputElement>(null);
 
@@ -68,8 +68,8 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
                             ref={ref_input} 
                             disabled={disabled} 
                             type={"text"} 
-                            defaultValue={length} 
-                            placeholder={String(length)}
+                            defaultValue={value} 
+                            placeholder={String(value)}
                         />
                     </form>
                 </div>
@@ -79,4 +79,4 @@ const LengthEditor: React.FC<LegnthEditorProps> = ({
     )
 }
 
-export default LengthEditor;
+export default NumberEditor;
