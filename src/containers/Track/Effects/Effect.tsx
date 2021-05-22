@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useContext, MutableRefObject, useState, useEffect, useCallback } from 'react';
 import usePrevious from '../../../hooks/usePrevious';
-import { useEffectProperties } from '../../../hooks/useProperty';
+import { useEffectProperties } from '../../../hooks/store/useProperty';
 
 
 import { useDispatch, useSelector } from 'react-redux';

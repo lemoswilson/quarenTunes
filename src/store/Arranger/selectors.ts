@@ -14,8 +14,8 @@ export const hashPatternsSelector = (currentSong: number) => (state: RootState) 
 export const pattTrackerSelector = (state: RootState) => state.arranger.present.patternTracker;
 export const isFollowSelector = (state: RootState) => state.arranger.present.following;
 export const songsSelector = (state: RootState) => state.arranger.present.songs;
-export const modeSelector = (state: RootState) => state.arranger.present.mode;
-export const activeSongPattern = (state: RootState) => state.arranger.present.patternTracker.patternPlaying;
+export const arrgModeSelector = (state: RootState) => state.arranger.present.mode;
+export const activeSongPattSelector = (state: RootState) => state.arranger.present.patternTracker.patternPlaying;
 
 
 export const eventStartTimesSelector = 

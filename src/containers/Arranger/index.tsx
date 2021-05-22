@@ -43,6 +43,7 @@ import Dropdown from '../../components/UI/Dropdown';
 import Minus from '../../components/UI/Minus';
 import Plus from '../../components/UI/Plus';
 import NumberBox from '../../components/UI/NumberBox';
+import ArrangerLayout from '../../components/Layout/Arranger';
 
 import Event from '../../components/Layout/Arranger/Event';
 
@@ -51,6 +52,7 @@ import ToneObjectsContext from "../../context/ToneObjectsContext";
 import { newPatternObject } from '../../components/Layout';
 import { rootCertificates } from "tls";
 import triggEmitter, {ExtractTriggPayload, triggEventTypes} from "../../lib/Emitters/triggEmitter";
+
 
 export const bbsFromSixteenth = (value: number | string): string => {
 	return `0:0:${value}`;
@@ -88,13 +90,8 @@ const Arranger: FunctionComponent = () => {
 	const dispatch = useDispatch();
 
 	const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
-	const ref_activePatt = useRef(activePatt);
-	const prev_activePatt = usePrevious(activePatt); useEffect(() => { ref_activePatt.current = activePatt }, [activePatt]);
 
 	const ref_activeStepTracker: MutableRefObject<number | null> = useRef(null);
-
-	const activePattLen = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].patternLength);
-	const prev_activePattLen = usePrevious(activePattLen)
 
 	const isPlay = useSelector((state: RootState) => state.transport.present.isPlaying);
 	const ref_isPlay = useRef(isPlay);
@@ -406,65 +403,83 @@ const Arranger: FunctionComponent = () => {
 
 
 	return (
+		<ArrangerLayout 
+			onDragEnd={ onDragEnd }
+			_addSong={ _addSong }
+			_removeSong={ _removeSong }
+			_renameSong={ _renameSong }
+			_selectSong={ _selectSong }
+			_addRow={ _addRow }
+			_removeRow={ _removeRow }
+			_incDecRepeat={ _incDecRepeat }
+			_setEventPattern={ _setEventPattern }
+			_setRepeat={ _setRepeat }
+			activeSongObj={ activeSongObj }
+			pattsObj={ pattsObj }
+			arrgMode={ arrgMode }
+			currentSong={ currentSong }
+			isPlay={ isPlay }
+			songs={songs}
+		/>
 		// should abstract this into an arranger component
-		<div className={styles.border}>
-			<div className={styles.top}>
-				<div className={styles.title}><h1>Songs</h1></div>
-				<div className={styles.songSelector}>
-					<div className={styles.selector}>
-						<Dropdown
-							keyValue={Object.keys(songs).map(song => [song, songs[Number(song)].name])}
-							onSubmit={_renameSong}
-							select={(value) => { _selectSong(Number(value)) }}
-							renamable={true}
-							selected={String(currentSong)}
-							dropdownId={`song ${currentSong} selector`}
-							className={styles.dropdown}
-						/>
-					</div>
-					<div className={styles.increase}>{ arrgMode === 'pattern' || (arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Plus onClick={_addSong} /> : null }</div>
-					<div className={styles.decrease}>{Object.keys(songs).length > 1 && (arrgMode === arrangerMode.PATTERN || arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Minus onClick={_removeSong} /> : null}</div>
-				</div>
-			</div>
-			<div className={styles.bottom}>
-				<div className={styles.tableTitle}>
-					<div className={styles.title}><h3>Patterns  |  Repeat </h3></div>
-				</div>
-				<div className={styles.dnd}>
-					<DragDropContext onDragEnd={onDragEnd}>
-						<Droppable droppableId={'arranger'}>
-							{(provided) => (
-								<ul {...provided.droppableProps} ref={provided.innerRef}>
-									{activeSongObj.events.map((songEvent, idx, arr) => {
-										return (
-											<Event 
-												key={`song ${currentSong} event ${songEvent.id}`} 
-												arrgMode={arrgMode}
-												isPlay={isPlay}
-												_addRow={_addRow}
-												_incDecRepeat={_incDecRepeat}
-												_removeRow={_removeRow}
-												_setEventPattern={_setEventPattern}
-												_setRepeat={_setRepeat}
-												arr={arr}
-												currentSong={currentSong}
-												eventsLength={activeSongObj.events.length}
-												idx={idx}
-												pattsObj={pattsObj}
-												songEvent={songEvent}
-											/>
-										)
-									})}
-									{provided.placeholder}
-								</ul>
-							)}
-						</Droppable>
+		// <div className={styles.border}>
+		// 	<div className={styles.top}>
+		// 		<div className={styles.title}><h1>Songs</h1></div>
+		// 		<div className={styles.songSelector}>
+		// 			<div className={styles.selector}>
+		// 				<Dropdown
+		// 					keyValue={Object.keys(songs).map(song => [song, songs[Number(song)].name])}
+		// 					onSubmit={_renameSong}
+		// 					select={(value) => { _selectSong(Number(value)) }}
+		// 					renamable={true}
+		// 					selected={String(currentSong)}
+		// 					dropdownId={`song ${currentSong} selector`}
+		// 					className={styles.dropdown}
+		// 				/>
+		// 			</div>
+		// 			<div className={styles.increase}>{ arrgMode === 'pattern' || (arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Plus onClick={_addSong} /> : null }</div>
+		// 			<div className={styles.decrease}>{Object.keys(songs).length > 1 && (arrgMode === arrangerMode.PATTERN || arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Minus onClick={_removeSong} /> : null}</div>
+		// 		</div>
+		// 	</div>
+		// 	<div className={styles.bottom}>
+		// 		<div className={styles.tableTitle}>
+		// 			<div className={styles.title}><h3>Patterns  |  Repeat </h3></div>
+		// 		</div>
+		// 		<div className={styles.dnd}>
+		// 			<DragDropContext onDragEnd={onDragEnd}>
+		// 				<Droppable droppableId={'arranger'}>
+		// 					{(provided) => (
+		// 						<ul {...provided.droppableProps} ref={provided.innerRef}>
+		// 							{activeSongObj.events.map((songEvent, idx, arr) => {
+		// 								return (
+		// 									<Event 
+		// 										key={`song ${currentSong} event ${songEvent.id}`} 
+		// 										arrgMode={arrgMode}
+		// 										isPlay={isPlay}
+		// 										_addRow={_addRow}
+		// 										_incDecRepeat={_incDecRepeat}
+		// 										_removeRow={_removeRow}
+		// 										_setEventPattern={_setEventPattern}
+		// 										_setRepeat={_setRepeat}
+		// 										arr={arr}
+		// 										currentSong={currentSong}
+		// 										eventsLength={activeSongObj.events.length}
+		// 										idx={idx}
+		// 										pattsObj={pattsObj}
+		// 										songEvent={songEvent}
+		// 									/>
+		// 								)
+		// 							})}
+		// 							{provided.placeholder}
+		// 						</ul>
+		// 					)}
+		// 				</Droppable>
 
-					</DragDropContext>
-				</div>
-			</div>
-			{/* {trackCount} */}
-		</div>
+		// 			</DragDropContext>
+		// 		</div>
+		// 	</div>
+		// 	{/* {trackCount} */}
+		// </div>
 	);
 };
 

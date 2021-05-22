@@ -59,6 +59,8 @@ export interface refWrapper<T> {
     current: T | null; 
 }
 
-const ToneObjectsContext = React.createContext<MutableRefObject<ToneObjects | null> |  Dummy>(new Dummy(null));
+export type ToneObjectContextType = MutableRefObject<ToneObjects | null> |  Dummy
+
+const ToneObjectsContext = React.createContext<ToneObjectContextType>(new Dummy(null));
 
 export default ToneObjectsContext;

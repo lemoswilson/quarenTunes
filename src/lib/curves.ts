@@ -1,7 +1,6 @@
 import { curveTypes } from "../containers/Track/defaults";
 
 export default function valueFromCC(value: number, min: number, max: number, curveType: curveTypes): number {
-    // console.log('getting value from cc', value);
     return curveType === curveTypes.EXPONENTIAL
         ? exponentialScale(value, min, max)
         : linearScale(value, min, max);
@@ -14,7 +13,6 @@ export function optionFromCC(value: number, options: any[]): string {
 
 export function steppedCalc(mouseMovement: number, parameterOptions: string[], stateValue: string) {
     const idx = parameterOptions.findIndex(p => p === stateValue);
-    // console.log('mouseMovement', mouseMovement);
     if (mouseMovement <= 0 && idx !== parameterOptions.length - 1) {
         return parameterOptions[idx + 1];
     } else if (mouseMovement >= 0 && idx !== 0) {

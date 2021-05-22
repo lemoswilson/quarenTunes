@@ -3,7 +3,7 @@ import styles from './style.module.scss';
 import Lights from './Lights';
 import { event } from '../../../store/Sequencer'
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
-import { useTrigg } from '../../../hooks/useProperty';
+import { useTrigg } from '../../../hooks/store/useProperty';
 import usePrevious from '../../../hooks/usePrevious';
 
 interface StepLayout {

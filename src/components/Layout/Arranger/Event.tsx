@@ -25,7 +25,7 @@ interface EventProps {
     songEvent: songEvent,
     idx: number,
     eventsLength: number,
-    pattsObj: pattObjs
+    pattsObj: pattsObj
     arr: songEvent[],
     isPlay: boolean,
     arrgMode: arrangerMode,
@@ -36,7 +36,7 @@ interface EventProps {
     _addRow: (index: number) => void,
 }
 
-interface pattObjs {
+export interface pattsObj {
     [key: number]: Pattern
 }
 
