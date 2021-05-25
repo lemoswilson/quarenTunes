@@ -14,10 +14,10 @@ import {
     pattsLenSelector,
     trkPattsLenSelector,
     pattsTrkEventsSelector
-} from '../../store/Sequencer/selectors';
-import { selectedDeviceSelector, selectedChannelSelector } from '../../store/Track/selectors';
-import usePrevious from '../usePrevious';
-import useQuickRef from '../useQuickRef';
+} from '../../../store/Sequencer/selectors';
+import { selectedDeviceSelector, selectedChannelSelector } from '../../../store/Track/selectors';
+import usePrevious from '../../lifecycle/usePrevious';
+import useQuickRef from '../../lifecycle/useQuickRef';
 
 
 export const useSelectedSteps = (activePatt: number, selectedTrkIdx: number) => {

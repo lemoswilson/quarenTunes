@@ -1,7 +1,7 @@
 import React, { MutableRefObject, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Pattern } from '../../store/Sequencer';
-import triggEmitter, { triggEventTypes } from '../../lib/Emitters/triggEmitter';
+import { Pattern } from '../../../store/Sequencer';
+import triggEmitter, { triggEventTypes } from '../../../lib/Emitters/triggEmitter';
 import * as Tone from 'tone';
 import {
     addPattern,
@@ -26,10 +26,10 @@ import {
     renamePattern, 
     setPatternTrackVelocity, 
     incDecPTVelocity, 
-} from '../../store/Sequencer';
-import { counterSelector } from '../../store/Sequencer/selectors';
-import { arrangerMode } from '../../store/Arranger';
-import { ToneObjectContextType } from '../../context/ToneObjectsContext';
+} from '../../../store/Sequencer';
+import { counterSelector } from '../../../store/Sequencer/selectors';
+import { arrangerMode } from '../../../store/Arranger';
+import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
 
 
 export type SequencerDispatchers = ReturnType<typeof useSequencerDispatchers>;

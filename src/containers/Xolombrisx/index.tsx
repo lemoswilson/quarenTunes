@@ -1,15 +1,8 @@
-import React, { useRef, useEffect, MutableRefObject, useState } from "react";
-import WebMidiComponent from '../../components/Ghosts/WebMidi';
-import TriggEmitterComponent from '../../components/Ghosts/TriggEmitter';
-import TrackEmitterComponent from '../../components/Ghosts/TrackEmitter';
-import DropdownEmitterComponent from '../../components/Ghosts/DropdownEmitter';
-import MenuEmitterComponent from '../../components/Ghosts/MenuEmitter';
+import React, { useRef, MutableRefObject, useState } from "react";
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
 import undoable, { newHistory, includeAction } from 'redux-undo';
-import Div100vh from 'react-div-100vh';
 
-import Chain from '../../lib/Tone/fxChain';
 import { trackActions } from '../../store/Track'
 import { useLocation } from 'react-router-dom';
 
@@ -17,8 +10,6 @@ import ToneObjectsContext, { ToneObjects } from '../../context/ToneObjectsContex
 import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
 import DropdownContext, { dropdownContext } from '../../context/DropdownContext';
-
-import * as Tone from 'tone';
 
 import { arrangerActions } from '../../store/Arranger'
 import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
@@ -28,12 +19,6 @@ import { transportReducer, initialState as TrsState, transportActions } from "..
 import { midiInputReducer, initialState as MidiState } from '../../store/MidiInput';
 import { userProps } from '../../App';
 
-import styles from '../../components/Layout/style.module.scss';
-
-import Sequencer from "../../containers/Sequencer";
-import Track from '../../containers/Track';
-import Transport from '../../containers/Transport';
-import Arranger from "../Arranger";
 import Layout, { LayoutState } from '../../components/Layout';
 
 declare global {
@@ -112,27 +97,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 }) => {
 
     const appRef = useRef<HTMLDivElement>(null);
-    const [firstRender, setRender] = useState(true);
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
     const state  = useLocation<LayoutState | undefined>().state
-
-    // useEffect(() => {
-    //     if (firstRender){
-            
-    //         ref_toneObjects.current = {
-    //             tracks: [{chain: new Chain(), effects: [], instrument: undefined}],
-    //             patterns: {
-    //                 0: [{instrument: new Tone.Part(), effects: [new Tone.Part()]}]
-    //             },
-    //             arranger: [[{instrument: new Tone.Part(), effects: [new Tone.Part()]}]],
-    //             flagObjects: [{instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]}]
-    //         }
-
-    //         setRender(false)
-    //     }
-    // }, [])
-
-
     let ref_menus = useRef<any[]>([]);
     let ref_dropdowns = useRef<dropdownContext>({})
 
@@ -149,36 +115,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                         sequencer={state?.sequencer}
                                         track={state?.track}
                                     />
-                                    {/* <Div100vh className={styles.app}>
-                                        {
-                                            !firstRender
-                                            ? <div ref={appRef} className={styles.wrapson}>
-                                                <WebMidiComponent/>
-                                                <TriggEmitterComponent/>
-                                                <TrackEmitterComponent/>
-                                                <DropdownEmitterComponent/>
-                                                <MenuEmitterComponent/>
-                                                <div className={styles.content}>
-                                                    <div className={styles.top}>
-                                                        <div className={styles.transport}>
-                                                            <Transport/>
-                                                        </div>
-                                                    </div>
-                                                    <div className={styles.gap}></div>
-                                                    <div className={styles.mid}>
-                                                        <div className={styles.arrangerColumn}>
-                                                            <div className={styles.box}>
-                                                                <Arranger />
-                                                            </div>
-                                                        </div>
-                                                        <Track></Track>
-                                                    </div>
-                                                    <Sequencer></Sequencer>
-                                                </div>
-                                            </div>
-                                            : null
-                                        }
-                                    </Div100vh> */}
                                 </Provider>
                         </ToneObjectsContext.Provider>
                     </AppContext.Provider>

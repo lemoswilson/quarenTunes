@@ -3,8 +3,8 @@ import styles from './style.module.scss';
 import Lights from './Lights';
 import { event } from '../../../store/Sequencer'
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
-import { useTrigg } from '../../../hooks/store/useProperty';
-import usePrevious from '../../../hooks/usePrevious';
+import { useTrigg } from '../../../hooks/store/Track/useProperty';
+import usePrevious from '../../../hooks/lifecycle/usePrevious';
 
 interface StepLayout {
     onTime: boolean;

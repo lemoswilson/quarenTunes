@@ -1,13 +1,13 @@
 import React, { useRef, useMemo, useContext, MutableRefObject, useState, useEffect, useCallback } from 'react';
-import usePrevious from '../../../hooks/usePrevious';
-import { useEffectProperties } from '../../../hooks/store/useProperty';
+import usePrevious from '../../../hooks/lifecycle/usePrevious';
+import { useEffectProperties } from '../../../hooks/store/Track/useProperty';
 
 
 import { useDispatch, useSelector } from 'react-redux';
-import { effectTypes, toneEffects, increaseDecreaseEffectProperty } from '../../../store/Track';
+import { toneEffects, increaseDecreaseEffectProperty } from '../../../store/Track';
 import { updateEffectState } from '../../../store/Track/actions'
 import { event } from '../../../store/Sequencer'
-import { parameterLockEffect, parameterLockEffectIncreaseDecrease, removeEffectPropertyLock } from '../../../store/Sequencer/actions'
+import { removeEffectPropertyLock } from '../../../store/Sequencer/actions'
 
 
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
@@ -18,8 +18,7 @@ import { propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty
 import { Gain } from 'tone';
 
 import { effectsInitials } from '../Instruments';
-import { controlChangeEvent } from '../../../hooks/useMidiLearn';
-// import { RootState } from '../../Xolombrisx';
+import { controlChangeEvent } from '../../../hooks/midiCC/useMidiLearn';
 import { RootState } from '../../../store';
 
 import { effectsProps } from './types';
@@ -29,35 +28,12 @@ import { indicators } from '../defaults'
 import styles from './style.module.scss';
 import DevicePresetManager from '../../../components/UI/DevicePresetManager';
 
-import Compressor from '../../../components/Layout/Effects/Compressor';
-
 import { returnEffect } from '../../../lib/Tone/initializers';
 
 import Tabs from '../../../components/Layout/Effects/Tabs';
-import Gate from '../../../components/Layout/Effects/Gate';
-import Limiter from '../../../components/Layout/Effects/Limiter';
-import FreqShifter from '../../../components/Layout/Effects/FreqShifter';
-import Widener from '../../../components/Layout/Effects/Widener';
-import EQ3 from '../../../components/Layout/Effects/EQ3';
-import FeedbackDelay from '../../../components/Layout/Effects/FeedbackDelay';
-import JCVerb from '../../../components/Layout/Effects/JCVerb';
-import FreeVerb from '../../../components/Layout/Effects/FreeVerb';
-import Phaser from '../../../components/Layout/Effects/Phaser';
-import PingPong from '../../../components/Layout/Effects/PingPong';
-import PitchShifter from '../../../components/Layout/Effects/PitchShifter';
-import Tremolo from '../../../components/Layout/Effects/Tremolo';
-import AutoPan from '../../../components/Layout/Effects/AutoPan';
-import Bitcrusher from '../../../components/Layout/Effects/Bitcrusher';
-import Chebyshev from '../../../components/Layout/Effects/Chebyshev';
-import Distortion from '../../../components/Layout/Effects/Distortion';
-import Vibrato from '../../../components/Layout/Effects/Vibrato';
-import AutoFilter from '../../../components/Layout/Effects/AutoFilter';
-import Chorus from '../../../components/Layout/Effects/Chorus';
-import Filter from '../../../components/Layout/Effects/Filter';
 import EffectLoader, { EffectsLayoutProps } from './EffectLoader';
 
 export interface effectLayoutProps extends EffectsLayoutProps {
-    // options: initialsArray,
     options: any,
     calcCallbacks: any,
     removePropertyLock: any,
@@ -94,7 +70,6 @@ const Effect: React.FC<effectsProps> = ({
     const previousType = usePrevious(type)
 
     useEffect(() => {
-        // console.log('effect index', fxIndex, 'type', type, 'options', options)
         // leave me here ? 
     }, [fxIndex, type])
 

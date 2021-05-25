@@ -1,16 +1,16 @@
 import React, { MutableRefObject, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { SequencerDispatchers } from './store/useSequencerDispatchers';
-import { useKeyboardRangeSelector } from './store/useMidiSelectors';
+import { SequencerDispatchers } from '../store/Sequencer/useSequencerDispatchers';
+import { useKeyboardRangeSelector } from '../store/Midi/useMidiSelectors';
 
-import { event, cycleSteps, copyEvents, copyNotes, Pattern } from '../store/Sequencer';
-import { xolombrisxInstruments } from '../store/Track';
-import { selectStep } from '../store/Sequencer';
-import { downOctaveKey, upOctaveKey, keyDict, noteDict, numberNoteDict } from '../store/MidiInput';
+import { event, cycleSteps, copyEvents, copyNotes, Pattern } from '../../store/Sequencer';
+import { xolombrisxInstruments } from '../../store/Track';
+import { selectStep } from '../../store/Sequencer';
+import { downOctaveKey, upOctaveKey, keyDict, noteDict, numberNoteDict } from '../../store/MidiInput';
 
-import { getFinalStep as finalStep } from '../lib/utility';
-import MenuEmitter, { menuEmitterEventTypes } from '../lib/Emitters/MenuEmitter';
-import DropdownEmitter, { dropdownEventTypes } from '../lib/Emitters/dropdownEmitter';
+import { getFinalStep as finalStep } from '../../lib/utility';
+import MenuEmitter, { menuEmitterEventTypes } from '../../lib/Emitters/MenuEmitter';
+import DropdownEmitter, { dropdownEventTypes } from '../../lib/Emitters/dropdownEmitter';
 
 
 

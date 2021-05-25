@@ -6,7 +6,7 @@ import React, {
     useContext,
     MutableRefObject,
 } from 'react';
-import { useProperties, useDrumRackProperties } from '../../../hooks/store/useProperty';
+import { useProperties, useDrumRackProperties } from '../../../hooks/store/Track/useProperty';
 
 import { xolombrisxInstruments } from '../../../store/Track';
 import { propertiesToArray } from '../../../lib/objectDecompose'
@@ -15,30 +15,22 @@ import { returnInstrument } from '../../../lib/Tone/initializers';
 import ToneObjectsContext from '../../../context/ToneObjectsContext';
 import { InstrumentProps } from './index'
 
-import { useSelector } from 'react-redux';
 import { getInitials } from '../defaults';
 
 import styles from './style.module.scss';
 
 import DevicePresetManager from '../../../components/UI/DevicePresetManager';
 
-import Chain from '../../../lib/Tone/fxChain';
 import InstrumentLoader from './InstrumentLoader';
-import useQuickRef from '../../../hooks/useQuickRef';
-import usePrevAndRef from '../../../hooks/usePrevAndRef';
+import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
+import usePrevAndRef from '../../../hooks/lifecycle/usePrevAndRef';
 
-import { useTrkInfoSelector } from '../../../hooks/store/useTrackSelector';
-import { useSourceArrgSelector } from '../../../hooks/store/useArrangerSelectors';
-import { currentSongEventsSelector } from '../../../store/Arranger/selectors';
-import { useNoteCallbackData } from '../../../hooks/store/useSequencerSelectors';
-import { useIsRecSelector } from '../../../hooks/store/useTransportSelectors';
-import { useInstrumentDispatchers } from '../../../hooks/store/useTrackDispatchers';
-import { useInstrumentCallback } from '../../../hooks/useInstrumentCallback';
-import { useNoteInput } from '../../../hooks/noteInput/useNoteInput';
-import { useMidiNote } from '../../../hooks/noteInput/useMidiNote';
-import { useKeyboardNote } from '../../../hooks/noteInput/useKeyboardNote';
-import { useMidiLearn } from '../../../hooks/useMidiLearn';
-import { useUpdateInstrument } from '../../../hooks/useUpdateInstrument';
+import { useTrkInfoSelector } from '../../../hooks/store/Track/useTrackSelector';
+import { useNoteCallbackData } from '../../../hooks/store/Sequencer/useSequencerSelectors';
+import { useInstrumentDispatchers } from '../../../hooks/store/Track/useTrackDispatchers';
+import { useMidiLearn } from '../../../hooks/midiCC/useMidiLearn';
+import { useUpdateInstrument } from '../../../hooks/instrument/useUpdateInstrument';
+import { useInstrument } from '../../../hooks/instrument/useInstrument';
 
 
 export const Instrument = <T extends xolombrisxInstruments>({ 
@@ -54,33 +46,25 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_options = useQuickRef(options)
     const ref_index = useQuickRef(index);
     const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
-
+    const [firstRender, setRender] = useState(true);
+    const ref_toneObjects = useContext(ToneObjectsContext);
+    const { prev: prev_voice, ref: ref_voice} = usePrevAndRef(voice);
+    const instProps: string[] = useMemo(() => propertiesToArray(getInitials(voice)) , [voice]);
+    
     useEffect(() => {
         if (firstRender) {
             ref_ToneInstrument.current = returnInstrument(voice, options);
         }
     }, [])
+    useProperties(ref_ToneInstrument, options);
+    useDrumRackProperties(ref_ToneInstrument, options)
     
-    const instProps: string[] = useMemo(() => {
-        return propertiesToArray(getInitials(voice))
-    }, [voice]);
-
-    const [firstRender, setRender] = useState(true);
-    
-    const ref_toneObjects = useContext(ToneObjectsContext);
-    const ref_CCMaps = useRef<any>({});
-
-    
-    const { prev: prev_voice, ref: ref_voice} = usePrevAndRef(voice);
-    const { ref_pattTracker, ref_arrgMode, arrgMode, currentSong } = useSourceArrgSelector()
-    const songEvents = useSelector(currentSongEventsSelector(currentSong))
-    const ref_songEvents = useQuickRef(songEvents);
-
     const { 
         activePatt, 
         ref_activePatt, 
         ref_selectedTrkIdx, 
-    } = useTrkInfoSelector()
+    } 
+    = useTrkInfoSelector()
 
     const { 
         pattsTrkEvents, 
@@ -89,9 +73,8 @@ export const Instrument = <T extends xolombrisxInstruments>({
         ref_activeStep, 
         ref_pattsVelocities,
         ref_selectedSteps,
-    } = useNoteCallbackData(index, activePatt);
-    
-    const { ref_isRec } = useIsRecSelector()
+    } 
+    = useNoteCallbackData(index, activePatt);
     
     const { propertiesIncDec, propertiesUpdate, removePropertyLockCallbacks} = useInstrumentDispatchers(
         instProps,
@@ -102,46 +85,24 @@ export const Instrument = <T extends xolombrisxInstruments>({
         voice
     )
 
-    useProperties(ref_ToneInstrument, options);
-    useDrumRackProperties(ref_ToneInstrument, options)
-
-    const { instrumentCallback, ref_isPlay } 
-    = useInstrumentCallback(
-        ref_toneObjects,
-        index, 
-        ref_index,
-        ref_options,
-        ref_arrgMode,
-        ref_pattsVelocities,
-        ref_activePatt,
-        ref_pattTracker,
-        ref_songEvents,
-        ref_ToneInstrument,
-        voice,
-        propertiesUpdate,
-    )
-
-    const { noteInCallback, noteOffCallback } = useNoteInput(
+    const { instrumentCallback, arrgMode } = useInstrument(
         ref_selectedSteps,
         ref_index, 
         index,
         ref_toneObjects,
-        ref_arrgMode,
         ref_activePatt,
-        ref_pattTracker,
         ref_pattsVelocities,
-        ref_songEvents,
-        ref_isRec,
-        ref_isPlay,
         ref_ToneInstrument,
         ref_activeStep,
         ref_voice,
         voice,
+        midi, 
+        ref_selectedTrkIdx,
+        ref_options, 
+        propertiesUpdate, 
     )
 
-    const midiLearn = useMidiLearn(propertiesIncDec)
-    useMidiNote(midi, noteInCallback, noteOffCallback)
-    useKeyboardNote(ref_index, ref_selectedTrkIdx, midi, noteInCallback, noteOffCallback)
+    const { midiLearn, ref_CCMaps } = useMidiLearn(propertiesIncDec)
 
     useUpdateInstrument(
         ref_toneObjects,

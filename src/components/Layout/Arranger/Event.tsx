@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import usePrevious from '../../../hooks/usePrevious';
+import usePrevious from '../../../hooks/lifecycle/usePrevious';
 import { Draggable } from 'react-beautiful-dnd';
 
 import { songEvent } from '../../../store/Arranger';

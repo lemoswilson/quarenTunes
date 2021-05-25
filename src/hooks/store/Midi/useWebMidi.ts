@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { addDevice, removeDevice } from '../../store/MidiInput'
+import { addDevice, removeDevice } from '../../../store/MidiInput'
 import WebMidi from 'webmidi';
 
 const useWebMidi = () => {

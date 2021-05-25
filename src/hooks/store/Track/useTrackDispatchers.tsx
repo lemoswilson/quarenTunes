@@ -1,17 +1,17 @@
 import { useMemo, MutableRefObject, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { removePropertyLock, parameterLock, parameterLockIncreaseDecrease, setNote, setVelocity, setNoteLengthPlayback } from '../../store/Sequencer';
-import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumentProperty } from '../../store/Track';
-import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../lib/objectDecompose';
-import { indicators } from '../../containers/Track/defaults';
-import { initials, eventOptions } from '../../containers/Track/Instruments';
-import { ToneObjectContextType } from '../../context/ToneObjectsContext';
-import { arrangerMode, patternTrackerType, songEvent } from '../../store/Arranger';
-import { returnInstrument } from '../../lib/Tone/initializers';
-import { useIsPlaySelector } from './useTransportSelectors';
+import { removePropertyLock, parameterLock, parameterLockIncreaseDecrease, setNote, setVelocity, setNoteLengthPlayback } from '../../../store/Sequencer';
+import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumentProperty } from '../../../store/Track';
+import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../../lib/objectDecompose';
+import { indicators } from '../../../containers/Track/defaults';
+import { initials, eventOptions } from '../../../containers/Track/Instruments';
+import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
+import { arrangerMode, patternTrackerType, songEvent } from '../../../store/Arranger';
+import { returnInstrument } from '../../../lib/Tone/initializers';
+import { useIsPlaySelector } from '../Transport/useTransportSelectors';
 import * as Tone from 'tone';
-import { pattsNoteLenSelector } from '../../store/Sequencer/selectors';
-import useQuickRef from '../useQuickRef';
+import { pattsNoteLenSelector } from '../../../store/Sequencer/selectors';
+import useQuickRef from '../../lifecycle/useQuickRef';
 
 export const useInstrumentDispatchers = (
     instProps: string[],

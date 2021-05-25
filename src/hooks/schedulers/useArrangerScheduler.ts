@@ -1,19 +1,19 @@
 import { useEffect, useCallback, MutableRefObject, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import useQuickRef from './useQuickRef';
-import { useIsPlaySelector } from './store/useTransportSelectors';
+import useQuickRef from '../lifecycle/useQuickRef';
+import { useIsPlaySelector } from '../store/Transport/useTransportSelectors';
 
 import * as Tone from 'tone';
 
-import { arrangerMode, songEvent, setActivePlayer } from '../store/Arranger';
-import { pattTrackerSelector, eventStartTimesSelector } from '../store/Arranger/selectors';
-import { setActiveStep } from '../store/Sequencer';
-import { pattsObjSelector } from '../store/Sequencer/selectors';
-import { stop } from '../store/Transport';
+import { arrangerMode, songEvent, setActivePlayer } from '../../store/Arranger';
+import { pattTrackerSelector, eventStartTimesSelector } from '../../store/Arranger/selectors';
+import { setActiveStep } from '../../store/Sequencer';
+import { pattsObjSelector } from '../../store/Sequencer/selectors';
+import { stop } from '../../store/Transport';
 
-import { ToneObjectContextType } from '../context/ToneObjectsContext';
+import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 
-import { scheduleStartEnd, sixteenthFromBBSOG } from '../lib/utility';
+import { scheduleStartEnd, sixteenthFromBBSOG } from '../../lib/utility';
 
 export const useArrangerScheduler = (
     ref_songEvents: MutableRefObject<songEvent[]>,

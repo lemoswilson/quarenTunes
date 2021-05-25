@@ -1,16 +1,16 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumentProperty } from '../store/Track';
-import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../lib/objectDecompose';
-import { initials, eventOptions } from '../containers/Track/Instruments';
-import { ToneObjectContextType } from '../context/ToneObjectsContext';
-import { arrangerMode, patternTrackerType, songEvent } from '../store/Arranger';
-import { returnInstrument } from '../lib/Tone/initializers';
-import { useIsPlaySelector } from './store/useTransportSelectors';
-import { pattsNoteLenSelector } from '../store/Sequencer/selectors';
-import useQuickRef from './useQuickRef';
+import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumentProperty } from '../../store/Track';
+import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../lib/objectDecompose';
+import { initials, eventOptions } from '../../containers/Track/Instruments';
+import { ToneObjectContextType } from '../../context/ToneObjectsContext';
+import { arrangerMode, patternTrackerType, songEvent } from '../../store/Arranger';
+import { returnInstrument } from '../../lib/Tone/initializers';
+import { useIsPlaySelector } from '../store/Transport/useTransportSelectors';
+import { pattsNoteLenSelector } from '../../store/Sequencer/selectors';
+import useQuickRef from '../lifecycle/useQuickRef';
 
-export const useInstrumentCallback = (
+export const useInstrumentPlayback = (
     ref_toneObjects: ToneObjectContextType,
     index: number, 
     ref_index: MutableRefObject<number>,

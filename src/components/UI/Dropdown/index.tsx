@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, MutableRefObject } fro
 import regular from './style.module.scss';
 import smalls from './small.module.scss';
 import Polygon from './Polygon';
-import usePrevious from '../../../hooks/usePrevious';
+import usePrevious from '../../../hooks/lifecycle/usePrevious';
 import dropdownEmitter, { dropdownEventTypes } from '../../../lib/Emitters/dropdownEmitter';
 
 interface Dropdown {

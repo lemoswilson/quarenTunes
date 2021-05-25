@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { useSelector } from 'react-redux';
-import useSequencerDispatchers from '../../hooks/store/useSequencerDispatchers';
-import useSequencerScheduler from '../../hooks/useSequencerScheduler';
-import useSequencerShortcuts from '../../hooks/useSequencerShortcuts';
-import  { useVoiceSelector, useTrkInfoSelector } from '../../hooks/store/useTrackSelector'
-import { useActivePatt, useControllerKeys, useEvents, useLengthSelectors, useSelectedSteps } from '../../hooks/store/useSequencerSelectors';
+import useSequencerDispatchers from '../../hooks/store/Sequencer/useSequencerDispatchers';
+import useSequencerScheduler from '../../hooks/schedulers/useSequencerScheduler';
+import useSequencerShortcuts from '../../hooks/shortcuts/useSequencerShortcuts';
+import  { useVoiceSelector, useTrkInfoSelector } from '../../hooks/store/Track/useTrackSelector'
+import { useActivePatt, useControllerKeys, useEvents, useLengthSelectors, useSelectedSteps } from '../../hooks/store/Sequencer/useSequencerSelectors';
 
 import * as Tone from 'tone';
 

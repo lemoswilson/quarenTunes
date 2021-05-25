@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
-import { keyboardRangeSelector } from '../../store/MidiInput/selectors';
-import useQuickRef from '../useQuickRef';
+import { keyboardRangeSelector } from '../../../store/MidiInput/selectors';
+import useQuickRef from '../../lifecycle/useQuickRef';
 
 export const useKeyboardRangeSelector = () => {
     const keyboardRange = useSelector(keyboardRangeSelector);

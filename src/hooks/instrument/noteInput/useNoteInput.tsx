@@ -1,11 +1,13 @@
 import {  MutableRefObject, useRef, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { setNote, setVelocity, setNoteLengthPlayback } from '../../store/Sequencer';
-import { xolombrisxInstruments } from '../../store/Track';
-import { ToneObjectContextType } from '../../context/ToneObjectsContext';
-import { arrangerMode, patternTrackerType, songEvent } from '../../store/Arranger';
-import { returnInstrument } from '../../lib/Tone/initializers';
+import { setNote, setVelocity, setNoteLengthPlayback } from '../../../store/Sequencer';
+import { xolombrisxInstruments, midi } from '../../../store/Track';
+import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
+import { arrangerMode, patternTrackerType, songEvent } from '../../../store/Arranger';
+import { returnInstrument } from '../../../lib/Tone/initializers';
 import * as Tone from 'tone';
+import { useMidiNote } from './useMidiNote';
+import { useKeyboardNote } from './useKeyboardNote';
 
 export const useNoteInput = (
     ref_selectedSteps: MutableRefObject<number[]>,
@@ -23,6 +25,8 @@ export const useNoteInput = (
     ref_activeStep: MutableRefObject<number>,
     ref_voice: MutableRefObject<xolombrisxInstruments>,
     voice: xolombrisxInstruments,
+    midi: midi, 
+    ref_selectedTrkIdx: MutableRefObject<number>,
 ) => {
     const dispatch = useDispatch();
     const ref_onHoldNotes = useRef<{ [key: string]: any }>({});
@@ -81,9 +85,14 @@ export const useNoteInput = (
     ]
     )
 
-    const noteInCallback = useCallback((noteNumber: number, noteName: string, time: number, velocity?: number) => {
+    const noteInCallback = useCallback(
+        (
+            noteNumber: number, 
+            noteName: string, 
+            time: number, velocity?: number
+        ) => {
+
         if (!velocity) {
-            console.log(ref_arrgMode.current, arrangerMode.PATTERN, ref_activePatt.current, ref_pattTracker.current.patternPlaying)
             velocity = 
                 ref_arrgMode.current === arrangerMode.PATTERN 
                 ? ref_pattsVelocities.current[ref_activePatt.current] 
@@ -109,9 +118,18 @@ export const useNoteInput = (
             // parei aqui
             setNoteInput(pattern, ref_activeStep.current, 0, noteName, velocity, time);
 
-        } else if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0 && !ref_isRec.current) {
+        } else if (
+            ref_selectedSteps.current 
+            && ref_selectedSteps.current.length > 0 
+            && !ref_isRec.current
+        ) {
             noteLock(noteName, velocity, ref_activePatt.current);
-        } else if (ref_selectedSteps.current && ref_selectedSteps.current.length === 0){
+
+
+        } else if (
+            ref_selectedSteps.current 
+            && ref_selectedSteps.current.length === 0
+        ){
             // no selected steps, should be playing notes
 
             if (ref_voice.current === xolombrisxInstruments.NOISESYNTH) {
@@ -197,5 +215,8 @@ export const useNoteInput = (
     ]
     );
 
-    return { noteInCallback, noteOffCallback }
+    useMidiNote(midi, noteInCallback, noteOffCallback)
+    useKeyboardNote(ref_index, ref_selectedTrkIdx, midi, noteInCallback, noteOffCallback)
+
+    // return { noteInCallback, noteOffCallback }
 }

@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import WebMidi, { InputEventControlchange } from 'webmidi';
-import { getNested, setNestedValue, deleteProperty } from '../lib/objectDecompose';
+import { getNested, setNestedValue, deleteProperty } from '../../lib/objectDecompose';
 
 export type controlChangeEvent = (e: InputEventControlchange) => void;
 
@@ -103,5 +103,5 @@ export const useMidiLearn = (
         }
     }
 
-    return midiLearn;
+    return { midiLearn, ref_CCMaps };
 };

@@ -14,7 +14,7 @@ import Track from '../../containers/Track';
 import Sequencer from '../../containers/Sequencer';
 import Transport from '../../containers/Transport';
 import * as Tone from 'tone';
-import useWebMidi from '../../hooks/store/useWebMidi';
+import useWebMidi from '../../hooks/store/Midi/useWebMidi';
 import useTrackEmitter from '../../hooks/emitters/useTrackEmitter';
 import useTriggEmitter from '../../hooks/emitters/useTriggEmitter';
 import MenuContext from '../../context/MenuContext';

@@ -1,9 +1,10 @@
 import React, { MutableRefObject, useEffect } from 'react';
-import { ToneObjectContextType } from '../context/ToneObjectsContext';
-import Chain from '../lib/Tone/fxChain';
-import { returnInstrument } from '../lib/Tone/initializers';
-import { arrangerMode } from '../store/Arranger';
-import { xolombrisxInstruments } from '../store/Track';
+import { ToneObjectContextType } from '../../context/ToneObjectsContext';
+import Chain from '../../lib/Tone/fxChain';
+import { returnInstrument } from '../../lib/Tone/initializers';
+import { arrangerMode } from '../../store/Arranger';
+import { xolombrisxInstruments } from '../../store/Track';
+import usePrevious from '../lifecycle/usePrevious';
 
 export const useUpdateInstrument = (
     ref_toneObjects: ToneObjectContextType,
@@ -19,6 +20,7 @@ export const useUpdateInstrument = (
     instrumentCallback: (time: number, value: any) => void,
     setRender: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
+
 
 
     useEffect(() => {

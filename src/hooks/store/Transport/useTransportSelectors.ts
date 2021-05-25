@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
-import { isPlaySelector, isRecSelector } from '../../store/Transport/selectors';
-import usePrevious from '../usePrevious';
-import useQuickRef from '../useQuickRef';
+import { isPlaySelector, isRecSelector } from '../../../store/Transport/selectors';
+import usePrevious from '../../lifecycle/usePrevious';
+import useQuickRef from '../../lifecycle/useQuickRef';
 
 export const useIsPlaySelector = () => {
     const isPlay = useSelector(isPlaySelector);

@@ -1,8 +1,8 @@
 import React, {useContext, useEffect} from 'react';
 import { event } from '../../store/Sequencer';
 import ToneContext from '../../context/ToneObjectsContext'
-import { useTrigg } from '../../hooks/store/useProperty'
-import usePrevious from '../../hooks/usePrevious';
+import { useTrigg } from '../../hooks/store/Track/useProperty'
+import usePrevious from '../../hooks/lifecycle/usePrevious';
 
 interface Handler {
     stepEvent: event,

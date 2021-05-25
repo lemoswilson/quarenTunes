@@ -4,10 +4,10 @@ import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/Emitters/triggEmitter';
 import * as Tone from 'tone';
 import { timeObjFromEvent } from '../../lib/utility';
-import { useEffectsLengthSelector, useTrkInfoSelector } from '../../hooks/store/useTrackSelector';
+import { useEffectsLengthSelector, useTrkInfoSelector } from '../store/Track/useTrackSelector';
 import { counterSelector, patternsSelector } from '../../store/Sequencer/selectors';
 import { effectsLengthsSelector } from '../../store/Track/selectors';
-import useQuickRef from '../useQuickRef';
+import useQuickRef from '../lifecycle/useQuickRef';
 
 const useTriggEmitter = (
     ref_toneObjects: ToneObjectContextType,

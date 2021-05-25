@@ -5,8 +5,8 @@ import Dropdown from '../../UI/Dropdown';
 import Plus from '../../UI/Plus';
 import Minus from '../../UI/Minus';
 import NumberEditor from '../../UI/LengthEditor';
-import usePrevious from '../../../hooks/usePrevious';
-import { SequencerDispatchers } from '../../../hooks/store/useSequencerDispatchers';
+import usePrevious from '../../../hooks/lifecycle/usePrevious';
+import { SequencerDispatchers } from '../../../hooks/store/Sequencer/useSequencerDispatchers';
 
 interface Patterns {
     activePattern: number,

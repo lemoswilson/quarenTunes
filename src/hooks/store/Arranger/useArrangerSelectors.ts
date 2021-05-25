@@ -7,10 +7,10 @@ import { arrgModeSelector,
     isFollowSelector, 
     pattTrackerSelector, 
     songsSelector 
-} from '../../store/Arranger/selectors';
-import useQuickRef from '../useQuickRef';
-import usePrevious from '../usePrevious';
-import { pattsObjSelector } from '../../store/Sequencer/selectors';
+} from '../../../store/Arranger/selectors';
+import useQuickRef from '../../lifecycle/useQuickRef';
+import usePrevious from '../../lifecycle/usePrevious';
+import { pattsObjSelector } from '../../../store/Sequencer/selectors';
 
 export const useArrangerSelector = () => {
 

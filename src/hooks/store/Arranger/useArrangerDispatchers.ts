@@ -16,13 +16,13 @@ import {
     removeSong,
     Song,
     arrangerMode,
-} from '../../store/Arranger'
-import { selectPattern } from '../../store/Sequencer';
-import { newPatternObject }  from '../../components/Layout';
-import { ToneObjectContextType } from '../../context/ToneObjectsContext';
+} from '../../../store/Arranger'
+import { selectPattern } from '../../../store/Sequencer';
+import { newPatternObject }  from '../../../components/Layout';
+import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
 import { DropResult } from 'react-beautiful-dnd';
-import triggEmitter, { triggEventTypes } from '../../lib/Emitters/triggEmitter';
-import { Track } from '../../store/Track';
+import triggEmitter, { triggEventTypes } from '../../../lib/Emitters/triggEmitter';
+import { Track } from '../../../store/Track';
 
 export const useArrangerDispatchers = (
     ref_toneObjects: ToneObjectContextType,

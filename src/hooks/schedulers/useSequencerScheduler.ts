@@ -1,10 +1,10 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import * as Tone from 'tone';
-import { ToneObjectContextType, triggs } from '../context/ToneObjectsContext';
-import { Pattern, setActiveStep } from '../store/Sequencer';
-import { timeObjFromEvent, sixteenthFromBBSOG, scheduleStartEnd } from '../lib/utility';
-import { arrangerMode } from '../store/Arranger';
+import { ToneObjectContextType, triggs } from '../../context/ToneObjectsContext';
+import { Pattern, setActiveStep } from '../../store/Sequencer';
+import { timeObjFromEvent, sixteenthFromBBSOG, scheduleStartEnd } from '../../lib/utility';
+import { arrangerMode } from '../../store/Arranger';
 
 const useSequencerScheduler = (
     ref_toneObjects: ToneObjectContextType,

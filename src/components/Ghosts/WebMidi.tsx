@@ -1,5 +1,5 @@
 import React from 'react';
-import useWebMidi from '../../hooks/store/useWebMidi';
+import useWebMidi from '../../hooks/store/Midi/useWebMidi';
 
 const WebMidi: React.FC = () => {
     useWebMidi()
