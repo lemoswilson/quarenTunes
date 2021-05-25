@@ -467,7 +467,3 @@ export const useNoteInput = (
 
     return { noteInCallback, noteOffCallback }
 }
-
-const useMidiNoteInput = () => {
-
-}

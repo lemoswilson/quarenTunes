@@ -44,11 +44,17 @@ export const useArrangerSelector = () => {
 }
 
 export const useSourceArrgSelector = () => {
-    const pattTracker = useSelector(pattTrackerSelector);
-    const ref_pattTracker = useQuickRef(pattTracker);
+    const { pattTracker, ref_pattTracker} = usePattTrackerSelector()
     const arrgMode = useSelector(arrgModeSelector);
     const ref_arrgMode = useQuickRef(arrgMode);
     const currentSong = useSelector(currentSongSelector);
 
     return { pattTracker, ref_pattTracker, arrgMode, ref_arrgMode, currentSong };
+}
+
+export const usePattTrackerSelector = () => {
+    const pattTracker = useSelector(pattTrackerSelector);
+    const ref_pattTracker = useQuickRef(pattTracker);
+
+    return { pattTracker, ref_pattTracker }
 }

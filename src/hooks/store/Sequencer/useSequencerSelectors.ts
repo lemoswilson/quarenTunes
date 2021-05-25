@@ -8,10 +8,8 @@ import {
     activePattTrkNoteLenSelector, 
     activePattLenSelector, 
     pattsObjSelector, 
-    pattsNoteLenSelector,
     activeStepSelector,
     pattsVelocitiesSelector,
-    pattsLenSelector,
     trkPattsLenSelector,
     pattsTrkEventsSelector
 } from '../../../store/Sequencer/selectors';

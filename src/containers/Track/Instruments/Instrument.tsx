@@ -27,7 +27,7 @@ import usePrevAndRef from '../../../hooks/lifecycle/usePrevAndRef';
 
 import { useTrkInfoSelector } from '../../../hooks/store/Track/useTrackSelector';
 import { useNoteCallbackData } from '../../../hooks/store/Sequencer/useSequencerSelectors';
-import { useInstrumentDispatchers } from '../../../hooks/store/Track/useTrackDispatchers';
+import { useInstrumentDispatchers } from '../../../hooks/store/Track/useInstrumentDispatchers';
 import { useMidiLearn } from '../../../hooks/midiCC/useMidiLearn';
 import { useUpdateInstrument } from '../../../hooks/instrument/useUpdateInstrument';
 import { useInstrument } from '../../../hooks/instrument/useInstrument';
@@ -76,7 +76,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
     } 
     = useNoteCallbackData(index, activePatt);
     
-    const { propertiesIncDec, propertiesUpdate, removePropertyLockCallbacks} = useInstrumentDispatchers(
+    const { propertiesIncDec, propertiesUpdate, removePropertyLockCallbacks } = useInstrumentDispatchers(
         instProps,
         ref_options,
         ref_selectedSteps,
