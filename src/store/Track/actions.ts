@@ -69,7 +69,7 @@ export function increaseDecreaseEffectProperty(
 		type: trackActions.INC_DEC_EFFECT_PROP,
 		payload: {
 			trackIndex: track,
-			fx: fx,
+			fxIndex: fx,
 			movement: movement,
 			property: property,
 			cc: cc,

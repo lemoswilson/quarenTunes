@@ -9,7 +9,6 @@ import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/Men
 import mais from '../../../../assets/plus.svg'
 import optionListStyles from '../../Instruments/Tabs/optionList.module.scss';
 import instrumentMenuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
-import instrumentTabStyles from '../../Instruments/Tabs/style.module.scss';
 import RemoveEntry from './removeEntry';
 
 interface TabsProps {
@@ -106,9 +105,6 @@ const Tabs: React.FC<TabsProps> = ({
         }
     }
 
-    const chombris = () => {
-        console.log('chombris');
-    }
 
     useEffect(() => {
         const div = divRef.current
@@ -118,31 +114,12 @@ const Tabs: React.FC<TabsProps> = ({
         }
     }, [])
 
-    // useLayoutEffect(() => {
-    //         const li = liRef.current
-    //         li?.addEventListener('click', _removeEffect)
-    //     return () => {
-    //         li?.removeEventListener('click', _removeEffect)
-    //     }
-    // }, [])
-
-    // useEffect(() => {
-    //     const li = liRef.current
-    //     console.log('should be adding event listener, li is ', li);
-    //     li?.addEventListener('click', _removeEffect)
-    //     // li?.addEventListener('click', chombris)
-    //     return () => {
-    //         li?.removeEventListener('click', _removeEffect)
-    //         // li?.removeEventListener('click', chombris)
-    //     }
-    // }, [])
-
     const onAction = (item: effectTypes) => {
         insertEffect(item, trackIndex, fxIndex)
     }
 
     const onSelectAction = (item: effectTypes) => {
-        selectEffect(item, trackIndex, fxIndex);
+        selectEffect(item, fxIndex, trackIndex);
     }
 
     const effectListPicker = (
@@ -186,17 +163,6 @@ const Tabs: React.FC<TabsProps> = ({
                 fxCount={fxCount} 
                 removeEffect={_removeEffect}
             />
-            {/* {
-                fxCount > 1 
-                ? <li 
-                    ref={liRef}
-                    style={{border: 'none' , cursor: 'pointer'}} 
-                    className={`${optionListStyles.listElement}` } 
-                >
-                    <span style={{width: '0.6rem'}}></span>Remove Effect
-                </li>
-                : null
-            } */}
         </ul>
     ) 
 

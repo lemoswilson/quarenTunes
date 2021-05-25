@@ -105,6 +105,7 @@ const useSequencerDispatchers = (
 
                 // [...Array(trackCount).keys()].forEach((_, track, arr) => {
                 [...Array(ref_trkCount.current).keys()].forEach((_, track, arr) => {
+                    
                     ref_toneObjects.current?.patterns[currPatt][track].instrument.cancel();
                     ref_toneObjects.current?.patterns[currPatt][track].instrument.stop(0);
 
@@ -200,7 +201,6 @@ const useSequencerDispatchers = (
 
     const pageClickHandler = useCallback((e: React.MouseEvent, pageIndex: number): void => {
         if (e.shiftKey) {
-            // console.log('should be mimicking and dispatching select steps')
             mimicSelectedFromTo(ref_activePage.current, pageIndex)
         } else {
             _changePage(pageIndex)
@@ -331,8 +331,8 @@ const useSequencerDispatchers = (
     const _selectStep = (index: number): void => {
         dispatch(
             selectStep(
-                activePatt,
-                selectedTrkIdx,
+                ref_activePatt.current,
+                ref_selectedTrkIdx.current,
                 index
             )
         );
@@ -364,7 +364,7 @@ const useSequencerDispatchers = (
     const _incDecOffset = (amount: number): void => {
         ref_selectedSteps.current.forEach(step => {
             dispatch(
-                incDecOffset(amount, activePatt, selectedTrkIdx, step)
+                incDecOffset(amount, ref_activePatt.current, ref_selectedTrkIdx.current, step)
             )
         })
     }

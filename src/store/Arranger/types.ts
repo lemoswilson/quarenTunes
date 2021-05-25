@@ -6,6 +6,12 @@ export enum arrangerMode {
 	PATTERN = "pattern",
 }
 
+export interface patternTrackerType {
+	patternPlaying: number,
+	activeEventIndex: number,
+	playbackStart: any,
+}
+
 export interface songEvent {
 	pattern: number;
 	repeat: number;
@@ -25,11 +31,7 @@ export interface Arranger {
 	following: boolean;
 	selectedSong: number;
 	counter: number;
-	patternTracker: {
-		patternPlaying: number,
-		activeEventIndex: number,
-		playbackStart: any,
-	};
+	patternTracker: patternTrackerType,
 	songs: {
 		[key: number]: Song;
 	};

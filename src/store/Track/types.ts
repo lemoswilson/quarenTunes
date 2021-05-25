@@ -312,7 +312,7 @@ export interface increaseDecreaseEffectPropertyAction {
 	type: trackActions.INC_DEC_EFFECT_PROP,
 	payload: {
 		trackIndex: number,
-		fx: number,
+		fxIndex: number,
 		property: string,
 		movement: number,
 		cc?: boolean,

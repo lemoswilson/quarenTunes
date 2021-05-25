@@ -30,7 +30,7 @@ export const selectedStepsSelector = (activePatt: number, selectedTrkIndex: numb
 export const pattTrkVelocitySelector = (activePatt: number, selectedTrkIndex: number) => (state: RootState) => { 
     return state.sequencer.present.patterns[activePatt].tracks[selectedTrkIndex].velocity 
 }
-export const pattVelocitiesSelector = (index: number) => (state: RootState) => {
+export const pattsVelocitiesSelector = (index: number) => (state: RootState) => {
     let o: { [key: number]: number } = {}
     Object.keys(state.sequencer.present.patterns).forEach(key => {
         let k = parseInt(key)
@@ -74,3 +74,13 @@ export const controllerKeysSelector = (selectedChannel: number | 'all' | undefin
             ? state.midi.devices[selectedDevice]['all']
             : false
     } 
+export const pattsTrkEventsSelector = (trackIndex: number) => {
+        return (state: RootState) => {
+            let o: { [key: number]: any } = {}
+            Object.keys(state.sequencer.present.patterns).forEach(key => {
+                let k = parseInt(key)
+                o[k] = state.sequencer.present.patterns[k].tracks[trackIndex].events
+            });
+            return o;
+        }
+}

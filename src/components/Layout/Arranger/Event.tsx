@@ -16,8 +16,7 @@ import Plus from '../../UI/Plus';
 import NumberBox from '../../UI/NumberBox';
 import ToneObjects from '../../../context/ToneObjectsContext';
 import { arrangerMode } from '../../../store/Arranger';
-import { bbsFromSixteenth } from '../../../containers/Arranger';
-import { startEndRange, timeObjFromEvent, getFinalStep } from '../../../lib/utility';
+import { timeObjFromEvent } from '../../../lib/utility';
 import EventsHandler from '../../../containers/Arranger/EventsHandler';
 
 interface EventProps {

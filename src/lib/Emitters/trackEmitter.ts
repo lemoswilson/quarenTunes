@@ -87,13 +87,13 @@ function emit<T extends EventType>(event: T, payload: ExtractEventParameters<Tra
     return eventEmitter.emit(event, payload);
 }
 
-const toneRefsEmitter = {
+const trackEmitter = {
     on: on,
     once: once,
     off: off,
     emit: emit,
 }
 
-Object.freeze(toneRefsEmitter);
+Object.freeze(trackEmitter);
 
-export default toneRefsEmitter;
+export default trackEmitter;

@@ -14,11 +14,11 @@ import ToneObjectsContext from '../../../context/ToneObjectsContext';
 
 import WebMidi, { InputEventControlchange, Input } from 'webmidi';
 
-import { propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty } from '../../../lib/objectDecompose';
+import { propertiesToArray, getNested, setNestedValue, copyToNew, deleteProperty, copyPropertyFromTo } from '../../../lib/objectDecompose';
 import { Gain } from 'tone';
 
 import { effectsInitials } from '../Instruments';
-import { controlChangeEvent } from '../Instruments'
+import { controlChangeEvent } from '../../../hooks/useMidiLearn';
 // import { RootState } from '../../Xolombrisx';
 import { RootState } from '../../../store';
 
@@ -107,7 +107,6 @@ const Effect: React.FC<effectsProps> = ({
     const ref_listenCC = useRef<controlChangeEvent>();
 
     const ref_lockedParameters: MutableRefObject<effectsInitials> = useRef({});
-    const ref_input = useRef<false | Input>(false);
 
     const ref_trackId = useRef(trackId);
     useEffect(() => { ref_trackId.current = trackId }, [trackId])
@@ -124,9 +123,9 @@ const Effect: React.FC<effectsProps> = ({
 
     const fxCount = useSelector((state: RootState) => state.track.present.tracks[trackIndex].fx.length)
 
-    const arrgMode = useSelector((state: RootState) => state.arranger.present.mode);
-    const ref_arrgMode = useRef(arrgMode);
-    useEffect(() => { ref_arrgMode.current = arrgMode }, [arrgMode]);
+    // const arrgMode = useSelector((state: RootState) => state.arranger.present.mode);
+    // const ref_arrgMode = useRef(arrgMode);
+    // useEffect(() => { ref_arrgMode.current = arrgMode }, [arrgMode]);
 
     const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern);
     const ref_activePatt = useRef(activePatt);
@@ -145,34 +144,34 @@ const Effect: React.FC<effectsProps> = ({
     useEffect(() => { ref_isPlay.current = isPlay }, [isPlay]);
     const prev_isPlay = usePrevious(isPlay);
 
-    const pattsLen = useSelector(
-        (state: RootState) => {
-            let o: { [key: number]: any } = {}
-            Object.keys(state.sequencer.present.patterns).forEach(key => {
-                let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].patternLength
-            });
-            return o;
-        }
-    );
+    // const pattsLen = useSelector(
+    //     (state: RootState) => {
+    //         let o: { [key: number]: any } = {}
+    //         Object.keys(state.sequencer.present.patterns).forEach(key => {
+    //             let k = parseInt(key)
+    //             o[k] = state.sequencer.present.patterns[k].patternLength
+    //         });
+    //         return o;
+    //     }
+    // );
 
     // const patternLengths = useQuickRef(patLen);
 
-    const ref_pattLens = useRef(pattsLen);
-    useEffect(() => { ref_pattLens.current = pattsLen }, [pattsLen])
+    // const ref_pattLens = useRef(pattsLen);
+    // useEffect(() => { ref_pattLens.current = pattsLen }, [pattsLen])
 
-    const trkPattLen = useSelector(
-        (state: RootState) => {
-            let o: { [key: number]: any } = {}
-            Object.keys(state.sequencer.present.patterns).forEach(key => {
-                let k = parseInt(key)
-                o[k] = state.sequencer.present.patterns[k].tracks[trackIndex].length
-            });
-            return o;
-        }
-    );
-    const ref_trkPattLen = useRef(trkPattLen);
-    useEffect(() => { ref_trkPattLen.current = trkPattLen }, [trkPattLen])
+    // const trkPattLen = useSelector(
+    //     (state: RootState) => {
+    //         let o: { [key: number]: any } = {}
+    //         Object.keys(state.sequencer.present.patterns).forEach(key => {
+    //             let k = parseInt(key)
+    //             o[k] = state.sequencer.present.patterns[k].tracks[trackIndex].length
+    //         });
+    //         return o;
+    //     }
+    // );
+    // const ref_trkPattLen = useRef(trkPattLen);
+    // useEffect(() => { ref_trkPattLen.current = trkPattLen }, [trkPattLen])
 
     const events = useSelector(
         (state: RootState) => {
@@ -185,18 +184,21 @@ const Effect: React.FC<effectsProps> = ({
         }
     );
     // const events = useQuickRef(ev);
-    const ref_events = useRef(events);
-    useEffect(() => { ref_events.current = events }, [events])
+    // const ref_events = useRef(events);
+    // useEffect(() => { ref_events.current = events }, [events])
 
     const propertiesUpdate: any = useMemo(() => {
         let o = {}
         let callArray = fxProps.map((property) => {
             return (value: any) => {
-                // console.log('should be calling properties update fx, property:', property);
                 let temp = setNestedValue(property, value)
-                // instrumentRef.current.set(temp);
-                // dispatch(updateEffectState(indexRef.current, temp));
-                dispatch(updateEffectState(ref_trackIndex.current, temp, ref_fxIndex.current));
+                dispatch(
+                    updateEffectState(
+                        ref_trackIndex.current, 
+                        temp, 
+                        ref_fxIndex.current
+                    )
+                );
             }
         });
         callArray.forEach((call, idx, arr) => {
@@ -216,7 +218,7 @@ const Effect: React.FC<effectsProps> = ({
             return (e: any) => {
                 const propertyArr = getNested(ref_options.current, property);
                 const indicatorType = propertyArr[3]
-                const stateValue = propertyArr[0]
+                // const stateValue = propertyArr[0]
 
                 const isContinuous = indicatorType === indicators.KNOB
                     || indicatorType === indicators.VERTICAL_SLIDER
@@ -317,10 +319,8 @@ const Effect: React.FC<effectsProps> = ({
                 ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
 
                 Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                    // NEED TO ADD PART TO EFFECTS ( PUSH A OBJECT FIRST )
                     let k = parseInt(key);
                     if (ref_toneObjects.current){
-                        // ref_toneObjects.current.patterns[k][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
                         ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
                     }
 
@@ -328,9 +328,6 @@ const Effect: React.FC<effectsProps> = ({
 
                 ref_toneObjects.current.arranger.forEach((_, idx, __) => {
                     if (ref_toneObjects.current) {
-                        // ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(fxIndex, 0, new Tone.Part())
-                        console.log(`inside arranger, should be setting callback into fx ${fxIndex}`)
-                        console.log('tone objects is ', ref_toneObjects.current);
                         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
                     }
                 })
@@ -353,26 +350,18 @@ const Effect: React.FC<effectsProps> = ({
 
 
     useEffectProperties(ref_ToneEffect, options)
-
-    // get handle of input object
-    // useEffect(() => {
-    //     if (midi.channel && midi.device && midi.device !== 'onboardKey') {
-    //         inputRef.current = WebMidi.getInputByName(midi.device);
-    //     }
-    // })
     
-
-
-
     // reset locked property values after stopping playback
     useEffect(() => {
         if (!isPlay && prev_isPlay) {
             let p = propertiesToArray(ref_lockedParameters.current);
+            const d = {}
             p.forEach((property) => {
-                const d = copyToNew(ref_lockedParameters.current, property)
+                copyPropertyFromTo(ref_lockedParameters.current, d, property) ;
+                // const d = copyToNew(ref_lockedParameters.current, property)
                 // effectRef.current.set(d);
-                dispatch(updateEffectState(trackId, d, fxIndex));
             });
+            dispatch(updateEffectState(trackId, d, fxIndex));
         }
         ref_isPlay.current = isPlay;
     }, [
@@ -388,15 +377,17 @@ const Effect: React.FC<effectsProps> = ({
     const effectCallback = useCallback((time: number, value: any) => {
         // console.log(`this is the effect callback, track ${trackId}, effect ${fxId}`);
 
-        fxProps.forEach(property => {
+        const eventProperties = propertiesToArray(value).concat(propertiesToArray(ref_lockedParameters.current));
+
+        // fxProps.forEach(property => {
+        eventProperties.forEach(property => {
 
             const currVal = getNested(ref_options.current, property);
             const callbackVal = getNested(value, property);
             const lockVal = getNested(ref_lockedParameters.current, property);
 
             if (callbackVal && callbackVal !== currVal[0]) {
-                // propertiesUpdate[property](callbackVal);
-                console.log('should be updating the vallue inside effect callback');
+
                 ref_toneObjects.current?.tracks[ref_trackIndex.current].effects[ref_fxIndex.current].set(setNestedValue(property, callbackVal));
                 getNested(propertiesUpdate, property)(callbackVal);
                 if (!lockVal)

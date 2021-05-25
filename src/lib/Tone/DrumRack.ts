@@ -123,4 +123,10 @@ export default class DrumRack {
         this.node.disconnect()
         this.node.chain(...nodes)
     }
+    sync(){
+        Object.keys(this.obj).forEach(key => {
+            this.obj[Number(key)].sync()
+        })
+        return this
+    }
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface dropDownContext {
+export interface dropdownContext {
     [key: string]: () => void
 }
 

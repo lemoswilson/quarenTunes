@@ -11,16 +11,18 @@ import Minus from '../../UI/Minus'
 import styles from './style.module.scss'
 
 interface ArrangerLayoutProps {
-    _addSong: () => void,
-    _renameSong: (event: React.FormEvent<HTMLFormElement>) => void ,
-    _removeSong: () => void,
-    _selectSong: (song: number) => void,
-    _addRow: (eventIndex: number) => void,
-    _removeRow: (eventIndex: number) => void,
-    _incDecRepeat: (amount: number, song: number, eventIndex: number) => void,
-    _setEventPattern: (eventIndex: number, pattern: number) => void,
-    _setRepeat: (repeat: number, eventIndex: number) => void,
-    onDragEnd: (result: DropResult) => void,
+    arrangerDispatchers: {
+        _addSong: () => void,
+        _renameSong: (event: React.FormEvent<HTMLFormElement>) => void ,
+        _removeSong: () => void,
+        _selectSong: (song: number) => void,
+        _addRow: (eventIndex: number) => void,
+        _removeRow: (eventIndex: number) => void,
+        _incDecRepeat: (amount: number, song: number, eventIndex: number) => void,
+        _setEventPattern: (eventIndex: number, pattern: number) => void,
+        _setRepeat: (repeat: number, eventIndex: number) => void,
+        onDragEnd: (result: DropResult) => void,
+    },
     pattsObj: pattsObj,
     activeSongObj: Song,
     isPlay: boolean,
@@ -30,16 +32,7 @@ interface ArrangerLayoutProps {
 }
 
 const Arranger: React.FC<ArrangerLayoutProps> = ({
-    onDragEnd,
-    _addSong,
-    _removeSong,
-    _renameSong,
-    _selectSong,
-    _addRow,
-    _removeRow,
-    _incDecRepeat,
-    _setEventPattern,
-    _setRepeat,
+    arrangerDispatchers,
     activeSongObj,
     pattsObj,
     arrgMode,
@@ -55,17 +48,36 @@ const Arranger: React.FC<ArrangerLayoutProps> = ({
             <div className={styles.songSelector}>
                 <div className={styles.selector}>
                     <Dropdown
-                        keyValue={Object.keys(songs).map(song => [song, songs[Number(song)].name])}
-                        onSubmit={_renameSong}
-                        select={(value) => { _selectSong(Number(value)) }}
+                        onSubmit={arrangerDispatchers._renameSong}
                         renamable={true}
                         selected={String(currentSong)}
                         dropdownId={`song ${currentSong} selector`}
                         className={styles.dropdown}
+                        select={
+                            (value) => {arrangerDispatchers._selectSong(Number(value)) }
+                        }
+                        keyValue={
+                            Object.keys(songs).map(song => [song, songs[Number(song)].name])
+                        }
                     />
                 </div>
-                <div className={styles.increase}>{ arrgMode === 'pattern' || (arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Plus onClick={_addSong} /> : null }</div>
-                <div className={styles.decrease}>{Object.keys(songs).length > 1 && (arrgMode === arrangerMode.PATTERN || arrgMode === arrangerMode.ARRANGER && !isPlay) ? <Minus onClick={_removeSong} /> : null}</div>
+                <div className={styles.increase}>
+                    { 
+                        arrgMode === 'pattern' || (arrgMode === arrangerMode.ARRANGER && !isPlay) 
+                        ? <Plus onClick={arrangerDispatchers._addSong} /> 
+                        : null 
+                    }
+                </div>
+                <div className={styles.decrease}>
+                    {
+                        Object.keys(songs).length > 1 
+                            && (arrgMode === arrangerMode.PATTERN 
+                            || arrgMode === arrangerMode.ARRANGER && !isPlay
+                        ) 
+                        ? <Minus onClick={arrangerDispatchers._removeSong} /> 
+                        : null
+                        }
+                </div>
             </div>
         </div>
         <div className={styles.bottom}>
@@ -73,7 +85,7 @@ const Arranger: React.FC<ArrangerLayoutProps> = ({
                 <div className={styles.title}><h3>Patterns  |  Repeat </h3></div>
             </div>
             <div className={styles.dnd}>
-                <DragDropContext onDragEnd={onDragEnd}>
+                <DragDropContext onDragEnd={arrangerDispatchers.onDragEnd}>
                     <Droppable droppableId={'arranger'}>
                         {(provided) => (
                             <ul {...provided.droppableProps} ref={provided.innerRef}>
@@ -83,11 +95,11 @@ const Arranger: React.FC<ArrangerLayoutProps> = ({
                                             key={`song ${currentSong} event ${songEvent.id}`} 
                                             arrgMode={arrgMode}
                                             isPlay={isPlay}
-                                            _addRow={_addRow}
-                                            _incDecRepeat={_incDecRepeat}
-                                            _removeRow={_removeRow}
-                                            _setEventPattern={_setEventPattern}
-                                            _setRepeat={_setRepeat}
+                                            _addRow={arrangerDispatchers._addRow}
+                                            _incDecRepeat={arrangerDispatchers._incDecRepeat}
+                                            _removeRow={arrangerDispatchers._removeRow}
+                                            _setEventPattern={arrangerDispatchers._setEventPattern}
+                                            _setRepeat={arrangerDispatchers._setRepeat}
                                             arr={arr}
                                             currentSong={currentSong}
                                             eventsLength={activeSongObj.events.length}
@@ -101,11 +113,9 @@ const Arranger: React.FC<ArrangerLayoutProps> = ({
                             </ul>
                         )}
                     </Droppable>
-
                 </DragDropContext>
             </div>
         </div>
-        {/* {trackCount} */}
     </div>
     )
 }

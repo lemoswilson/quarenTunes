@@ -18,7 +18,7 @@ import {
 // import triggContext from '../../context/triggState';
 // import ToneContext from '../../context/ToneContext';
 
-import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/Emitters/toneRefsEmitter';
+import trackEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/Emitters/trackEmitter';
 // import toneRefsEmitter, { trackEventTypes, toneRefsPayload } from '../../lib/myCustomToneRefsEmitter';
 import triggEmitter, { triggEventTypes } from '../../lib/Emitters/triggEmitter';
 
@@ -60,7 +60,7 @@ const Track: FunctionComponent = () => {
     };
 
     const _removeInstrument = (trackIndex: number, trackId: number): void => {
-        toneRefsEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackIndex: trackIndex })
+        trackEmitter.emit(trackEventTypes.REMOVE_INSTRUMENT, { trackIndex: trackIndex })
         triggEmitter.emit(triggEventTypes.REMOVE_TRACK, { trackIndex: trackIndex })
         
         batch(() => {
@@ -101,12 +101,12 @@ const Track: FunctionComponent = () => {
     }
 
     const _changeEffectIdx = (from: number, to: number): void => {
-        toneRefsEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackIndex: selectedTrkIdx })
+        trackEmitter.emit(trackEventTypes.CHANGE_EFFECT_INDEX, { from: from, to: to, trackIndex: selectedTrkIdx })
         dispatch(changeEffectIndex(from, to, selectedTrkIdx));
     };
 
     const _deleteEffect = (index: number, trackId: number): void => {
-        toneRefsEmitter.emit(trackEventTypes.REMOVE_EFFECT, { effectsIndex: index, trackIndex: selectedTrkIdx })
+        trackEmitter.emit(trackEventTypes.REMOVE_EFFECT, { effectsIndex: index, trackIndex: selectedTrkIdx })
         batch(() => {
             dispatch(deleteEffect(index, selectedTrkIdx));
             dispatch(removeEffectSequencer(index, selectedTrkIdx))

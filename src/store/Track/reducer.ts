@@ -1,15 +1,7 @@
-import { getNested, propertiesToArray, setNestedArray, setNestedValue } from '../../lib/objectDecompose'
-import { curveTypes, getInitials } from '../../containers/Track/defaults'
+import { getNested, propertiesToArray, setNestedArray } from '../../lib/objectDecompose'
+import { getInitials } from '../../containers/Track/defaults'
 import { getEffectsInitials } from '../../containers/Track/defaults'
-import {
-	trackActionTypes,
-	trackActions,
-	Track,
-	xolombrisxInstruments,
-	effectTypes,
-	generalInstrumentOptions,
-	generalEffectOptions,
-} from "./types";
+import { trackActionTypes, trackActions, Track,	xolombrisxInstruments, effectTypes } from "./types";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../lib/curves';
 import produce from "immer";
 
@@ -19,90 +11,18 @@ export const initialState: Track = {
 	trackCount: 1,
 	tracks: [
 		{
-			// instrument: xolombrisxInstruments.FMSYNTH,
-			// options: getInitials(xolombrisxInstruments.FMSYNTH),
-			// instrument: xolombrisxInstruments.AMSYNTH,
-			// options: getInitials(xolombrisxInstruments.AMSYNTH),
-			// instrument: xolombrisxInstruments.NOISESYNTH,
-			// options: getInitials(xolombrisxInstruments.NOISESYNTH),
-			// instrument: xolombrisxInstruments.MEMBRANESYNTH,
-			// options: getInitials(xolombrisxInstruments.MEMBRANESYNTH),
 			instrument: xolombrisxInstruments.METALSYNTH,
 			options: getInitials(xolombrisxInstruments.METALSYNTH),
-			// instrument: xolombrisxInstruments.PLUCKSYNTH,
-			// options: getInitials(xolombrisxInstruments.PLUCKSYNTH),
-			// instrument: xolombrisxInstruments.DRUMRACK,
-			// options: getInitials(xolombrisxInstruments.DRUMRACK),
 			id: 0,
 			fx: [
 				{
 					fx: effectTypes.COMPRESSOR,
 					id: 0,
 					options: getEffectsInitials(effectTypes.COMPRESSOR)
-					// fx: effectTypes.GATE,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.GATE)
-					// fx: effectTypes.LIMITER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.LIMITER)
-					// fx: effectTypes.FREQUENCYSHIFTER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.FREQUENCYSHIFTER),
-					// fx: effectTypes.STEREOWIDENER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.STEREOWIDENER)
-					// fx: effectTypes.EQ3,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.EQ3)
-					// fx: effectTypes.FEEDBACKDELAY,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.FEEDBACKDELAY)
-					// fx: effectTypes.JCREVERB,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.JCREVERB)
-					// fx: effectTypes.FREEVERB,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.FREEVERB)
-					// fx: effectTypes.PHASER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.PHASER)
-					// fx: effectTypes.PINGPONGDELAY,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.PINGPONGDELAY)
-					// fx: effectTypes.PITCHSHIFT,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.PITCHSHIFT)
-					// fx: effectTypes.TREMOLO,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.TREMOLO)
-					// fx: effectTypes.AUTOPANNER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.AUTOPANNER)
-					// fx: effectTypes.CHEBYSHEV,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.CHEBYSHEV)
-					// fx: effectTypes.DISTORTION,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.DISTORTION)
-					// fx: effectTypes.VIBRATO,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.VIBRATO)
-					// fx: effectTypes.AUTOFILTER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.AUTOFILTER)
-					// fx: effectTypes.CHORUS,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.CHORUS)
-					// fx: effectTypes.FILTER,
-					// id: 0,
-					// options: getEffectsInitials(effectTypes.FILTER)
 				},
 			],
 			fxCounter: 0,
-			// env: 0.001,
 			midi: {
-				// device: undefined,
-				// channel: undefined,
 				device: 'onboardKey',
 				channel: 'all',
 			},
@@ -112,33 +32,16 @@ export const initialState: Track = {
 
 export function trackReducer(
 	state: Track = initialState,
-	action: trackActionTypes
+	a: trackActionTypes
 ): Track {
 	return produce(state, (draft) => {
-		let options: generalInstrumentOptions,
-			trackIndex: number,
-			fxOptions: generalEffectOptions,
-			device: string,
-			movement: number,
-			cc: boolean | undefined,
-			curve: curveTypes,
-			effect: effectTypes,
-			effectIndex: number,
-			property: string,
-			target: 'modulationEnvelope' | 'envelope' | 'drumrack',
-			fxIndex: number,
-			isContinuous: boolean | undefined;
-
-		switch (action.type) {
+		switch (a.type) {
 			case trackActions.ADD_INSTRUMENT:
-				// console.log(state, draft.trackCount);
 				draft.tracks.push({
-					instrument: action.payload.instrument,
-					options: getInitials(action.payload.instrument),
+					instrument: a.payload.instrument,
+					options: getInitials(a.payload.instrument),
 					id: draft.instrumentCounter + 1,
 					midi: {
-						// channel: undefined,
-						// device: undefined,
 						channel: 'all',
 						device: 'onboardKey',
 					},
@@ -156,172 +59,127 @@ export function trackReducer(
 				draft.selectedTrack = draft.tracks.length - 1
 				break;
 			case trackActions.CHANGE_INSTRUMENT:
-				draft.tracks[action.payload.trackIndex].instrument = action.payload.instrument;
-				draft.tracks[action.payload.trackIndex].options = getInitials(action.payload.instrument);
+				draft.tracks[a.payload.trackIndex].instrument = a.payload.instrument;
+				draft.tracks[a.payload.trackIndex].options = getInitials(a.payload.instrument);
 				break;
 			case trackActions.REMOVE_INSTRUMENT:
-				// console.log('removing on track reducer, track index is:', action.payload.trackIndex)
-				draft.tracks.splice(action.payload.trackIndex, 1);
+				draft.tracks.splice(a.payload.trackIndex, 1);
 				draft.trackCount = draft.trackCount - 1;
 				draft.selectedTrack = 0
-				// if (draft.selectedTrack === action.payload.trackIndex)
-				// draft.tracks.splice(action.payload.trackIndex, 1);
-				// draft.selectedTrack = 0;
 				break;
 			case trackActions.SELECT_MIDI_CHANNEL:
-				draft.tracks[action.payload.trackIndex].midi.channel = action.payload.channel;
+				draft.tracks[a.payload.trackIndex].midi.channel = a.payload.channel;
 				break;
 			case trackActions.SELECT_MIDI_DEVICE:
-				draft.tracks[action.payload.trackIndex].midi.device = action.payload.device;
-				if (action.payload.device === 'onboardKey')
-					draft.tracks[action.payload.trackIndex].midi.channel = 'all'
+				draft.tracks[a.payload.trackIndex].midi.device = a.payload.device;
+				if (a.payload.device === 'onboardKey')
+					draft.tracks[a.payload.trackIndex].midi.channel = 'all'
 				else
-					draft.tracks[action.payload.trackIndex].midi.channel = undefined;
+					draft.tracks[a.payload.trackIndex].midi.channel = undefined;
 				break;
 			case trackActions.SELECT_INSTRUMENT:
-				draft.selectedTrack = action.payload.trackIndex;
+				draft.selectedTrack = a.payload.trackIndex;
 				break;
 			case trackActions.CHANGE_EFFECT_INDEX:
 				[
-					draft.tracks[action.payload.trackIndex].fx[action.payload.fromIndex],
-					draft.tracks[action.payload.trackIndex].fx[action.payload.toIndex],
+					draft.tracks[a.payload.trackIndex].fx[a.payload.fromIndex],
+					draft.tracks[a.payload.trackIndex].fx[a.payload.toIndex],
 				] = [
-						draft.tracks[action.payload.trackIndex].fx[action.payload.fromIndex],
-						draft.tracks[action.payload.trackIndex].fx[action.payload.toIndex],
+						draft.tracks[a.payload.trackIndex].fx[a.payload.fromIndex],
+						draft.tracks[a.payload.trackIndex].fx[a.payload.toIndex],
 					];
 				break;
 			case trackActions.DELETE_EFFECT:
-				draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex, 1);
+				draft.tracks[a.payload.trackIndex].fx.splice(a.payload.effectIndex, 1);
 				break;
 			case trackActions.ADD_EFFECT:
-				console.log(`adding effect to track ${action.payload.trackIndex}, effect index ${action.payload.effectIndex}`)
-				// if (action.payload.effectIndex + 1 < draft.tracks[action.payload.trackIndex].fx.length)
-					draft.tracks[action.payload.trackIndex].fx.splice(action.payload.effectIndex + 1, 0, {
-						fx: action.payload.effect,
-						id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
-						options: getEffectsInitials(action.payload.effect)
+				console.log(`adding effect to track ${a.payload.trackIndex}, effect index ${a.payload.effectIndex}`)
+					draft.tracks[a.payload.trackIndex].fx.splice(a.payload.effectIndex + 1, 0, {
+						fx: a.payload.effect,
+						id: draft.tracks[a.payload.trackIndex].fxCounter + 1,
+						options: getEffectsInitials(a.payload.effect)
 					});
-				// else 
-				// 	draft.tracks[action.payload.trackIndex].fx.push({
-				// 		fx: action.payload.effect,
-				// 		id: draft.tracks[action.payload.trackIndex].fxCounter + 1,
-				// 		options: getEffectsInitials(action.payload.effect)
-				// 	})
-				draft.tracks[action.payload.trackIndex].fxCounter ++
-					// draft.tracks[action.payload.trackIndex].fxCounter + 1;
+				draft.tracks[a.payload.trackIndex].fxCounter ++
 				break;
 			case trackActions.CHANGE_EFFECT:
-				[trackIndex, effect, effectIndex] = [
-					action.payload.trackIndex,
-					action.payload.effect,
-					action.payload.effectIndex
-				]
-				draft.tracks[trackIndex].fx[effectIndex].fx = effect;
-				draft.tracks[trackIndex].fx[effectIndex].options = getEffectsInitials(effect);
+				console.log(`track index is, ${a.payload.trackIndex} effect index is ${a.payload.effectIndex}`);
+				draft.tracks[a.payload.trackIndex].fx[a.payload.effectIndex].fx = a.payload.effect;
+				draft.tracks[a.payload.trackIndex].fx[a.payload.effectIndex].options = getEffectsInitials(a.payload.effect);
 				break;
 			case trackActions.UPDATE_INSTRUMENT_STATE:
-				[trackIndex, options] = [action.payload.trackIndex, action.payload.options];
-				console.log('updating instrument state from track reducer', options);
-				const props = propertiesToArray(options);
+				const props = propertiesToArray(a.payload.options);
 				props.forEach(
 					prop => {
-						let v = getNested(options, prop)
-						setNestedArray(draft.tracks[trackIndex].options, prop, getNested(options, prop))
-						// console.log('setting proeperty, ', props, v);
+						let v = getNested(a.payload.options, prop)
+						setNestedArray(draft.tracks[a.payload.trackIndex].options, prop, getNested(a.payload.options, prop))
 					}
 				);
 				break;
 			case trackActions.UPDATE_EFFECT_STATE:
-				[trackIndex, options, fxIndex] = [
-					action.payload.trackIndex,
-					action.payload.options,
-					action.payload.fxIndex
-				]
-				console.log('should be updating effect value');
-				const properties = propertiesToArray(options)
+				const properties = propertiesToArray(a.payload.options)
 				properties.forEach(prop => {
-					let v = getNested(options, prop)
-					setNestedArray(draft.tracks[trackIndex].fx[fxIndex].options, prop, getNested(options, prop))
+					let v = getNested(a.payload.options, prop)
+					setNestedArray(draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options, prop, getNested(a.payload.options, prop))
 				})
 				break
 			case trackActions.INC_DEC_INST_PROP:
-				[trackIndex, movement, cc, property, isContinuous] = [
-					action.payload.trackIndex,
-					action.payload.movement,
-					action.payload.cc,
-					action.payload.property,
-					action.payload.isContinuous
-				]
-				// const v = getNested(draft.tracks[index].options, property);
-				const instrumentRangeOrOption = getNested(draft.tracks[trackIndex].options, property);
+				const instrumentRangeOrOption = getNested(draft.tracks[a.payload.trackIndex].options, a.payload.property);
 				let val;
-				// console.log('property is', property);
-				if (isContinuous) {
-					val = cc ? valueFromCC(movement, instrumentRangeOrOption[1][0], instrumentRangeOrOption[1][1], instrumentRangeOrOption[4])
+				if (a.payload.isContinuous) {
+					val = a.payload.cc ? valueFromCC(a.payload.movement, instrumentRangeOrOption[1][0], instrumentRangeOrOption[1][1], instrumentRangeOrOption[4])
 						: valueFromMouse(
 							instrumentRangeOrOption[0],
-							movement,
+							a.payload.movement,
 							instrumentRangeOrOption[1][0],
 							instrumentRangeOrOption[1][1],
 							instrumentRangeOrOption[4],
-							property
+							a.payload.property
 						);
 					if (val === -Infinity) {
-						setNestedArray(draft.tracks[trackIndex].options, property, -Infinity)
+						setNestedArray(draft.tracks[a.payload.trackIndex].options, a.payload.property, -Infinity)
 					} else if (val >= instrumentRangeOrOption[1][0] && val <= instrumentRangeOrOption[1][1]) {
-						// const updateValue = property === 'dampening' ? Math.round(val) : Number(val.toFixed(4))
 						const updateValue = Number(val.toFixed(4))
-						setNestedArray(draft.tracks[trackIndex].options, property, updateValue)
+						setNestedArray(draft.tracks[a.payload.trackIndex].options, a.payload.property, updateValue)
 					}
 				} else {
-					val = cc ? optionFromCC(movement, instrumentRangeOrOption[1]) : steppedCalc(movement, instrumentRangeOrOption[1], instrumentRangeOrOption[0])
-					setNestedArray(draft.tracks[trackIndex].options, property, val)
+					val = a.payload.cc ? optionFromCC(a.payload.movement, instrumentRangeOrOption[1]) : steppedCalc(a.payload.movement, instrumentRangeOrOption[1], instrumentRangeOrOption[0])
+					setNestedArray(draft.tracks[a.payload.trackIndex].options, a.payload.property, val)
 				}
 				break;
 			case trackActions.INC_DEC_EFFECT_PROP:
-				[trackIndex, movement, cc, property, isContinuous, fxIndex] = [
-					action.payload.trackIndex,
-					action.payload.movement,
-					action.payload.cc,
-					action.payload.property,
-					action.payload.isContinuous,
-					action.payload.fx
-				]
-				const fxRangeOrOptions = getNested(draft.tracks[trackIndex].fx[fxIndex].options, property)
+				const fxRangeOrOptions = getNested(draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options, a.payload.property)
 				let fxVal;
-				if (isContinuous) {
-					fxVal = cc
-						? valueFromCC(movement, fxRangeOrOptions[1][0], fxRangeOrOptions[1][1], fxRangeOrOptions[4])
+				if (a.payload.isContinuous) {
+					fxVal = a.payload.cc
+						? valueFromCC(a.payload.movement, fxRangeOrOptions[1][0], fxRangeOrOptions[1][1], fxRangeOrOptions[4])
 						: valueFromMouse(
 							fxRangeOrOptions[0],
-							movement,
+							a.payload.movement,
 							fxRangeOrOptions[1][0],
 							fxRangeOrOptions[1][1],
 							fxRangeOrOptions[4],
 						)
 					if (fxVal >= fxRangeOrOptions[1][0] && fxVal <= fxRangeOrOptions[1][1]) {
 						const updateValue = Number(fxVal.toFixed(4))
-						setNestedArray(draft.tracks[trackIndex].fx[fxIndex].options, property, updateValue)
+						setNestedArray(draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options, a.payload.property, updateValue)
 					}
 				} else {
-					fxVal = cc ? optionFromCC(movement, fxRangeOrOptions[1]) : steppedCalc(movement, fxRangeOrOptions[1], fxRangeOrOptions[0])
-					setNestedArray(draft.tracks[trackIndex].fx[fxIndex].options, property, fxVal)
+					fxVal = a.payload.cc ? optionFromCC(a.payload.movement, fxRangeOrOptions[1]) : steppedCalc(a.payload.movement, fxRangeOrOptions[1], fxRangeOrOptions[0])
+					setNestedArray(draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options, a.payload.property, fxVal)
 				}
 				break;
 			case trackActions.UPDATE_ENVELOPE_CURVE:
-				[trackIndex, target, curve] = [action.payload.trackIndex, action.payload.target, action.payload.curve]
-				if (target === 'drumrack'){
-					draft.tracks[trackIndex].options[`PAD_${action.payload.padIdx}`].curve[0] = curve;
+				if (a.payload.target === 'drumrack'){
+					draft.tracks[a.payload.trackIndex].options[`PAD_${a.payload.padIdx}`].curve[0] = a.payload.curve;
 				} else {
-					draft.tracks[trackIndex].options[target].decayCurve[0] = curve
-					draft.tracks[trackIndex].options[target].attackCurve[0] = curve
-					draft.tracks[trackIndex].options[target].releaseCurve[0] = curve
+					draft.tracks[a.payload.trackIndex].options[a.payload.target].decayCurve[0] = a.payload.curve
+					draft.tracks[a.payload.trackIndex].options[a.payload.target].attackCurve[0] = a.payload.curve
+					draft.tracks[a.payload.trackIndex].options[a.payload.target].releaseCurve[0] = a.payload.curve
 				}
 				break;
 			case trackActions.REMOVE_MIDI_DEVICE:
-				device = action.payload.device
 				draft.tracks.forEach((_, idx, __) => {
-					if (draft.tracks[idx].midi.device === device)
+					if (draft.tracks[idx].midi.device === a.payload.device)
 					draft.tracks[idx].midi.device = undefined
 					draft.tracks[idx].midi.channel = undefined
 				})

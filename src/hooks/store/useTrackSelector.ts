@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import usePrevious from '../usePrevious';
-import { selectedTrkIdxSelector, selectedTrkVoiceSelector, trkCountSelector } from '../../store/Track/selectors';
+import { effectsLengthsSelector, selectedTrkIdxSelector, selectedTrkVoiceSelector, trkCountSelector } from '../../store/Track/selectors';
 import { activePageSelector, activePattSelector } from '../../store/Sequencer/selectors';
 import useQuickRef from '../useQuickRef';
 
@@ -28,7 +28,7 @@ export const useTrkInfoSelector = () => {
         trkCount,
         ref_trkCount
     }
-     
+
 }
 
 export const useVoiceSelector = () => {
@@ -38,4 +38,11 @@ export const useVoiceSelector = () => {
     const prev_voice = usePrevious(voice);
 
     return { voice, ref_voice, prev_voice }
+};
+
+export const useEffectsLengthSelector = () => {
+    const effectsLengths = useSelector(effectsLengthsSelector)
+    const ref_effectsLengths = useQuickRef(effectsLengths);
+
+    return { effectsLengths, ref_effectsLengths }
 }

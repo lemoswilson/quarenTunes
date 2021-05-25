@@ -3,19 +3,15 @@ import {
 	stop,
 	toggleRecording,
 	setBPM,
-	increaseDecreaseBPMAction,
 	toggleMetronome,
 	increaseDecreaseBPM,
 } from "../../store/Transport";
-import React, { useEffect, FunctionComponent, useContext, useRef, MutableRefObject } from "react";
+import React, { useEffect, FunctionComponent, useRef, MutableRefObject } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { RootState } from "../Xolombrisx";
 import { RootState } from "../../store";
-import { arrangerMode, toggleMode } from '../../store/Arranger';
-// import Tone from "../../lib/tone";
+import { toggleMode } from '../../store/Arranger';
 import * as Tone from "tone";
 import styles from './style.module.scss';
-// import ToneContext from '../../context/ToneContext';
 import Save from '../../components/UI/Save';
 import Play from '../../components/UI/Play'
 import Stop from '../../components/UI/Stop'
@@ -23,15 +19,13 @@ import Rec from '../../components/UI/Record'
 import ModeSelector from '../../components/UI/ModeSelector'
 import BPMSelector from '../../components/UI/BPMSelector';
 import Metronome from '../../components/UI/Metronome';
-import { bbsFromSixteenth, sixteenthFromBBSOG } from "../Arranger";
-import { FMSynth, Sampler } from "tone";
+import { sixteenthFromBBSOG } from "../../lib/utility"
+import { Sampler } from "tone";
 import strong from '../../assets/strong.mp3'
 import weak from '../../assets/weak.mp3'
 
 const Transport: FunctionComponent = () => {
-	// const Tone = useContext(ToneContext);
 	const dispatch = useDispatch();
-	// const Tone = useContext(ToneContext);
 
 	const isPlay = useSelector(
 		(state: RootState) => state.transport.present.isPlaying
@@ -52,12 +46,6 @@ const Transport: FunctionComponent = () => {
 
 	const bpm = useSelector((state: RootState) => state.transport.present.bpm);
 
-	const patternLength = useSelector((state: RootState) => {
-		const activePatt = state.sequencer.present.activePattern;
-		return state.sequencer.present.patterns[activePatt].patternLength
-	})
-
-	// const metronome: MutableRefObject<FMSynth | null> = useRef(null);
 	const metronome: MutableRefObject<Sampler | null> = useRef(null);
 	const metronomeLoop: MutableRefObject<Tone.Loop | null> = useRef(null);
 
@@ -99,16 +87,11 @@ const Transport: FunctionComponent = () => {
 
 	}, [metronomeState])
 
-	useEffect(() => {
-		Tone.Transport.bpm.value = bpm;
-		// Tone.Transport.scheduleOnce((time) => {
-		// 	// console.log(`should be starting now `);
-		// }, 0)
-	}, [])
 
 
 	useEffect(() => {
 		Tone.Transport.bpm.value = bpm;
+		console.log('should be setting new bpm')
 	}, [bpm])
 
 	useEffect(() => {
@@ -150,13 +133,6 @@ const Transport: FunctionComponent = () => {
 		dispatch(toggleMetronome());
 	}
 
-	// useEffect(() => {
-	// 	Tone.Transport.scheduleRepeat((time) => {
-	// 		console.log(`tone transport callback, time ${time}`)
-	// 	}, '16n');
-	// }, []);
-
-
 	const _stop = (): void => { 
 		dispatch(stop()) 
 		// Tone.Transport.position = 0;
@@ -165,12 +141,6 @@ const Transport: FunctionComponent = () => {
 	const stopCallback = (): void => { Tone.Transport.cancel() };
 	const _setBPM = (bpm: number): void => { dispatch(setBPM(bpm)) };
 
-	useEffect(() => {
-		// Tone.Transport.loop = mode === arrangerMode.ARRANGER ? false : true;
-		// if (mode === arrangerMode.PATTERN) {
-		// 	Tone.Transport.setLoopPoints(0, bbsFromSixteenth(patternLength) )
-		// }
-	}, [mode])
 
 	return (
 			<div className={styles.overlay}>

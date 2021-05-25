@@ -1,11 +1,10 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import * as Tone from 'tone';
-import { ToneObjectContextType } from '../context/ToneObjectsContext';
+import { ToneObjectContextType, triggs } from '../context/ToneObjectsContext';
 import { Pattern, setActiveStep } from '../store/Sequencer';
-import { timeObjFromEvent } from '../lib/utility';
+import { timeObjFromEvent, sixteenthFromBBSOG, scheduleStartEnd } from '../lib/utility';
 import { arrangerMode } from '../store/Arranger';
-import { sixteenthFromBBSOG } from '../containers/Arranger';
 
 const useSequencerScheduler = (
     ref_toneObjects: ToneObjectContextType,
@@ -24,6 +23,15 @@ const useSequencerScheduler = (
 ) => {
 
     const dispatch = useDispatch();
+    
+    function setLoopEnd(start: any, part: Tone.Part, loopEnd: any) {
+        part.loop = true;
+        part.loopEnd = {'16n': loopEnd};
+    }
+
+    function cancelEvents(start: any, part: Tone.Part) {
+        part.cancel();
+    }
 
     // setting up initial events in first render
     useEffect(() => {
@@ -62,41 +70,17 @@ const useSequencerScheduler = (
 
         [...Array(ref_trkCount.current).keys()].forEach((__, trk, _) => {
             if (ref_toneObjects.current) {
-
-                if (option === 'schedule'){
-                    // ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.loopEnd = {'16n': activePatternObj.tracks[trk].length}
-                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.loopEnd = {
-                        '16n': patterns[ref_activePatt.current].tracks[trk].length
-                    }
-                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.loop = true
-
-                    if (start){
-                        ref_toneObjects.current.patterns[activePatt][trk].instrument.start(0)
-                    }
-
-                    for (let i = 0; i < effectsLength[trk]; i ++) {
-                        // ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].loopEnd = {'16n': activePatternObj.tracks[trk].length}
-                        ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].loopEnd = {
-                            '16n': patterns[ref_activePatt.current].tracks[trk].length
-                    }
-                        ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].loop = true;
-                        if (start) {
-                            ref_toneObjects.current.patterns[ref_activePatt.current][trk].effects[i].start(0)
-                        }
-                    }
-
-                } else {
-
-                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.cancel()
-                    ref_toneObjects.current.patterns[ref_activePatt.current][trk].instrument.stop()
-
-                    for (let i = 0; i < effectsLength[trk]; i ++) {
-                        ref_toneObjects.current?.patterns[ref_activePatt.current][trk].effects[i].cancel() 
-                        ref_toneObjects.current?.patterns[ref_activePatt.current][trk].effects[i].stop() 
-                    }
-                }
-
-
+                
+                scheduleStartEnd(
+                    ref_toneObjects.current.patterns[ref_activePatt.current],
+                    option === 'schedule' ? 0 : undefined,
+                    option === 'schedule' ? undefined : 'now',
+                    option === 'schedule' ? setLoopEnd : cancelEvents,
+                    option === 'schedule' 
+                        ? [patterns[ref_activePatt.current].tracks[trk].length]
+                        : undefined,
+                    option === 'schedule' ? true : undefined,
+                )
             }
         })   
 

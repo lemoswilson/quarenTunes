@@ -1,6 +1,5 @@
 import { indicators } from "../containers/Track/defaults";
 import { triggs } from '../context/ToneObjectsContext';
-import * as Tone from 'tone';
 
 export function range(size: number, startAt: number = 0): number[] {
     return [...Array(size).keys()].map(i => i + startAt);
@@ -16,13 +15,6 @@ export function timeObjFromEvent(step: number, event: any, isEvent: boolean = tr
         '128n': isEvent && event.offset ? event.offset : event ? event : 0,
     };
 }
-
-export function extendObj(entry: any, extension: any): any {
-    return {
-        ...entry,
-        ...extension
-    };
-};
 
 export function typeMovement(ind: indicators, e: any): number {
     return e.movementY
@@ -81,22 +73,80 @@ export function bisect(sortedList: number[], el: number){
     }
 }
 
-export function scheduleEventStartEnd(triggs: triggs[], start: any, end: any){
-  const trkCount = triggs.length;
-  for (let i = 0; i < trkCount; i ++){
-    triggs[i].instrument.start(start)
-    triggs[i].instrument.stop(end)
-
-    const fxCount = triggs[i].effects.length
-    for (let j = 0; j < fxCount ; j ++){
-      triggs[i].effects[j].start(start)
-      triggs[i].effects[j].stop(end)
-    }
-  }
+export const bbsFromSixteenth = (value: number | string): string => {
+	return `0:0:${value}`;
 };
 
+export const sixteenthFromBBSOG = (time: string): number => {
+	return sixteenthFromBBS(time.split('.')[0])
+}
 
-// let time = {
-//     '16n': s,
-//     '128n': ev.offset ? ev.offset : 0,
-// };
+export const sixteenthFromBBS = (time: string): number => {
+	let result: number = Number();
+	const timeArray: number[] = time.split(':').map(v => parseInt(v));
+
+	timeArray.forEach((v, idx, arr) => {
+		if (idx === 0) {
+			result = result + v * 16;
+		} else if (idx === 1) {
+			result = result + v * 4;
+		} else {
+			result = result + v
+		}
+	});
+	return result
+}
+
+export function scheduleStartEnd(
+  triggs: triggs[],
+  start?: any,
+  end?: any,
+  callbackInstruments?: (...args: any[]) => void,
+  instrumentArgs?: any[],
+  copy?: boolean,
+  callbackEffects?: (...args: any[]) => void,
+  effectsArgs?: any[],
+  cancel?: boolean,
+) {
+    for (let i of startEndRange(0, triggs.length-1)){
+
+      if (cancel)
+        triggs[i].instrument.cancel() 
+      if (start || start === 0)
+        triggs[i].instrument.start(start) 
+      if (end === 'now')
+        triggs[i].instrument.stop()
+      else if (end || end === 0)
+        triggs[i].instrument.stop(end)
+
+      // const instArgs = instrumentArgs ? [...instrumentArgs] : null;
+      const instArgs = instrumentArgs ? [...instrumentArgs] : [];
+      // const baseArg = copy && instArgs ? instArgs : null;
+      const baseArg = copy && instArgs ? instArgs : [];
+      const fxArgs = effectsArgs ? [...effectsArgs] : baseArg;
+
+      callbackInstruments?.(
+        start, 
+        triggs[i].instrument, 
+        ...instArgs
+      );
+
+        for (let j of startEndRange(0, triggs[i].effects.length-1)){
+          if (cancel)
+            triggs[i].effects[j].cancel() 
+          if (start || start === 0)
+            triggs[i].effects[j].start(start)
+          if (end === 'now')
+            triggs[i].effects[j].stop()
+          else if (end || end === 0)
+            triggs[i].effects[j].stop(end)
+
+          callbackEffects?.(
+            start, 
+            triggs[i].effects[j], 
+            ...fxArgs
+          );
+        }
+    }
+
+}

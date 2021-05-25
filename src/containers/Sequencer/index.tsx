@@ -21,7 +21,7 @@ import dropdownContext from '../../context/DropdownContext';
 
 import { activeSongPattSelector, isFollowSelector, arrgModeSelector } from '../../store/Arranger/selectors';
 import { activeStepSelector, patternsSelector } from '../../store/Sequencer/selectors';
-import { effectLengthsSelector } from '../../store/Track/selectors';
+import { effectsLengthsSelector } from '../../store/Track/selectors';
 import { isPlaySelector } from '../../store/Transport/selectors';
 
 
@@ -48,7 +48,7 @@ const Sequencer: React.FC = () => {
     = useTrkInfoSelector()
 
     const { voice, ref_voice } = useVoiceSelector()
-    const effectsLength = useSelector(effectLengthsSelector);
+    const effectsLength = useSelector(effectsLengthsSelector);
     const controller_keys = useControllerKeys(selectedTrkIdx)
     const { activePatt, ref_activePatt, prev_activePatt } = useActivePatt()
     const { events, ref_events } = useEvents(activePatt, selectedTrkIdx);

@@ -95,6 +95,10 @@ export function copyToNew(obj: any, property: string): any {
 
 }
 
+export function copyPropertyFromTo(from: any, to: any, property: string){
+    setNestedValue(property, getNested(from, property), to);
+}
+
 export function onlyValues(obj: any, temp: any = {}): any {
     if (typeof obj !== 'object') return
 
