@@ -124,7 +124,7 @@ const Effect: React.FC<effectsProps> = ({
                 />
 
     return (
-        <div onClick={() => console.log(ref_selectedSteps.current)} className={styles.fx}>
+        <div className={styles.fx}>
             <div className={styles.box}>
                 <div className={styles.border}>
                     <div className={styles.deviceManager}>

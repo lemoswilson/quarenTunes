@@ -141,6 +141,10 @@ const Transport: FunctionComponent = () => {
 	const stopCallback = (): void => { Tone.Transport.cancel() };
 	const _setBPM = (bpm: number): void => { dispatch(setBPM(bpm)) };
 
+	useEffect(() => {
+		Tone.context.lookAhead = 0.05;
+	}, [])
+
 
 	return (
 			<div className={styles.overlay}>

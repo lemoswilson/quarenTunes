@@ -9,14 +9,8 @@ import MembraneSynth from '../../../components/Layout/Instruments/MembraneSynth'
 import MetalSynth from '../../../components/Layout/Instruments/MetalSynth';
 import DrumRack from '../../../components/Layout/Instruments/DrumRack';
 
-import ContinuousIndicator from '../../../components/UI/ContinuousIndicator';
-import SteppedIndicator from '../../../components/UI/SteppedIndicator';
-import CurveSelector from '../../../components/UI/CurveSelector';
-import WaveformSelector from '../../../components/UI/WaveformSelector';
-
 import { getParameterLockValue, getPropertyValue} from '../utility';
 
-import { getNested } from '../../../lib/objectDecompose';
 import { widgetTabIndexTrkStart } from '../../../containers/Track/defaults';
 import { createContinuousIndicator, createCurveSelector, createSteppedIndicator, createWaveformSelector} from '../../../components/UI/Creators';
 

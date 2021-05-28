@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useState } from 'react';
+import { MutableRefObject, useEffect, useState, useContext } from 'react';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import { returnEffect } from '../../lib/Tone/initializers';
 import { Gain } from 'tone';
@@ -17,7 +17,6 @@ export const useUpdateFx = (
     ref_toneObjects: ToneObjectContextType,
     effectCallback: (time: number, value: any) => void,
 ) => {
-
     const [firstRender, setRender] = useState(true);
     const prev_type = usePrevious(type)
 
@@ -113,6 +112,7 @@ export const useUpdateFx = (
                     if (ref_toneObjects.current)
                         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback
                 })
+
 
                 ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
                 

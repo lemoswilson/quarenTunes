@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useEffect } from 'react';
+import React, { MutableRefObject, useEffect, useContext } from 'react';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import Chain from '../../lib/Tone/fxChain';
 import { returnInstrument } from '../../lib/Tone/initializers';
@@ -22,7 +22,6 @@ export const useUpdateInstrument = (
 ) => {
 
 
-
     useEffect(() => {
 
         if (firstRender && ref_toneObjects.current) {
@@ -43,25 +42,25 @@ export const useUpdateInstrument = (
             ref_toneObjects.current.flagObjects[index].instrument.callback = instrumentCallback
             // ooooh dumb as fuck boooi, u have to create the new entry in the ref_toneTrigg before
 
-            Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                let k = parseInt(key)
-                if (ref_toneObjects.current){
+            // Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+            //     let k = parseInt(key)
+            //     if (ref_toneObjects.current){
                     
-                    ref_toneObjects.current.patterns[k][index].instrument.callback = instrumentCallback;
-                    if (arrgMode === 'pattern' && k === activePatt) {
-                        ref_toneObjects.current.patterns[k][index].instrument.start(0)
-                        ref_toneObjects.current.patterns[k][index].instrument.loopEnd = {'16n': trkPattsLen[k]}
-                    }
+            //         ref_toneObjects.current.patterns[k][index].instrument.callback = instrumentCallback;
+            //         if (arrgMode === 'pattern' && k === activePatt) {
+            //             ref_toneObjects.current.patterns[k][index].instrument.start(0)
+            //             ref_toneObjects.current.patterns[k][index].instrument.loopEnd = {'16n': trkPattsLen[k]}
+            //         }
 
-                }
-            })
+            //     }
+            // })
 
-            ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-                if (ref_toneObjects.current){
+            // ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+            //     if (ref_toneObjects.current){
 
-                    ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
-                }
-            })
+            //         ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
+            //     }
+            // })
 
             setRender(false);
         }
@@ -84,17 +83,18 @@ export const useUpdateInstrument = (
                 ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
 
                 // should be setting Part callback = instrumentCallback at each new render ? 
-                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                    let keyNumber = parseInt(key);
-                    if (ref_toneObjects.current)
-                        ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
-                });
+                // Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                //     let keyNumber = parseInt(key);
+                //     if (ref_toneObjects.current)
+                //         ref_toneObjects.current.patterns[keyNumber][index].instrument.callback = instrumentCallback;
+                // });
 
-                ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-                    if (ref_toneObjects.current){
-                        ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
-                    }
-                })
+                // ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                //     if (ref_toneObjects.current){
+                //         ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
+                //     }
+                // })
+
             }
         }
 

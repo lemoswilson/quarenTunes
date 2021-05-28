@@ -6,7 +6,6 @@ import { Sequencer as SequencerType } from '../../store/Sequencer';
 import { Track as TrackType } from '../../store/Track';
 
 import Div100vh from 'react-div-100vh';
-import WebMidiComponent from '../Ghosts/WebMidi';
 import ToneObjects, { ToneObjects as ToneObjectsType, triggs } from '../../context/ToneObjectsContext';
 
 import Arranger from '../../containers/Arranger';
@@ -79,7 +78,18 @@ const Layout: React.FC <LayoutProps> = ({
         } else  {
             ref_toneObjects.current?.arranger.push(getNewPatternObject())
         }
-        console.log('should have a pattern object in the arranger, thing is ', ref_toneObjects.current?.arranger)
+
+        // just for testing
+        ref_toneObjects.current?.arranger.forEach(event => {
+            event.forEach(trigg => {
+                trigg.instrument.stop(0);
+                trigg.effects.forEach(triggEffect => {
+                    triggEffect.stop(0);
+                })
+            })
+        })
+
+        // console.log('should have a pattern object in the arranger, thing is ', ref_toneObjects.current?.arranger)
     }, [])
 
     const initializePattern = useCallback(() => {
@@ -96,6 +106,19 @@ const Layout: React.FC <LayoutProps> = ({
                 ref_toneObjects.current.patterns[0] = getNewPatternObject();
         }
         console.log('should have a pattern object in the patterns, thing is ', ref_toneObjects.current?.patterns)
+
+
+        // just for testing 
+
+        if (ref_toneObjects.current)
+        Object.keys(ref_toneObjects.current.patterns).forEach(p => {
+            ref_toneObjects.current?.patterns[Number(p)].forEach(trigg => {
+                trigg.instrument.stop(0)
+                trigg.effects.forEach(effectTrigg => {
+                    effectTrigg.stop(0);
+                })
+            })
+        })
     }, [])
 
     const initializeFlags = useCallback(() => {
@@ -140,7 +163,6 @@ const Layout: React.FC <LayoutProps> = ({
         {
             !firstRender
             ? <div ref={appRef} className={styles.wrapson}>
-                <WebMidiComponent/>
                 <div className={styles.content}>
                     <div className={styles.top}>
                         <div className={styles.transport}>

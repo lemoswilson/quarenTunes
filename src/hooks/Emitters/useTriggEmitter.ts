@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/Emitters/triggEmitter';
@@ -8,9 +8,11 @@ import { useEffectsLengthSelector, useTrkInfoSelector } from '../store/Track/use
 import { counterSelector, patternsSelector } from '../../store/Sequencer/selectors';
 import { effectsLengthsSelector } from '../../store/Track/selectors';
 import useQuickRef from '../lifecycle/useQuickRef';
+import { triggs } from '../../context/ToneObjectsContext';
 
 const useTriggEmitter = (
     ref_toneObjects: ToneObjectContextType,
+    // ref_arrgTriggs: MutableRefObject<triggs[][] | null>,
 ) => {
     // trackCount, fxLength, sequencer coutner, selectedTrk
     // patterns 
@@ -105,9 +107,12 @@ const useTriggEmitter = (
                     ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(index, 0, new Tone.Part())
             })
 
+            
+
             ref_toneObjects.current.flagObjects[trackIndex].effects.splice(index, 0, {callback: undefined, flag: false})
 
         }
+
     };
 
     const removeEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_EFFECT>): void => {
@@ -126,13 +131,10 @@ const useTriggEmitter = (
             ref_toneObjects.current?.arranger[idx][trackIndex].effects.splice(fxIndex, 1);
         })
 
+
         if (ref_toneObjects.current)
             ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].flag = true
 
-        // ref_toneObjects.current?.flagObjects[trackIndex].effects.splice(fxIndex, 1);
-        // [...Array(patternCount).keys()].forEach(pat => {
-        //     triggRef.current[pat][trackId].effects.splice(index, 1);
-        // });
     }
 
     const changeEffectIndexTrigg = (payload: ExtractTriggPayload<triggEventTypes.CHANGE_EFFECT_INDEX>): void => {
@@ -147,6 +149,7 @@ const useTriggEmitter = (
             [ref_toneObjects.current.patterns[p][trackIndex].effects[to], ref_toneObjects.current.patterns[p][trackIndex].effects[from]] =
                 [ref_toneObjects.current.patterns[p][trackIndex].effects[from], ref_toneObjects.current.patterns[p][trackIndex].effects[to]];
         });
+
         ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
             if (ref_toneObjects.current)
             [ref_toneObjects.current.arranger[idx][trackIndex].effects[from], ref_toneObjects.current.arranger[idx][trackIndex].effects[to]] = 
@@ -194,8 +197,11 @@ const useTriggEmitter = (
                     effects: [new Tone.Part()],
                 })
 
+
+
             ref_toneObjects.current.flagObjects.push({instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]})
         }
+
     };
 
 
@@ -239,6 +245,7 @@ const useTriggEmitter = (
             //         ref_toneObjects.current.flagObjects[trackIndex].effects[idx].flag = true;
             // })
         }
+
     };
 
     const newEvent = (payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>): void => {

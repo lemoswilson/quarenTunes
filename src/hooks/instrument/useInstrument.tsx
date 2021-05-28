@@ -35,7 +35,7 @@ export function useInstrument(
 
 
 
-    const  { instrumentCallback, ref_isPlay} = useInstrumentPlayback(
+    const  { instrumentCallback, ref_isPlay, setCallbacks} = useInstrumentPlayback(
         ref_toneObjects,
         index, 
         ref_index,
@@ -70,5 +70,6 @@ export function useInstrument(
         ref_selectedTrkIdx,
     )
 
-    return { instrumentCallback, arrgMode };
+    return { instrumentCallback, arrgMode, setCallbacks };
+
 }

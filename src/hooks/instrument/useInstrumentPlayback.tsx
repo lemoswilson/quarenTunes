@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumentProperty } from '../../store/Track';
 import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../lib/objectDecompose';
@@ -55,8 +55,8 @@ export const useInstrumentPlayback = (
 
 
 
-    const instrumentCallback = (time: number, value: eventOptions) => {
-        
+    const instrumentCallback = useCallback((time: number, value: eventOptions) => {
+        console.log('[useInstrumentPlayback]: instrumentCallback has been called') ;
 
         const eventProperties = propertiesToArray(value).concat(propertiesToArray(ref_lockedParameters.current).concat('velocity, length, note'));
 
@@ -124,9 +124,10 @@ export const useInstrumentPlayback = (
                 }
             })
         }
-    }
+    }, [])
 
-    useEffect(() => {
+    const setCallbacks = useCallback(() => {
+        console.log('[useInstrumentPlayback]: should be setting callbacks');
         ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
             if (ref_toneObjects.current)
                 ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
@@ -139,7 +140,24 @@ export const useInstrumentPlayback = (
 
             ref_toneObjects.current.flagObjects[index].instrument.callback = instrumentCallback;
         }
-    }, [instrumentCallback])
+    }, [instrumentCallback]);
 
-    return { ref_isPlay, instrumentCallback };
+    useEffect(() => {
+        console.log(`[useInstrumentPlayback]: should be updating instrument callback of track ${index}`);
+        setCallbacks();
+        // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+        //     if (ref_toneObjects.current)
+        //         ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
+        // })
+
+        // if (ref_toneObjects.current) {
+        //     for (const key in ref_toneObjects.current?.patterns){
+        //         ref_toneObjects.current.patterns[key][index].instrument.callback = instrumentCallback;
+        //     }
+
+        //     ref_toneObjects.current.flagObjects[index].instrument.callback = instrumentCallback;
+        // }
+    }, [instrumentCallback, voice])
+
+    return { ref_isPlay, instrumentCallback, setCallbacks };
 }

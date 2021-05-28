@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import usePrevious from '../../../hooks/lifecycle/usePrevious';
 import { Draggable } from 'react-beautiful-dnd';
@@ -6,7 +6,6 @@ import { Draggable } from 'react-beautiful-dnd';
 import { songEvent } from '../../../store/Arranger';
 import { Pattern } from '../../../store/Sequencer';
 
-// import { RootState } from '../../../containers/Xolombrisx';
 import { RootState } from '../../../store';
 
 import Dropdown from '../../UI/Dropdown';
@@ -18,6 +17,9 @@ import ToneObjects from '../../../context/ToneObjectsContext';
 import { arrangerMode } from '../../../store/Arranger';
 import { timeObjFromEvent } from '../../../lib/utility';
 import EventsHandler from '../../../containers/Arranger/EventsHandler';
+import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
+import { selectedTrkIdxSelector, trkCountSelector } from '../../../store/Track/selectors';
+import { activePattSelector } from '../../../store/Sequencer/selectors';
 
 interface EventProps {
     currentSong: number,
@@ -59,13 +61,14 @@ const Event: React.FC<EventProps> = ({
 
     const pattern = songEvent.pattern;
     const pattObj = useSelector((state: RootState) => state.sequencer.present.patterns[pattern])
+    const ref_pattObj = useQuickRef(pattObj);
 
-    const trackCount = useSelector((state: RootState) => state.track.present.trackCount);
+    const trackCount = useSelector(trkCountSelector);
 
-    const activePatt = useSelector((state: RootState) => state.sequencer.present.activePattern)
+    const activePatt = useSelector(activePattSelector)
     const prev_activePatt = usePrevious(activePatt);
 
-    const selectedTrkIdx = useSelector((state: RootState) => state.track.present.selectedTrack)
+    const selectedTrkIdx = useSelector(selectedTrkIdxSelector)
     const prev_selectedTrkidx = usePrevious(selectedTrkIdx);
     const selectedTrkId = useSelector((state: RootState) => state.track.present.tracks[selectedTrkIdx].id);
     
@@ -75,21 +78,25 @@ const Event: React.FC<EventProps> = ({
     const stepEvents = useSelector((state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIdx].events)
 
     
-    const setupEventPart = (newEvents?: boolean, track?: number) => {
+    const setupEventPart = useCallback((newEvents?: boolean, track?: number) => {
+        console.log(`[Event.tsx]: setupEventPart has been called`)
         const trackNumber = Number(track);
     
         if (ref_toneObjects.current){
             for (let i = 0; i < trackCount; i ++){
-                if (!Number.isNaN(trackNumber) && i !== track)
-                    continue
+                // if (!Number.isNaN(trackNumber) && i !== track)
+                //     continue
 
-                ref_toneObjects.current.arranger[idx][i].instrument.loopEnd = {'16n': pattObj.tracks[i].length}
+                // ref_toneObjects.current.arranger[idx][i].instrument.loopEnd = {'16n': pattObj.tracks[i].length}
+                ref_toneObjects.current.arranger[idx][i].instrument.loopEnd = {'16n': ref_pattObj.current.tracks[i].length}
                 ref_toneObjects.current.arranger[idx][i].instrument.loop = true;
 
                 if (newEvents) {
                     ref_toneObjects.current.arranger[idx][i].instrument.clear();
-                    console.log('should be setting new events into arranger')
-                    pattObj.tracks[i].events.forEach((event, step, arr) => {
+                    console.log(`[Event.tsx]: should be setting new events into arranger, ArrangerEvent ${idx}, track ${i}`)
+                    // pattObj.tracks[i].events.forEach((event, step, arr) => {
+                    ref_pattObj.current.tracks[i].events.forEach((event, step, arr) => {
+                        console.log(`[Event.tsx]: setting stepEvent event at step ${step}, instrument`)
                         ref_toneObjects.current
                         ?.arranger[idx][i].instrument
                         .at(timeObjFromEvent(
@@ -102,13 +109,16 @@ const Event: React.FC<EventProps> = ({
                 }
                     
                 for (let j = 0; j < ref_toneObjects.current.arranger[idx][i].effects.length; j ++){
-                    ref_toneObjects.current.arranger[idx][i].effects[j].loopEnd = {'16n': pattObj.tracks[i].length}
+                    // ref_toneObjects.current.arranger[idx][i].effects[j].loopEnd = {'16n': pattObj.tracks[i].length}
+                    ref_toneObjects.current.arranger[idx][i].effects[j].loopEnd = {'16n': ref_pattObj.current.tracks[i].length}
                     ref_toneObjects.current.arranger[idx][i].effects[j].loop = true;
                     
                     if (newEvents) {
                         ref_toneObjects.current.arranger[idx][i].effects[j].clear();
                         
-                        pattObj.tracks[i].events.forEach((event, step, arr) => {
+                        // pattObj.tracks[i].events.forEach((event, step, arr) => {
+                        ref_pattObj.current.tracks[i].events.forEach((event, step, arr) => {
+                            console.log(`[Event.tsx]: setting stepEvent event at step ${step}, fx`)
                             ref_toneObjects.current
                             ?.arranger[idx][i].effects[j]
                             .at(timeObjFromEvent(
@@ -122,11 +132,13 @@ const Event: React.FC<EventProps> = ({
                 }
             }
         }
-    }
+    }, [])
             
     // setting events after first render of 
     useEffect(() => {
-        console.log('pattern was changed, setting up event part')
+        console.log(
+            '[Event.tsx]: pattern was changed, about to call setupEventPart, and set events into part'
+        )
         setupEventPart(true);
     }, [pattern])
 
@@ -139,11 +151,25 @@ const Event: React.FC<EventProps> = ({
             && selectedTrkPattLen !== prev_selectedTrkPattLen
             && selectedTrkIdx === prev_selectedTrkidx
             && activePatt === pattern
-        ) 
-            setupEventPart(false, selectedTrkIdx)
+        ) {
+            console.log(`[Event.tsx]: selected track length has been changed, 
+                and active pattern is equal to event pattern, setting up event pattern
+            `)
+            setupEventPart(false)
+        }
+            // setupEventPart(false, selectedTrkIdx)
         
 
     }, [selectedTrkPattLen, activePatt])
+
+    useEffect(() => {
+        ref_toneObjects.current?.arranger[idx].forEach((trigg, trackIdx, _) => {
+            trigg.instrument.callback = ref_toneObjects.current?.flagObjects[trackIdx].instrument.callback;
+            trigg.effects.forEach((fxTrigg, fxIndex, __) => {
+                fxTrigg.callback = ref_toneObjects.current?.flagObjects[trackIdx].effects[fxIndex].callback
+            })
+        })
+    }, []);
 
     return (
 
@@ -173,22 +199,17 @@ const Event: React.FC<EventProps> = ({
                             className={styles.out} select={(key) => { _setEventPattern(idx, Number(key)) }} 
                             selected={String(songEvent.pattern)} 
                         />
-                        { 
-                            // activePatt === pattern 
-                            true
-                            ? <EventsHandler 
-                                page={page} 
-                                selectedTrkPattLen={selectedTrkPattLen}
-                                stepEvents={stepEvents}
-                                activePatt={activePatt}
-                                arrgEventId={songEvent.id}
-                                arrgEventIdx={idx}
-                                selectedTrk={selectedTrkIdx}
-                                selectedTrkId={selectedTrkId}
-                                song={currentSong}
-                            />
-                            : null
-                        }
+                        <EventsHandler 
+                            page={page} 
+                            selectedTrkPattLen={selectedTrkPattLen}
+                            stepEvents={stepEvents}
+                            activePatt={activePatt}
+                            arrgEventId={songEvent.id}
+                            arrgEventIdx={idx}
+                            selectedTrk={selectedTrkIdx}
+                            selectedTrkId={selectedTrkId}
+                            song={currentSong}
+                        />
                     </div>
                     <div className={styles.repeat}> 
                         <NumberBox 

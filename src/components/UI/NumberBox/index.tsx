@@ -32,8 +32,9 @@ const NumberBox: React.FC<Props> = ({ value, updateValue, increaseDecrease }) =>
         }
     };
 
-    const onKeyDown = (event: React.KeyboardEvent) => {
+    function onKeyDown(this: HTMLInputElement, event: KeyboardEvent){
         const char = event.key;
+        event.stopPropagation();
         console.log('char is ', char);
         if (char.toLowerCase() === 'arrowdown') {
             console.log('should be dispatching increaseDecrase, decrase')
@@ -44,10 +45,15 @@ const NumberBox: React.FC<Props> = ({ value, updateValue, increaseDecrease }) =>
         }
     }
 
+    useEffect(() => {
+        inputRef.current?.addEventListener('keydown', onKeyDown)
+    }, [])
+
     return (
         <div className={styles.box}>
             <form onBlur={selectEventOnBlur} className={styles.form} onSubmit={onSubmit}>
-                <input onKeyDown={onKeyDown} ref={inputRef} className={styles.input} type="number" defaultValue={value} />
+                {/* <input onKeyDown={onKeyDown} ref={inputRef} className={styles.input} type="number" defaultValue={value} /> */}
+                <input ref={inputRef} className={styles.input} type="number" defaultValue={value} />
             </form>
         </div>
     )

@@ -85,7 +85,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
         voice
     )
 
-    const { instrumentCallback, arrgMode } = useInstrument(
+    const { instrumentCallback, arrgMode, setCallbacks } = useInstrument(
         ref_selectedSteps,
         ref_index, 
         index,
@@ -134,8 +134,14 @@ export const Instrument = <T extends xolombrisxInstruments>({
                         selected={selectedSteps}
                     />
 
+    const logg = () => {
+        // console.log(ref_toneObjects.current?.arranger[1][0].instrument.state);
+    }
+
     return (
         <div
+            // onClick={setCallbacks}
+            onClick={logg}
             className={styles.border}
             style={{ display: !selected ? 'none' : 'flex' }}>
             <div className={styles.deviceManager}>

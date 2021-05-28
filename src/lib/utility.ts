@@ -108,7 +108,14 @@ export function scheduleStartEnd(
   effectsArgs?: any[],
   cancel?: boolean,
 ) {
+  console.log(`[utility]: scheduleStartEnd has been called`)
     for (let i of startEndRange(0, triggs.length-1)){
+      console.log(`
+        [utility]: should be schedulling trigg to start at`, start,
+        `and end at`, end, `and cancel is ${cancel}`
+      )
+
+      triggs[i].instrument.mute = false;
 
       if (cancel)
         triggs[i].instrument.cancel() 
@@ -119,9 +126,7 @@ export function scheduleStartEnd(
       else if (end || end === 0)
         triggs[i].instrument.stop(end)
 
-      // const instArgs = instrumentArgs ? [...instrumentArgs] : null;
       const instArgs = instrumentArgs ? [...instrumentArgs] : [];
-      // const baseArg = copy && instArgs ? instArgs : null;
       const baseArg = copy && instArgs ? instArgs : [];
       const fxArgs = effectsArgs ? [...effectsArgs] : baseArg;
 
@@ -132,6 +137,7 @@ export function scheduleStartEnd(
       );
 
         for (let j of startEndRange(0, triggs[i].effects.length-1)){
+          triggs[i].effects[j].mute = false;
           if (cancel)
             triggs[i].effects[j].cancel() 
           if (start || start === 0)
@@ -149,4 +155,10 @@ export function scheduleStartEnd(
         }
     }
 
+}
+
+export function logFunction(){
+  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor){
+    console.log(`target ${target}, propertyKey ${propertyKey}, descriptor ${descriptor}`)
+  }
 }

@@ -6,7 +6,7 @@ import undoable, { newHistory, includeAction } from 'redux-undo';
 import { trackActions } from '../../store/Track'
 import { useLocation } from 'react-router-dom';
 
-import ToneObjectsContext, { ToneObjects } from '../../context/ToneObjectsContext';
+import ToneObjectsContext, { ToneObjects, triggs } from '../../context/ToneObjectsContext';
 import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
 import DropdownContext, { dropdownContext } from '../../context/DropdownContext';
@@ -98,28 +98,29 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
     const appRef = useRef<HTMLDivElement>(null);
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
+    const ref_arrgTriggs: MutableRefObject<triggs[][] | null> = useRef(null);
     const state  = useLocation<LayoutState | undefined>().state
     let ref_menus = useRef<any[]>([]);
     let ref_dropdowns = useRef<dropdownContext>({})
 
     return (
         <React.Fragment>
-            <MenuContext.Provider value={ref_menus}>
-                <DropdownContext.Provider value={ref_dropdowns}>
-                    <AppContext.Provider value={appRef}>
-                        <ToneObjectsContext.Provider value={ref_toneObjects}>
-                                <Provider store={store}>
-                                    <Layout
-                                        appRef={appRef}
-                                        arranger={state?.arranger}
-                                        sequencer={state?.sequencer}
-                                        track={state?.track}
-                                    />
-                                </Provider>
-                        </ToneObjectsContext.Provider>
-                    </AppContext.Provider>
-                </DropdownContext.Provider>
-            </MenuContext.Provider>
+                <MenuContext.Provider value={ref_menus}>
+                    <DropdownContext.Provider value={ref_dropdowns}>
+                        <AppContext.Provider value={appRef}>
+                            <ToneObjectsContext.Provider value={ref_toneObjects}>
+                                    <Provider store={store}>
+                                        <Layout
+                                            appRef={appRef}
+                                            arranger={state?.arranger}
+                                            sequencer={state?.sequencer}
+                                            track={state?.track}
+                                        />
+                                    </Provider>
+                            </ToneObjectsContext.Provider>
+                        </AppContext.Provider>
+                    </DropdownContext.Provider>
+                </MenuContext.Provider>
         </React.Fragment >
     );
 }

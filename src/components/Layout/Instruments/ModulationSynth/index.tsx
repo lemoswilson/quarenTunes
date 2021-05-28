@@ -62,7 +62,7 @@ const ModulationSynth: React.FC<InstrumentLayoutProps> = ({
                             </div>
                         </div>
                         <div className={styles.selectors}>
-                            { getCurveSelector?.('modulationEnvelope', 'horizontal', styles.curve)}
+                            { getCurveSelector?.('modulationEnvelope', 'horizontal', styles.curve, 'modulationEnvelope')}
                             { getWaveformSelector?.('modulation.type', styles.waveform)}
                         </div>
                         <div className={styles.voices}>

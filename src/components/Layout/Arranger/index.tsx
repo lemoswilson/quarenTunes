@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 
 import { arrangerMode, Song } from '../../../store/Arranger';
+import * as Tone from 'tone';
 
 import Event, { pattsObj } from './Event';
 import Dropdown from '../../UI/Dropdown';
@@ -9,6 +10,7 @@ import Plus from '../../UI/Plus';
 import Minus from '../../UI/Minus'
 
 import styles from './style.module.scss'
+import ToneObjectsContext from '../../../context/ToneObjectsContext';
 
 interface ArrangerLayoutProps {
     arrangerDispatchers: {
@@ -40,6 +42,7 @@ const Arranger: React.FC<ArrangerLayoutProps> = ({
     isPlay,
     songs
 }) => {
+    const ref_toneObjects = useContext(ToneObjectsContext);
 
     return (
         <div className={styles.border}>

@@ -1,6 +1,6 @@
 import { getFinalStep, startEndRange } from '../../lib/utility';
 import { event } from '../../store/Sequencer';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Handler from './Handler';
 
 interface EventsHandlerProps {

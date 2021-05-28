@@ -84,7 +84,7 @@ export const createCurveSelector = (
         display={orientation}
         selectCurve={selectCurve}
         tabIndex={tabIndex}
-        selected={ drumrack ? getNested(props.options, property)[0] :getNested(props.options, property).decayCurve[0]}
+        selected={ drumrack ? getNested(props.options, property)[0] : getNested(props.options, property).decayCurve[0]}
         className={className}
     />
 }

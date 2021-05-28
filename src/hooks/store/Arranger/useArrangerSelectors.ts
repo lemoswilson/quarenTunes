@@ -19,7 +19,6 @@ export const useArrangerSelector = () => {
 	const activeSongObj = useSelector(currentSongObjSelector(currentSong));
 	const songEvents = useSelector(currentSongEventsSelector(currentSong))
     const ref_songEvents = useQuickRef(songEvents);
-	const hashedPatterns = useSelector(hashPatternsSelector(currentSong));
 	const isFollow = useSelector(isFollowSelector);
 	const ref_isFollow = useQuickRef(isFollow);
 	const songs = useSelector(songsSelector);
@@ -34,7 +33,6 @@ export const useArrangerSelector = () => {
         activeSongObj,
         songEvents,
         ref_songEvents,
-        hashedPatterns,
         songLength,
         ref_isFollow,
         songs,

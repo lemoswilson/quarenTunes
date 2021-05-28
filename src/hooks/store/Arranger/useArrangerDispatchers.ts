@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 import { MutableRefObject } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
     setActivePlayer,
     addRow,
@@ -23,6 +23,8 @@ import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
 import { DropResult } from 'react-beautiful-dnd';
 import triggEmitter, { triggEventTypes } from '../../../lib/Emitters/triggEmitter';
 import { Track } from '../../../store/Track';
+import { trackSelector } from '../../../store/Track/selectors';
+import { hashPatternsSelector } from '../../../store/Arranger/selectors';
 
 export const useArrangerDispatchers = (
     ref_toneObjects: ToneObjectContextType,
@@ -33,10 +35,12 @@ export const useArrangerDispatchers = (
     trkCount: number,
     songEvents: songEvent[], 
     songs: {[key: number]: Song},
-    Track: Track,
+    // Track: Track,
 ) => {
     const dispatch = useDispatch();
-    	// dispatchers
+	const Track = useSelector(trackSelector);
+
+
 	const goToPattern = (pattern: number, eventIndex: number,) => {
 		console.log('should be going to pattern, pattern is', pattern, 'event index is', eventIndex);
 
