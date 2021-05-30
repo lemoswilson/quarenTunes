@@ -3,6 +3,54 @@ import { initialsArray, effectsInitialsArray } from '../../containers/Track/Inst
 import { onlyValues } from "../objectDecompose";
 import DrumRackInstrument from './DrumRack';
 import * as Tone from 'tone';
+import { ToneObjectContextType } from "../../context/ToneObjectsContext";
+import clap from '../../assets/drumkit/clap.mp3';
+import hh1 from '../../assets/drumkit/hh1.mp3';
+import hh2 from '../../assets/drumkit/hh2.mp3';
+import snare from '../../assets/drumkit/snare.mp3';
+import kick1 from '../../assets/drumkit/kick1.mp3'
+import kick2 from '../../assets/drumkit/kick2.mp3'
+import ohh1 from '../../assets/drumkit/ohh1.mp3'
+import ohh2 from '../../assets/drumkit/ohh2.mp3'
+import ohh3 from '../../assets/drumkit/ohh3.mp3'
+
+export enum samples {
+    CLAP_HIP_HOP = 'Clap 1',
+    HI_HAT_1 = 'HH 1',
+    HI_HAT_2 = 'HH 2',
+    SNARE_HIP_HOP = 'Snare 1',
+    KICK_1 = 'Kick 1',
+    KICK_2 = 'Kick 2',
+    OHH_1 = "OHH 1",
+    OHH_2 = "OHH 2",
+    OHH_3 = "OHH 3"
+}
+
+export const getSample = (sample: samples) => {
+    switch(sample){
+        case samples.CLAP_HIP_HOP:
+            return clap
+        case samples.HI_HAT_1:
+            return hh1
+        case samples.HI_HAT_2:
+            return hh2
+        case samples.SNARE_HIP_HOP:
+            return snare
+        case samples.KICK_1:
+            return kick1
+        case samples.KICK_2:
+            return kick2
+        case samples.OHH_1:
+            return ohh1
+        case samples.OHH_2:
+            return ohh2
+        case samples.OHH_3:
+            return ohh3
+        default:
+            return kick1;
+    }
+}
+
 
 export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArray) => {
     let options = onlyValues(opt);
@@ -21,6 +69,7 @@ export const returnInstrument = (voice: xolombrisxInstruments, opt: initialsArra
         // case xolombrisxInstruments.PLUCKSYNTH:
         //     return new Tone.PluckSynth(options);
         case xolombrisxInstruments.DRUMRACK:
+            console.log(`returning drumrack, options is `, options) ;
             // return new DrumRackInstrument(opt)
             return new DrumRackInstrument(options)
         default:
@@ -79,4 +128,23 @@ export const returnEffect = (type: effectTypes, opt: effectsInitialsArray) => {
         default:
             return new Tone.Vibrato(options)
     }
+}
+
+export const reconnect = (ref_toneObjects: ToneObjectContextType, trackIndex: number) => {
+if (ref_toneObjects.current){
+    const chain = ref_toneObjects.current.tracks[trackIndex].chain
+    
+    ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
+    chain.in.disconnect()
+
+    for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
+        ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
+
+    ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(
+        chain.in, 
+        ...ref_toneObjects.current.tracks[trackIndex].effects, 
+        chain.out
+    )
+
+}
 }

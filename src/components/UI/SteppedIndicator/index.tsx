@@ -13,7 +13,6 @@ interface SteppedIndicator {
     ccMouseCalculationCallback: (e: any) => void;
     tabIndex: number,
     valueUpdateCallback: (value: any) => void;
-    // curveFunction: (input: number) => number;
     label: string;
     midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
     unit: string;
@@ -27,7 +26,6 @@ export interface indicatorProps {
     valueUpdateCallback: (value: any) => void,
     captureStartDiv?: (e: React.MouseEvent) => void,
     label: string,
-    // indicatorData: string,
     options: string[],
     className?: string,
     unit?: string,
@@ -48,15 +46,44 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
     midiLearn,
     unit
 }) => {
+
     const appRef = useContext(AppContext);
     const [isMoving, setMovement] = useState(false)
     const [display, setDisplay] = useState(true);
+    const [internalValue, setInternal] = useState(15);
+
     // const [selectedOption, setOption] = useState('xola');
     let shouldRemove = false;
 
-    const mouseMove = useCallback((e: MouseEvent) => {
-        ccMouseCalculationCallback(e);
-    }, [ccMouseCalculationCallback]);
+    // const mouseMove = useCallback((e: MouseEvent) => {
+
+    //     if (
+    //         ( internalValue === 30 && e.movementY < 0 )
+    //         || (internalValue === 0 && e.movementY > 0)
+    //     ){
+    //         ccMouseCalculationCallback(e);
+
+    //     }
+    // }, [ccMouseCalculationCallback]);
+
+    const mouseMove = (e: MouseEvent) => {
+        console.log(`calling mouse move, internal value is ${internalValue}, e.movementY is ${e.movementY}, abs movy is ${Math.abs(e.movementY)}`)
+        const x = 5 
+
+        if (
+            ( internalValue === x * 2 && e.movementY < 0 )
+            || (internalValue === 0 && e.movementY > 0)
+        ){
+            setInternal(x);
+            ccMouseCalculationCallback(e);
+        } else if (e.movementY !== 0) {
+            setInternal(v => v - e.movementY/Math.abs(e.movementY))
+        } else if ( internalValue > 2 * x || internalValue < 0){
+            setInternal(x);
+            ccMouseCalculationCallback(e);
+        }
+
+    };
 
     useEffect(() => {
         const main = appRef.current

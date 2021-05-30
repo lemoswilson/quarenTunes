@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3';
-import { toneEffects } from '../../store/Track';
+import { effectTypes, toneEffects, xolombrisxInstruments } from '../../store/Track';
 import { PolySynth } from 'tone';
 import { ExtractEventParameters } from './triggEmitter'
 
@@ -17,19 +17,18 @@ export type TrackEvent =
     | {
         event: trackEventTypes.ADD_EFFECT,
         trackIndex: number,
-        effect: toneEffects,
+        effect: effectTypes,
         effectIndex: number,
     }
     | {
         event: trackEventTypes.ADD_INSTRUMENT,
-        trackIndex: number,
-        instrument: any,
+        instrument: xolombrisxInstruments,
         // instrument: PolySynth,
     }
     | {
         event: trackEventTypes.CHANGE_EFFECT,
-        trackId: number,
-        effect: toneEffects,
+        trackIndex: number,
+        effect: effectTypes,
         effectsIndex: number,
     }
     | {
@@ -41,7 +40,7 @@ export type TrackEvent =
     | {
         event: trackEventTypes.CHANGE_INSTRUMENT,
         trackIndex: number,
-        instrument: any,
+        instrument: xolombrisxInstruments,
         // instrument: PolySynth,
     }
     | {

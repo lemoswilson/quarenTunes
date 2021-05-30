@@ -20,7 +20,7 @@ export const useKeyboardNote = (
     const dispatch = useDispatch();
     const ref_keyboardRange = useKeyboardRangeSelector()
     const isKeyboard = midi.device === 'onboardKey' && midi.channel === 'all';
-    const isSelectedTrk = ref_index.current === ref_selectedTrkIdx.current
+    // const isSelectedTrk = ref_index.current === ref_selectedTrkIdx.current
 
 
     
@@ -31,7 +31,7 @@ export const useKeyboardNote = (
             if (Object.keys(noteDict).includes(key)) {
                 const noteNumber = noteDict[key] + (ref_keyboardRange.current * 12)
                 const noteName = numberToNote(noteNumber);
-                if (noteNumber < 127 && isKeyboard && isSelectedTrk) {
+                if (noteNumber < 127 && isKeyboard && ref_index.current === ref_selectedTrkIdx.current) {
                     const time = Date.now() / 1000;
                     dispatch(noteOn([noteNumber], 'onboardKey', 'all'));
                     noteInCallback(noteNumber, noteName, time)

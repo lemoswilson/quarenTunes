@@ -1,7 +1,7 @@
 import { useEffect, MutableRefObject } from 'react';
 import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray } from '../../../containers/Track/Instruments'
 // import { returnInstrument } from '../containers/Xolombrisx';
-import { returnInstrument } from '../../../lib/Tone/initializers'
+import { getSample, returnInstrument } from '../../../lib/Tone/initializers'
 // import { effectsInitials, effectsInitialsArray, eventOptions, initialsArray } from '../containers/Track/Instruments'
 import { RecursivePartial } from '../../../containers/Track/Instruments'
 import usePrevious from '../../lifecycle/usePrevious';
@@ -16,9 +16,40 @@ import { generalEffectOptions } from '../../../store/Track';
 import { triggs } from '../../../context/ToneObjectsContext';
 
 
+// export const useProperty = (
+//     // ref: any,
+//     // ref: MutableRefObject<ReturnType<typeof returnInstrument>>,
+//     ref: MutableRefObject<ReturnType<typeof returnInstrument>>,
+//     // obj: initialsArray,
+//     obj: any,
+//     t: keyof initialsArray,
+//     isObject: boolean = false,
+//     voice?: xolombrisxInstruments,
+// ) => {
+//     let a = obj[t]
+//     useEffect(() => {
+//         if (a) {
+//             let v: any;
+//             // console.log('updating property', t);
+//             if (isObject) {
+//                 v = {
+//                     [t]: onlyValues(a),
+//                 }
+//             } else if (Array.isArray(a)) {
+//                 v = {
+//                     [t]: a[0],
+//                 }
+//             }
+//             console.log('a is', a, 'v is ', v, 'ref is ', ref);
+//             ref.current.set(v);
+//         }
+//     }, [a, isObject, ref, t])
+// };
+
 export const useProperty = (
     // ref: any,
-    ref: MutableRefObject<ReturnType<typeof returnInstrument>>,
+    // ref: MutableRefObject<ReturnType<typeof returnInstrument>>,
+    ref: ReturnType<typeof returnInstrument>,
     // obj: initialsArray,
     obj: any,
     t: keyof initialsArray,
@@ -39,7 +70,8 @@ export const useProperty = (
                     [t]: a[0],
                 }
             }
-            ref.current.set(v);
+            console.log('a is', a, 'v is ', v, 'ref is ', ref);
+            ref.set(v);
         }
     }, [a, isObject, ref, t])
 };
@@ -68,11 +100,48 @@ export const useProperties = (
     useProperty(instrumentRef, options, 'volume')
 }
 
+// export const useDrumRackProperty = (
+//     // ref: MutableRefObject<DrumRack>,
+//     ref: any,
+//     obj: { [key: string]: any },
+//     prop: keyof ReturnType<typeof DrumRackSlotInitials>,
+//     drumPad: string,
+//     isObject: boolean = false,
+//     voice?: xolombrisxInstruments
+// ) => {
+//     let a = voice === xolombrisxInstruments.DRUMRACK ? obj[drumPad][prop] : false;
+//     // if (a) {
+
+//     // }
+//     useEffect(() => {
+//         if (a) {
+//             console.log('ta teno a');
+//             let v: any;
+//             if (isObject) {
+//                 // console.log()
+//                 v = {
+//                     [prop]: onlyValues(a),
+//                 }
+//             } else if (Array.isArray(a)) {
+//                 v = {
+//                     [prop]: a[0]
+//                 }
+//             } else {
+//                 v = {
+//                     [prop]: a,
+//                 }
+//             }
+//             console.log('should be setting value into drum pad', Number(drumPad[4]));
+//             ref.current.set(v, Number(drumPad[4]))
+//         }
+//     }, [a, isObject, ref, prop])
+// }
+
 export const useDrumRackProperty = (
     // ref: MutableRefObject<DrumRack>,
     ref: any,
     obj: { [key: string]: any },
-    prop: keyof typeof DrumRackSlotInitials,
+    prop: keyof ReturnType<typeof DrumRackSlotInitials>,
     drumPad: string,
     isObject: boolean = false,
     voice?: xolombrisxInstruments
@@ -83,6 +152,7 @@ export const useDrumRackProperty = (
     // }
     useEffect(() => {
         if (a) {
+            console.log('ta teno a');
             let v: any;
             if (isObject) {
                 // console.log()
@@ -98,7 +168,8 @@ export const useDrumRackProperty = (
                     [prop]: a,
                 }
             }
-            ref.current.set(v, Number(drumPad[4]))
+            console.log('should be setting value into drum pad', Number(drumPad[4]));
+            ref.set(v, Number(drumPad[4]))
         }
     }, [a, isObject, ref, prop])
 }
@@ -106,31 +177,78 @@ export const useDrumRackProperty = (
 export const useDrumRackProperties = (
     instrumentRef: any,
     options: any,
+    voice: xolombrisxInstruments
 ) => {
-    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_0')
-    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_1')
-    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_2')
-    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_3')
-    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_0')
-    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_1')
-    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_2')
-    useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_3')
-    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_0')
-    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_1')
-    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_2')
-    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_3')
-    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_0')
-    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_1')
-    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_2')
-    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_3')
-    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_0', true)
-    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_1', true)
-    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_2', true)
-    useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_3', true)
-    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_0')
-    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_1')
-    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_2')
-    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_3')
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_0', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_1', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_2', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'attack', 'PAD_3', false, voice)
+    // useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_0', false, voice)
+    // useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_1', false, voice)
+    // useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_2', false, voice)
+    // useDrumRackProperty(instrumentRef, options, 'baseUrl', 'PAD_3', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_0', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_1', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_2', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'curve', 'PAD_3', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_0', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_1', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_2', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'release', 'PAD_3', false, voice)
+    // useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_0', true, voice)
+    // useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_1', true, voice)
+    // useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_2', true, voice)
+    // useDrumRackProperty(instrumentRef, options, 'urls', 'PAD_3', true, voice)
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_0', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_1', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_2', false, voice)
+    useDrumRackProperty(instrumentRef, options, 'volume', 'PAD_3', false, voice)
+
+}
+
+export const useSampleSelector = (
+    ref: any,
+    obj: { [key: string]: any },
+    voice: xolombrisxInstruments,
+) => {
+    const pad_0 = voice === xolombrisxInstruments.DRUMRACK ? obj.PAD_0.urls.C3 : false;
+    const pad_1 = voice === xolombrisxInstruments.DRUMRACK ? obj.PAD_1.urls.C3 : false;
+    const pad_2 = voice === xolombrisxInstruments.DRUMRACK ? obj.PAD_2.urls.C3 : false;
+    const pad_3 = voice === xolombrisxInstruments.DRUMRACK ? obj.PAD_3.urls.C3 : false;
+    const prev_pad_0 = usePrevious(pad_0)
+    const prev_pad_1 = usePrevious(pad_1)
+    const prev_pad_2 = usePrevious(pad_2)
+    const prev_pad_3 = usePrevious(pad_3)
+
+    useEffect(() => {
+        if (prev_pad_0 && prev_pad_0 !== pad_0){
+            console.log('should be setting new sample, pad_0')
+            console.log('current ref is ', ref);
+            ref.add(getSample(pad_0), 0)
+        }
+    }, [pad_0])
+
+    useEffect(() => {
+        if (prev_pad_1 && prev_pad_1 !== pad_1){
+            console.log('should be setting new sample, pad_1')
+            ref.add(getSample(pad_1), 1)
+        }
+    }, [pad_1])
+
+    useEffect(() => {
+        if (prev_pad_2 && prev_pad_2 !== pad_2){
+            console.log('should be setting new sample, pad_2')
+            ref.add(getSample(pad_2), 2)
+        }
+    }, [pad_2])
+
+    useEffect(() => {
+        if (prev_pad_3 && prev_pad_3 !== pad_3){
+            console.log('should be setting new sample, pad_3')
+            ref.add(getSample(pad_3), 3)
+        }
+    }, [pad_3])
+
 }
 
 export const useEffectProperty = (

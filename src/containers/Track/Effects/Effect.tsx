@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useContext, MutableRefObject } from 'react';
+import React, { useRef, useMemo, useContext, MutableRefObject, useState, useEffect } from 'react';
 import { useEffectProperties } from '../../../hooks/store/Track/useProperty';
 
 import { useSelector } from 'react-redux';
@@ -55,6 +55,8 @@ const Effect: React.FC<effectsProps> = ({
     changeEffect, 
     addEffect 
 }) => {
+    const [ firstRender, setRender ] = useState(true);
+    const ref_firstRender = useRef(true);
     const ref_toneObjects = useContext(ToneObjectsContext);
     const ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null> = useRef(null)
 
@@ -68,6 +70,13 @@ const Effect: React.FC<effectsProps> = ({
     const fxCount = useSelector(fxCountSelector(trackIndex));
     const pattsTrkEvents = useSelector(pattsTrkEventsSelector(trackIndex));
 
+    useEffect(() => {
+        console.log('[Effect]: first render, value is ', firstRender);
+        if (firstRender){
+            ref_ToneEffect.current = returnEffect(type, options)
+        }
+    }, [firstRender])
+
     const { propertiesIncDec, propertiesUpdate,removeEffectPropertyLockCallbacks} = useEffectDispathchers(
         fxProps,
         type,
@@ -79,9 +88,9 @@ const Effect: React.FC<effectsProps> = ({
         ref_selectedSteps,
     )
 
-    const effectCallback = useFx(
+    useFx(
         fxProps, 
-        trackId,
+        trackIndex,
         fxIndex,
         ref_options,
         ref_toneObjects, 
@@ -90,17 +99,20 @@ const Effect: React.FC<effectsProps> = ({
         propertiesUpdate,
     )
 
-    useUpdateFx(
-        trackIndex,
-        fxIndex,
-        fxId,
-        type,
-        options,
-        ref_ToneEffect,
-        ref_options,
-        ref_toneObjects,
-        effectCallback,
-    )
+    // useUpdateFx(
+    //     trackIndex,
+    //     fxIndex,
+    //     fxId,
+    //     type,
+    //     options,
+    //     ref_ToneEffect,
+    //     ref_options,
+    //     ref_toneObjects,
+    //     firstRender,
+    //     ref_firstRender,
+    //     setRender,
+    //     effectCallback,
+    // )
 
     useEffectProperties(ref_ToneEffect, options)
 

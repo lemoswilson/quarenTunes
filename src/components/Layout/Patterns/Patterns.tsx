@@ -9,7 +9,7 @@ import usePrevious from '../../../hooks/lifecycle/usePrevious';
 import { SequencerDispatchers } from '../../../hooks/store/Sequencer/useSequencerDispatchers';
 
 interface Patterns {
-    activePattern: number,
+    activePatt: number,
     selected: number[],
     patternLength: string | number,
     patterns: { [key: number]: Pattern }
@@ -22,7 +22,7 @@ interface Patterns {
 }
 
 const Patterns: React.FC<Patterns> = ({
-    activePattern,
+    activePatt,
     isPlay,
     patterns,
     patternLength,
@@ -208,11 +208,12 @@ const Patterns: React.FC<Patterns> = ({
                             select={ sequencerDispatchers._selectPatt}
                             renamable={true}
                             dropdownId='patterns'
-                            selected={String(activePattern)}
+                            selected={String(activePatt)}
                             className={styles.dropdown}
                             keyValue={Object.keys(patterns).map(
                                 k => [String(k), patterns[Number(k)].name])
                             }
+                            value={patterns[activePatt].name}
                         />
                     </div>
                     <div className={styles.increase}>

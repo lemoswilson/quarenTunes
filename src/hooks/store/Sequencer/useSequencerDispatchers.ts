@@ -28,7 +28,6 @@ import {
     incDecPTVelocity, 
 } from '../../../store/Sequencer';
 import { counterSelector } from '../../../store/Sequencer/selectors';
-import { arrangerMode } from '../../../store/Arranger';
 import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
 
 
@@ -41,8 +40,8 @@ const useSequencerDispatchers = (
     ref_activePatt: MutableRefObject<number>,
     ref_selectedSteps: MutableRefObject<number[]>,
     ref_activePage: MutableRefObject<number>,
-    arrangerMode: arrangerMode,
-    isFollow: boolean,
+    // arrangerMode: arrangerMode,
+    // isFollow: boolean,
     selectedTrkIdx: number,
     ref_selectedTrkIdx: MutableRefObject<number>,
     ref_trkCount: MutableRefObject<number>,
@@ -88,8 +87,6 @@ const useSequencerDispatchers = (
         let nextPattern: number = Number(key);
         let currPatt = activePatt;
 
-        if (arrangerMode === 'pattern'){
-            console.log('sequencer_container.tsx: selecting pattern, tone trasport state is ', Tone.Transport.state);
 
             if (Tone.Transport.state === 'started') {
 
@@ -132,10 +129,6 @@ const useSequencerDispatchers = (
                 scheduleOrStop('stop');
                 dispatch(selectPattern(nextPattern));
             }
-        } else {
-            if (!isFollow)
-                dispatch(selectPattern(nextPattern));
-        }
     };
 
 

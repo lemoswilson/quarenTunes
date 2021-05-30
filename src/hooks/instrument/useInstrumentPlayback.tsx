@@ -4,7 +4,6 @@ import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumen
 import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../lib/objectDecompose';
 import { initials, eventOptions } from '../../containers/Track/Instruments';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
-import { arrangerMode, patternTrackerType, songEvent } from '../../store/Arranger';
 import { returnInstrument } from '../../lib/Tone/initializers';
 import { useIsPlaySelector } from '../store/Transport/useTransportSelectors';
 import { pattsNoteLenSelector } from '../../store/Sequencer/selectors';
@@ -15,13 +14,13 @@ export const useInstrumentPlayback = (
     index: number, 
     ref_index: MutableRefObject<number>,
     ref_options: any,
-    ref_arrgMode: MutableRefObject<arrangerMode>,
+    // ref_arrgMode: MutableRefObject<arrangerMode>,
     ref_pattsVelocities: MutableRefObject<{[key: string]: number}>,
     ref_activePatt: MutableRefObject<number>,
-    ref_pattTracker: MutableRefObject<patternTrackerType>,
-    ref_songEvents: MutableRefObject<songEvent[]>,
-    ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null>,
+    // ref_pattTracker: MutableRefObject<patternTrackerType>,
+    // ref_songEvents: MutableRefObject<songEvent[]>,
     voice: xolombrisxInstruments,
+    trkCount: number,
     propertiesUpdate: any,
 ) => {
     const dispatch = useDispatch();
@@ -56,7 +55,7 @@ export const useInstrumentPlayback = (
 
 
     const instrumentCallback = useCallback((time: number, value: eventOptions) => {
-        console.log('[useInstrumentPlayback]: instrumentCallback has been called') ;
+        // console.log('[useInstrumentPlayback]: instrumentCallback has been called, fx index is ', ref_index) ;
 
         const eventProperties = propertiesToArray(value).concat(propertiesToArray(ref_lockedParameters.current).concat('velocity, length, note'));
 
@@ -91,22 +90,21 @@ export const useInstrumentPlayback = (
 
         let velocity: number = value.velocity
         ? value.velocity
-        : ref_arrgMode.current === "pattern"
-            ? ref_pattsVelocities.current[ref_activePatt.current]
-            : ref_pattTracker.current.patternPlaying > -1 ? ref_pattsVelocities.current[ref_pattTracker.current.patternPlaying] : ref_pattsVelocities.current[ref_songEvents.current[ref_pattTracker.current.playbackStart].pattern]
+        : ref_pattsVelocities.current[ref_activePatt.current];
+
         let length: string | number | undefined = value.length
-            ? value.length
-            : ref_arrgMode.current === "pattern"
-                ? ref_pattsNoteLen.current[ref_activePatt.current]
-                : ref_pattTracker.current.patternPlaying > -1 ? ref_pattsNoteLen.current[ref_pattTracker.current.patternPlaying] : ref_pattsNoteLen.current[ref_songEvents.current[ref_pattTracker.current.playbackStart].pattern]
+        ? value.length
+        : ref_pattsNoteLen.current[ref_activePatt.current];
+
         let notes: string[] | undefined = value.note ? value.note : undefined;
 
         // note playback
         if (notes) {
             // should fix this 
             notes.forEach(note => {
-                if (note && ref_ToneInstrument.current) {
-                    const t: any = ref_ToneInstrument.current;
+                if (note && ref_toneObjects.current) {
+                    const t: any = ref_toneObjects.current.tracks[ref_index.current].instrument;
+
                     if (voice === xolombrisxInstruments.NOISESYNTH) {
                         t.triggerAttackRelease(
                             length ? length : 0,
@@ -128,36 +126,37 @@ export const useInstrumentPlayback = (
 
     const setCallbacks = useCallback(() => {
         console.log('[useInstrumentPlayback]: should be setting callbacks');
-        ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-            if (ref_toneObjects.current)
-                ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
-        })
 
         if (ref_toneObjects.current) {
             for (const key in ref_toneObjects.current?.patterns){
                 ref_toneObjects.current.patterns[key][index].instrument.callback = instrumentCallback;
             }
 
+            if (ref_toneObjects.current.flagObjects.length < trkCount){
+                ref_toneObjects.current.flagObjects.push({
+                    effects: [
+                        {
+                            callback: undefined, 
+                            flag: false
+                        }
+                    ], 
+                    instrument: {
+                        callback: undefined, 
+                        flag: false
+                    },
+                })
+            }
+            
             ref_toneObjects.current.flagObjects[index].instrument.callback = instrumentCallback;
+
         }
     }, [instrumentCallback]);
 
     useEffect(() => {
         console.log(`[useInstrumentPlayback]: should be updating instrument callback of track ${index}`);
         setCallbacks();
-        // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-        //     if (ref_toneObjects.current)
-        //         ref_toneObjects.current.arranger[idx][index].instrument.callback = instrumentCallback;
-        // })
-
-        // if (ref_toneObjects.current) {
-        //     for (const key in ref_toneObjects.current?.patterns){
-        //         ref_toneObjects.current.patterns[key][index].instrument.callback = instrumentCallback;
-        //     }
-
-        //     ref_toneObjects.current.flagObjects[index].instrument.callback = instrumentCallback;
-        // }
-    }, [instrumentCallback, voice])
+    }, [setCallbacks, trkCount])
 
     return { ref_isPlay, instrumentCallback, setCallbacks };
+
 }

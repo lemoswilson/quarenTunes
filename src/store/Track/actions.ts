@@ -8,6 +8,22 @@ import {
 	generalInstrumentOptions,
 } from "./types";
 
+export function setSample(
+	trackIndex: number,
+	pad: number,
+	sample: string
+){
+	return {
+		type: trackActions.SET_SAMPLE,
+		payload: {
+			trackIndex: trackIndex,
+			pad: pad,
+			sample: sample,
+		}
+	}
+}
+
+
 export function updateEnvelopeCurve(
 	track: number,
 	target: 'envelope' | 'modulationEnvelope' | 'drumrack',

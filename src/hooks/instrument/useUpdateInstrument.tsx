@@ -2,7 +2,6 @@ import React, { MutableRefObject, useEffect, useContext } from 'react';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import Chain from '../../lib/Tone/fxChain';
 import { returnInstrument } from '../../lib/Tone/initializers';
-import { arrangerMode } from '../../store/Arranger';
 import { xolombrisxInstruments } from '../../store/Track';
 import usePrevious from '../lifecycle/usePrevious';
 
@@ -13,9 +12,9 @@ export const useUpdateInstrument = (
     index: number, 
     prev_voice: xolombrisxInstruments,
     voice: xolombrisxInstruments,
-    activePatt: number,
-    arrgMode: arrangerMode,
-    trkPattsLen: {[key: number]: number},
+    // activePatt: number,
+    // arrgMode: arrangerMode,
+    // trkPattsLen: {[key: number]: number},
     firstRender: boolean, 
     instrumentCallback: (time: number, value: any) => void,
     setRender: React.Dispatch<React.SetStateAction<boolean>>,
@@ -26,18 +25,6 @@ export const useUpdateInstrument = (
 
         if (firstRender && ref_toneObjects.current) {
 
-            if (index >= ref_toneObjects.current.tracks.length) {
-
-                ref_toneObjects.current.tracks.push({chain: new Chain(), effects: [], instrument: undefined})
-
-                ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
-                ref_ToneInstrument.current?.connect(ref_toneObjects.current.tracks[index].chain.in);
-
-            } else if (index < ref_toneObjects.current.tracks.length && !ref_toneObjects.current.tracks[index].instrument) {
-
-                ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
-                ref_ToneInstrument.current?.connect(ref_toneObjects.current.tracks[index].chain.in);
-            }
 
             ref_toneObjects.current.flagObjects[index].instrument.callback = instrumentCallback
             // ooooh dumb as fuck boooi, u have to create the new entry in the ref_toneTrigg before
@@ -75,10 +62,12 @@ export const useUpdateInstrument = (
             if (ref_toneObjects.current && index < ref_toneObjects.current.tracks.length && ref_toneObjects.current.tracks[index].instrument) {
                 const inst = ref_toneObjects.current.tracks[index].instrument
                 const chain = ref_toneObjects.current.tracks[index].chain;
+
                 if (inst) {
                     inst.disconnect();
                     inst.dispose();
                 }
+
                 ref_ToneInstrument.current.connect(chain.in);
                 ref_toneObjects.current.tracks[index].instrument = ref_ToneInstrument.current;
 

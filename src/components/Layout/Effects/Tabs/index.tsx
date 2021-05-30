@@ -180,10 +180,15 @@ const Tabs: React.FC<TabsProps> = ({
                     </div> 
                 </div> 
             </div>  
-            <div ref={divRef} className={styles.plus}>
-                <img className={styles.svg} src={mais} alt='plus' width={'100%'} height={'100%'} /> 
-                { isAddOpen ? effectListPicker : null }
-            </div> 
+            {
+                fxCount < 2 
+                ? <div ref={divRef} className={styles.plus}>
+                    <img className={styles.svg} src={mais} alt='plus' width={'100%'} height={'100%'} /> 
+                    { isAddOpen ? effectListPicker : null }
+                </div> 
+                : null
+            }
+
         </div>
     )
 }

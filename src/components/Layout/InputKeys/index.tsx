@@ -156,7 +156,7 @@ const InputKeys: React.FC<InputKeys> = ({
                     </div>
                     <div className={styles.select}>
                         {/* <Dropdown renamable={false} keyValue={subdivisionOptions.map(value => [value, value])} small={true} className={''} selected={String(selectedNoteLength)} select={(length) => { setPatternNoteLength(length) }}></Dropdown> */}
-                        <Dropdown dropdownId={'inputKey'} renamable={false} keyValue={subdivisionOptions.map(value => [value, value])} small={true} className={''} selected={selectedNoteLength()} select={(length) => { setPatternNoteLength(length) }}></Dropdown>
+                        <Dropdown dropdownId={'inputKey'} renamable={false} keyValue={subdivisionOptions.map(value => [value, value])} small={true} className={''} selected={selectedNoteLength()} value={selectedNoteLength()} select={(length) => { setPatternNoteLength(length) }}></Dropdown>
                         {/* dropdown here */}
                     </div>
                 </div>

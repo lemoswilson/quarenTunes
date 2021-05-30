@@ -183,6 +183,10 @@ export function trackReducer(
 					draft.tracks[idx].midi.device = undefined
 					draft.tracks[idx].midi.channel = undefined
 				})
+				break;
+			case trackActions.SET_SAMPLE:
+				draft.tracks[a.payload.trackIndex].options[`PAD_${a.payload.pad}`].urls.C3 = a.payload.sample
+				break;
 		}
 	});
 }

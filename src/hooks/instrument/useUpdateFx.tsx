@@ -4,6 +4,8 @@ import { returnEffect } from '../../lib/Tone/initializers';
 import { Gain } from 'tone';
 import { toneEffects } from '../../store/Track';
 import usePrevious from '../lifecycle/usePrevious';
+import { useSelector } from 'react-redux';
+import { effectsLengthsSelector } from '../../store/Track/selectors';
 
 export const useUpdateFx = (
     trackIndex: number,
@@ -15,57 +17,68 @@ export const useUpdateFx = (
     ref_ToneEffect: MutableRefObject<ReturnType<typeof returnEffect> | null >,
     ref_options: MutableRefObject<any>,
     ref_toneObjects: ToneObjectContextType,
+    firstRender: boolean, 
+    ref_firstRender: MutableRefObject<boolean>, 
+    setRender: any,
     effectCallback: (time: number, value: any) => void,
 ) => {
-    const [firstRender, setRender] = useState(true);
+    // const [firstRender, setRender] = useState(true);
+    const effectsLength = useSelector(effectsLengthsSelector);
+    const fxCount = effectsLength[trackIndex]
     const prev_type = usePrevious(type)
 
     // add effect first render logic 
     useEffect(() => {
+        if (ref_firstRender.current) {
         if (firstRender) {
+            console.log('this is first render');
             // toneRefEmitter.emit(
             //     trackEventTypes.ADD_EFFECT,
             //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
             // );
-            ref_ToneEffect.current = returnEffect(type, options)
+            // ref_ToneEffect.current = returnEffect(type, options)
             
-            if (ref_toneObjects.current) {
+            if (ref_toneObjects.current && ref_ToneEffect.current) {
                 let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
-                let chain = ref_toneObjects.current.tracks[trackIndex].chain;
-                
-                // ref_ToneEffect.current.chain()
-                // ref_ToneEffect.current.disconnect()
-                
-                // splice actually pushes to array if index passed is === length
-
-                ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
-
-                Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                    let k = parseInt(key);
-                    if (ref_toneObjects.current){
-                        ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                    }
-
-                });
-
-                ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-                    if (ref_toneObjects.current) {
-                        ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
-                    }
-                })
-
-                // ref_toneObjects.current.flagObjects[trackIndex].effects.splice(fxIndex, 0, {callback: effectCallback, flag: false})
-                ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
-
-                for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
-                    ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
-
-                ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
-                chain.in.disconnect()
-
-                ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
+                if (lgth < fxCount && fxIndex === 1) {
+                    let chain = ref_toneObjects.current.tracks[trackIndex].chain;
+                    
+                    // ref_ToneEffect.current.chain()
+                    // ref_ToneEffect.current.disconnect()
+                    
+                    // splice actually pushes to array if index passed is === length
+    
+                    ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
+    
+                    Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                        let k = parseInt(key);
+                        if (ref_toneObjects.current){
+                            ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                        }
+    
+                    });
+    
+                    // ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+                    //     if (ref_toneObjects.current) {
+                    //         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
+                    //     }
+                    // })
+    
+                    // ref_toneObjects.current.flagObjects[trackIndex].effects.splice(fxIndex, 0, {callback: effectCallback, flag: false})
+                    ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
+    
+                    for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
+                        ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
+    
+                    ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
+                    chain.in.disconnect()
+    
+                    ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
+                }
             }
             setRender(false);
+        }
+            // ref_firstRender.current = false;
         }
 
     }, [])
@@ -108,10 +121,10 @@ export const useUpdateFx = (
                         ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
                 });
 
-                ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-                    if (ref_toneObjects.current)
-                        ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback
-                })
+                // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+                //     if (ref_toneObjects.current)
+                //         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback
+                // })
 
 
                 ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;

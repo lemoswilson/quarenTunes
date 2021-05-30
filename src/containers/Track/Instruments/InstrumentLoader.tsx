@@ -166,6 +166,10 @@ const InstrumentLoader: React.FC<InstrumentLoaderProps> = (props) => {
             getContinuousIndicator={_continuousIndicator}
             getCurveSelector={getCurveSelector}
             getSteppedKnob={_steppedIndicator} 
+            index={props.trackIndex}
+            id={props.trackId}
+            options={props.options}
+            // voice={props.voice}
         />
         : null;
 

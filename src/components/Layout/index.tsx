@@ -1,15 +1,13 @@
 import React, { MutableRefObject, useContext, useState, useEffect, useCallback } from 'react';
 import styles from './style.module.scss';
 
-import { Arranger as ArrangerType } from '../../store/Arranger';
 import { Sequencer as SequencerType } from '../../store/Sequencer';
 import { Track as TrackType } from '../../store/Track';
 
 import Div100vh from 'react-div-100vh';
 import ToneObjects, { ToneObjects as ToneObjectsType, triggs } from '../../context/ToneObjectsContext';
 
-import Arranger from '../../containers/Arranger';
-import Track from '../../containers/Track';
+import TrackComponent from '../../containers/Track';
 import Sequencer from '../../containers/Sequencer';
 import Transport from '../../containers/Transport';
 import * as Tone from 'tone';
@@ -20,6 +18,11 @@ import MenuContext from '../../context/MenuContext';
 import useMenuEmitter from '../../hooks/emitters/useMenuEmitter';
 import useDropdownEmitter from '../../hooks/emitters/useDropdownEmitter';
 import DropdownContext from '../../context/DropdownContext';
+import Chain from '../../lib/Tone/fxChain';
+import { returnEffect, returnInstrument, reconnect } from '../../lib/Tone/initializers';
+import { getInitials } from '../../containers/Track/defaults';
+import { useSelector } from 'react-redux';
+import { trackSelector } from '../../store/Track/selectors';
 
 type ToneType = typeof Tone;
 
@@ -40,7 +43,6 @@ export function newPatternObject(
 }
 
 export interface LayoutState {
-    arranger?: ArrangerType, 
     sequencer?: SequencerType,
     track?: TrackType,
 }
@@ -52,7 +54,6 @@ interface LayoutProps  extends LayoutState {
 
 const Layout: React.FC <LayoutProps> = ({
     appRef,
-    arranger,
     sequencer,
     track
 }) => {
@@ -60,6 +61,7 @@ const Layout: React.FC <LayoutProps> = ({
     const ref_toneObjects = useContext(ToneObjects);
     const ref_menus = useContext(MenuContext);
     const ref_dropdowns = useContext(DropdownContext);
+    const Track = useSelector(trackSelector)
 
 
     const getNewPatternObject = useCallback<() => triggs[]>(() => {
@@ -67,30 +69,25 @@ const Layout: React.FC <LayoutProps> = ({
 
     }, [])
 
-    const initializeArranger = useCallback(() => {
-        console.log('should be initiating arranger');
-        if (arranger && track){
-            const currentSong = arranger.selectedSong;
-            const events = arranger.songs[currentSong].events;
-            events.forEach(__ => {
-                ref_toneObjects.current?.arranger.push(getNewPatternObject())
-            })
-        } else  {
-            ref_toneObjects.current?.arranger.push(getNewPatternObject())
+    const initializeTracks = () => {
+        let t: TrackType;
+
+        if (sequencer && track){
+            t = track;
+
+        } else {
+            t = Track;
         }
 
-        // just for testing
-        ref_toneObjects.current?.arranger.forEach(event => {
-            event.forEach(trigg => {
-                trigg.instrument.stop(0);
-                trigg.effects.forEach(triggEffect => {
-                    triggEffect.stop(0);
-                })
+        t?.tracks.forEach((track, trackIndex, _) => {
+            ref_toneObjects.current?.tracks.push({
+                chain: new Chain(), 
+                instrument: returnInstrument(track.instrument, getInitials(track.instrument)),
+                effects: [...Array(track.fx.length).keys()].map((__, fxIndex, _) => returnEffect(track.fx[fxIndex].fx, track.fx[fxIndex].options))
             })
+            reconnect(ref_toneObjects, trackIndex);
         })
-
-        // console.log('should have a pattern object in the arranger, thing is ', ref_toneObjects.current?.arranger)
-    }, [])
+    };
 
     const initializePattern = useCallback(() => {
         console.log('should be initiating patterns')
@@ -140,10 +137,11 @@ const Layout: React.FC <LayoutProps> = ({
 
     useEffect(() => {
         if (firstRender){
-            ref_toneObjects.current = {patterns: {}, tracks:[], arranger: [], flagObjects: []}
-            initializeArranger()
+            ref_toneObjects.current = {patterns: {}, tracks:[], flagObjects: []}
+            // initializeArranger()
             initializePattern()
             initializeFlags()
+            initializeTracks()
             setRender(false)
         }
 
@@ -171,12 +169,7 @@ const Layout: React.FC <LayoutProps> = ({
                     </div>
                     <div className={styles.gap}></div>
                     <div className={styles.mid}>
-                        <div className={styles.arrangerColumn}>
-                            <div className={styles.box}>
-                                <Arranger />
-                            </div>
-                        </div>
-                        <Track></Track>
+                        <TrackComponent></TrackComponent>
                     </div>
                     <Sequencer></Sequencer>
                 </div>

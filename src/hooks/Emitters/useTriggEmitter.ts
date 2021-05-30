@@ -9,6 +9,7 @@ import { counterSelector, patternsSelector } from '../../store/Sequencer/selecto
 import { effectsLengthsSelector } from '../../store/Track/selectors';
 import useQuickRef from '../lifecycle/useQuickRef';
 import { triggs } from '../../context/ToneObjectsContext';
+import { useActivePatt } from '../store/Sequencer/useSequencerSelectors';
 
 const useTriggEmitter = (
     ref_toneObjects: ToneObjectContextType,
@@ -22,6 +23,7 @@ const useTriggEmitter = (
     const ref_counter = useQuickRef(counter);
     const patterns = useSelector(patternsSelector);
     const ref_patterns = useQuickRef(patterns);
+    const { activePatt } = useActivePatt();
 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
         console.log('the trigger is emitting');
@@ -101,11 +103,15 @@ const useTriggEmitter = (
                 ref_toneObjects.current?.patterns[p][trackIndex].effects.splice(index, 0, new Tone.Part())
             });
 
-            ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-                console.log(`should be adding fx to arrg event idx ${idx}`)
-                if (ref_toneObjects.current)
-                    ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(index, 0, new Tone.Part())
-            })
+            ref_toneObjects.current.patterns[activePatt][trackIndex].effects[index].start(0)
+            ref_toneObjects.current.patterns[activePatt][trackIndex].effects[index].loopEnd = patterns[activePatt].tracks[trackIndex].length
+
+
+            // ref_toneObjects.current.arranger.forEach((_, idx, __) => {
+            //     console.log(`should be adding fx to arrg event idx ${idx}`)
+            //     if (ref_toneObjects.current)
+            //         ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(index, 0, new Tone.Part())
+            // })
 
             
 
@@ -126,10 +132,10 @@ const useTriggEmitter = (
             ref_toneObjects.current?.patterns[Number(pat)][trackIndex].effects.splice(fxIndex, 1);
         })
 
-        ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-            ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIndex].dispose();
-            ref_toneObjects.current?.arranger[idx][trackIndex].effects.splice(fxIndex, 1);
-        })
+        // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+        //     ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIndex].dispose();
+        //     ref_toneObjects.current?.arranger[idx][trackIndex].effects.splice(fxIndex, 1);
+        // })
 
 
         if (ref_toneObjects.current)
@@ -150,11 +156,11 @@ const useTriggEmitter = (
                 [ref_toneObjects.current.patterns[p][trackIndex].effects[from], ref_toneObjects.current.patterns[p][trackIndex].effects[to]];
         });
 
-        ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-            if (ref_toneObjects.current)
-            [ref_toneObjects.current.arranger[idx][trackIndex].effects[from], ref_toneObjects.current.arranger[idx][trackIndex].effects[to]] = 
-            [ref_toneObjects.current.arranger[idx][trackIndex].effects[to], ref_toneObjects.current.arranger[idx][trackIndex].effects[from]]
-        })
+        // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
+        //     if (ref_toneObjects.current)
+        //     [ref_toneObjects.current.arranger[idx][trackIndex].effects[from], ref_toneObjects.current.arranger[idx][trackIndex].effects[to]] = 
+        //     [ref_toneObjects.current.arranger[idx][trackIndex].effects[to], ref_toneObjects.current.arranger[idx][trackIndex].effects[from]]
+        // })
 
         if (ref_toneObjects.current)
             [ ref_toneObjects.current.flagObjects[trackIndex].effects[from],  ref_toneObjects.current.flagObjects[trackIndex].effects[to]  ] = 
@@ -191,11 +197,20 @@ const useTriggEmitter = (
                 })
             });
 
-            for (let i = 0; i < ref_toneObjects.current.arranger.length ; i ++)
-                ref_toneObjects.current.arranger[i].push({
-                    instrument: new Tone.Part(),
-                    effects: [new Tone.Part()],
-                })
+            const l = ref_toneObjects.current.patterns[activePatt].length
+            ref_toneObjects.current.patterns[activePatt][l-1].instrument.start(0);
+            ref_toneObjects.current.patterns[activePatt][l-1].instrument.loopEnd = {'16n': 16};
+            ref_toneObjects.current.patterns[activePatt][l-1].instrument.loop = true;
+
+            ref_toneObjects.current.patterns[activePatt][l-1].effects[0].start(0)
+            ref_toneObjects.current.patterns[activePatt][l-1].effects[0].loopEnd = {'16n': 16};
+            ref_toneObjects.current.patterns[activePatt][l-1].effects[0].loop = true;
+
+            // for (let i = 0; i < ref_toneObjects.current.arranger.length ; i ++)
+            //     ref_toneObjects.current.arranger[i].push({
+            //         instrument: new Tone.Part(),
+            //         effects: [new Tone.Part()],
+            //     })
 
 
 
@@ -228,14 +243,14 @@ const useTriggEmitter = (
             });
 
 
-            ref_toneObjects.current.arranger.forEach((_, idx,__) => {
-                ref_toneObjects.current?.arranger[idx][trackIndex].instrument.dispose();
-                [...Array(fxLen).keys()].forEach((_, fxIdx, __) => {
-                    ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIdx].dispose()
+            // ref_toneObjects.current.arranger.forEach((_, idx,__) => {
+            //     ref_toneObjects.current?.arranger[idx][trackIndex].instrument.dispose();
+            //     [...Array(fxLen).keys()].forEach((_, fxIdx, __) => {
+            //         ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIdx].dispose()
 
-                })
-                ref_toneObjects.current?.arranger[idx].splice(trackIndex, 1)
-            })
+            //     })
+            //     ref_toneObjects.current?.arranger[idx].splice(trackIndex, 1)
+            // })
 
             ref_toneObjects.current.flagObjects.splice(trackIndex, 1)
 
@@ -248,26 +263,26 @@ const useTriggEmitter = (
 
     };
 
-    const newEvent = (payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>): void => {
-        // console.log(' new event, payload event index is:', payload.eventIndex);
-        // const trackCount = store.getState().track.present.tracks.length;
-        const trackCount = ref_trkCount.current;
+    // const newEvent = (payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>): void => {
+    //     // console.log(' new event, payload event index is:', payload.eventIndex);
+    //     // const trackCount = store.getState().track.present.tracks.length;
+    //     const trackCount = ref_trkCount.current;
 
-        [...Array(trackCount).keys()].forEach((_, idx, __) => {
-            // const fxCount = store.getState().track.present.tracks[idx].fx.length
-            const fxCount = ref_effectsLengths.current[idx];
-            if (ref_toneObjects.current) {
-                console.log('should be setting callbacks of new event')
-                ref_toneObjects.current.arranger[payload.eventIndex][idx].instrument.callback = ref_toneObjects.current.flagObjects[idx].instrument.callback;
+    //     [...Array(trackCount).keys()].forEach((_, idx, __) => {
+    //         // const fxCount = store.getState().track.present.tracks[idx].fx.length
+    //         const fxCount = ref_effectsLengths.current[idx];
+    //         if (ref_toneObjects.current) {
+    //             console.log('should be setting callbacks of new event')
+    //             ref_toneObjects.current.arranger[payload.eventIndex][idx].instrument.callback = ref_toneObjects.current.flagObjects[idx].instrument.callback;
 
-                [...Array(fxCount).keys()].forEach((_, fxIdx, __) => {
-                    if (ref_toneObjects.current)
-                        ref_toneObjects.current.arranger[payload.eventIndex][idx].effects[fxIdx].callback = ref_toneObjects.current.flagObjects[idx].effects[fxIdx].callback;
-                })
-            }
-        })
+    //             [...Array(fxCount).keys()].forEach((_, fxIdx, __) => {
+    //                 if (ref_toneObjects.current)
+    //                     ref_toneObjects.current.arranger[payload.eventIndex][idx].effects[fxIdx].callback = ref_toneObjects.current.flagObjects[idx].effects[fxIdx].callback;
+    //             })
+    //         }
+    //     })
 
-    }
+    // }
 
     useEffect(() => {
         triggEmitter.on(triggEventTypes.ADD_PATTERN, addPattern);
@@ -278,7 +293,7 @@ const useTriggEmitter = (
         triggEmitter.on(triggEventTypes.ADD_EFFECT, addEffectTrigg);
         triggEmitter.on(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
         triggEmitter.on(triggEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndexTrigg);
-        triggEmitter.on(triggEventTypes.NEW_EVENT, newEvent);
+        // triggEmitter.on(triggEventTypes.NEW_EVENT, newEvent);
 
         return () => {
             triggEmitter.off(triggEventTypes.ADD_PATTERN, addPattern);
@@ -289,7 +304,7 @@ const useTriggEmitter = (
             triggEmitter.off(triggEventTypes.ADD_EFFECT, addEffectTrigg);
             triggEmitter.off(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
             triggEmitter.off(triggEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndexTrigg);
-            triggEmitter.off(triggEventTypes.NEW_EVENT, newEvent);
+            // triggEmitter.off(triggEventTypes.NEW_EVENT, newEvent);
         }
 
     }, [])

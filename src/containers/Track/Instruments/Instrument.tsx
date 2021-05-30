@@ -6,7 +6,7 @@ import React, {
     useContext,
     MutableRefObject,
 } from 'react';
-import { useProperties, useDrumRackProperties } from '../../../hooks/store/Track/useProperty';
+import { useProperties, useDrumRackProperties, useSampleSelector } from '../../../hooks/store/Track/useProperty';
 
 import { xolombrisxInstruments } from '../../../store/Track';
 import { propertiesToArray } from '../../../lib/objectDecompose'
@@ -45,19 +45,26 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
     const ref_options = useQuickRef(options)
     const ref_index = useQuickRef(index);
-    const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
+    // const ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null> = useRef(null);
     const [firstRender, setRender] = useState(true);
     const ref_toneObjects = useContext(ToneObjectsContext);
     const { prev: prev_voice, ref: ref_voice} = usePrevAndRef(voice);
     const instProps: string[] = useMemo(() => propertiesToArray(getInitials(voice)) , [voice]);
     
-    useEffect(() => {
-        if (firstRender) {
-            ref_ToneInstrument.current = returnInstrument(voice, options);
-        }
-    }, [])
-    useProperties(ref_ToneInstrument, options);
-    useDrumRackProperties(ref_ToneInstrument, options)
+    // useEffect(() => {
+    //     console.log('[Instrument]: first render, value is ', firstRender);
+    //     if (firstRender) {
+    //         ref_ToneInstrument.current = returnInstrument(voice, options);
+    //     }
+    // }, [firstRender])
+
+    // useProperties(ref_ToneInstrument, options);
+    // useDrumRackProperties(ref_ToneInstrument, options, voice)
+    // useSampleSelector(ref_ToneInstrument, options, voice)
+
+    useProperties(ref_toneObjects.current?.tracks[index].instrument, options);
+    useDrumRackProperties(ref_toneObjects.current?.tracks[index].instrument, options, voice)
+    useSampleSelector(ref_toneObjects.current?.tracks[index].instrument, options, voice)
     
     const { 
         activePatt, 
@@ -85,14 +92,14 @@ export const Instrument = <T extends xolombrisxInstruments>({
         voice
     )
 
-    const { instrumentCallback, arrgMode, setCallbacks } = useInstrument(
+    const { instrumentCallback, setCallbacks } = useInstrument(
         ref_selectedSteps,
         ref_index, 
         index,
         ref_toneObjects,
         ref_activePatt,
         ref_pattsVelocities,
-        ref_ToneInstrument,
+        // ref_ToneInstrument,
         ref_activeStep,
         ref_voice,
         voice,
@@ -104,20 +111,20 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
     const { midiLearn, ref_CCMaps } = useMidiLearn(propertiesIncDec)
 
-    useUpdateInstrument(
-        ref_toneObjects,
-        ref_ToneInstrument,
-        ref_options,
-        index, 
-        prev_voice,
-        voice,
-        activePatt,
-        arrgMode,
-        trkPattsLen,
-        firstRender, 
-        instrumentCallback,
-        setRender,
-    )
+    // useUpdateInstrument(
+    //     ref_toneObjects,
+    //     ref_ToneInstrument,
+    //     ref_options,
+    //     index, 
+    //     prev_voice,
+    //     voice,
+    //     // activePatt,
+    //     // arrgMode,
+    //     // trkPattsLen,
+    //     firstRender, 
+    //     instrumentCallback,
+    //     setRender,
+    // )
 
     const Component = <InstrumentLoader 
                         removePropertyLock={removePropertyLockCallbacks}
@@ -135,7 +142,12 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     />
 
     const logg = () => {
-        // console.log(ref_toneObjects.current?.arranger[1][0].instrument.state);
+        console.log('should be logging');
+        if (ref_toneObjects.current)
+            for (let i = 0; i < 4; i ++)
+                console.log(ref_toneObjects.current.tracks[index].instrument?.get(i));
+            // for (let i = 0; i < Object.keys(ref_toneObjects.current?.patterns).length; i ++ )
+            //     console.log(ref_toneObjects.current?.patterns[i][index].instrument.state);
     }
 
     return (

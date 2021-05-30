@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './knob.module.scss';
 import { indicatorProps } from './index';
-import { createSourceFile } from 'typescript';
 
 
 const Knob: React.FC<indicatorProps> = ({
@@ -68,8 +67,21 @@ const Knob: React.FC<indicatorProps> = ({
                             </g>
                             <g>
                                 <g>
-                                    <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "url(#a)" }} transform={`rotate(${initialAngle + (-2 * initialAngle / (options.length + 1)) * (sel + 1)} 34.4 35.2)`} /> {/* smaller 1 */}
-                                    <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "url(#a)" }} transform={`rotate(${initialAngle + (-2 * initialAngle / (options.length + 1)) * (sel + 1)} 34.4 35.2)`} /> {/* smaller 1 */}
+                                    <circle 
+                                        cx="33.64" 
+                                        cy="18.96" 
+                                        r="4.23" 
+                                        style={{ fill: "url(#a)" }} 
+                                        transform={
+                                            `rotate(${initialAngle + (-2 * initialAngle / (options.length + 1)) * (sel + 1)} 34.4 35.2)`} 
+                                    /> {/* smaller 1 */}
+                                    <circle 
+                                        cx="33.64" 
+                                        cy="18.96" 
+                                        r="4.23" 
+                                        style={{ fill: "url(#a)" }} 
+                                        transform={
+                                            `rotate(${initialAngle + (-2 * initialAngle / (options.length + 1)) * (sel + 1)} 34.4 35.2)`} /> {/* smaller 1 */}
                                 </g>
                                 <circle cx="33.64" cy="18.96" r="2.97" style={{ fill: "url(#a)" }} transform={`rotate(${initialAngle + (-2 * initialAngle / (options.length + 1)) * (sel + 1)} 34.4 35.2)`} /> {/* smaller 2 */}
                             </g>

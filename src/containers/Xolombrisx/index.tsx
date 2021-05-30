@@ -11,8 +11,6 @@ import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
 import DropdownContext, { dropdownContext } from '../../context/DropdownContext';
 
-import { arrangerActions } from '../../store/Arranger'
-import { arrangerReducer, initialState as ArrInit } from "../../store/Arranger";
 import { trackReducer, initialState as TrkInit } from "../../store/Track";
 import { sequencerReducer, initialState as SeqInit, sequencerActions } from "../../store/Sequencer";
 import { transportReducer, initialState as TrsState, transportActions } from "../../store/Transport";
@@ -28,18 +26,17 @@ declare global {
 }
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const arrangerHistory = newHistory([], ArrInit, [])
 const sequencerHistory = newHistory([], SeqInit, [])
 const trackHistory = newHistory([], TrkInit, [])
 const transportHistory = newHistory([], TrsState, [])
 
 
 export const rootReducer = combineReducers({
-    arranger: undoable(arrangerReducer, {
-        filter: includeAction([
-            arrangerActions.SET_TIMER
-        ])
-    }),
+    // arranger: undoable(arrangerReducer, {
+    //     filter: includeAction([
+    //         arrangerActions.SET_TIMER
+    //     ])
+    // }),
     track: undoable(trackReducer, {
         filter: includeAction([
             trackActions.SELECT_MIDI_CHANNEL,
@@ -71,7 +68,7 @@ export const rootReducer = combineReducers({
 });
 
 const store = createStore(rootReducer, {
-    arranger: arrangerHistory,
+    // arranger: arrangerHistory,
     sequencer: sequencerHistory,
     track: trackHistory,
     transport: transportHistory,
@@ -79,7 +76,6 @@ const store = createStore(rootReducer, {
 }, composeEnhancers());
 
 export type RootState = ReturnType<typeof rootReducer>;
-export type ArrangerType = ReturnType<typeof arrangerReducer>;
 export type SequencerType = ReturnType<typeof sequencerReducer>;
 export type TrackType = ReturnType<typeof trackReducer>;
 
@@ -98,7 +94,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
 
     const appRef = useRef<HTMLDivElement>(null);
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
-    const ref_arrgTriggs: MutableRefObject<triggs[][] | null> = useRef(null);
     const state  = useLocation<LayoutState | undefined>().state
     let ref_menus = useRef<any[]>([]);
     let ref_dropdowns = useRef<dropdownContext>({})
@@ -112,7 +107,6 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                     <Provider store={store}>
                                         <Layout
                                             appRef={appRef}
-                                            arranger={state?.arranger}
                                             sequencer={state?.sequencer}
                                             track={state?.track}
                                         />

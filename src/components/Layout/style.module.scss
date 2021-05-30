@@ -23,6 +23,7 @@ html {
             height: 56rem;
             // border: 1px solid black;
             grid-template-rows: 2.5rem 1rem 34rem auto;
+            // border: 1px solid black;
     
             .top {
                 display: flex;
@@ -34,7 +35,7 @@ html {
                     background-color: white;
                     @include shadow(7px, 9px, 5px);
                     height: 100%;
-                    width: 18%;
+                    width: 16.5%;
                     display: flex;
                     @include center;
                 }
@@ -45,6 +46,8 @@ html {
                 // grid-template-columns: 18.6rem 38.5rem auto;
                 display: flex;
                 flex-direction: row;
+                margin-inline: auto;
+
     
                 .arrangerColumn {
                     width: 18.6rem;

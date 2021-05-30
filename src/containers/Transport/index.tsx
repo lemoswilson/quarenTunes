@@ -9,7 +9,6 @@ import {
 import React, { useEffect, FunctionComponent, useRef, MutableRefObject } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { toggleMode } from '../../store/Arranger';
 import * as Tone from "tone";
 import styles from './style.module.scss';
 import Save from '../../components/UI/Save';
@@ -35,9 +34,9 @@ const Transport: FunctionComponent = () => {
 		(state: RootState) => state.transport.present.metronome
 	)
 
-	const mode = useSelector(
-		(state: RootState) => state.arranger.present.mode
-	)
+	// const mode = useSelector(
+	// 	(state: RootState) => state.arranger.present.mode
+	// )
 
 
 	const isRec = useSelector(
@@ -154,7 +153,7 @@ const Transport: FunctionComponent = () => {
 					<Play onClick={_start}/>
 					<Stop onClick={_stop}/>
 					<Rec onClick={_toggleRecording} active={isRec}/>
-					<ModeSelector mode={mode} onClick={() => {dispatch(toggleMode())}}/>
+					{/* <ModeSelector mode={mode} onClick={() => {dispatch(toggleMode())}}/> */}
 					<Metronome toggleMetronome={_toggleMetronome} active={metronomeState}/>
 				</div>
 			</div>

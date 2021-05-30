@@ -4,7 +4,6 @@ import { range, startEndRange, bisect } from '../../../lib/utility';
 import styles from './style.module.scss';
 import PrevNext from '../../UI/PrevNext';
 import StepLayout from '../../UI/Step';
-import { arrangerMode } from '../../../store/Arranger';
 import { getFinalStep } from '../../../lib/utility';
 
 interface StepSequencerProps {
@@ -12,11 +11,11 @@ interface StepSequencerProps {
     length: number,
     events: event[],
     activePatt: number,
-    activeSongPattern: number,
+    // activeSongPattern: number,
     selectedTrkIdx: number,
     selected: number[],
     className?: string,
-    arrgMode: arrangerMode,
+    // arrgMode: arrangerMode,
     isPlay: boolean,
     activeStep: number,
     changePage: (e: MouseEvent, pageIndex: number) => void,
@@ -28,8 +27,8 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
     changePage,
     selectStep,
     activeStep,
-    activeSongPattern,
-    arrgMode,
+    // activeSongPattern,
+    // arrgMode,
     isPlay,
     className,
     events,
@@ -67,22 +66,21 @@ const StepSequencer: React.FC<StepSequencerProps> = ({
         }
     )
 
-    const arrangerPageStyle = (p: number) => {
-        if (activePatt === activeSongPattern)
-            return patternPageStyle(p)
-        else return ({
-            backgroundColor: 
-                p === page
-                ? "#ea8686"
-                : "white"
-        })
-    }
+    // const arrangerPageStyle = (p: number) => {
+    //     if (activePatt === activeSongPattern)
+    //         return patternPageStyle(p)
+    //     else return ({
+    //         backgroundColor: 
+    //             p === page
+    //             ? "#ea8686"
+    //             : "white"
+    //     })
+    // }
 
-    const pageStyle = (p: number) => arrgMode === arrangerMode.PATTERN ? patternPageStyle(p) : arrangerPageStyle(p)
+    const pageStyle = (p: number) =>  patternPageStyle(p) 
     const shouldNext = length > page + 1 * 16
     const isActiveStep = (step: number) => activeStep === step
-    const isActivePattern = arrgMode === arrangerMode.PATTERN || (arrgMode === arrangerMode.ARRANGER && activePatt === activeSongPattern)
-    const onTime = (step: number) => isPlay && isActivePattern && isActiveStep(step)
+    const onTime = (step: number) => isPlay && isActiveStep(step)
     const prevPage = (e: React.MouseEvent) => { page !== 0 && changePage(e, page - 1) }
     const nextPage = (e: React.MouseEvent) => { page < 3 && changePage(e, page + 1) }
 

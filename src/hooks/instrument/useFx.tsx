@@ -1,5 +1,5 @@
 import { useEffect, useCallback, MutableRefObject, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
     propertiesToArray, 
     getNested, 
@@ -11,10 +11,11 @@ import { effectsInitials } from '../../containers/Track/Instruments';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import { updateEffectState } from '../../store/Track';
 import { useIsPlaySelector } from '../store/Transport/useTransportSelectors';
+import { fxCountSelector } from '../../store/Track/selectors';
 
 export const useFx = (
     fxProps: string[], 
-    trackId: number,
+    trackIndex: number,
     fxIndex: number,
     ref_options: MutableRefObject<any>,
     ref_toneObjects: ToneObjectContextType, 
@@ -26,8 +27,9 @@ export const useFx = (
 
     const ref_lockedParameters: MutableRefObject<effectsInitials> = useRef({});
     const { isPlay, prev_isPlay, ref_isPlay} = useIsPlaySelector();
+    const fxCount = useSelector(fxCountSelector(trackIndex));
 
-    const effectCallback = useCallback((time: number, value: any) => {
+    const effectCallback = (time: number, value: any) => {
 
         const eventProperties = propertiesToArray(value).concat(propertiesToArray(ref_lockedParameters.current));
 
@@ -51,11 +53,16 @@ export const useFx = (
             }
         });
 
-    }, [
-        fxProps,
-        propertiesUpdate,
-        ref_options,
-    ])
+    } 
+
+    useEffect(() => {
+        if (ref_toneObjects.current){
+            if (ref_toneObjects.current.flagObjects[trackIndex].effects.length < fxCount){
+                ref_toneObjects.current.flagObjects[trackIndex].effects.push({callback: undefined, flag: false});
+            }
+            ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
+        }
+    }, [fxCount, trackIndex])
 
     // reset locked property values after stopping playback
     useEffect(() => {
@@ -65,18 +72,20 @@ export const useFx = (
             p.forEach((property) => {
                 copyPropertyFromTo(ref_lockedParameters.current, d, property) ;
             });
-            dispatch(updateEffectState(trackId, d, fxIndex));
+            dispatch(updateEffectState(trackIndex, d, fxIndex));
         }
         ref_isPlay.current = isPlay;
     }, [
         isPlay,
         dispatch,
-        trackId,
+        trackIndex,
         fxIndex,
         prev_isPlay,
         ref_isPlay
     ]
     );
 
-    return  effectCallback 
+
+
+    // return  effectCallback 
 };

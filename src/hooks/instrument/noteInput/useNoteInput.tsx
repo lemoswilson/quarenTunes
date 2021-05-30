@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 import { setNote, setVelocity, setNoteLengthPlayback } from '../../../store/Sequencer';
 import { xolombrisxInstruments, midi } from '../../../store/Track';
 import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
-import { arrangerMode, patternTrackerType, songEvent } from '../../../store/Arranger';
 import { returnInstrument } from '../../../lib/Tone/initializers';
 import * as Tone from 'tone';
 import { useMidiNote } from './useMidiNote';
@@ -14,14 +13,14 @@ export const useNoteInput = (
     ref_index: MutableRefObject<number>, 
     index: number,
     ref_toneObjects: ToneObjectContextType,
-    ref_arrgMode: MutableRefObject<arrangerMode>,
+    // ref_arrgMode: MutableRefObject<arrangerMode>,
     ref_activePatt: MutableRefObject<number>,
-    ref_pattTracker: MutableRefObject<patternTrackerType>,
+    // ref_pattTracker: MutableRefObject<patternTrackerType>,
     ref_pattsVelocities: MutableRefObject<{[key: number]: number}>,
-    ref_songEvents: MutableRefObject<songEvent[]>,
+    // ref_songEvents: MutableRefObject<songEvent[]>,
     ref_isRec: MutableRefObject<boolean>,
     ref_isPlay: MutableRefObject<boolean>,
-    ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null>,
+    // ref_ToneInstrument: MutableRefObject<ReturnType<typeof returnInstrument> | null>,
     ref_activeStep: MutableRefObject<number>,
     ref_voice: MutableRefObject<xolombrisxInstruments>,
     voice: xolombrisxInstruments,
@@ -93,29 +92,16 @@ export const useNoteInput = (
         ) => {
 
         if (!velocity) {
-            velocity = 
-                ref_arrgMode.current === arrangerMode.PATTERN 
-                ? ref_pattsVelocities.current[ref_activePatt.current] 
-                : ref_pattsVelocities.current[
-                    ref_pattTracker.current.patternPlaying > -1 
-                    ? ref_pattTracker.current.patternPlaying 
-                    : ref_songEvents.current[ref_pattTracker.current.playbackStart].pattern
-                ]
+            velocity = ref_pattsVelocities.current[ref_activePatt.current] 
         }
 
 
         // recording playiback logic 
-        if (ref_isRec.current && ref_isPlay.current && ref_ToneInstrument.current) {
+        if (ref_isRec.current && ref_isPlay.current && ref_toneObjects.current && ref_toneObjects.current.tracks[ref_index.current].instrument) {
+            ref_toneObjects.current.tracks[ref_index.current].instrument?.triggerAttack(noteName, 0, velocity/127)
+            // ref_ToneInstrument.current.triggerAttack(noteName, 0, velocity/127);
+            const pattern =  ref_activePatt.current 
 
-            ref_ToneInstrument.current.triggerAttack(noteName, 0, velocity/127);
-            const pattern = 
-                ref_arrgMode.current === arrangerMode.PATTERN 
-                ? ref_activePatt.current 
-                : ref_pattTracker.current.patternPlaying > -1 
-                ? ref_pattTracker.current.patternPlaying 
-                : ref_songEvents.current[ref_pattTracker.current.activeEventIndex].pattern
-
-            // parei aqui
             setNoteInput(pattern, ref_activeStep.current, 0, noteName, velocity, time);
 
         } else if (
@@ -133,16 +119,19 @@ export const useNoteInput = (
             // no selected steps, should be playing notes
 
             if (ref_voice.current === xolombrisxInstruments.NOISESYNTH) {
-                const jab: any = ref_ToneInstrument.current
+                // const jab: any = ref_ToneInstrument.current
+                const jab: any = ref_toneObjects.current?.tracks[ref_index.current].instrument
                 jab.triggerAttack(0, velocity/127)
 
             } else if (ref_voice.current === xolombrisxInstruments.METALSYNTH){
                 console.log('meta synth')
-                const j: any = ref_ToneInstrument.current;
+                // const j: any = ref_ToneInstrument.current;
+                const j: any = ref_toneObjects.current?.tracks[ref_index.current].instrument;
                 j.triggerAttack(noteName, undefined, velocity/127)
             }
             else {
-                ref_ToneInstrument.current?.triggerAttack(noteName, undefined, velocity/127);
+                // ref_ToneInstrument.current?.triggerAttack(noteName, undefined, velocity/127);
+                ref_toneObjects.current?.tracks[ref_index.current].instrument?.triggerAttack(noteName, undefined, velocity/127);
             }
 
         }
@@ -150,10 +139,10 @@ export const useNoteInput = (
         voice,
         setNoteInput,
         ref_activePatt,
-        ref_arrgMode,
+        // ref_arrgMode,
         ref_isPlay,
         ref_isRec,
-        ref_pattTracker,
+        // ref_pattTracker,
         // returnStep,
         ref_selectedSteps
     ]
@@ -168,10 +157,12 @@ export const useNoteInput = (
                 ref_voice.current === xolombrisxInstruments.METALSYNTH
                 || ref_voice.current === xolombrisxInstruments.NOISESYNTH
             ){
-                const k: any = ref_ToneInstrument.current
+                // const k: any = ref_ToneInstrument.current
+                const k: any = ref_toneObjects.current?.tracks[ref_index.current].instrument
                 k.triggerRelease()
             } else {
-                ref_ToneInstrument.current?.triggerRelease(noteName);
+                // ref_ToneInstrument.current?.triggerRelease(noteName);
+                ref_toneObjects.current?.tracks[ref_index.current].instrument?.triggerRelease(noteName);
             }
 
             const now = Date.now() / 1000;
@@ -197,11 +188,13 @@ export const useNoteInput = (
                 ref_voice.current === xolombrisxInstruments.METALSYNTH
                 || ref_voice.current === xolombrisxInstruments.NOISESYNTH
             ) {
-                const d: any = ref_ToneInstrument.current
+                // const d: any = ref_ToneInstrument.current
+                const d: any = ref_toneObjects.current?.tracks[ref_index.current].instrument
                 d.triggerRelease();
 
             } else  {
-                ref_ToneInstrument.current?.triggerRelease(noteName);
+                // ref_ToneInstrument.current?.triggerRelease(noteName);
+                ref_toneObjects.current?.tracks[ref_index.current].instrument?.triggerRelease(noteName);
             }  
 
         }

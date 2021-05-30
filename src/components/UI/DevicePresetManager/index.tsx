@@ -22,7 +22,7 @@ const DevicePresetManager: React.FC<DevicePresetManager> = ({ deviceId, keyValue
 
     return (
         <div className={`${styles.box} ${className}`}>
-            <Dropdrown dropdownId={deviceId} keyValue={keyValue} onSubmit={onSubmit} className={styles.dropdown} selected={selected} select={select}></Dropdrown>
+            <Dropdrown value={''} dropdownId={deviceId} keyValue={keyValue} onSubmit={onSubmit} className={styles.dropdown} selected={selected} select={select}></Dropdrown>
             <Save onClick={save} className={styles.buttons}></Save>
             <TrashCan onClick={remove} className={styles.buttons}></TrashCan>
         </div>

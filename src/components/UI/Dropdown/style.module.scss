@@ -114,9 +114,17 @@ html {
                     color: $textColor;
                     text-shadow: 0 0 1px $textShadow;
                     overflow: hidden;
-
+                    white-space: nowrap;
                 }
+
+                .extend {
+                    width: fit-content;
+                    overflow: visible;
+                    white-space: nowrap;
+                }
+
             }
+
 
             ul {
                 margin: 0;

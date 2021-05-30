@@ -2,9 +2,14 @@ import { effectTypes, xolombrisxInstruments } from "../../store/Track";
 import DrumRack from "../../components/Layout/Instruments/DrumRack";
 import { onlyValues } from "../../lib/objectDecompose";
 import { range, startEndRange } from "../../lib/utility";
+import kick1 from '../../assets/drumkit/kick2.mp3';
+import clap from '../../assets/drumkit/clap.mp3';
+import hh from '../../assets/drumkit/hh1.mp3';
+import ohh from '../../assets/drumkit/OHH1.mp3'
+import { samples, getSample } from '../../lib/Tone/initializers';
 
-export const trackMax = 4;
-export const effectMax = 4;
+export const trackMax = 3;
+export const effectMax = 2;
 export const widgetTabIndexTrkStart = 6
 
 export enum indicators {
@@ -23,8 +28,6 @@ export enum curveTypes {
 
 
 
-// Instruments options 
-// format [defaultValue, [min, max], typeofHandler, extraInfo]
 const noiseTypeIndicator = indicators.STEPPED_KNOB;
 const attackNoiseIndicator = indicators.KNOB // exponential 
 const volumeIndicator = indicators.VERTICAL_SLIDER; // exponential 
@@ -170,16 +173,33 @@ export function getInitialsValue(type: xolombrisxInstruments) {
     return onlyValues(getInitials(type))
 }
 
-export const DrumRackSlotInitials = {
-    volume: volume,
-    attack: [0, samplerEnvelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
-    baseUrl: [" "],
-    curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
-    release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-    urls: {
-        C3: [''],
-    },
-    pitch: 0,
+// export const DrumRackSlotInitials = {
+//     volume: volume,
+//     attack: [0, samplerEnvelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
+//     baseUrl: [" "],
+//     curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+//     release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+//     urls: {},
+//     pitch: 0,
+// }
+
+export const DrumRackSlotInitials = (sample?: samples) => (
+    {
+        volume: volume,
+        attack: [0, samplerEnvelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
+        baseUrl: " ",
+        curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
+        release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
+        // urls: sample ? {C3: getSample(sample)} : {},
+        urls: sample ? {C3: sample} : {},
+        pitch: 0,
+    }
+    
+) 
+
+export const withSamples = (options: any) => {
+    options.urls.C3 = getSample(options.urls.C3);
+    return options;
 }
 
 export function getInitials(type: xolombrisxInstruments) {
@@ -253,21 +273,22 @@ export function getInitials(type: xolombrisxInstruments) {
             return {
                 volume: volume,
                 attack: samplerAttack,
-                baseUrl: " ",
+                baseUrl: "",
                 curve: curve,
                 release: samplerRelase,
                 urls: {},
             }
         case xolombrisxInstruments.DRUMRACK:
-            const DrumRack: { [key: number]: typeof DrumRackSlotInitials } = {};
-            [...Array(4).keys()].forEach(i => { DrumRack[i] = DrumRackSlotInitials })
+            // const DrumRack: { [key: number]: typeof DrumRackSlotInitials } = {};
+            // [...Array(4).keys()].forEach(i => { DrumRack[i] = DrumRackSlotInitials })
+            console.log('return initials with drumrackslot will be', DrumRackSlotInitials(kick1));
             return {
                 // drumRack: DrumRack
                 // drumRack: {
-                'PAD_0': DrumRackSlotInitials,
-                'PAD_1': DrumRackSlotInitials,
-                'PAD_2': DrumRackSlotInitials,
-                'PAD_3': DrumRackSlotInitials
+                'PAD_0': DrumRackSlotInitials(samples.KICK_2),
+                'PAD_1': DrumRackSlotInitials(samples.CLAP_HIP_HOP),
+                'PAD_2': DrumRackSlotInitials(samples.HI_HAT_1),
+                'PAD_3': DrumRackSlotInitials(samples.OHH_1)
                 // }
             }
         // return {

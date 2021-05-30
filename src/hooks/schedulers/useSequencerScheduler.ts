@@ -4,7 +4,6 @@ import * as Tone from 'tone';
 import { ToneObjectContextType, triggs } from '../../context/ToneObjectsContext';
 import { Pattern, setActiveStep } from '../../store/Sequencer';
 import { timeObjFromEvent, sixteenthFromBBSOG, scheduleStartEnd } from '../../lib/utility';
-import { arrangerMode } from '../../store/Arranger';
 
 const useSequencerScheduler = (
     ref_toneObjects: ToneObjectContextType,
@@ -12,7 +11,7 @@ const useSequencerScheduler = (
     ref_trkCount: MutableRefObject<number>,
     ref_selectedTrkIdx: MutableRefObject<number>,
     effectsLength: number[],
-    arrangerMode: arrangerMode,
+    // arrangerMode: arrangerMode,
     patterns: {[key: number]: Pattern},
     activePatt: number,
     ref_activePatt: MutableRefObject<number>,
@@ -37,6 +36,29 @@ const useSequencerScheduler = (
             [useSequencerScheduler]: canceling event
         `)
         part.cancel();
+    }
+
+    const scheduleOrStop = (option: 'schedule' | 'stop', start?: boolean) => {
+        console.log(`
+            [useSequencerScheduler]: scheduleOrStop has been caled, options is ${option}
+        `);
+
+        [...Array(ref_trkCount.current).keys()].forEach((__, trk, _) => {
+            if (ref_toneObjects.current) {
+                
+                scheduleStartEnd(
+                    ref_toneObjects.current.patterns[ref_activePatt.current],
+                    option === 'schedule' ? 0 : undefined,
+                    option === 'schedule' ? undefined : 'now',
+                    option === 'schedule' ? setLoopEnd : cancelEvents,
+                    option === 'schedule' 
+                        ? [patterns[ref_activePatt.current].tracks[trk].length]
+                        : undefined,
+                    option === 'schedule' ? true : undefined,
+                )
+            }
+        })   
+
     }
 
     // setting up initial events in first render
@@ -73,74 +95,32 @@ const useSequencerScheduler = (
 
     // set transport loop size according to active pattern 
     useEffect(() => {
-        if (arrangerMode === "pattern") {
-            console.log(`
-                [useSequencerScheduler]: arranger mode is pattern, setting loop, 
-                activePatt len has changed
-            `)
-            Tone.Transport.loop = true;
-            Tone.Transport.loopEnd = {"16n": activePattLen};
-        }
-    }, [arrangerMode, activePattLen])
+
+        Tone.Transport.loop = true;
+        Tone.Transport.loopEnd = {"16n": activePattLen};
+
+    }, [activePattLen])
 
     useEffect(() => {
         if (prev_activePatt && prev_activePatt === activePatt) {
-            console.log(`
-                [useSequencerScheduler]: activePattTrkLen has changed, 
-                should be scheduling again (loop end will change)
-            `)
             scheduleOrStop('schedule')
         }
     }, [activePattTrkLen])
 
-    const scheduleOrStop = (option: 'schedule' | 'stop', start?: boolean) => {
-        console.log(`
-            [useSequencerScheduler]: scheduleOrStop has been caled, options is ${option}
-        `);
 
-        [...Array(ref_trkCount.current).keys()].forEach((__, trk, _) => {
-            if (ref_toneObjects.current) {
-                
-                scheduleStartEnd(
-                    ref_toneObjects.current.patterns[ref_activePatt.current],
-                    option === 'schedule' ? 0 : undefined,
-                    option === 'schedule' ? undefined : 'now',
-                    option === 'schedule' ? setLoopEnd : cancelEvents,
-                    option === 'schedule' 
-                        ? [patterns[ref_activePatt.current].tracks[trk].length]
-                        : undefined,
-                    option === 'schedule' ? true : undefined,
-                )
-            }
-        })   
-
-    }
 
     useEffect(() => {
-
-        if (!isPlay) {
-            console.log(`
-                [useSequencerScheduler]: arranger mode or pattern active patt has just changed, 
-                should be either schedulling or stopping
-            `);
+        if (Tone.Transport.state !== 'started')
             scheduleOrStop(
-                arrangerMode === 'pattern' 
-                ? 'schedule' 
-                : 'stop',
+                'schedule',
                 true
             )
-        }
 
-    }, [arrangerMode, activePatt])
+    }, [activePatt])
 
     const ref_setActiveStepTracker: MutableRefObject<number | null> = useRef(null);
 
     useEffect(() => {
-        if (arrangerMode === 'pattern')
-            console.log(`
-                [useSequencerScheduler]: arranger mode is pattern, should be setting the 
-                activeStepTracker
-            `);
             ref_setActiveStepTracker.current = Tone.Transport.scheduleRepeat((time) => {
                 dispatch(
                     setActiveStep(
@@ -150,18 +130,7 @@ const useSequencerScheduler = (
                     )
                 )
             }, "16n")
-        
-        if (arrangerMode === 'arranger' && !Number.isNaN(Number(ref_setActiveStepTracker.current))) {
-            console.log(`\
-                [useSequencerScheduler]: arranger mode is arranger, and there is a activeStepTracker, 
-                so should be removing it 
-            `);
-            const c: any = ref_setActiveStepTracker.current
-            Tone.Transport.clear(c)
-            ref_setActiveStepTracker.current = null;
-        }
-
-    }, [arrangerMode])
+    }, [])
 
     return scheduleOrStop
 }

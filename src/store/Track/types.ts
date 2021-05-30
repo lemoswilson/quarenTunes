@@ -217,7 +217,17 @@ export enum trackActions {
 	UPDATE_EFFECT_STATE = "UPDATE_EFFECT_STATE",
 	ENVELOPE_ATTACK = "ENVELOPE_ATTACK",
 	UPDATE_ENVELOPE_CURVE = "UPDATE_ENVELOPE_CURVE",
-	REMOVE_MIDI_DEVICE = "REMOVE_MIDI_DEVICE"
+	REMOVE_MIDI_DEVICE = "REMOVE_MIDI_DEVICE",
+	SET_SAMPLE = "SET_SAMPLE", 
+}
+
+export interface setSampleAction {
+	type: trackActions.SET_SAMPLE,
+	payload: {
+		trackIndex: number,
+		pad: number,
+		sample: string,
+	}
 }
 
 export interface removeMidiDeviceAction {
@@ -417,4 +427,5 @@ export type trackActionTypes =
 	| envelopeAttackAction
 	| updateEnvelopeCurveAction
 	| removeMidiDeviceAction
+	| setSampleAction
 	| changeEffectIndexAction;

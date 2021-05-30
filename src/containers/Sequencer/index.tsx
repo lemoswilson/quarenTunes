@@ -19,7 +19,6 @@ import ToneObjectsContext from '../../context/ToneObjectsContext';
 import menuContext from '../../context/MenuContext';
 import dropdownContext from '../../context/DropdownContext';
 
-import { activeSongPattSelector, isFollowSelector, arrgModeSelector } from '../../store/Arranger/selectors';
 import { activeStepSelector, patternsSelector } from '../../store/Sequencer/selectors';
 import { effectsLengthsSelector } from '../../store/Track/selectors';
 import { isPlaySelector } from '../../store/Transport/selectors';
@@ -33,9 +32,9 @@ const Sequencer: React.FC = () => {
     const DropdownContext = useContext(dropdownContext);
     const ref_toneObjects = useContext(ToneObjectsContext);
     
-    const arrangerMode = useSelector(arrgModeSelector);
-    const activeSongPattern = useSelector(activeSongPattSelector);
-    const isFollow = useSelector(isFollowSelector);
+    // const arrangerMode = useSelector(arrgModeSelector);
+    // const activeSongPattern = useSelector(activeSongPattSelector);
+    // const isFollow = useSelector(isFollowSelector);
     const isPlay = useSelector(isPlaySelector);
     const patterns = useSelector(patternsSelector);
     const activeStep = useSelector(activeStepSelector);
@@ -69,7 +68,7 @@ const Sequencer: React.FC = () => {
         ref_trkCount,
         ref_selectedTrkIdx,
         effectsLength,
-        arrangerMode,
+        // arrangerMode,
         patterns,
         activePatt,
         ref_activePatt,
@@ -86,8 +85,8 @@ const Sequencer: React.FC = () => {
         ref_activePatt,
         ref_selectedSteps,
         ref_activePage,
-        arrangerMode,
-        isFollow,
+        // arrangerMode,
+        // isFollow,
         selectedTrkIdx,
         ref_selectedTrkIdx,
         ref_trkCount,
@@ -145,7 +144,8 @@ const Sequencer: React.FC = () => {
                 ref_toneObjects.current?.tracks[selectedTrkIdx]
                 .instrument?.triggerAttackRelease(
                     noteName, 
-                    activePattTrkNoteLen, 
+                    // activePattTrkNoteLen, 
+                    '1m', 
                     undefined, 
                     activePattObj.tracks[selectedTrkIdx].velocity/127
                 )
@@ -164,7 +164,7 @@ const Sequencer: React.FC = () => {
                         sequencerDispatchers={sequencerDispatchers}
                         isPlay={isPlay}
                         note={isNote}
-                        activePattern={activePatt}
+                        activePatt={activePatt}
                         events={events}
                         patternLength={activePattLen}
                         patternTrackVelocity={pattTrkVelocity}
@@ -182,7 +182,7 @@ const Sequencer: React.FC = () => {
                                 isPlay={isPlay}
                                 selectStep={sequencerDispatchers._selectStep}
                                 changePage={sequencerDispatchers.pageClickHandler}
-                                activeSongPattern={activeSongPattern}
+                                // activeSongPattern={activeSongPattern}
                                 activePatt={activePatt}
                                 events={events}
                                 length={activePattTrkLen}
@@ -190,7 +190,7 @@ const Sequencer: React.FC = () => {
                                 selected={selectedSteps}
                                 selectedTrkIdx={selectedTrkIdx}
                                 activeStep={activeStep}
-                                arrgMode={arrangerMode}
+                                // arrgMode={arrangerMode}
                             ></StepSequencer>
                         </div>
                         <div className={styles.keyInput}>

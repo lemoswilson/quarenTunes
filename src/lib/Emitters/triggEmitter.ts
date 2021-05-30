@@ -50,11 +50,7 @@ export type TriggEvent =
         from: number,
         to: number
     }
-    | {
-        event: triggEventTypes.NEW_EVENT,
-        eventIndex: number,
-    }
-
+     
 type EventType = TriggEvent['event']
 
 export type ExcludeEventKey<K> = K extends "event" ? never : K

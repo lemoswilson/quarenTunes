@@ -1,5 +1,4 @@
 import React, { MouseEvent as ME, MutableRefObject, useEffect, useRef, useState } from 'react';
-import SelectionIndicator from './SelectionIndicator';
 import styles from './optionList.module.scss';
 import Polygon from '../../../UI/Dropdown/Polygon';
 

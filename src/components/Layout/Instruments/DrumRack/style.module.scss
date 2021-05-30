@@ -45,7 +45,7 @@
 
         .top  {
             height: 100%;
-            width: 70%;
+            width: 90%;
             // border: 1px solid black;
             // margin-top: 1rem;
             display: flex;
@@ -54,6 +54,7 @@
             justify-content: space-between;
             margin-right: 2.3rem;
             // margin-left: 1rem;
+            padding-left: 1rem;
 
             .pad {
                 display: flex;
@@ -62,6 +63,7 @@
                 align-items: center;
                 height: 100%;
                 width: 5rem;
+                position: relative;
                 // border: 1px solid black;
 
                 .border {
@@ -70,6 +72,11 @@
 
                 .curve {
                     // padding-left: 0.7rem;
+                }
+
+                .dropdown {
+                    position: absolute;
+                    top: 22.3rem;
                 }
             }
 

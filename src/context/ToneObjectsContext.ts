@@ -33,7 +33,7 @@ export interface flagObjects {
 export interface ToneObjects {
     tracks: trackObjects[],
     patterns: triggObjects,
-    arranger: triggs[][],
+    // arranger: triggs[][],
     flagObjects: flagObjects[],
 }
 
@@ -49,7 +49,7 @@ class Dummy implements refWrapper<ToneObjects> {
                 patterns: {
                     0: [{instrument: new Part(), effects: []}]
                 },
-                arranger: [],
+                // arranger: [],
                 flagObjects: [{instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]}]
             }
     }
