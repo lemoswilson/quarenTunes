@@ -24,7 +24,8 @@
             text-align: center;
             font-size: 1.8rem;
             font-weight: 500;
-            color: rgb(194, 194, 194);
+            // color: rgb(194, 194, 194);
+            color: $textColor;
             text-shadow: 0 0 8px $textShadow;
             writing-mode: vertical-lr;
             transform: rotate(180deg);

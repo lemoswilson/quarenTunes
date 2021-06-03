@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs'
-// import { StringSchema } from 'joi';
 
 export interface User {
     email: string,
@@ -8,11 +7,9 @@ export interface User {
         password?: string,
     },
     google?: {
-        id: string,
+        id?: string,
     }
     username?: string,
-    firstName: string,
-    lastName: string,
     method: 'local' | 'google'
 }
 
@@ -20,8 +17,6 @@ export interface UserBody {
     email?: string,
     username: string,
     password: string,
-    firstName?: string,
-    lastName?: string,
     method?: string,
     token: string,
     access: string,
@@ -53,17 +48,17 @@ const UserSchema: Schema = new Schema({
         password: String,
     },
     google: {
-        id: { type: String, unique: true },
+        id: { type: String, unique: false },
     },
     username: { type: String, unique: true, minlength: 6 },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
     method: { type: String, required: true, enum: ['local', 'google'] }
 }, { timestamps: true })
 
 UserSchema.pre<UserModelType>('save', async function (next) {
     try {
-        if (this.method !== "local") next();
+        if (this.method !== "local") { 
+            next() 
+        }
         if (this.local?.password)
             this.local.password = await hashPassword(this.local.password);
         next();

@@ -32,11 +32,6 @@ const transportHistory = newHistory([], TrsState, [])
 
 
 export const rootReducer = combineReducers({
-    // arranger: undoable(arrangerReducer, {
-    //     filter: includeAction([
-    //         arrangerActions.SET_TIMER
-    //     ])
-    // }),
     track: undoable(trackReducer, {
         filter: includeAction([
             trackActions.SELECT_MIDI_CHANNEL,
@@ -57,7 +52,6 @@ export const rootReducer = combineReducers({
             sequencerActions.CHANGE_PATTERN_LENGTH,
             sequencerActions.REMOVE_EFFECT_SEQUENCER,
             sequencerActions.REMOVE_INSTRUMENT_FROM_SEQUENCER,
-            // trackActions.REMOVE_INSTRUMENT,
             sequencerActions.GO_TO_ACTIVE,
         ])
     }),
@@ -68,7 +62,6 @@ export const rootReducer = combineReducers({
 });
 
 const store = createStore(rootReducer, {
-    // arranger: arrangerHistory,
     sequencer: sequencerHistory,
     track: trackHistory,
     transport: transportHistory,

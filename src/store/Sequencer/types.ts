@@ -92,8 +92,8 @@ export interface Sequencer {
 	activePattern: number;
 	step: number;
 	counter: number;
-	override: boolean;
-	quantizeRecording: boolean;
+	// override: boolean;
+	// quantizeRecording: boolean;
 };
 
 export interface stopTransportAction {

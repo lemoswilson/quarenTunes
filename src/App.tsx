@@ -1,8 +1,11 @@
-import React, { useState, Suspense, lazy } from "react";
-import { BrowserRouter, Link, Route, Switch } from 'react-router-dom'
-import Header from './components/Layout/Header/Header';
+import React, { useState, Suspense, lazy, useEffect } from "react";
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import HomePage from './components/Layout/HomePage/HomePage';
 import SignUp from './components/Layout/SignUp/SignUp';
+import SignIn from './components/Layout/SignIn';
+import axios from 'axios';
+import Recover from './components/Layout/Recover';
+import ResetPassword from './components/Layout/Recover/ResetPassword';
 import './App.scss';
 
 const Xolombrisx = lazy(() => import('./containers/Xolombrisx'))
@@ -10,7 +13,7 @@ const SuspenseFallback: React.FC = () => <div>Fallback</div>
 
 export interface userData {
 	isAuthenticated: boolean,
-	token: string,
+	token: string | null,
 	errorMessage: string,
 }
 
@@ -18,11 +21,7 @@ export interface userProps extends userData {
 	updateUser: React.Dispatch<React.SetStateAction<userData>>,
 }
 
-
-
 const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
-
-	// check for token in local storage before setting the state
 
 	const [user, updateUser] = useState<userData>({
 		isAuthenticated: false,
@@ -30,18 +29,46 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 		errorMessage: '',
 	})
 
+	useEffect(() => {
+		if (localStorage.getItem('xolombrisJWT') && !user.isAuthenticated){
+			axios.post(
+				process.env.REACT_APP_SERVER_URL + '/users/auth/verify', 
+				undefined
+				, {
+					headers: {
+						authorization: localStorage.getItem('xolombrisJWT') 
+					}
+				} 
+			).then((res) => {
+				if (res.status === 200){
+					updateUser({
+						errorMessage: '',
+						isAuthenticated: true,
+						token: localStorage.getItem('xolombrisJWT')
+					})
+				}
+			}).catch((err) => {
+				updateUser({
+					errorMessage: err.data.error, 
+					isAuthenticated: false,
+					token: '',
+				})
+			});
+		}
+	}, [])
+
 	return (
 		<React.Fragment>
 			<BrowserRouter>
 				<Suspense fallback={<SuspenseFallback />}>
-					{/* <Header {...user} updateUser={updateUser} /> */}
 					<Switch>
 						<Route path={'/app'} render={( ) => <Xolombrisx {...user} updateUser={updateUser} />}></Route>
-						<Route path={'/signin'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/login'} render={() => <SignIn {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/signup'} render={() => <SignUp  {...user} updateUser={updateUser} />}></Route>
-						<Route path={'/contact'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
-						<Route path={'/dashboard'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/recover'} render={() => <Recover {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/reset'} render={() => <ResetPassword {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
+
 					</Switch>
 				</Suspense>
 			</BrowserRouter>

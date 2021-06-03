@@ -4,5 +4,6 @@ declare namespace NodeJS {
         CLIENT_SECRET: string,
         CLIENT_ID: string,
         JWT_AUTHORIZATION: string,
+        REACT_APP_URL: string,
     }
 }

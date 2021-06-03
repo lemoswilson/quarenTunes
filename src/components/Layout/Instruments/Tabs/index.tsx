@@ -3,7 +3,8 @@ import { trackInfo, xolombrisxInstruments } from '../../../../store/Track'
 import styles from './style.module.scss';
 import InstrumentTab from './InstrumentTab';
 import { trackMax } from '../../../../containers/Track/defaults';
-import mais from '../../../../assets/plus.svg';
+// import mais from '../../../../assets/plus.svg';
+import mais from '../../../../assets/plusWhite.svg';
 import OptionList from './OptionList';
 import MenuContext from '../../../../context/MenuContext';
 import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';

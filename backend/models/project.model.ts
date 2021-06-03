@@ -1,88 +1,60 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { UserModelType } from './user.model';
-import { InstrumentModel } from './instrument.model';
-import { EffectModel } from './effect.model';
-import { Song } from '../../src/store/Arranger'
-import { Pattern } from '../../src/store/Sequencer'
-import { midi, xolombrisxInstruments, effectTypes } from '../../src/store/Track';
-
-interface SongWithId extends Song {
-    id: number,
-}
-
-interface fxinfo {
-    fx: effectTypes;
-    id: number;
-    options: EffectModel['_id'];
-}
-
-interface trackinfo {
-    instrument: xolombrisxInstruments;
-    id: number;
-    midi: midi;
-    fx: fxinfo[];
-    fxCounter: number;
-    options: InstrumentModel['_id'];
-}
-
-interface Track {
-    tracks: trackinfo[];
-    selectedTrack: number;
-    trackCount: number;
-    instrumentCounter: number;
-}
 
 export interface Project {
-    User: UserModelType['_id'],
-    Arranger: {
-        mode: string;
-        following: boolean;
-        selectedSong: number;
-        counter: number;
-        patternTracker: number[];
-        songs: SongWithId[]
-    },
+    user: UserModelType['_id'],
     Sequencer: {
-        patterns: Pattern[],
+        patterns: {
+            [key: number]: {
+                name: string,
+                patternLength: number,
+                tracks: {
+                    length: number,
+                    velocity: number,
+                    noteLength: number | string,
+                    events: {
+                        instrument: any,
+                        fx: any[],
+                        offset: number,
+                    },
+                    page: number,
+                    selected: number[],
+                },
+                patternId: number,
+            }
+        },
         activePattern: number,
-        step: undefined | number,
+        step: number,
         counter: number,
-        override: boolean,
-        quantizeRecording: boolean,
     },
-    Track: Track,
-    Transport: {
-        bpm: number,
-    }
+    Track: {
+        selectedTrack: number,
+        trackCount: number,
+        instrumentCounter: number,
+        tracks: {
+            instrument: string,
+            id: number,
+            midi: {
+                device?: string,
+                channel?: number,
+            },
+            fx: {
+                fx: string,
+                id: number,
+                options: any,
+            },
+            fxCounter: number,
+            options: any
+        }[],
+    },
+    name: string,
 };
 
-const EventSchema: Schema = new Schema({
-    pattern: { type: Number, required: true },
-    repeat: { type: Number, required: true },
-    mute: { type: [Number], required: true },
-    id: { type: Number, required: true },
-});
-
-const SongSchema: Schema = new Schema({
-    name: { type: String, required: true },
-    events: { type: [EventSchema], required: true },
-    counter: { type: Number, required: true },
-    timer: { type: [Schema.Types.Mixed], required: true },
-    id: { type: Number, required: true },
-});
-
-const ArrangerSchema: Schema = new Schema({
-    mode: { type: String, required: true },
-    following: { type: Boolean, required: true },
-    selectedSong: { type: Number, required: true },
-    counter: { type: Number, required: true },
-    patternTracker: { type: [Number], required: true },
-    songs: { type: [SongSchema], required: true }
-});
+export interface ProjectModel extends Document, Project {}
 
 const SeqEventsSchema: Schema = new Schema({
-    instrument: {},
-    fx: {},
+    instrument: { type: String, required: false },
+    fx: { type: String, required: false},
     offset: { type: Number, required: true }
 });
 
@@ -103,7 +75,7 @@ const PatternSchema: Schema = new Schema({
 });
 
 const SequencerSchema: Schema = new Schema({
-    patterns: { type: [PatternSchema], required: true },
+    patterns: { type: [{key: Number, value: PatternSchema}], required: true },
     activePattern: { type: Number, required: true },
     step: { type: Schema.Types.Mixed, required: true },
     counter: { type: Number, required: true },
@@ -121,8 +93,8 @@ const TrackInfoSchema: Schema = new Schema({
     instrument: { type: String, required: true },
     id: { type: Number, required: true },
     midi: {
-        device: { type: Schema.Types.Mixed, required: true },
-        channel: { type: Schema.Types.Mixed, required: true },
+        device: { type: String, required: true },
+        channel: { type: Number, required: true },
     },
     fx: { type: [FxInfoSchema], required: true },
     fxCounter: { type: Number, required: true },
@@ -137,16 +109,11 @@ const TrackSchema: Schema = new Schema({
 });
 
 
-interface ProjectModel extends Project, Document { }
-
 const ProjectSchema: Schema = new Schema({
-    User: { type: Schema.Types.ObjectId, required: true, unique: true },
-    Arranger: { type: ArrangerSchema, required: true },
+    user: { type: Schema.Types.ObjectId, required: true, unique: true },
     Sequencer: { type: SequencerSchema, required: true },
     Track: { type: TrackSchema, required: true },
-    Transport: {
-        bpm: { type: Number, required: true }
-    }
+    name: { type: String, required: true }
 }, { timestamps: true })
 
 

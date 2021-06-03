@@ -6,7 +6,9 @@ import menuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
 import OptionList from '../../Instruments/Tabs/OptionList';
 import MenuContext from '../../../../context/MenuContext';
 import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';
-import mais from '../../../../assets/plus.svg'
+// import mais from '../../../../assets/plus.svg'
+// import maisBranco from '../../../../assets/plusWhite.svg'
+import mais from '../../../../assets/plusWhite.svg'
 import optionListStyles from '../../Instruments/Tabs/optionList.module.scss';
 import instrumentMenuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
 import RemoveEntry from './removeEntry';
@@ -146,7 +148,7 @@ const Tabs: React.FC<TabsProps> = ({
             style={{
                 // right: '5rem',
                 left: '-4rem',
-                top: '3rem',
+                top: '-5rem',
                 transform: 'rotate(-90deg)',
                 marginBottom: '1rem'
             }} 

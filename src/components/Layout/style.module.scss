@@ -7,7 +7,10 @@ html {
         width: 100vw;
         display: flex;
         @include center;
-        background-color: $light;
+        background-color: #FF9A8B;
+        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+        background : radial-gradient(50% 50%, circle closest-side, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
+        filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
 
     }
 
@@ -21,14 +24,11 @@ html {
             display: grid;
             width: 98rem;
             height: 56rem;
-            // border: 1px solid black;
             grid-template-rows: 2.5rem 1rem 34rem auto;
-            // border: 1px solid black;
     
             .top {
                 display: flex;
                 @include center;
-                // border-bottom: 1px solid black;
     
                 .transport {
                     border-radius: 1rem;
@@ -42,8 +42,6 @@ html {
             }
     
             .mid {
-                // display: grid;
-                // grid-template-columns: 18.6rem 38.5rem auto;
                 display: flex;
                 flex-direction: row;
                 margin-inline: auto;
@@ -54,7 +52,6 @@ html {
                     display: flex;
                     justify-content: flex-end;
                     align-items: flex-end;
-                    // border-right: 1px solid black;
     
                     .box {
                         height: 31rem;

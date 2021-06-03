@@ -35,7 +35,7 @@
                 text-align: center;
                 font-family: $jost sans-serif;
                 font-size: 0.7rem;
-                color: $textColor;
+                color: $white;
                 text-shadow: 0 0 1px $textShadow;
                 // border-right: 1px solid black;
                 position: relative;
@@ -103,6 +103,7 @@
                 .span {
                     // display: inline-block;
                     // vertical-align: middle;
+                    color: $white;
                     position: absolute;
                     top: 0.35rem;
                 }

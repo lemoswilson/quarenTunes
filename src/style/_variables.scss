@@ -12,8 +12,9 @@ $boxWidth: 1.8rem;
 // shadow #7a7a7a
 
 // $blue: #ffe8d6;
-// $light: #ddbea9;
-// $dark: #a38c7d;
+// $light: #a3d3d4;
+// $dark: #c27272;
+// $textColor: #c7674f;
 // $textColor: #79685c;;
 // $textShadow: #f7c1b1bf;
 // $white: white;
@@ -22,15 +23,22 @@ $boxWidth: 1.8rem;
 //         box-shadow: $x $y $b rgba(126, 126, 126, 0.5);
 // }
 
-$blue: #f5f8fa;
-$light: #ededed;
-$dark: #d4d4d4;
-$textColor: #c8c9c8;
+$blue: #bebfbe;
+// $light: #ededed;
+$light: #bebfbe;
+$dark: #909190;
+$textColor: #9b9b9b;
+$textColorTitle: #9b9b9b;
 $textShadow: rgba(220, 223, 224, 0.75);
-$textColorTitle: rgb(194, 194, 194);
+// $textColorTitle: rgb(194, 194, 194);
 $white: rgba(255, 255, 255, 1);
+// @mixin shadow($x, $y, $b) {
+//         box-shadow: $x $y $b rgba(204,204,204,0.5);
+// }
+
+
 @mixin shadow($x, $y, $b) {
-        box-shadow: $x $y $b rgba(204,204,204,0.5);
+        box-shadow: $x $y $b rgba(110, 110, 110, 0.5);
 }
 
 $red: #ea8686;

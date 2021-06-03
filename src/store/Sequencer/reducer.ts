@@ -21,7 +21,7 @@ const initialTrack = {
 export const initialState: Sequencer = {
 	activePattern: 0,
 	counter: 1,
-	override: true,
+	// override: true,
 	patterns: {
 		0: {
 			name: "pattern 1",
@@ -29,7 +29,7 @@ export const initialState: Sequencer = {
 			tracks: [ initialTrack ],
 		},
 	},
-	quantizeRecording: false,
+	// quantizeRecording: false,
 	step: 0,
 };
 
@@ -253,12 +253,12 @@ export function sequencerReducer(
 			case sequencerActions.SET_VELOCITY:
 				draft.patterns[a.payload.pattern].tracks[a.payload.trackIndex].events[a.payload.step].instrument.velocity = a.payload.velocity;
 				break;
-			case sequencerActions.TOGGLE_OVERRIDE:
-				draft.override = !draft.override;
-				break;
-			case sequencerActions.TOGGLE_RECORDING_QUANTIZATION:
-				draft.quantizeRecording = !draft.quantizeRecording;
-				break;
+			// case sequencerActions.TOGGLE_OVERRIDE:
+			// 	draft.override = !draft.override;
+			// 	break;
+			// case sequencerActions.TOGGLE_RECORDING_QUANTIZATION:
+			// 	draft.quantizeRecording = !draft.quantizeRecording;
+			// 	break;
 			case sequencerActions.CHANGE_PATTERN_NAME:
 				draft.patterns[a.payload.pattern].name = a.payload.name;
 				break;

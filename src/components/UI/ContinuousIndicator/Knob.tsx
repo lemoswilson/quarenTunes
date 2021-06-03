@@ -85,17 +85,18 @@ const Knob: React.FC<indicatorProps> = ({
                 <g style={{ isolation: "isolate" }}>
                     <g>
                         <g>
-                            <circle cx="33.64" cy="33.64" r="33.64" style={{ fill: "url(#a)" }} />
+                            {/* <circle cx="33.64" cy="33.64" r="33.64" style={{ fill: "url(#a)" }} /> */}
                             <g>
-                                <circle cx="33.64" cy="33.64" r="22.14" style={{ fill: "url(#a)" }} />
-                                <circle cx="33.64" cy="33.64" r="22.14" style={{ fill: "url(#a)" }} />
+                                {/* <circle cx="33.64" cy="33.64" r="22.14" style={{ fill: "red" }} /> */}
+                                {/* <circle cx="33.64" cy="33.64" r="22.14" style={{ fill: "url(#a)" }} /> */}
                             </g>
                             <g>
                                 <g>
-                                    <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "url(#a)" }} transform={indicatorData} /> {/* smaller 1 */}
-                                    <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "url(#a)" }} transform={indicatorData} /> {/* smaller 1 */}
+                                    {/* <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "url(#a)" }} transform={indicatorData} /> smaller 1 */}
+                                    {/* <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "red" }} transform={indicatorData} /> smaller 1 */}
                                 </g>
-                                <circle cx="33.64" cy="18.96" r="2.97" style={{ fill: "url(#a)" }} transform={indicatorData} /> {/* smaller 2 */}
+                                {/* <circle cx="33.64" cy="18.96" r="2.97" style={{ fill: "url(#a)" }} transform={indicatorData} /> smaller 2 */}
+                                {/* <circle cx="33.64" cy="18.96" r="2.97" style={{ fill: "red" }} transform={indicatorData} />  */}
                             </g>
                         </g>
                         <g>
@@ -108,10 +109,11 @@ const Knob: React.FC<indicatorProps> = ({
                             <g>
                                 <g>
                                     <image x="21.94" y="5.39" width="27" height="28" transform={indicatorData} xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAdCAYAAAC5UQwxAAAACXBIWXMAAAsSAAALEgHS3X78AAACNElEQVRIS72WbW7bMAyGn3w2aZN1K7CT+P5HyFW2danjxonj/SBpUbJsZ0ARAoSUWNbjVyIpzdq25ZE2nxrw1bacGpDa4XCYWb8oiv9entnUkjpAB9K+f7GF+z5gEKigITdrcz4GzgIdbK6+cH17ZoCbeuP6g9AeUGEetARW2i4JUINd1S/aduAcNAI6ZR705Hyt/xvwCtTA2bkH95SmUWrqFghsAzwDL9puEegcUVEDFXACSsL++uWOgJ1Cp86UbRHQN+BV2x3yEQtEwSfwAfwF3rUtkY8wpZHKVKHt3RJR8oyA3tS/638GPAF/dLwt8UW90bkaD8glvgdugT3wA/iJQHf6/IqoWyEwW96KsJc980CfZ+ke7hF1b4jiFTLhGtmnCjjq+JW+7+cbXFKIoaZ0g6jdqRvwhuzZhhDBHtaze2pprggsEFhaDCYtB/Qh3RCCwPLtk5ASZ219oFgqZCuNB/p6aBWkRgAlskdP+syW9Khe6rha3/PQ0cSHGFYhkfhOiMaKOEp/6fMPfeahPUuBqTqLPsuzMxK1Bjwhyf5bx6XAyVpqQWA11CJzr/5Cv9LYch8JKi0Pb0VRREpzCltkspoQefa7RD7GaukFgZ4QkO1jQ2b/YPx48ifGGlFsSW1Ai2Ifrd0RlTuehvLQVPr+hQDz52FDgJhnUwLGT3wIk8+d+wQ3aHfSazt4vxm9RCX3GpI+xPvUwvh9BiaAZv5qqBYVZLjvxgZ3Ar/SHn7zfjjwHy8VLmXg+cprAAAAAElFTkSuQmCC" style={{ opacity: 0.5, mixBlendMode: "multiply" }} />
-                                    <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "#dce0e2" }} transform={indicatorData} /> {/* smaller 1 */}
+                                    {/* <circle cx="33.64" cy="18.96" r="4.23" style={{ fill: "#dce0e2" }} transform={indicatorData} /> smaller 1 */}
                                 </g>
                                 {/* <circle cx="33.64" cy="18.96" r="2.97" style={{ fill: "#ededed" }} transform={indicatorData} /> smaller 2 */}
-                                <circle cx="33.64" cy="18.96" r="2.97" className={styles.knob} transform={indicatorData} /> {/* smaller 2 */}
+                                {/* <circle cx="33.64" cy="18.96" r="2.97" className={styles.knob} transform={indicatorData} />  */}
+                                <circle cx="33.64" cy="18.96" r="2.97" className={styles.dank} transform={indicatorData} /> 
                             </g>
                         </g>
                     </g>

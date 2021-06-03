@@ -27,7 +27,8 @@
             font-size: 1.6rem;
             text-align: end;
             font-weight: 500;
-            color: rgb(194, 194, 194);
+            // color: rgb(194, 194, 194);
+            color: $textColor;
             text-shadow: 0 0 1px $textShadow;
             // font-family: 'Times New Roman', Times, serif;
             font-family: $jost;

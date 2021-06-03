@@ -1,6 +1,15 @@
 import { indicators } from "../containers/Track/defaults";
 import { triggs } from '../context/ToneObjectsContext';
 
+export enum messages {
+  UNKOWN_USER = "Unknown user",
+  CREATED_GOOGLE = "Account linked to google, first create a password in options",
+  USER_ALREADY_EXISTS = "Username already exists",
+  DATA_VALIDATION_ERROR = "Data validation error",
+  USER_DELETED = "User deleted",
+  NO_EMAIL_VERIFIED = 'no email verified, and no user id found on account'
+}
+
 export function range(size: number, startAt: number = 0): number[] {
     return [...Array(size).keys()].map(i => i + startAt);
 };

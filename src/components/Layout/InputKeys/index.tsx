@@ -43,7 +43,8 @@ const InputKeys: React.FC<InputKeys> = ({
     const onStyleWhite = { fill: "#e2cea7" }
     const offStyleWhite = { fill: "#fff" };
     const onStyleBlack = { fill: "#a7bbe2" };
-    const offStyleBlack = { fill: '#d4d4d4' };
+    // const offStyleBlack = { fill: '#d4d4d4' };
+    const offStyleBlack = { fill: '#909190' };
 
     const [range, setRange] = useState(4)
     const [keyDownMouse, setMouseNote] = useState(IObj)

@@ -19,13 +19,10 @@ passport.deserializeUser((user, done) => {
 // in order to get authorization to login, 
 // we'll need a header with a signed JWT
 
-passport.use('jwt', new JWTStrategy.Strategy({
-    jwtFromRequest: ExtractJwt.fromHeader('authorization'),
-    secretOrKey: process.env.JWT_AUTHORIZATION,
-}, async (
+async function JSTStrat(
     payload: JWTToken,
     done: JWTStrategy.VerifiedCallback
-): Promise<void> => {
+): Promise<void> {
     try {
         const user = await UserModel.findById(payload.sub);
         if (!user) return done(null, false);
@@ -33,7 +30,12 @@ passport.use('jwt', new JWTStrategy.Strategy({
     } catch (error) {
         done(error, false);
     }
-}))
+}
+
+passport.use('jwt', new JWTStrategy.Strategy({
+    jwtFromRequest: ExtractJwt.fromHeader('authorization'),
+    secretOrKey: process.env.JWT_AUTHORIZATION,
+}, JSTStrat))
 
 passport.use('local', new LocalStrategy.Strategy({
     usernameField: 'username',
@@ -45,12 +47,15 @@ passport.use('local', new LocalStrategy.Strategy({
     done
 ): Promise<void> => {
     try {
-        const user = await UserModel.findOne({ username: username })
-        if (!user) return done(null, false, { message: messages.UNKOWN_USER });
+        const user = await UserModel.findOne({ username: username }).exec()
+        if (!user) return done(null, false, { message: messages.UNKOWN_USER_PASS });
         if (user.local?.password) {
             if (await comparePassword(password, user.local.password))
                 return done(null, user)
-            else return done(null, false, { message: messages.UNKOWN_USER })
+
+            else 
+                return done(null, false, { message: messages.UNKOWN_USER_PASS })
+            
         } else {
             return done(null, false, { message: messages.CREATED_GOOGLE });
         }
