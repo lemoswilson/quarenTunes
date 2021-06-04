@@ -8,6 +8,7 @@ export const counterSelector = (state: RootState) => state.sequencer.present.cou
 export const activeStepSelector = (state: RootState) => state.sequencer.present.step;
 export const patternsSelector = (state: RootState) => state.sequencer.present.patterns;
 export const pattObjSelector = (pattern: number) => (state: RootState) => state.sequencer.present.patterns[pattern]
+export const sequencerSelector = (state: RootState) => state.sequencer.present
 
 export const activePattTrkNoteLenSelector = (activePatt: number, selectedTrkIdx: number) => {
     return (state: RootState) => state.sequencer.present.patterns[activePatt].tracks[selectedTrkIdx].noteLength

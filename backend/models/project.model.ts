@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { UserModelType } from './user.model';
+// import { initialState as trackInit } from '../../src/store/Track';
+// import { initialState as seqInit } from '../../src/store/Track';
 
 export interface Project {
     user: UserModelType['_id'],
-    Sequencer: {
+    sequencer: {
         patterns: {
             [key: number]: {
                 name: string,
@@ -27,7 +29,7 @@ export interface Project {
         step: number,
         counter: number,
     },
-    Track: {
+    track: {
         selectedTrack: number,
         trackCount: number,
         instrumentCounter: number,
@@ -111,10 +113,15 @@ const TrackSchema: Schema = new Schema({
 
 const ProjectSchema: Schema = new Schema({
     user: { type: Schema.Types.ObjectId, required: true, unique: true },
-    Sequencer: { type: SequencerSchema, required: true },
-    Track: { type: TrackSchema, required: true },
+    sequencer: { type: SequencerSchema, required: true },
+    track: { type: TrackSchema, required: true },
     name: { type: String, required: true }
 }, { timestamps: true })
 
 
 export default mongoose.model<ProjectModel>('Project', ProjectSchema);
+
+export const defaultProject = {
+    track: {"instrumentCounter":0,"selectedTrack":0,"trackCount":1,"tracks":[{"instrument":"MetalSynth","options":{"volume":[0,[-100,6],"dB","slider","linear"],"detune":[0,[-1200,1200],"c","knob","linear"],"portamento":[0,[0.01,3],"s","knob","linear"],"envelope":{"attackCurve":["linear",["linear","exponential"],null,"CURVE_TYPE"],"decayCurve":["linear",["linear","exponential"],null,"CURVE_TYPE"],"releaseCurve":["linear",["linear","exponential"],null,"CURVE_TYPE"],"attack":[0.001,[0.001,10],"s","knob","exponential"],"decay":[1.4,[0.001,10],"s","knob","exponential"],"release":[0.2,[0.001,10],"s","knob","exponential"],"sustain":[0,[0,1],"","knob","linear"]},"harmonicity":[5.1,[0.1,10],"","slider","linear"],"modulationIndex":[32,[0.01,100],"","slider","exponential"],"octaves":[1.5,[0,8],"","knob","linear"],"resonance":[4000,[20,7000],"hz","knob","exponential"]},"id":0,"fx":[{"fx":"Compressor","id":0,"options":{"attack":[0.003,[0,1],"s","knob","linear"],"release":[0.25,[0,1],"s","knob","linear"],"ratio":[4,[1,20],":1","knob","exponential"],"threshold":[-24,[-100,0],"dB","knob","linear"],"knee":[30,[0,40],"dB","knob","linear"]}}],"fxCounter":0,"midi":{"device":"onboardKey","channel":"all"}}]},
+    sequencer: {"activePattern":0,"counter":1,"patterns":{"0":{"name":"pattern 1","patternLength":16,"tracks":[{"events":[{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0},{"instrument":{"note":[]},"fx":[{}],"offset":0}],"length":16,"noteLength":"16n","page":0,"selected":[],"velocity":60,"fxCount":1}]}},"step":0}
+}

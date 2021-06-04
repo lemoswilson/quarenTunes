@@ -66,7 +66,12 @@ const SignIn: React.FC<userProps> = ({
             }
             axios.post(process.env.REACT_APP_SERVER_URL + '/users/auth/google', data, {})
                 .then((response) => { authenticate(response.data.token) })
-                .catch(postError)
+                .catch((e) => {
+                    if (!e.status){
+                        postError('The server did not respond, please try again later')
+                    } else 
+                        postError(e)
+                })
         } catch (error) {
             postError(error)
         }
@@ -87,10 +92,16 @@ const SignIn: React.FC<userProps> = ({
                         authenticate(response.data.token);
                     } 
                 })
-                .catch(e => { postError('There was a problem with the password or username entered')});
+                .catch(e => { 
+                    postError(
+                        !e.status 
+                        ? 'The server did not respond, please try again later'
+                        : 'There was a problem with the password or username entered'
+                    )
+                });
 
         } catch (err) {
-            postError(err?.response?.data?.error);
+            // postError(err?.response?.data?.error);
         }
     }
 

@@ -43,8 +43,9 @@ export async function verify(req: Request<any>, res: Response<any>): Promise<voi
         if (!req.user){
             res.status(202).json({data: 'invalid or expired token'})
         }
-        else 
+        else {
             res.status(200).send({data: true})
+        }
         
     } catch(e) {
         res.status(403).send(e);

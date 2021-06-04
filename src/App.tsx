@@ -1,12 +1,16 @@
 import React, { useState, Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
+
 import HomePage from './components/Layout/HomePage/HomePage';
 import SignUp from './components/Layout/SignUp/SignUp';
 import SignIn from './components/Layout/SignIn';
-import axios from 'axios';
 import Recover from './components/Layout/Recover';
 import ResetPassword from './components/Layout/Recover/ResetPassword';
+
+import axios from 'axios';
+
 import './App.scss';
+import Projects from "./components/Layout/Projects";
 
 const Xolombrisx = lazy(() => import('./containers/Xolombrisx'))
 const SuspenseFallback: React.FC = () => <div>Fallback</div>
@@ -41,6 +45,7 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 				} 
 			).then((res) => {
 				if (res.status === 200){
+					console.log('data received from verify is', res)
 					updateUser({
 						errorMessage: '',
 						isAuthenticated: true,
@@ -49,7 +54,7 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 				}
 			}).catch((err) => {
 				updateUser({
-					errorMessage: err.data.error, 
+					errorMessage: err, 
 					isAuthenticated: false,
 					token: '',
 				})
@@ -67,6 +72,7 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 						<Route path={'/signup'} render={() => <SignUp  {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/recover'} render={() => <Recover {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/reset'} render={() => <ResetPassword {...user} updateUser={updateUser} />}></Route>
+						<Route path={'/projects'} render={() => <Projects {...user} updateUser={updateUser} />}></Route>
 						<Route path={'/'} render={() => <HomePage {...user} updateUser={updateUser} />}></Route>
 
 					</Switch>

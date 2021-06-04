@@ -102,6 +102,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                             appRef={appRef}
                                             sequencer={state?.sequencer}
                                             track={state?.track}
+                                            name={state?.name}
                                         />
                                     </Provider>
                             </ToneObjectsContext.Provider>

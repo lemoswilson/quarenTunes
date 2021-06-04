@@ -10,7 +10,6 @@ import {
     pattsObjSelector, 
     activeStepSelector,
     pattsVelocitiesSelector,
-    trkPattsLenSelector,
     pattsTrkEventsSelector
 } from '../../../store/Sequencer/selectors';
 import { selectedDeviceSelector, selectedChannelSelector } from '../../../store/Track/selectors';
@@ -72,20 +71,16 @@ export const useNoteCallbackData = (
     activePatt: number,
 ) => {
     const { ref_selectedSteps, selectedSteps} = useSelectedSteps(activePatt, trackIndex)
-    // const ref_pattsNoteLen = useQuickRef(pattsNoteLen);
     const activeStep = useSelector(activeStepSelector);
     const ref_activeStep = useQuickRef(activeStep);
     const pattsVelocities = useSelector(pattsVelocitiesSelector(trackIndex));
     const ref_pattsVelocities = useQuickRef(pattsVelocities);
     const pattsTrkEvents = useSelector(pattsTrkEventsSelector(trackIndex));
-    const trkPattsLen = useSelector(trkPattsLenSelector(trackIndex));
 
     return { 
         pattsTrkEvents,
         selectedSteps, 
-        trkPattsLen,
         ref_selectedSteps,
-        // ref_pattsNoteLen, 
         ref_activeStep, 
         ref_pattsVelocities,
     }

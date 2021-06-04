@@ -1,3 +1,3 @@
 export * from "./types";
-export { trackReducer, initialState } from "./reducer";
+export { trackReducer, trackInit as initialState } from "./reducer";
 export * from "./actions";

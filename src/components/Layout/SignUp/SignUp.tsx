@@ -73,9 +73,15 @@ const SignUp: React.FC<userProps> = ({
             }
             axios.post(process.env.REACT_APP_SERVER_URL + '/users/auth/google', data, {})
                 .then((response) => { authenticate(response.data.token) })
-                .catch(postError)
+                .catch((e) => {
+                    postError(
+                        ! e.status
+                        ? 'The server did not respond, please try again later'
+                        : e
+                    )
+                })
         } catch (error) {
-            postError(error)
+            // postError(error)
         }
     };
 
@@ -108,7 +114,9 @@ const SignUp: React.FC<userProps> = ({
                 })
                 .catch(e => { 
 
-                    if (e.response.data.error.match('"username"'))
+                    if (!e.status)
+                        postError( 'The server did not respond, please try again later')
+                    else if (e.response.data.error.match('"username"'))
                         postError('Username must have between 6 and 20 characters') 
                     else if (e.response.data.error.match('"password"'))
                         postError('Password must have between 6 and 16 characeters')

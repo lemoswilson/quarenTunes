@@ -15,6 +15,7 @@ import {
 } from '../controllers/users';
 import { getDataList, saveData, updateData, getData } from '../controllers/data';
 import { validateBody, schemas } from '../helpers/routeHelpers';
+import { NextFunction, Response, Request } from 'express';
 
 const router = Router()
 
@@ -30,9 +31,19 @@ router.route('/recover').post(emailRecoverPassword)
 router.route('/checkLink').post(checkLink)
 router.route('/resetPassword').post(validateBody(schemas.resetPassword), resetPassword)
 
-router.route('/userDataList').post(passport.authenticate('jwt', { session: false }), getDataList);
+router.route('/userDataList').post(test, passport.authenticate('jwt', { session: false }), getDataList);
+// router.route('/userDataList').post(passport.authenticate('jwt', { session: false }), getDataList);
 router.route('/saveData').post(passport.authenticate('jwt', { session: false }), saveData);
 router.route('/updateData').post(passport.authenticate('jwt', { session: false }), updateData);
-router.route('/projects').post(passport.authenticate('jwt', { session: false}), getData)
+router.route('/getData').post(passport.authenticate('jwt', { session: false}), getData)
+
+async function test(req: Request, _res: Response, next: NextFunction){
+    try {
+        console.log('inside test, token is', req?.headers.authorization);
+        next();
+    } catch (e){
+        console.log('deu erro');
+    }
+}
 
 export default router;

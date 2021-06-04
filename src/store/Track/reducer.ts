@@ -5,7 +5,7 @@ import { trackActionTypes, trackActions, Track,	xolombrisxInstruments, effectTyp
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../lib/curves';
 import produce from "immer";
 
-export const initialState: Track = {
+export const trackInit: Track = {
 	instrumentCounter: 0,
 	selectedTrack: 0,
 	trackCount: 1,
@@ -31,7 +31,7 @@ export const initialState: Track = {
 };
 
 export function trackReducer(
-	state: Track = initialState,
+	state: Track = trackInit,
 	a: trackActionTypes
 ): Track {
 	return produce(state, (draft) => {

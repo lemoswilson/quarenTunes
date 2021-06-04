@@ -122,7 +122,7 @@
                 color: #633939;;
             }
 
-            .create {
+            .loadProject {
                 background: none;
                 color: inherit;
                 border: none;
@@ -134,10 +134,27 @@
 
                 margin-top: 1rem;
                 border-radius: 1rem;
-                background-color: rgb(239, 241, 239);
+                background-color: white;
                 height: 1.5rem;
                 width: 10rem;
                 box-shadow: 0.2rem 0.2rem 0.2rem rgb(119, 118, 118);
+            }
+
+            .buttons {
+                display: flex;
+                width: 80%;
+                height: 4rem;
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+
+            .selector {
+                width: 80%;
+                height: 15rem;
+                display: flex;
+                @include center;
+                
             }
 
             .division {
@@ -145,10 +162,6 @@
                 width: 80%;
                 height: 0;
                 border: 1px solid black;
-            }
-
-            .google {
-                border-radius: 0.7rem;
             }
 
             .errorMessage {

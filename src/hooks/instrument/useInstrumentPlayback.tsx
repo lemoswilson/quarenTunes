@@ -4,7 +4,6 @@ import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumen
 import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../lib/objectDecompose';
 import { initials, eventOptions } from '../../containers/Track/Instruments';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
-import { returnInstrument } from '../../lib/Tone/initializers';
 import { useIsPlaySelector } from '../store/Transport/useTransportSelectors';
 import { pattsNoteLenSelector } from '../../store/Sequencer/selectors';
 import useQuickRef from '../lifecycle/useQuickRef';
@@ -14,11 +13,8 @@ export const useInstrumentPlayback = (
     index: number, 
     ref_index: MutableRefObject<number>,
     ref_options: any,
-    // ref_arrgMode: MutableRefObject<arrangerMode>,
     ref_pattsVelocities: MutableRefObject<{[key: string]: number}>,
     ref_activePatt: MutableRefObject<number>,
-    // ref_pattTracker: MutableRefObject<patternTrackerType>,
-    // ref_songEvents: MutableRefObject<songEvent[]>,
     voice: xolombrisxInstruments,
     trkCount: number,
     propertiesUpdate: any,
@@ -55,8 +51,6 @@ export const useInstrumentPlayback = (
 
 
     const instrumentCallback = useCallback((time: number, value: eventOptions) => {
-        // console.log('[useInstrumentPlayback]: instrumentCallback has been called, fx index is ', ref_index) ;
-
         const eventProperties = propertiesToArray(value).concat(propertiesToArray(ref_lockedParameters.current).concat('velocity, length, note'));
 
         eventProperties.forEach(eventProperty => {
@@ -125,7 +119,6 @@ export const useInstrumentPlayback = (
     }, [])
 
     const setCallbacks = useCallback(() => {
-        console.log('[useInstrumentPlayback]: should be setting callbacks');
 
         if (ref_toneObjects.current) {
             for (const key in ref_toneObjects.current?.patterns){
@@ -153,10 +146,9 @@ export const useInstrumentPlayback = (
     }, [instrumentCallback]);
 
     useEffect(() => {
-        console.log(`[useInstrumentPlayback]: should be updating instrument callback of track ${index}`);
         setCallbacks();
     }, [setCallbacks, trkCount])
 
-    return { ref_isPlay, instrumentCallback, setCallbacks };
+    return { ref_isPlay };
 
 }

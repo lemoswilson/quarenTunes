@@ -51,23 +51,21 @@ const Track: FunctionComponent = () => {
             </div>
             <div className={styles.effectsColumn}>
                 <div className={styles.wrapper}>
-                    {/* <div className={styles.fx}> */}
                     {Tracks[selectedTrkIdx].fx.map((fx, idx, arr) => {
                         return (
-                                <Effect
-                                    addEffect={trackDispatchers._addEffect}
-                                    changeEffect={trackDispatchers._changeEffect}
-                                    deleteEffect={trackDispatchers._deleteEffect}
-                                    // deleteEffect={() => {}}
-                                    key={`track:${selectedTrk_Id};effect:${fx.id}`}
-                                    fxId={fx.id}
-                                    trackIndex={selectedTrkIdx}
-                                    fxIndex={idx}
-                                    midi={Tracks[selectedTrkIdx].midi}
-                                    options={fx.options}
-                                    trackId={Tracks[selectedTrkIdx].id}
-                                    type={fx.fx}
-                                />
+                            <Effect
+                                addEffect={trackDispatchers._addEffect}
+                                changeEffect={trackDispatchers._changeEffect}
+                                deleteEffect={trackDispatchers._deleteEffect}
+                                key={`track:${selectedTrk_Id};effect:${fx.id}`}
+                                fxId={fx.id}
+                                trackIndex={selectedTrkIdx}
+                                fxIndex={idx}
+                                midi={Tracks[selectedTrkIdx].midi}
+                                options={fx.options}
+                                trackId={Tracks[selectedTrkIdx].id}
+                                type={fx.fx}
+                            />
                         )
                     })}
                 </div>

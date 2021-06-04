@@ -1,15 +1,15 @@
 import { Response, Request } from 'express'
 
-import{ UserModelType } from '../models/user.model'
-import ProjectModel from '../models/project.model'
+import { UserModelType } from '../models/user.model'
+import ProjectModel, { defaultProject } from '../models/project.model'
 import InstrumentModel from '../models/instrument.model'
 import EffectModel from '../models/effect.model';
 
 import { messages, modelTypes } from '../helpers/routeHelpers'
 
 export async function getData(
-    res: Response<any>,
     req: Request<any>,
+    res: Response<any>,
 ) {
     try {
         const user: UserModelType | null | undefined = req.user;
@@ -19,7 +19,7 @@ export async function getData(
             const modelType = req.body.modelType;
             if (modelType === modelTypes.PROJECT){
                 const project = await ProjectModel.findOne({user: user._id, name: name}).exec()
-                res.status(200).json({track: project?.Track, sequencer: project?.Sequencer}) 
+                res.status(200).json({track: project?.track, sequencer: project?.sequencer}) 
 
             } else if (modelType === modelTypes.INSTRUMENT){
                 const type = req.body.type;
@@ -43,36 +43,37 @@ export async function getData(
 }
 
 export async function getDataList(
-    res: Response<any>,
     req: Request<any>,
+    res: Response<any>,
 ) {
     try {
         const user: UserModelType | null | undefined = req.user;
+        console.log('vai toma no cu')
 
         if (user) {
             const modelType = req.body.modelType;
+            res.status(200)
             if (modelType === modelTypes.PROJECT){
                 const projects = await ProjectModel.find({user: user._id}).exec()
-                res.status(200).json({projects: projects.map(v => v.name)}) 
+                res.json({projects: projects.map(v => v.name)}) 
 
             } else if (modelType === modelTypes.INSTRUMENT){
                 const type = req.body.type;
                 const instruments = await InstrumentModel.find({user: user._id, type: type}).exec();
-                res.status(200).json({instruments: instruments.map(m => m.name)})
+                res.json({instruments: instruments.map(m => m.name)})
 
             } else if (modelType === modelTypes.EFFECT) {
                 const type = req.body.type;
                 const effects = await EffectModel.find({user: user._id, type: type}).exec();
-                res.status(200).json({effects: effects.map(e => e.name)});
+                res.json({effects: effects.map(e => e.name)});
 
             }
         } 
-        
         else 
             res.status(400).json({error: messages.UNKOWN_USER_PASS});
 
     } catch (e) {
-        res.status(400).json({error: messages.INFORMATION_RETRIEVAL_ERROR})
+        // res.status(400).json({error: messages.INFORMATION_RETRIEVAL_ERROR})
     }
 
 }
@@ -157,12 +158,12 @@ export async function updateData(
             const modelType = req.body.modelType;
             const name: string = req.body.name;
     
-            if (modelType === 'projects'){
+            if (modelType === modelTypes.PROJECT){
                 const Project = await ProjectModel.findOne({name: name, user: User._id}).exec();
 
                 if (Project && updateValue){
-                    Project.Track = req.body.project.track;
-                    Project.Sequencer = req.body.project.project.sequencer;
+                    Project.track = req.body.project.track;
+                    Project.sequencer = req.body.project.project.sequencer;
                 }
                 if (Project && rename) {
                     Project.name = req.body.newName;
@@ -172,7 +173,7 @@ export async function updateData(
                     .then(_ => {res.status(200).json({message: messages.PROJECT_SAVED })})
                     .catch(e => {res.json({error: e})})
 
-            } else if (modelType === 'instrument') {
+            } else if (modelType === modelTypes.INSTRUMENT) {
 
                 const Instrument = await InstrumentModel.findOne({name: name, user: User._id}).exec();
                 if (Instrument && updateValue)
@@ -185,7 +186,7 @@ export async function updateData(
                     .then(_ => {res.status(200).json({message: messages.INSTRUMENT_SAVED })})
                     .catch(e => {res.json({error: e})})
 
-            } else if (modelType === 'effect') {
+            } else if (modelType === modelTypes.EFFECT) {
 
                 const Effect = await EffectModel.findOne({name: name, user: User._id}).exec();
                 if (Effect && updateValue)
@@ -203,5 +204,57 @@ export async function updateData(
 
     } catch (e) {
         res.status(402).json({error: e});
+    }
+}
+
+export async function deleteData(res: Response, req: Request){
+    try {
+        const User: UserModelType | undefined | null = req.user;
+        if (User){
+            const modelType = req.body.modelType;
+            const name: string = req.body.name;
+    
+            if (modelType === modelTypes.PROJECT){
+
+                ProjectModel.findOneAndDelete({name: name, user: User._id})
+                .then(_ => {res.status(200).send({ message: messages.PROJECT_DELETED })})
+                .catch(_ => {res.status(402).send({ message: messages.GENERAL_ERROR})})
+
+            } else if (modelType === modelTypes.INSTRUMENT) {
+
+                InstrumentModel.findOneAndDelete({name: name, user: User._id})
+                .then(_ => {res.status(200).send({ message: messages.INSTRUMENT_DELETED })})
+                .catch(_ => {res.status(402).send({ message: messages.GENERAL_ERROR})})
+
+            } else if (modelType === modelTypes.EFFECT) {
+
+                EffectModel.findOneAndDelete({name: name, user: User._id})
+                .then(_ => {res.status(200).send({ message: messages.EFFECT_DELETED })})
+                .catch(_ => {res.status(402).send({ message: messages.GENERAL_ERROR})})
+            }
+
+        }
+    } catch(e){
+
+    }
+}
+
+export async function newProject(res: Response<any>, req: Request<any>) {
+    try {
+        if (req.user){
+            const Project = new ProjectModel({
+                name: req.body.name, 
+                track: defaultProject.track, 
+                sequencer: defaultProject.sequencer,
+                user: req.user._id
+            })
+            Project.save()
+                .then(p => { res.status(200).json({track: p.track, sequencer: p.sequencer, name: p.name})})
+                .catch(e => { res.json({error: e})})
+        } else {
+            res.json({error: messages.DATA_VALIDATION_ERROR})
+        }
+    } catch (error) {
+        res.status(402).json({error: messages.DATA_VALIDATION_ERROR});
     }
 }

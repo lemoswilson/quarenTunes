@@ -22,13 +22,17 @@ export enum messages {
     USER_DELETED = "User deleted",
     INFORMATION_RETRIEVAL_ERROR = "there was a problem trying to retrieve the information",
     PROJECT_SAVED = "Project saved",
-    INSTRUMENT_SAVED = "Project saved",
-    EFFECT_SAVED = "Project saved",
+    PROJECT_DELETED = "Project deleted",
+    INSTRUMENT_SAVED = "Instrument saved",
+    INSTRUMENT_DELETED = "Instrument deleted",
+    EFFECT_SAVED = "Effect saved",
+    EFFECT_DELETED = "Effect deleted",
     DELETE_USER_ERROR = "An error occurred when trying to delete user, please try again later",
     NO_EMAIL_VERIFIED = 'no email verified, and no user id found on account',
     EMAIL_EXISTS = "Email already registred",
     RESET_PASSWORD_ERROR = 'An error occurred while trying to reset your password, please try again later',
-    INVALID_RESET_LINK = 'This is an invalid reset link'
+    INVALID_RESET_LINK = 'This is an invalid reset link',
+    GENERAL_ERROR = "There was an error processing your request, please try again later"
 }
 
 export enum modelTypes {
@@ -67,7 +71,6 @@ export const schemas = {
         username: Joi.string().required().insensitive().regex(/^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/),
         password: Joi.string().required().regex(/^(?=.{6,16}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/),
         method: Joi.string().required().valid(...['local', 'google'])
- 
     }),
     udateSchema: Joi.object().keys({
         email: Joi.string().email().required(),

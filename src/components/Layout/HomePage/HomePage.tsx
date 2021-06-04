@@ -14,7 +14,6 @@ const HomePage: React.FC<userProps> = ({
     updateUser
 }) => {
 
-    const [col, setCol] = useState(0);
     const [br, setBreak] = useState(false);
     const ref_br = useQuickRef(br);
 

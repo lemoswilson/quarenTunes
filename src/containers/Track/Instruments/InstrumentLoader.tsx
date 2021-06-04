@@ -86,7 +86,13 @@ const InstrumentLoader: React.FC<InstrumentLoaderProps> = (props) => {
     };
 
 
-    const _continuousIndicator = (property: string, label: string, className?: string, detail?: any, slider?: boolean) => ( 
+    const _continuousIndicator = (
+        property: string, 
+        label: string, 
+        className?: string, 
+        detail?: any, 
+        slider?: boolean
+    ) => ( 
         createContinuousIndicator(
             props,
             widgetTabIndexTrkStart + props.trackIndex,
@@ -169,7 +175,6 @@ const InstrumentLoader: React.FC<InstrumentLoaderProps> = (props) => {
             index={props.trackIndex}
             id={props.trackId}
             options={props.options}
-            // voice={props.voice}
         />
         : null;
 

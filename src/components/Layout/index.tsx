@@ -9,7 +9,7 @@ import Div100vh from 'react-div-100vh';
 import ToneObjects, { triggs } from '../../context/ToneObjectsContext';
 
 import TrackComponent from '../../containers/Track';
-import Sequencer from '../../containers/Sequencer';
+import SequencerComponent from '../../containers/Sequencer';
 import Transport from '../../containers/Transport';
 import { getInitials } from '../../containers/Track/defaults';
 
@@ -27,6 +27,7 @@ import DropdownContext from '../../context/DropdownContext';
 import Chain from '../../lib/Tone/fxChain';
 import { returnEffect, returnInstrument, reconnect } from '../../lib/Tone/initializers';
 import { trackSelector } from '../../store/Track/selectors';
+import { sequencerSelector } from '../../store/Sequencer/selectors';
 
 type ToneType = typeof Tone;
 
@@ -49,6 +50,7 @@ export function newPatternObject(
 export interface LayoutState {
     sequencer?: SequencerType,
     track?: TrackType,
+    name?: string,
 }
 
 interface LayoutProps  extends LayoutState {
@@ -66,35 +68,34 @@ const Layout: React.FC <LayoutProps> = ({
     const ref_menus = useContext(MenuContext);
     const ref_dropdowns = useContext(DropdownContext);
     const Track = useSelector(trackSelector)
+    const Sequencer = useSelector(sequencerSelector);
 
+    useEffect(() => {
+        console.log('track is', JSON.stringify(Track))
+        console.log('Sequencer is', JSON.stringify(Sequencer));
+    }, [Sequencer, Track])
 
     const getNewPatternObject = useCallback<() => triggs[]>(() => {
         return newPatternObject(Tone, track)
-
     }, [])
 
     const initializeTracks = () => {
-        let t: TrackType;
-
-        if (sequencer && track){
-            t = track;
-
-        } else {
-            t = Track;
-        }
-
-        t?.tracks.forEach((track, trackIndex, _) => {
+        const t = sequencer && track ? track : Track
+        
+        t.tracks.forEach((track, trackIndex, _) => {
             ref_toneObjects.current?.tracks.push({
                 chain: new Chain(), 
-                instrument: returnInstrument(track.instrument, getInitials(track.instrument)),
-                effects: [...Array(track.fx.length).keys()].map((__, fxIndex, _) => returnEffect(track.fx[fxIndex].fx, track.fx[fxIndex].options))
+                instrument: returnInstrument(track.instrument, track.options),
+                effects: [...Array(track.fx.length).keys()]
+                    .map((__, fxIndex, _) => returnEffect(
+                        track.fx[fxIndex].fx, track.fx[fxIndex].options
+                    ))
             })
             reconnect(ref_toneObjects, trackIndex);
         })
     };
 
     const initializePattern = useCallback(() => {
-        console.log('should be initiating patterns')
         if (sequencer && track) {
             const patterns = sequencer.patterns
             Object.keys(patterns).forEach(pattern => {
@@ -106,8 +107,6 @@ const Layout: React.FC <LayoutProps> = ({
             if (ref_toneObjects.current)
                 ref_toneObjects.current.patterns[0] = getNewPatternObject();
         }
-
-        // just for testing 
 
         if (ref_toneObjects.current)
         Object.keys(ref_toneObjects.current.patterns).forEach(p => {
@@ -171,7 +170,7 @@ const Layout: React.FC <LayoutProps> = ({
                     <div className={styles.mid}>
                         <TrackComponent></TrackComponent>
                     </div>
-                    <Sequencer></Sequencer>
+                    <SequencerComponent></SequencerComponent>
                 </div>
             </div>
             : null
