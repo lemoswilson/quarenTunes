@@ -9,6 +9,8 @@ export const instrumentIdCounterSelector = (state: RootState) => state.track.pre
 export const trkCountSelector = (state: RootState) => state.track.present.trackCount;
 export const fxCountSelector = (trackIndex: number) => (state: RootState) => state.track.present.tracks[trackIndex].fx.length
 export const selectedTrkVoiceSelector = (selectedTrkIndex: number) => (state: RootState) => state.track.present.tracks[selectedTrkIndex].instrument
+export const trackNameSelector = (selectedTrkIndex: number) => (state: RootState) => state.track.present.tracks[selectedTrkIndex].name;
+export const effectNameSelector = (selectedTrkIndex: number, fxIndex?: number) => (state: RootState) => fxIndex || fxIndex === 0  ? state.track.present.tracks[selectedTrkIndex].fx[fxIndex].name : undefined;
 export const selectedDeviceSelector = (selectedTrkIndex: number) => (state: RootState) => {
     return state.track.present.tracks[selectedTrkIndex].midi.device
 } 

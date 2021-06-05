@@ -1,20 +1,26 @@
-import React, { useState, useRef, useEffect, useCallback, MutableRefObject } from 'react';
+import React, { useState, useRef, useEffect, useCallback, MutableRefObject, ChangeEvent } from 'react';
 import regular from './style.module.scss';
 import smalls from './small.module.scss';
 import Polygon from './Polygon';
-import dropdownEmitter, { dropdownEventTypes } from '../../../lib/Emitters/dropdownEmitter';
+import dropdownEmitter, { dropdownEventTypes, ExtractDropdownPayload } from '../../../lib/Emitters/dropdownEmitter';
+import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
 
 interface Dropdown {
+    select: (key: string) => void;
+    onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
+    // onChange?: (event: ChangeEvent) => void,
+    // textValue?: string,
+    // textValue?: MutableRefObject<string>,
+    // ref_temp?: MutableRefObject<string>,
     keyValue?: string[][];
     dontDrop?: boolean;
     selected: string;
-    select: (key: string) => void;
     className?: string;
-    onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
     value: string;
     small?: boolean;
     renamable?: boolean;
     forceClose?: boolean;
+    save?: {func: (input: HTMLInputElement) => void, fxIndex?: number, trackIndex: number, fetchList: () => void, },
     dropdownId: string;
 }
 
@@ -47,6 +53,7 @@ const DropdownList: React.FC<DropdownList> = ({styles, selectAndToggle, keyValue
 
     const shouldExtend = isOverflow(divRef.current) ? styles.extend : ''
 
+
     return (
         <div className={styles.row} onClick={() => { selectAndToggle(keyValue) }}>
             <div className={styles.hh}></div>
@@ -65,14 +72,15 @@ const DropdownList: React.FC<DropdownList> = ({styles, selectAndToggle, keyValue
 }
 
 const Dropdown: React.FC<Dropdown> = ({
-    keyValue,
     select,
+    onSubmit,
+    keyValue,
     selected,
     className,
     value,
     dontDrop,
-    onSubmit,
     renamable,
+    save,
     small,
     dropdownId
 }) => {
@@ -81,6 +89,7 @@ const Dropdown: React.FC<Dropdown> = ({
     const [renderCount, increaseCounter] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null);
     const name = keyValue?.filter(([key, value], idx, _) => key === selected)[1];
+    const ref_save = useQuickRef(save);
 
     const styles = small ? smalls : regular
 
@@ -96,15 +105,15 @@ const Dropdown: React.FC<Dropdown> = ({
         ? `${styles.turnClose}`
         : '';
 
-
-
-
     const openClose = () => {
         if (renderCount === 0) {
             increaseCounter(1);
         }
 
         if (!Open) {
+            if (save)
+                save.fetchList();
+            
             dropdownEmitter.emit(dropdownEventTypes.ESCAPE, {})
             dropdownEmitter.emit(dropdownEventTypes.OPEN, { id: dropdownId, openClose: () => { toggleState(state => !state) } })
         } else {

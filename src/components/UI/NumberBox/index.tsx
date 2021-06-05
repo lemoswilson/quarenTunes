@@ -35,12 +35,9 @@ const NumberBox: React.FC<Props> = ({ value, updateValue, increaseDecrease }) =>
     function onKeyDown(this: HTMLInputElement, event: KeyboardEvent){
         const char = event.key;
         event.stopPropagation();
-        console.log('char is ', char);
         if (char.toLowerCase() === 'arrowdown') {
-            console.log('should be dispatching increaseDecrase, decrase')
             increaseDecrease(-1)
         } else if (char.toLowerCase() === 'arrowup') {
-            console.log('should be dispatching increaseDecrase, increase')
             increaseDecrease(1)
         }
     }

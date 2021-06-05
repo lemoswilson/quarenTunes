@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject, useState } from "react";
+import React, { useRef, MutableRefObject, useState, useEffect } from "react";
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
 import undoable, { newHistory, includeAction } from 'redux-undo';
@@ -10,6 +10,7 @@ import ToneObjectsContext, { ToneObjects, triggs } from '../../context/ToneObjec
 import AppContext from '../../context/AppContext';
 import MenuContext from '../../context/MenuContext';
 import DropdownContext, { dropdownContext } from '../../context/DropdownContext';
+import UserDataContext from '../../context/userDataContext';
 
 import { trackReducer, initialState as TrkInit } from "../../store/Track";
 import { sequencerReducer, initialState as SeqInit, sequencerActions } from "../../store/Sequencer";
@@ -18,6 +19,7 @@ import { midiInputReducer, initialState as MidiState } from '../../store/MidiInp
 import { userProps } from '../../App';
 
 import Layout, { LayoutState } from '../../components/Layout';
+import { useVerify } from "../../hooks/fetch/useFetch";
 
 declare global {
     interface Window {
@@ -82,33 +84,57 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     errorMessage,
     isAuthenticated,
     token,
-    updateUser
+    updateUser,
+    signOut,
 }) => {
 
     const appRef = useRef<HTMLDivElement>(null);
     const ref_toneObjects: MutableRefObject<ToneObjects | null>  = useRef(null)
     const state  = useLocation<LayoutState | undefined>().state
+
     let ref_menus = useRef<any[]>([]);
     let ref_dropdowns = useRef<dropdownContext>({})
 
+    const [firstRender, setRender] = useState(true);
+    const [name, setName] = useState('');
+
+    const [saveModal, setSaveModal] = useState(false);
+    const saveInput = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        if (state?.incomeName)
+            setName(state.incomeName);
+
+        setRender(false)
+    }, [])
+
+    useVerify({errorMessage, isAuthenticated, token}, updateUser);
+
     return (
         <React.Fragment>
-                <MenuContext.Provider value={ref_menus}>
-                    <DropdownContext.Provider value={ref_dropdowns}>
-                        <AppContext.Provider value={appRef}>
-                            <ToneObjectsContext.Provider value={ref_toneObjects}>
-                                    <Provider store={store}>
-                                        <Layout
-                                            appRef={appRef}
-                                            sequencer={state?.sequencer}
-                                            track={state?.track}
-                                            name={state?.name}
-                                        />
-                                    </Provider>
-                            </ToneObjectsContext.Provider>
-                        </AppContext.Provider>
-                    </DropdownContext.Provider>
-                </MenuContext.Provider>
+                <UserDataContext.Provider value={{errorMessage, isAuthenticated, token}}>
+                    <MenuContext.Provider value={ref_menus}>
+                        <DropdownContext.Provider value={ref_dropdowns}>
+                            <AppContext.Provider value={appRef}>
+                                <ToneObjectsContext.Provider value={ref_toneObjects}>
+                                        <Provider store={store}>
+                                        {  !firstRender
+                                            ? <Layout
+                                                appRef={appRef}
+                                                sequencer={state?.sequencer}
+                                                track={state?.track}
+                                                incomeName={state?.incomeName}
+                                                updateUser={updateUser}
+                                                signOut={signOut}
+                                            />
+                                            : null
+                                        }
+                                        </Provider>
+                                </ToneObjectsContext.Provider>
+                            </AppContext.Provider>
+                        </DropdownContext.Provider>
+                    </MenuContext.Provider>
+                </UserDataContext.Provider>
         </React.Fragment >
     );
 }

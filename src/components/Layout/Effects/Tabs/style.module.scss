@@ -3,7 +3,6 @@
 .tabs {
     height: 100%;
     width: 1.83rem;
-    // border: 1px solid black;
 
     .selector {
         background-color: $white;
@@ -13,10 +12,8 @@
         border-top-right-radius: 1rem;
         display: flex;
         @include center;
-        // border: 1px solid black;
 
         .border {
-            // margin-top: 0.4rem;
             height: 90%;
             width: 70%;
             border: 1px solid rgba(166, 215, 230, 0.781);
@@ -26,20 +23,12 @@
             grid-template-rows: 5.6rem 1.4rem;
 
             .effectTitle {
-                // margin-top: 1.2rem;
-                // height: 4rem;
-                // position: absolute;
                 cursor: pointer;
-                // height: 100%;
-                // width: 100%;
                 display: flex;
                 margin: 0;
                 padding: 0;
-                // justify-content: flex-end;
-                // align-items: flex-end;
                 writing-mode: vertical-rl;
                 text-orientation: mixed;
-                // padding-right: 0.3rem;
                 padding-top: 0.6rem;
                 line-height: 1.3rem;
                 font-family: $jost;
@@ -47,10 +36,8 @@
                 color: $textColor;
                 text-align: end;
                 text-shadow: 0 0 1px $textShadow;
-                // border: 1px solid black;
                 overflow: hidden;
                 white-space: nowrap; 
-                // transform: rotate(90deg);
             }
 
             .menuWrapper {
@@ -58,9 +45,6 @@
                 position: absolute;
                 top: 5.5rem;
                 left: -0.2rem;
-                // margin-top: 1.4rem;
-                // padding-right: 0.2rem;
-                // margin-right: rem;
                 transform: rotate(90deg);
 
                 .remove {
@@ -93,11 +77,10 @@
         @include shadow(0, 0.3rem, 0.3rem);
         border-bottom-right-radius: 1rem;
         z-index: 1;
+        cursor: pointer;
 
         .svg {
-            // padding-left: 0.3rem;
-            // padding-top: 0.2rem;
-            // position: absolute;
+
         }
 
 

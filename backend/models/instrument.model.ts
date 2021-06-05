@@ -53,7 +53,8 @@ interface instrument {
         attack: any[],
         baseUrl: string,
         curve: any[],
-        urls: {[key: string]: any}
+        urls: {[key: string]: any},
+        name: string,
     }
 }
 
@@ -68,6 +69,7 @@ export interface InstrumentModel extends  Instrument, Document { }
 const InstrumentSchema: Schema = new Schema({
     user: { type: Schema.Types.ObjectId, required: true },
     name: {type: String, required: true},
+    type: {type: String, required: true},
     options: {
         name: { type: String, required: true},
         volume: { type: Schema.Types.Mixed, required: false },

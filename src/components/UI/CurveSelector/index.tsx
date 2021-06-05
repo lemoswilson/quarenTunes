@@ -20,10 +20,6 @@ const CurveSelector: React.FC<CurveSelectorProps> = ({ tabIndex, display, select
     const redButton = <Button selected={true}></Button>
     const grayButton = <Button selected={false}></Button>
 
-    // useEffect(() => {
-    //     console.log(selected)
-    // }, [selected])
-
     const linear = selected === curveTypes.LINEAR ? [<RedLinear></RedLinear>, redButton] : [<GrayLinear></GrayLinear>, grayButton];
     const exponential = selected === curveTypes.EXPONENTIAL ? [<RedExponential></RedExponential>, redButton] : [<GrayExponential></GrayExponential>, grayButton];
 

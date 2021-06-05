@@ -1,8 +1,17 @@
-import { sequencerActions, sequencerActionTypes, event } from "./types";
+import { sequencerActions, sequencerActionTypes, event, Sequencer } from "./types";
 import { eventOptions, RecursivePartial } from '../../containers/Track/Instruments';
 import { generalEffectOptions, trackActions } from "../Track";
 import { transportActions } from "../Transport";
 // import { arrangerMode } from "../Arranger";
+
+export function setSequencer(sequencer: Sequencer): sequencerActionTypes{
+	return {
+		type: sequencerActions.SET_SEQUENCER,
+		payload: {
+			sequencer: sequencer,
+		}
+	}
+}
 
 export function stopTransport(): sequencerActionTypes {
 	return {

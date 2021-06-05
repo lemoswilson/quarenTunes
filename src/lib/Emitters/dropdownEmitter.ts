@@ -4,7 +4,8 @@ import { ExtractEventParameters } from './triggEmitter';
 export enum dropdownEventTypes {
     OPEN = "OPEN",
     ESCAPE = "ESCAPE",
-    REMOVE = "REMOVE"
+    REMOVE = "REMOVE",
+    SAVE_DEVICE = "SAVE_DEVICE",
 }
 
 type DropdownEvents =
@@ -19,6 +20,11 @@ type DropdownEvents =
     | {
         event: dropdownEventTypes.REMOVE,
         id: string,
+    } 
+    | {
+        event: dropdownEventTypes.SAVE_DEVICE,
+        trackIndex: number,
+        fxIndex?: number,
     }
 
 type DropdownType = DropdownEvents['event'];

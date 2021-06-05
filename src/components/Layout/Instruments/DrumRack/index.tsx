@@ -44,25 +44,6 @@ const DrumRack: React.FC<DrumRackProps> = ({
             dispatch(setSample(index, pad, sample))
     }
 
-
-    async function getFile() {
-        // [fileHandle.current] = await window.showOpenFilePicker(pickerOpts);
-        [fileHandle.current] = await window.showOpenFilePicker();
-        console.log(fileHandle.current)
-        // const file = await fileHandle.current.getFile();
-        // console.log(file);
-        // if (fileHandle.current.type === 'file') {
-        //     console.log('tateno', fileHandle.current)
-        // } else if (fileHandle.current.type === 'directory') {
-        //     console.log('tateno directory', fileHandle.current);
-        // }
-    }
-
-    useEffect(() => {
-        console.log('eita ', )
-    }, [])
-
-
     return (
         <div className={styles.wrapper}>
             <div className={styles.sideTitle}><h1>DrumRack</h1></div>

@@ -40,8 +40,6 @@ const useSequencerDispatchers = (
     ref_activePatt: MutableRefObject<number>,
     ref_selectedSteps: MutableRefObject<number[]>,
     ref_activePage: MutableRefObject<number>,
-    // arrangerMode: arrangerMode,
-    // isFollow: boolean,
     selectedTrkIdx: number,
     ref_selectedTrkIdx: MutableRefObject<number>,
     ref_trkCount: MutableRefObject<number>,
@@ -53,20 +51,6 @@ const useSequencerDispatchers = (
     const counter = useSelector(counterSelector); 
     const patternQueue: MutableRefObject<number[] | null> = useRef(null)
 
-    // const _duplicatePatt = (): void => {
-    //     triggEmitter.emit(triggEventTypes.DUPLICATE_PATTERN, { pattern: activePatt })
-    //     dispatch(duplicatePattern(activePatt));
-    // };
-
-    // const _toggleOverride = (): void => {
-    //     dispatch(toggleOverride());
-    // };
-
-    // const _toggleRecordingQuantization = (): void => {
-    //     dispatch(toggleRecordingQuantization());
-    // };
-
-
 
     // patternDispatchers
     const _removePatt = (): void => {
@@ -77,10 +61,8 @@ const useSequencerDispatchers = (
 
     const _addPatt = () => {
         triggEmitter.emit(triggEventTypes.ADD_PATTERN, { pattern: counter })
-        console.log('adding a patter, should be stopping this modafucking thing');
         scheduleOrStop('stop');
         dispatch(addPattern());
-        // ref_newPattern.current = true;
     }
 
     const _selectPatt = (key: string): void => {
@@ -100,7 +82,6 @@ const useSequencerDispatchers = (
                     patternQueue.current.push(currPatt)
                 }
 
-                // [...Array(trackCount).keys()].forEach((_, track, arr) => {
                 [...Array(ref_trkCount.current).keys()].forEach((_, track, arr) => {
                     
                     ref_toneObjects.current?.patterns[currPatt][track].instrument.cancel();
@@ -125,7 +106,6 @@ const useSequencerDispatchers = (
                 });
 
             } else {
-                console.log('sequencer_container.tsx: selecting pattern, tone transport is stopped')
                 scheduleOrStop('stop');
                 dispatch(selectPattern(nextPattern));
             }

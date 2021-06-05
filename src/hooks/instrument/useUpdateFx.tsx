@@ -30,55 +30,36 @@ export const useUpdateFx = (
     // add effect first render logic 
     useEffect(() => {
         if (ref_firstRender.current) {
-        if (firstRender) {
-            console.log('this is first render');
-            // toneRefEmitter.emit(
-            //     trackEventTypes.ADD_EFFECT,
-            //     { effect: effectRef.current, trackId: trackId, effectIndex: index }
-            // );
-            // ref_ToneEffect.current = returnEffect(type, options)
-            
-            if (ref_toneObjects.current && ref_ToneEffect.current) {
-                let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
-                if (lgth < fxCount && fxIndex === 1) {
-                    let chain = ref_toneObjects.current.tracks[trackIndex].chain;
-                    
-                    // ref_ToneEffect.current.chain()
-                    // ref_ToneEffect.current.disconnect()
-                    
-                    // splice actually pushes to array if index passed is === length
-    
-                    ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
-    
-                    Object.keys(ref_toneObjects.current.patterns).forEach(key => {
-                        let k = parseInt(key);
-                        if (ref_toneObjects.current){
-                            ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
-                        }
-    
-                    });
-    
-                    // ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-                    //     if (ref_toneObjects.current) {
-                    //         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback;
-                    //     }
-                    // })
-    
-                    // ref_toneObjects.current.flagObjects[trackIndex].effects.splice(fxIndex, 0, {callback: effectCallback, flag: false})
-                    ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
-    
-                    for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
-                        ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
-    
-                    ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
-                    chain.in.disconnect()
-    
-                    ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
+            if (firstRender) {
+                
+                if (ref_toneObjects.current && ref_ToneEffect.current) {
+                    let lgth = ref_toneObjects.current.tracks[trackIndex].effects.length;
+                    if (lgth < fxCount && fxIndex === 1) {
+                        let chain = ref_toneObjects.current.tracks[trackIndex].chain;
+        
+                        ref_toneObjects.current.tracks[trackIndex].effects.splice(fxIndex, 0, ref_ToneEffect.current)
+        
+                        Object.keys(ref_toneObjects.current.patterns).forEach(key => {
+                            let k = parseInt(key);
+                            if (ref_toneObjects.current){
+                                ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
+                            }
+        
+                        });
+        
+                        ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
+        
+                        for (let i = 0; i < ref_toneObjects.current.tracks[trackIndex].effects.length ; i ++)
+                            ref_toneObjects.current.tracks[trackIndex].effects[i].disconnect()
+        
+                        ref_toneObjects.current.tracks[trackIndex].instrument?.disconnect()
+                        chain.in.disconnect()
+        
+                        ref_toneObjects.current?.tracks[trackIndex].instrument?.chain(chain.in, ...ref_toneObjects.current.tracks[trackIndex].effects, chain.out)
+                    }
                 }
+                setRender(false);
             }
-            setRender(false);
-        }
-            // ref_firstRender.current = false;
         }
 
     }, [])
@@ -89,10 +70,6 @@ export const useUpdateFx = (
     useEffect(() => {
         if (prev_type && prev_type !== type) {
             ref_ToneEffect.current = returnEffect(type, ref_options.current);
-            // toneRefEmitter.emit(
-            //     trackEventTypes.CHANGE_EFFECT,
-            //     { effect: effectRef.current, trackId: trackId, effectsIndex: index }
-            // );
 
             if (ref_toneObjects?.current) {
                 const chain = ref_toneObjects.current.tracks[trackIndex].chain
@@ -120,12 +97,6 @@ export const useUpdateFx = (
                     if (ref_toneObjects.current)
                         ref_toneObjects.current.patterns[k][trackIndex].effects[fxIndex].callback = effectCallback
                 });
-
-                // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-                //     if (ref_toneObjects.current)
-                //         ref_toneObjects.current.arranger[idx][trackIndex].effects[fxIndex].callback = effectCallback
-                // })
-
 
                 ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
                 

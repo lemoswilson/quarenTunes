@@ -1,16 +1,18 @@
-import React, { MutableRefObject, useContext, useRef, useState, useEffect, useLayoutEffect } from 'react';
+import React, { MutableRefObject, useContext, useRef, useState, useEffect } from 'react';
+import MenuContext from '../../../../context/MenuContext';
+
 import { effectTypes } from '../../../../store/Track';
-import MenuButton from '../../Instruments/Tabs/MenuButton';
+
+import mais from '../../../../assets/plusWhite.svg'
 import styles from './style.module.scss';
 import menuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
 import OptionList from '../../Instruments/Tabs/OptionList';
-import MenuContext from '../../../../context/MenuContext';
-import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';
-// import mais from '../../../../assets/plus.svg'
-// import maisBranco from '../../../../assets/plusWhite.svg'
-import mais from '../../../../assets/plusWhite.svg'
 import optionListStyles from '../../Instruments/Tabs/optionList.module.scss';
 import instrumentMenuStyles from '../../Instruments/Tabs/instrumentMenu.module.scss';
+
+import MenuEmitter, { menuEmitterEventTypes } from '../../../../lib/Emitters/MenuEmitter';
+
+import MenuButton from '../../Instruments/Tabs/MenuButton';
 import RemoveEntry from './removeEntry';
 
 interface TabsProps {
@@ -40,20 +42,9 @@ const Tabs: React.FC<TabsProps> = ({
 
     const menuContext = useContext(MenuContext);
 
-    useEffect(() => {
-        console.log(`effect tab, track index ${trackIndex}, effect index ${fxIndex}`)
-
-        return () => {
-            console.log(`unmounting effect tab, track index ${trackIndex}, effect index ${fxIndex}`)
-        }
-    }, [])
-    
     function _removeEffect(this: HTMLLIElement, e: MouseEvent){
         e.stopPropagation() 
-        // if (fxCount > 1) {
-            console.log('should be removing effect'); 
-            removeEffect(fxIndex, trackIndex);
-        // }
+        removeEffect(fxIndex, trackIndex);
     }
 
     const toggleAddMenu = () => {
@@ -66,7 +57,6 @@ const Tabs: React.FC<TabsProps> = ({
 
 
     function openAddMenu(this: HTMLDivElement, e: MouseEvent){
-        console.log('should be opening the menu to add a new instrument');
         e.stopPropagation()
         const id = menuContext.current?.[0]
         if (!id) {
@@ -87,7 +77,6 @@ const Tabs: React.FC<TabsProps> = ({
     }
 
     function openEffectMenu(this: SVGSVGElement, e: MouseEvent){
-        console.log('openEffectMenuCalled');
         e.stopPropagation()
         const id = menuContext.current?.[0]
         if (!id) {

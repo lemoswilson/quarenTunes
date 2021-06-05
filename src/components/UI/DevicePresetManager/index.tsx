@@ -1,29 +1,65 @@
-import React from 'react';
+import React, { ChangeEvent, MutableRefObject, useRef } from 'react';
 import styles from './style.module.scss';
 import Dropdrown from '../Dropdown'
-import Save from '../Save';
 import TrashCan from '../TrashCan';
+import Plus from '../Plus';
+import DropdownEmitter, { dropdownEventTypes } from '../../../lib/Emitters/dropdownEmitter'
 
 interface DevicePresetManager {
-    className?: string,
-    save: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
+    save: (input: HTMLInputElement) => void,
+    select: (key: string) => void,
+    onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+    newDevice: () => void,
     remove: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
-    // keys: string[],
+    fetchList: () => void,
+    onChange: (e: ChangeEvent) => void,
+    // textValue: string,
+    textValue: MutableRefObject<string>,
+    className?: string,
     keyValue: string[][],
     selected: string,
-    select: (key: string) => void,
-    // lookup: (key: string) => string
-    onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
     deviceId: string,
-    // onBlur: (event: React.FocusEvent<HTMLFormElement>) => void;
+    trackIndex: number,
+    fxIndex?: number,
 };
 
-const DevicePresetManager: React.FC<DevicePresetManager> = ({ deviceId, keyValue, save, select, selected, className, remove, onSubmit }) => {
+const DevicePresetManager: React.FC<DevicePresetManager> = ({ 
+    save, 
+    select, 
+    fetchList,
+    remove, 
+    onSubmit, 
+    newDevice,
+    onChange,
+    textValue,
+    deviceId, 
+    keyValue, 
+    selected, 
+    className, 
+    trackIndex, 
+    fxIndex 
+}) => {
+    const ref_temp: MutableRefObject<string> = useRef('');
+    
+    const onClick = () => {
+        console.log('clicking');
+        ref_temp.current = textValue.current;
+        DropdownEmitter.emit(dropdownEventTypes.SAVE_DEVICE, {fxIndex, trackIndex})
+    }
 
     return (
         <div className={`${styles.box} ${className}`}>
-            <Dropdrown value={''} dropdownId={deviceId} keyValue={keyValue} onSubmit={onSubmit} className={styles.dropdown} selected={selected} select={select}></Dropdrown>
-            <Save onClick={save} className={styles.buttons}></Save>
+            <Dropdrown 
+                save={{func: save, trackIndex, fxIndex, fetchList }} 
+                value={''} dropdownId={deviceId} 
+                keyValue={keyValue} 
+                onSubmit={onSubmit} 
+                className={styles.dropdown} 
+                selected={selected} 
+                select={select} 
+                renamable={true}
+            />
+            <Plus onClick={newDevice} className={styles.buttons} />
             <TrashCan onClick={remove} className={styles.buttons}></TrashCan>
         </div>
     )

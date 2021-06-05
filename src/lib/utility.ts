@@ -1,5 +1,6 @@
 import { indicators } from "../containers/Track/defaults";
 import { triggs } from '../context/ToneObjectsContext';
+import { Sequencer } from '../store/Sequencer';
 
 export enum messages {
   UNKOWN_USER = "Unknown user",
@@ -117,12 +118,7 @@ export function scheduleStartEnd(
   effectsArgs?: any[],
   cancel?: boolean,
 ) {
-  console.log(`[utility]: scheduleStartEnd has been called`)
     for (let i of startEndRange(0, triggs.length-1)){
-      console.log(`
-        [utility]: should be schedulling trigg to start at`, start,
-        `and end at`, end, `and cancel is ${cancel}`
-      )
 
       triggs[i].instrument.mute = false;
 
@@ -166,8 +162,71 @@ export function scheduleStartEnd(
 
 }
 
-export function logFunction(){
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor){
-    console.log(`target ${target}, propertyKey ${propertyKey}, descriptor ${descriptor}`)
+export function extend(from: any, to?: any)
+{
+    if (from == null || typeof from != "object") return from;
+    if (from.constructor != Object && from.constructor != Array) return from;
+    if (from.constructor == Date || from.constructor == RegExp || from.constructor == Function ||
+        from.constructor == String || from.constructor == Number || from.constructor == Boolean)
+        return new from.constructor(from);
+
+    to = to || new from.constructor();
+
+    for (var name in from)
+    {
+        to[name] = typeof to[name] == "undefined" ? extend(from[name], null) : to[name];
+    }
+
+    return to;
+}
+
+export function serializeSequencer(sequencer: Sequencer){
+  const p: any = extend(sequencer);
+  const a: any[] = []
+  Object.keys(sequencer.patterns).forEach(pattern => {
+    p.patterns[Number(pattern)].patternId = Number(pattern);
+    a.push(p.patterns[Number(pattern)])
+  })
+  p.patterns = a;
+  return p
+}
+
+export function deserializeSequencer(sequencer: any){
+  const seq = extend(sequencer);
+  const patObj: any = {};
+  sequencer.patterns.forEach((p: any) => {
+    patObj[p.patternId] = p
+    delete patObj[p.patternId].patternId
+  })
+  seq.patterns = patObj;
+  return recursivelyDeleteId(seq);
+}
+
+export function recursivelyDeleteId(obj: any){
+  if (!obj)
+    return
+  const keys = Object.keys(obj);
+
+  if (keys.includes('_id')) {
+    delete obj._id
+    keys.splice(keys.indexOf('_id'), 1)
   }
+
+  if (keys.length > 0){
+    keys.forEach(key => {
+      const curr = obj[key]
+      recursivelyDeleteId(curr);
+    })
+  }
+
+  return obj
+}
+
+export function clean(obj: any) {
+  for (var propName in obj) {
+    if (obj[propName] === null || obj[propName] === undefined) {
+      delete obj[propName];
+    }
+  }
+  return obj
 }

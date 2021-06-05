@@ -1,9 +1,19 @@
-import React, { MutableRefObject, useContext, useState, useEffect, useCallback } from 'react';
+import React, { 
+    MutableRefObject, 
+    useContext, 
+    useState, 
+    useEffect, 
+    useCallback, 
+    useRef,
+    useLayoutEffect
+} from 'react';
 import { useSelector } from 'react-redux';
+import { NavLink, Link, useHistory } from 'react-router-dom';
 import styles from './style.module.scss';
 
 import { Sequencer as SequencerType } from '../../store/Sequencer';
 import { Track as TrackType } from '../../store/Track';
+import axios from 'axios';
 
 import Div100vh from 'react-div-100vh';
 import ToneObjects, { triggs } from '../../context/ToneObjectsContext';
@@ -11,7 +21,7 @@ import ToneObjects, { triggs } from '../../context/ToneObjectsContext';
 import TrackComponent from '../../containers/Track';
 import SequencerComponent from '../../containers/Sequencer';
 import Transport from '../../containers/Transport';
-import { getInitials } from '../../containers/Track/defaults';
+import Save from '../UI/Save';
 
 import * as Tone from 'tone';
 
@@ -23,11 +33,17 @@ import useDropdownEmitter from '../../hooks/emitters/useDropdownEmitter';
 
 import MenuContext from '../../context/MenuContext';
 import DropdownContext from '../../context/DropdownContext';
+import UserDataContext from '../../context/userDataContext';
+import ModalContext from '../../context/modalContext';
 
 import Chain from '../../lib/Tone/fxChain';
 import { returnEffect, returnInstrument, reconnect } from '../../lib/Tone/initializers';
 import { trackSelector } from '../../store/Track/selectors';
 import { sequencerSelector } from '../../store/Sequencer/selectors';
+import { userData } from '../../App';
+import ButtonBackground from '../UI/ButtonBackground';
+import X from '../UI/X';
+import { serializeSequencer } from '../../lib/utility';
 
 type ToneType = typeof Tone;
 
@@ -50,7 +66,9 @@ export function newPatternObject(
 export interface LayoutState {
     sequencer?: SequencerType,
     track?: TrackType,
-    name?: string,
+    incomeName?: string,
+    updateUser: (value: React.SetStateAction<userData>) => void,
+    signOut: () => void,
 }
 
 interface LayoutProps  extends LayoutState {
@@ -60,7 +78,10 @@ interface LayoutProps  extends LayoutState {
 
 const Layout: React.FC <LayoutProps> = ({
     appRef,
+    incomeName,
     sequencer,
+    updateUser,
+    signOut,
     track
 }) => {
     const [firstRender, setRender] = useState(true);
@@ -69,11 +90,63 @@ const Layout: React.FC <LayoutProps> = ({
     const ref_dropdowns = useContext(DropdownContext);
     const Track = useSelector(trackSelector)
     const Sequencer = useSelector(sequencerSelector);
+    const ref_tempName = useRef('');
+    
+    const history = useHistory();
+    
+    const userData = useContext(UserDataContext);
+    const [name, setName] = useState('');
+
+    const [saveModal, setSaveModal] = useState(false);
+    const saveInput = useRef<HTMLInputElement | null>(null);
+
 
     useEffect(() => {
-        console.log('track is', JSON.stringify(Track))
-        console.log('Sequencer is', JSON.stringify(Sequencer));
-    }, [Sequencer, Track])
+        if (incomeName) {
+            setName(incomeName);
+
+        }
+    }, [])
+
+    const help = () => {
+
+    }
+
+    useLayoutEffect(() => {
+        if (saveModal && saveInput.current) {
+            saveInput.current.focus();
+            saveInput.current.value = name;
+        }
+    }, [saveModal])
+
+    const saveProject = () => {
+        if (!saveModal){
+            setSaveModal(true);
+        } else {
+            axios.post(
+                process.env.REACT_APP_SERVER_URL + '/users/saveData',
+                {
+                    name: saveInput.current?.value, 
+                    modelType: 'project', 
+                    project: {
+                        track: Track, 
+                        sequencer: serializeSequencer(Sequencer),
+                    },
+                    rename: true,
+                }, 
+                {headers: {authorization: userData.token}}
+
+            ).then(v => {
+                setName(saveInput.current ? saveInput.current.value : '');
+                setSaveModal(false);
+            })
+            .catch(e => {
+                setSaveModal(false);
+            })
+        } 
+    };
+    
+
 
     const getNewPatternObject = useCallback<() => triggs[]>(() => {
         return newPatternObject(Tone, track)
@@ -142,6 +215,9 @@ const Layout: React.FC <LayoutProps> = ({
             initializeFlags()
             initializeTracks()
             setRender(false)
+            if (sequencer && track){
+                // set state to be like sequencer and track
+            }
         }
 
 
@@ -152,29 +228,109 @@ const Layout: React.FC <LayoutProps> = ({
     useTriggEmitter(ref_toneObjects);
     useDropdownEmitter(ref_dropdowns);
     useMenuEmitter(ref_menus)
-    
 
+    function closeSave(){
+        if (saveModal)
+            setSaveModal(false);
+    }
+
+    function onSubmitNew(e: React.FormEvent){
+        e.preventDefault()
+        saveProject();
+        closeSave();
+    }
+
+    const signOutAndHome = () => {
+        signOut();
+        history.push('/');
+    }
+
+    function stopProp(this: HTMLInputElement, e: KeyboardEvent) {
+        e.stopPropagation();
+    }
+
+    useEffect(() => {
+        const inp = saveInput.current;
+        inp?.addEventListener('keydown', stopProp);
+        return () => {
+            inp?.removeEventListener('keydown', stopProp);
+        }
+    }, [])
 
     return (
         <Div100vh className={styles.app}>
-        {
-            !firstRender
-            ? <div ref={appRef} className={styles.wrapson}>
-                <div className={styles.content}>
-                    <div className={styles.top}>
-                        <div className={styles.transport}>
-                            <Transport/>
+        <ModalContext.Provider value={saveModal}>
+            {
+                !firstRender
+                // ? <div onKeyDown={(e) => {if (e.key.toLocaleLowerCase() === 'escape') closeSave()}} onClick={closeSave} ref={appRef} className={styles.wrapson}>
+                ? <div ref={appRef} className={styles.wrapson}>
+                    <div className={styles.content}>
+                        <div className={styles.top}>
+                            <div className=""></div>
+                            <div className={styles.transport}>
+                                    <Transport saveProject={saveProject}/>
+                            </div>
+                            <nav className={styles.links}>
+                                    <div className={styles.navBox}>
+                                        <div className={`${ styles.text }`}>
+                                        {
+                                            userData.isAuthenticated
+                                            ? <NavLink className={styles.ss} activeClassName={styles.activeLink}
+                                                activeStyle={{
+                                                    textDecoration: 'none',
+                                                    color: '#ffffff',
+                                                    borderBottom: '0.5px solid white'
+                                                }}
+                                                to={'/projects'}
+                                            >  Projects </NavLink>
+                                            : null
+                                        }
+                                        </div>
+                                    </div>
+                                    <div className={styles.navBox}>
+                                        <div onClick={userData.isAuthenticated ? signOut : () => {}} className={styles.text}>
+                                            <span className={styles.ss}>{
+                                                !userData.isAuthenticated
+                                                ? <Link to={'login'}>Sign In</Link>
+                                                : 'Sign Out'
+                                            }</span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.navBox}>
+                                        <div onClick={help} className={styles.text}>
+                                            <span className={styles.ss}>{
+                                                'Help'
+                                            }</span>
+                                        </div>
+                                    </div>
+                            </nav>
                         </div>
+                        <div className={styles.gap}></div>
+                        <div className={styles.mid}>
+                            <TrackComponent></TrackComponent>
+                        </div>
+                        <SequencerComponent></SequencerComponent>
                     </div>
-                    <div className={styles.gap}></div>
-                    <div className={styles.mid}>
-                        <TrackComponent></TrackComponent>
-                    </div>
-                    <SequencerComponent></SequencerComponent>
                 </div>
-            </div>
-            : null
-        }
+                : null
+            }
+            {
+                saveModal ?
+                <form onSubmit={onSubmitNew} className={styles.saveForm}>
+                    <div className={styles.titlebar}>
+                        <div className={styles.saveTitle}> Name your project </div>
+                        <X onClick={closeSave} className={styles.x}/>
+                    </div>
+                    <div className={styles.interfaceables}>
+                        <div className={styles.inputOverlay}>
+                            <input className={styles.input} ref={saveInput} type="text" />
+                        </div>
+                        <Save className={styles.plus} onClick={saveProject}/>
+                    </div>
+                </form>
+                : null
+            }
+        </ModalContext.Provider>
     </Div100vh>
     )
 }

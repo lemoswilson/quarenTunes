@@ -6,6 +6,7 @@ interface Save {
     className?: string;
     small?: boolean,
     onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onMouseDown?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 interface Icon {
@@ -34,9 +35,10 @@ export const Icon: React.FC<Icon> = ({ className }) => {
     )
 }
 
-const Save: React.FC<Save> = ({ className, onClick, small }) => {
+const Save: React.FC<Save> = ({ className, onClick, small, onMouseDown }) => {
     return (
-        <ButtonBackground small={small} onClick={onClick} className={`${className} ${styles.hover}`}>
+        <ButtonBackground onMouseDown={onMouseDown} small={small} onClick={onClick} className={`${className} ${styles.hover}`}>
+        {/* <ButtonBackground small={small} onClick={onClick} className={`${className} ${styles.hover}`}> */}
             <Icon className={styles.svg}></Icon>
         </ButtonBackground>
     )

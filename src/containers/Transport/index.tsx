@@ -23,7 +23,7 @@ import { Sampler } from "tone";
 import strong from '../../assets/strong.mp3'
 import weak from '../../assets/weak.mp3'
 
-const Transport: FunctionComponent = () => {
+const Transport: React.FC<{name?: string, saveProject: () => void }> = ({saveProject}) => {
 	const dispatch = useDispatch();
 
 	const isPlay = useSelector(
@@ -33,10 +33,6 @@ const Transport: FunctionComponent = () => {
 	const metronomeState = useSelector(
 		(state: RootState) => state.transport.present.metronome
 	)
-
-	// const mode = useSelector(
-	// 	(state: RootState) => state.arranger.present.mode
-	// )
 
 
 	const isRec = useSelector(
@@ -64,13 +60,6 @@ const Transport: FunctionComponent = () => {
 				C3: strong,
 				D3: weak,
 			},
-			// baseUrl: "/assets/",
-			onload: () => {
-				console.log('loaded samples')
-			},
-			onerror: (error) => {
-				console.log('error, the error is:', error)
-			},
 		}).toDestination()
 
 		metronomeLoop.current = new Tone.Loop(playNote, '4n');
@@ -90,18 +79,15 @@ const Transport: FunctionComponent = () => {
 
 	useEffect(() => {
 		Tone.Transport.bpm.value = bpm;
-		console.log('should be setting new bpm')
 	}, [bpm])
 
 	useEffect(() => {
-		// console.log('is play', isPlay, 'if true shuold be starting');
 		isPlay ? Tone.Transport.start() : Tone.Transport.stop();
 	}, [isPlay]);
 
 	const _start = (): void => {
 		if (Tone.context.state !== "running") {
 			Tone.context.resume();
-			// console.log('tone context is', Tone.context.latencyHint);
 			Tone.context.latencyHint = "interactive";
 			Tone.context.lookAhead = 0;
 		}
@@ -132,12 +118,8 @@ const Transport: FunctionComponent = () => {
 		dispatch(toggleMetronome());
 	}
 
-	const _stop = (): void => { 
-		dispatch(stop()) 
-		// Tone.Transport.position = 0;
-	};
+	const _stop = (): void => { dispatch(stop()) };
 	const _toggleRecording = (): void => { dispatch(toggleRecording()) };
-	const stopCallback = (): void => { Tone.Transport.cancel() };
 	const _setBPM = (bpm: number): void => { dispatch(setBPM(bpm)) };
 
 	useEffect(() => {
@@ -148,12 +130,11 @@ const Transport: FunctionComponent = () => {
 	return (
 			<div className={styles.overlay}>
 				<div className={styles.grouper}>
-					<Save small={true}/>
+					<Save onClick={saveProject} small={true}/>
 					<BPMSelector bpm={bpm} increaseDecrease={_increaseDecreaseBPM} disabled={false} onSubmit={submitBPM}/>
 					<Play onClick={_start}/>
 					<Stop onClick={_stop}/>
 					<Rec onClick={_toggleRecording} active={isRec}/>
-					{/* <ModeSelector mode={mode} onClick={() => {dispatch(toggleMode())}}/> */}
 					<Metronome toggleMetronome={_toggleMetronome} active={metronomeState}/>
 				</div>
 			</div>

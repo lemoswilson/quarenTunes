@@ -14,7 +14,6 @@ export function midiInputReducer(state: MidiState = initialState, action: MidiIn
     return produce(state, (draft) => {
         switch (action.type) {
             case MidiInputActions.NOTE_ON:
-                // console.log(`sending note on, device is ${action.payload.device}, channle is ${action.payload.channel}`)
                 if (action.payload.channel === 'all' && action.payload.device !== 'onboardKey') {
                     startEndRange(0, 15).forEach(channel => {
                         action.payload.notes.forEach(index => {
@@ -28,7 +27,6 @@ export function midiInputReducer(state: MidiState = initialState, action: MidiIn
                 }
                 break;
             case MidiInputActions.NOTE_OFF:
-                // console.log('noteoff');
                 if (action.payload.channel === 'all' && action.payload.device !== 'onboardKey') {
                     startEndRange(0,15).forEach(channel => {
                         action.payload.notes.forEach(index => {

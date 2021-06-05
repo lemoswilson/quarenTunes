@@ -11,7 +11,6 @@ const useSequencerScheduler = (
     ref_trkCount: MutableRefObject<number>,
     ref_selectedTrkIdx: MutableRefObject<number>,
     effectsLength: number[],
-    // arrangerMode: arrangerMode,
     patterns: {[key: number]: Pattern},
     activePatt: number,
     ref_activePatt: MutableRefObject<number>,
@@ -24,24 +23,15 @@ const useSequencerScheduler = (
     const dispatch = useDispatch();
     
     function setLoopEnd(_: any, part: Tone.Part, loopEnd: any) {
-        console.log(`
-            [useSequencerScheduler]: setting loopEnd  
-        `)
         part.loop = true;
         part.loopEnd = {'16n': loopEnd};
     }
 
     function cancelEvents(_: any, part: Tone.Part) {
-        console.log(`
-            [useSequencerScheduler]: canceling event
-        `)
         part.cancel();
     }
 
     const scheduleOrStop = (option: 'schedule' | 'stop', start?: boolean) => {
-        console.log(`
-            [useSequencerScheduler]: scheduleOrStop has been caled, options is ${option}
-        `);
 
         [...Array(ref_trkCount.current).keys()].forEach((__, trk, _) => {
             if (ref_toneObjects.current) {
@@ -64,27 +54,16 @@ const useSequencerScheduler = (
     // setting up initial events in first render
     useEffect(() => {
         if (ref_toneObjects.current){
-            console.log(`
-                [useSequencerScheduler]: should be setting events in 
-                initial render into patterns
-            `)
             Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
                 const s = Number(patt)
-                console.log(`
-                [useSequencerScheduler]: setting events into pattern ${patt}
-                `)
+
                 for (let i = 0; i < trkCount ; i ++)
                     patterns[s].tracks[i].events.forEach((event, eventIdx, arr) => {
                         const time = timeObjFromEvent(eventIdx, event.instrument, true)
-                        console.log(`
-                            [useSequencerScheduler]: setting instrument event at step$ ${eventIdx}
-                        `)
+
                         ref_toneObjects.current?.patterns[s][i].instrument.at(time, event.instrument)
 
                         for (let j = 0; j < effectsLength[i]; j ++){
-                            console.log(`
-                                [useSequencerScheduler]: fx event at step ${eventIdx}
-                            `)
                             ref_toneObjects.current?.patterns[s][i].effects[j].at(time, event.fx[j])
                         }
                     })

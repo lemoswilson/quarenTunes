@@ -18,8 +18,6 @@ interface continuousIndicator {
     removePropertyLock: () => void;
     valueUpdateCallback: (value: any) => void;
     label: string;
-    // midiLearn: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, property: string) => void,
-    // midiLearn: (property: string) => void,
     midiLearn: () => void,
     type: 'knob' | 'slider';
     detail?: 'port' | 'detune' | 'envelopeZero' | 'volume'
@@ -103,10 +101,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         setInput(input => !input)
         if (isMenuOpen){
             MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
-            // toggleMenu()
-            if (ref && ref.current) {
-                console.log('should be focusing');
-            }
             ref?.current?.focus()
         }
     };
@@ -150,7 +144,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const onContextMenu = (e: ME) => {
         e.preventDefault()
-        console.log('should be setting on contextMenu')
         let bound = e.currentTarget.getBoundingClientRect()
         const x = e.pageX - bound.x
         const y = e.pageY - bound.y
@@ -161,7 +154,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         }) 
 
         const id = menuContext.current?.[0]
-        console.log(id)
         if (!id) {
             toggleMenu()
             MenuEmitter.emit(
@@ -245,7 +237,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
                     ? -7
                     : 7
         }
-        // console.log('moving wheel', k)
         if (k.movementY) {
             ccMouseCalculationCallback(k)
         }

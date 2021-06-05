@@ -13,6 +13,7 @@ html {
         @include shadow(0.3rem, 0.3rem, 0.4rem);
         border-color: black;
         border: 1px solid;
+        // @include center;
         align-items: center;
         justify-content: flex-start;
         position: absolute;
@@ -20,6 +21,7 @@ html {
         .titlebar {
             display: flex;
             flex-direction: row;
+            // justify-content: center;
             align-items: center;
             width: 100%;
             height: 1.3rem;
@@ -31,6 +33,7 @@ html {
                 text-align: center;
                 line-height: 1.3rem;
                 font-family: $jost;
+                // border: 1px solid black;
                 font-size: 0.9rem;
                 color: $textColor;
                 text-shadow: 0 0 1px $textShadow;
@@ -115,24 +118,35 @@ html {
             grid-template-rows: 2.5rem 1rem 34rem auto;
     
             .top {
-                display: grid;
-                grid-template-columns: 39.5% 15.5% auto;
-    
-                .transport {
-                    border-radius: 1rem;
-                    background-color: white;
-                    @include shadow(7px, 9px, 5px);
-                    height: 100%;
+                display: flex;
+                // width: 100%;
+                flex-direction: row;
+                border: 1px solid black;
+                // display: grid;
+                // @include center;
+                // border: 1px solid black;
+
+                // grid-template-columns: 33% 33% 33%;
+
+                .transportWrapper {
                     display: flex;
+                    // width: 100%;
                     @include center;
+
+                    .transport {
+                        border-radius: 1rem;
+                        background-color: white;
+                        @include shadow(7px, 9px, 5px);
+                        height: 100%;
+                        width: 16.5%;
+                        display: flex;
+                        @include center;
+                    }
                 }
 
                 .links {
                     display: flex;
                     flex-direction: row;
-                    width: 47%;
-                    justify-content: space-between;
-                    justify-self: flex-end;
                     
                     .navBox {
                         position: relative;
@@ -187,6 +201,7 @@ html {
                     }
 
                 }
+    
             }
     
             .mid {
@@ -258,3 +273,39 @@ html {
 
 }
 
+// <div className={styles.links}>
+// <div className={styles.navBox}> 
+//     <div className={`${ styles.text }`}>
+//     {
+//         userData.isAuthenticated 
+//         ? <NavLink className={styles.ss} activeClassName={styles.activeLink} 
+//             activeStyle={{
+//                 textDecoration: 'none', 
+//                 color: '#ffffff', 
+//                 borderBottom: '0.5px solid white'
+//             }}
+//             to={'/projects'} 
+//         >  Projects </NavLink> 
+//         : null
+//     }
+//     </div>
+// </div>
+
+// <div className={styles.navBox}>
+//     <div onClick={userData.isAuthenticated ? signOut : () => {}} className={styles.text}>
+//         <span className={styles.ss}>{
+//             !userData.isAuthenticated 
+//             ? <Link to={'login'}>Sign In</Link>
+//             : 'Sign Out'
+//         }</span> 
+//     </div>
+// </div>
+
+// <div className={styles.navBox}>
+//     <div onClick={help} className={styles.text}>
+//         <span className={styles.ss}>{
+//             'Help'
+//         }</span> 
+//     </div>
+// </div>
+// </div>

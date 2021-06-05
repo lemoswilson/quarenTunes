@@ -53,7 +53,7 @@ interface Effect extends RecursivePartial<effect> {
 export interface EffectModel extends Effect, Document { }
 
 const EffectSchema: Schema = new Schema({
-    User: { type: Schema.Types.ObjectId, required: true },
+    user: { type: Schema.Types.ObjectId, required: true },
     name: { type: String, required: true},
     type: { type: String, required: true},
     options: {

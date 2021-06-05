@@ -44,9 +44,11 @@ export interface Project {
                 fx: string,
                 id: number,
                 options: any,
+                name: string,
             },
             fxCounter: number,
-            options: any
+            options: any,
+            name: string
         }[],
     },
     name: string,
@@ -55,8 +57,8 @@ export interface Project {
 export interface ProjectModel extends Document, Project {}
 
 const SeqEventsSchema: Schema = new Schema({
-    instrument: { type: String, required: false },
-    fx: { type: String, required: false},
+    instrument: { type: Schema.Types.Mixed, required: false },
+    fx: { type: Schema.Types.Mixed, required: false},
     offset: { type: Number, required: true }
 });
 
@@ -77,18 +79,17 @@ const PatternSchema: Schema = new Schema({
 });
 
 const SequencerSchema: Schema = new Schema({
-    patterns: { type: [{key: Number, value: PatternSchema}], required: true },
+    patterns: { type: [PatternSchema], required: true },
     activePattern: { type: Number, required: true },
     step: { type: Schema.Types.Mixed, required: true },
     counter: { type: Number, required: true },
-    override: { type: Boolean, required: true },
-    quantizeRecording: { type: Boolean, required: true }
 })
 
 const FxInfoSchema: Schema = new Schema({
     fx: { type: String, required: true },
     id: { type: Number, required: true },
-    options: { type: [Schema.Types.ObjectId], required: true }
+    options: { type: Schema.Types.Mixed, required: true },
+    name: {type: String, required: true}
 });
 
 const TrackInfoSchema: Schema = new Schema({
@@ -96,11 +97,12 @@ const TrackInfoSchema: Schema = new Schema({
     id: { type: Number, required: true },
     midi: {
         device: { type: String, required: true },
-        channel: { type: Number, required: true },
+        channel: { type: Schema.Types.Mixed, required: true },
     },
     fx: { type: [FxInfoSchema], required: true },
     fxCounter: { type: Number, required: true },
-    options: { type: Schema.Types.ObjectId, required: true }
+    options: { type: Schema.Types.Mixed, required: true },
+    name: {type: String, required: true}
 });
 
 const TrackSchema: Schema = new Schema({
@@ -112,7 +114,7 @@ const TrackSchema: Schema = new Schema({
 
 
 const ProjectSchema: Schema = new Schema({
-    user: { type: Schema.Types.ObjectId, required: true, unique: true },
+    user: { type: Schema.Types.ObjectId, required: true },
     sequencer: { type: SequencerSchema, required: true },
     track: { type: TrackSchema, required: true },
     name: { type: String, required: true }

@@ -6,6 +6,7 @@ import Curves from './Curves';
 import Logo from '../Logo';
 import { Link, NavLink } from 'react-router-dom';
 import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
+import { useVerify } from '../../../hooks/fetch/useFetch';
 
 const HomePage: React.FC<userProps> = ({
     errorMessage,
@@ -35,6 +36,8 @@ const HomePage: React.FC<userProps> = ({
                 sorta();
         })
     }
+
+    useVerify({errorMessage, isAuthenticated, token}, updateUser)
 
     // useEffect(() => {
     //     if (!br)

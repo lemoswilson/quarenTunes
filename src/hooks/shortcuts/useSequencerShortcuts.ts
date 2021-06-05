@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useEffect, useRef } from 'react';
+import React, { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { SequencerDispatchers } from '../store/Sequencer/useSequencerDispatchers';
 import { useKeyboardRangeSelector } from '../store/Midi/useMidiSelectors';
@@ -12,6 +12,8 @@ import { getFinalStep as finalStep } from '../../lib/utility';
 import MenuEmitter, { menuEmitterEventTypes } from '../../lib/Emitters/MenuEmitter';
 import DropdownEmitter, { dropdownEventTypes } from '../../lib/Emitters/dropdownEmitter';
 
+import ModalContext from '../../context/modalContext';
+import useQuickRef from '../lifecycle/useQuickRef';
 
 
 interface copySteps {
@@ -40,6 +42,9 @@ const useSequencerShortcuts = (
 
     const ref_copiedSteps = useRef<copySteps | null>(null)
     const dispatch = useDispatch();
+    
+    const saveModal = useContext(ModalContext);
+    const ref_saveModal = useQuickRef(saveModal);
 
     useEffect(() => {
         ref_copiedSteps.current = {
@@ -162,6 +167,8 @@ const useSequencerShortcuts = (
 
     // sequencer keyboard shortcuts 
     function keydown(this: Document, e: KeyboardEvent): void {
+        if (ref_saveModal.current)
+            return
         
         let char: string = e.key.toLowerCase();
 

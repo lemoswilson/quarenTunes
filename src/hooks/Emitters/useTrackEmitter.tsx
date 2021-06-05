@@ -35,7 +35,6 @@ const useTrackEmitter = (
 
     const addInstrument = (payload: ExtractTrackPayload<trackEventTypes.ADD_INSTRUMENT>): void => {
         
-        console.log('[useTrackEmitter]: adding instrument callback');
 
         const [instrument] = [
             payload.instrument,

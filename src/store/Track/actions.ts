@@ -6,7 +6,53 @@ import {
 	xolombrisxInstruments,
 	effectTypes,
 	generalInstrumentOptions,
+	Track,
 } from "./types";
+
+export function setOptionsArray(
+	options: any,
+	trackIndex: number,
+	modelType: 'instrument' | 'effect',
+	fxIndex?: number,
+): trackActionTypes {
+	return {
+		type: trackActions.SET_OPTION_ARRAY,
+		payload: {
+			type: modelType,
+			options: options,
+			trackIndex: trackIndex,
+			fxIndex: fxIndex,
+		}
+	}
+}
+
+export function setName(
+	name: string,
+	type: 'effect' | 'instrument',
+	trackIndex: number,
+	fxIndex?: number,
+): trackActionTypes {
+	return {
+		type: trackActions.SET_NAME,
+		payload: {
+			name: name,
+			type: type,
+			trackIndex: trackIndex,
+			fxIndex: fxIndex,
+		}
+	}
+}
+
+export function setTrack(
+	track: Track,
+): trackActionTypes{
+	return {
+		type: trackActions.SET_TRACK,
+		payload: {
+			track: track,
+		}
+	}
+}
 
 export function setSample(
 	trackIndex: number,
@@ -22,7 +68,6 @@ export function setSample(
 		}
 	}
 }
-
 
 export function updateEnvelopeCurve(
 	track: number,

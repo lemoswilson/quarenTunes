@@ -49,39 +49,12 @@ export const useEffectDispathchers = (
             return (e: any) => {
                 const propertyArr = getNested(ref_options.current, property);
                 const indicatorType = propertyArr[3]
-                // const stateValue = propertyArr[0]
 
                 const isContinuous = indicatorType === indicators.KNOB
                     || indicatorType === indicators.VERTICAL_SLIDER
 
                 const cc = e.controller && e.controller.number
 
-                // if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
-                //     ref_selectedSteps.current.forEach(step => {
-                //         console.log(`dispatching parameterlock effect step ${step}`)
-                //         dispatch(parameterLockEffectIncreaseDecrease(
-                //             ref_activePatt.current,
-                //             ref_trackIndex.current,
-                //             step,
-                //             ref_fxIndex.current, // fx have order between them (chainning) 
-                //             cc ? e.value : e.movementY,
-                //             property,
-                //             // propertyArr,
-                //             getNested(ref_options.current, property),
-                //             cc,
-                //             isContinuous
-                //         ))
-                //     })
-                // } else {
-                //     dispatch(increaseDecreaseEffectProperty(
-                //         ref_trackIndex.current,
-                //         ref_fxIndex.current,
-                //         property,
-                //         cc ? e.value : e.movementY,
-                //         cc,
-                //         isContinuous
-                //     ))
-                // }
                 dispatch(increaseDecreaseEffectProperty(
                     ref_trackIndex.current,
                     ref_fxIndex.current,

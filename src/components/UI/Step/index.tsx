@@ -33,10 +33,6 @@ const StepLayout: React.FC<StepLayout> = ({
     const selectedStyle = selected ? styles.selected : null;
     const toneObjects = useContext(ToneObjectsContext)
 
-    // useEffect(() => {
-    //     console.log('index', index, 'previousOffset', previousOffset)
-    // })
-
     useTrigg(
         toneObjects.current?.patterns[activePattern][selectedTrack],
         event.fx,

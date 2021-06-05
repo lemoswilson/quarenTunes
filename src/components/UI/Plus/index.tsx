@@ -5,6 +5,7 @@ import mais from '../../../../assets/plus.svg';
 
 interface Plus {
     className?: string;
+    children?: React.ReactNode,
     // width?: string | number;
     // height?: string | number;
     small?: boolean;
@@ -31,7 +32,7 @@ const PlusSVG: React.FC<{sty: React.CSSProperties}> = ({sty}) => {
 
 
 
-const Plus: React.FC<Plus> = ({ className, onClick, small }) => {
+const Plus: React.FC<Plus> = ({ className, onClick, small, children }) => {
 
     const sty = small ? { marginLeft: '0.075rem', marginTop: '0.075rem' } : {};
 
@@ -39,6 +40,7 @@ const Plus: React.FC<Plus> = ({ className, onClick, small }) => {
         <ButtonBackground smallCircle={small} onClick={onClick} className={`${className} ${styles.hover}`}>
             {/* <img style={sty} className={styles.svg} src={mais} alt='plus' width={'100%'} height={'100%'} /> */}
            <PlusSVG sty={sty}/> 
+           { children }
         </ButtonBackground>
     )
 }

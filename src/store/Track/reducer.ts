@@ -4,6 +4,7 @@ import { getEffectsInitials } from '../../containers/Track/defaults'
 import { trackActionTypes, trackActions, Track,	xolombrisxInstruments, effectTypes } from "./types";
 import valueFromCC, { valueFromMouse, optionFromCC, steppedCalc } from '../../lib/curves';
 import produce from "immer";
+import { clean, extend } from '../../lib/utility';
 
 export const trackInit: Track = {
 	instrumentCounter: 0,
@@ -11,6 +12,7 @@ export const trackInit: Track = {
 	trackCount: 1,
 	tracks: [
 		{
+			name: 'init',
 			instrument: xolombrisxInstruments.METALSYNTH,
 			options: getInitials(xolombrisxInstruments.METALSYNTH),
 			id: 0,
@@ -18,7 +20,8 @@ export const trackInit: Track = {
 				{
 					fx: effectTypes.COMPRESSOR,
 					id: 0,
-					options: getEffectsInitials(effectTypes.COMPRESSOR)
+					options: getEffectsInitials(effectTypes.COMPRESSOR),
+					name: 'init'
 				},
 			],
 			fxCounter: 0,
@@ -39,6 +42,7 @@ export function trackReducer(
 			case trackActions.ADD_INSTRUMENT:
 				draft.tracks.push({
 					instrument: a.payload.instrument,
+					name: 'init',
 					options: getInitials(a.payload.instrument),
 					id: draft.instrumentCounter + 1,
 					midi: {
@@ -49,7 +53,8 @@ export function trackReducer(
 						{
 							fx: effectTypes.FILTER,
 							id: 0,
-							options: getEffectsInitials(effectTypes.FILTER)
+							options: getEffectsInitials(effectTypes.FILTER),
+							name: 'init',
 						}
 					],
 					fxCounter: 0,
@@ -61,6 +66,7 @@ export function trackReducer(
 			case trackActions.CHANGE_INSTRUMENT:
 				draft.tracks[a.payload.trackIndex].instrument = a.payload.instrument;
 				draft.tracks[a.payload.trackIndex].options = getInitials(a.payload.instrument);
+				draft.tracks[a.payload.trackIndex].name = 'init'
 				break;
 			case trackActions.REMOVE_INSTRUMENT:
 				draft.tracks.splice(a.payload.trackIndex, 1);
@@ -93,18 +99,18 @@ export function trackReducer(
 				draft.tracks[a.payload.trackIndex].fx.splice(a.payload.effectIndex, 1);
 				break;
 			case trackActions.ADD_EFFECT:
-				console.log(`adding effect to track ${a.payload.trackIndex}, effect index ${a.payload.effectIndex}`)
 					draft.tracks[a.payload.trackIndex].fx.splice(a.payload.effectIndex + 1, 0, {
 						fx: a.payload.effect,
 						id: draft.tracks[a.payload.trackIndex].fxCounter + 1,
-						options: getEffectsInitials(a.payload.effect)
+						options: getEffectsInitials(a.payload.effect),
+						name: 'init',
 					});
 				draft.tracks[a.payload.trackIndex].fxCounter ++
 				break;
 			case trackActions.CHANGE_EFFECT:
-				console.log(`track index is, ${a.payload.trackIndex} effect index is ${a.payload.effectIndex}`);
 				draft.tracks[a.payload.trackIndex].fx[a.payload.effectIndex].fx = a.payload.effect;
 				draft.tracks[a.payload.trackIndex].fx[a.payload.effectIndex].options = getEffectsInitials(a.payload.effect);
+				draft.tracks[a.payload.trackIndex].fx[a.payload.effectIndex].name = 'init';
 				break;
 			case trackActions.UPDATE_INSTRUMENT_STATE:
 				const props = propertiesToArray(a.payload.options);
@@ -186,6 +192,27 @@ export function trackReducer(
 				break;
 			case trackActions.SET_SAMPLE:
 				draft.tracks[a.payload.trackIndex].options[`PAD_${a.payload.pad}`].urls.C3 = a.payload.sample
+				break;
+			case trackActions.SET_NAME:
+				if (a.payload.type === 'instrument') {
+					draft.tracks[a.payload.trackIndex].name = a.payload.name
+					if (a.payload.name === 'init')
+						draft.tracks[a.payload.trackIndex].options = getInitials(draft.tracks[a.payload.trackIndex].instrument)
+					
+				} else if (a.payload.fxIndex || a.payload.fxIndex === 0) {
+					draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].name = a.payload.name
+					if (a.payload.name === 'init')
+						draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options = getEffectsInitials(draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].fx)
+				}
+				break;
+			case trackActions.SET_OPTION_ARRAY:
+				const fxIndex = a.payload.fxIndex || a.payload.fxIndex === 0 ?  a.payload.fxIndex : 0;
+				if (a.payload.type === 'instrument'){
+					draft.tracks[a.payload.trackIndex].options = a.payload.options;
+
+				} else if (a.payload.fxIndex || a.payload.fxIndex === 0){
+					draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options = a.payload.options;
+				}
 				break;
 		}
 	});

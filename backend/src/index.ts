@@ -11,8 +11,6 @@ import _session from 'express-session';
 // loads enviroment variables from a env file into process
 dotenv.config();
 
-console.log('locura tio');
-
 const app = express();
 const port = process.env.PORT || 5000
 

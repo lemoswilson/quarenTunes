@@ -26,6 +26,7 @@ import { fxCountSelector } from '../../../store/Track/selectors';
 import { pattsTrkEventsSelector } from '../../../store/Sequencer/selectors';
 import { useFx } from '../../../hooks/instrument/useFx';
 import { useUpdateFx } from '../../../hooks/instrument/useUpdateFx';
+import { useDeviceLoader } from '../../../hooks/fetch/useFetch';
 
 export interface effectLayoutProps extends EffectsLayoutProps {
     options: any,
@@ -118,6 +119,9 @@ const Effect: React.FC<effectsProps> = ({
 
     const { midiLearn, ref_CCMaps } = useMidiLearn(propertiesIncDec)
 
+    const {fetchDevice, removeDevice, saveDevice, save, newDevice, fetchList, onChange, textValue, name, presets} = useDeviceLoader(options, trackIndex, type, 'effect', fxIndex )
+    const toConcat = name === 'newEffect' ? ['newEffect', 'newEffect'] : []
+
     const Component = <EffectLoader 
                 removePropertyLock={removeEffectPropertyLockCallbacks}
                 calcCallbacks={propertiesIncDec}
@@ -141,13 +145,19 @@ const Effect: React.FC<effectsProps> = ({
                 <div className={styles.border}>
                     <div className={styles.deviceManager}>
                         <DevicePresetManager
-                            deviceId={''}
-                            keyValue={[]}
-                            onSubmit={() => { }}
-                            remove={() => { }}
-                            save={() => { }}
-                            select={() => { }}
-                            selected={''}
+                            deviceId={`track:${trackId}:fx${fxId}:deviceSelector`}
+                            keyValue={[['init', 'init']].concat(presets).concat(toConcat)}
+                            onSubmit={saveDevice}
+                            textValue={textValue}
+                            onChange={onChange}
+                            remove={removeDevice}
+                            save={save}
+                            select={fetchDevice}
+                            selected={name}
+                            trackIndex={trackIndex}
+                            fxIndex={fxIndex}
+                            newDevice={newDevice}
+                            fetchList={fetchList}
                         />
                     </div>
                     { Component }

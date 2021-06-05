@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import usePrevious from '../../lifecycle/usePrevious';
-import { effectsLengthsSelector, selectedTrkIdxSelector, selectedTrkVoiceSelector, trkCountSelector } from '../../../store/Track/selectors';
+import { effectsLengthsSelector, selectedTrkIdxSelector, selectedTrkVoiceSelector, trackNameSelector, trkCountSelector } from '../../../store/Track/selectors';
 import { activePageSelector, activePattSelector } from '../../../store/Sequencer/selectors';
 import useQuickRef from '../../lifecycle/useQuickRef';
 
@@ -18,6 +18,8 @@ export const useTrkInfoSelector = () => {
     const ref_activePage = useQuickRef(activePage);
 
 
+
+
     return {
         selectedTrkIdx,
         ref_selectedTrkIdx,
@@ -26,7 +28,7 @@ export const useTrkInfoSelector = () => {
         activePage,
         ref_activePage,
         trkCount,
-        ref_trkCount
+        ref_trkCount,
     }
 
 }

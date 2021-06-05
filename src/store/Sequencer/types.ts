@@ -54,6 +54,7 @@ export enum sequencerActions {
 	REMOVE_EFFECT_PROPERTY_LOCK = "REMOVE_EFFECT_PROPERTY_LOCK",
 	SELECT_STEPS_BATCH = "SELECT_STEPS_BATCH",
 	SET_ACTIVE_STEP = "SET_ACTIVE_STEP",
+	SET_SEQUENCER = "SET_SEQUENCER",
 };
 
 // export type fxOptions = effectsInitials;
@@ -95,6 +96,13 @@ export interface Sequencer {
 	// override: boolean;
 	// quantizeRecording: boolean;
 };
+
+export interface setSequencerAction {
+	type: sequencerActions.SET_SEQUENCER,
+	payload: {
+		sequencer: Sequencer,
+	}
+}
 
 export interface stopTransportAction {
 	type: transportActions.STOP,
@@ -567,5 +575,6 @@ export type sequencerActionTypes =
 	| removeEffectPropertyLockAction
 	| selectStepBatchAction
 	| setActiveStepAction
+	| setSequencerAction
 	| stopTransportAction
 	| removeInstrumentFromSequencerAction;

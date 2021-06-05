@@ -178,7 +178,8 @@ export interface midi {
 export interface effectsInfo {
 	fx: effectTypes;
 	id: number;
-	options: effectsInitialsArray;
+	options: any;
+	name: string,
 }
 
 export interface trackInfo {
@@ -187,10 +188,9 @@ export interface trackInfo {
 	midi: midi;
 	fx: effectsInfo[];
 	fxCounter: number;
-	// options: any;
-	// options: initialsArray;
 	options: any;
 	env?: number,
+	name: string,
 }
 
 export interface Track {
@@ -219,6 +219,36 @@ export enum trackActions {
 	UPDATE_ENVELOPE_CURVE = "UPDATE_ENVELOPE_CURVE",
 	REMOVE_MIDI_DEVICE = "REMOVE_MIDI_DEVICE",
 	SET_SAMPLE = "SET_SAMPLE", 
+	SET_OPTION_ARRAY = "SET_OPTION_ARRAY",
+	SET_TRACK = "SET_TRACK",
+	SET_NAME = "SET_NAME"
+}
+
+export interface setOptionArrayAction {
+	type: trackActions.SET_OPTION_ARRAY,
+	payload: {
+		type: 'instrument' | 'effect',
+		options: any,
+		trackIndex: number,
+		fxIndex?: number,
+	}
+}
+
+export interface setNameAction {
+	type: trackActions.SET_NAME,
+	payload: {
+		type: 'instrument' | 'effect',
+		name: string,
+		trackIndex: number,
+		fxIndex?: number,
+	}
+}
+
+export interface setTrackAction {
+	type: trackActions.SET_TRACK,
+	payload: {
+		track: Track,
+	}
 }
 
 export interface setSampleAction {
@@ -428,4 +458,7 @@ export type trackActionTypes =
 	| updateEnvelopeCurveAction
 	| removeMidiDeviceAction
 	| setSampleAction
+	| setTrackAction
+	| setNameAction
+	| setOptionArrayAction
 	| changeEffectIndexAction;

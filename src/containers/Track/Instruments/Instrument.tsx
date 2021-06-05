@@ -25,6 +25,8 @@ import { useNoteCallbackData } from '../../../hooks/store/Sequencer/useSequencer
 import { useInstrumentDispatchers } from '../../../hooks/store/Track/useInstrumentDispatchers';
 import { useMidiLearn } from '../../../hooks/midiCC/useMidiLearn';
 import { useInstrument } from '../../../hooks/instrument/useInstrument';
+import { useSelector } from 'react-redux';
+import { useDeviceLoader } from '../../../hooks/fetch/useFetch';
 
 
 export const Instrument = <T extends xolombrisxInstruments>({ 
@@ -51,6 +53,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
         activePatt, 
         ref_activePatt, 
         ref_selectedTrkIdx, 
+        // selectedInstrument
     } 
     = useTrkInfoSelector()
 
@@ -90,6 +93,9 @@ export const Instrument = <T extends xolombrisxInstruments>({
 
     const { midiLearn, ref_CCMaps } = useMidiLearn(propertiesIncDec)
 
+    const {presets, fetchDevice, removeDevice, saveDevice, save, newDevice, fetchList, onChange, textValue, name } = useDeviceLoader(options, index, voice, 'instrument')
+    const toConcat = name === 'newInstrument' ? ['newInstrument', 'newInstrument'] : []
+
     const Component = <InstrumentLoader 
                         removePropertyLock={removePropertyLockCallbacks}
                         voice={voice}
@@ -106,19 +112,25 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     />
 
 
+
     return (
         <div
             className={styles.border}
             style={{ display: !selected ? 'none' : 'flex' }}>
             <div className={styles.deviceManager}>
                 <DevicePresetManager
-                    deviceId={''}
-                    keyValue={[]}
-                    onSubmit={() => { }}
-                    remove={() => { }}
-                    save={() => { }}
-                    select={() => { }}
-                    selected={''}
+                    deviceId={`track:${id}:deviceSelector`}
+                    keyValue={[['init', 'init']].concat(presets).concat(toConcat)}
+                    onChange={onChange}
+                    textValue={textValue}
+                    onSubmit={saveDevice}
+                    remove={removeDevice}
+                    save={save}
+                    select={fetchDevice}
+                    selected={name}
+                    trackIndex={index}
+                    newDevice={newDevice}
+                    fetchList={fetchList}
                 ></DevicePresetManager>
             </div>
             { Component}

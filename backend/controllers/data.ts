@@ -1,4 +1,4 @@
-import { Response, Request } from 'express'
+import { Response, Request, request } from 'express'
 
 import { UserModelType } from '../models/user.model'
 import ProjectModel, { defaultProject } from '../models/project.model'
@@ -24,12 +24,12 @@ export async function getData(
             } else if (modelType === modelTypes.INSTRUMENT){
                 const type = req.body.type;
                 const instrument = await InstrumentModel.findOne({user: user._id, type: type, name: name}).exec();
-                res.status(200).json({instrument: instrument?.options})
+                res.status(200).json({options: instrument?.options})
 
             } else if (modelType === modelTypes.EFFECT) {
                 const type = req.body.type;
                 const effect = await EffectModel.findOne({user: user._id, type: type, name: name}).exec();
-                res.status(200).json({effects: effect?.options});
+                res.status(200).json({options: effect?.options});
 
             }
         } 
@@ -48,10 +48,10 @@ export async function getDataList(
 ) {
     try {
         const user: UserModelType | null | undefined = req.user;
-        console.log('vai toma no cu')
 
         if (user) {
             const modelType = req.body.modelType;
+
             res.status(200)
             if (modelType === modelTypes.PROJECT){
                 const projects = await ProjectModel.find({user: user._id}).exec()
@@ -60,12 +60,12 @@ export async function getDataList(
             } else if (modelType === modelTypes.INSTRUMENT){
                 const type = req.body.type;
                 const instruments = await InstrumentModel.find({user: user._id, type: type}).exec();
-                res.json({instruments: instruments.map(m => m.name)})
+                res.json({dataList: instruments.map(m => m.name)})
 
             } else if (modelType === modelTypes.EFFECT) {
                 const type = req.body.type;
                 const effects = await EffectModel.find({user: user._id, type: type}).exec();
-                res.json({effects: effects.map(e => e.name)});
+                res.json({dataList: effects.map(e => e.name)});
 
             }
         } 
@@ -73,7 +73,7 @@ export async function getDataList(
             res.status(400).json({error: messages.UNKOWN_USER_PASS});
 
     } catch (e) {
-        // res.status(400).json({error: messages.INFORMATION_RETRIEVAL_ERROR})
+
     }
 
 }
@@ -88,59 +88,104 @@ export async function saveData(
         if (user) {
             let name: string = req.body.name
             const modelType = req.body.modelType;
+            const rename = req.body.rename;
 
                 if (modelType === modelTypes.PROJECT){
-    
-                    const project: any = req.body.project
-                    const existName = await ProjectModel.find({user: user._id, name: name}).exec();
-                    const Project = new ProjectModel({
-                        user: user._id, 
-                        sequencer: project.sequencer, 
-                        track: project.track, 
-                        name: existName ? `${name}_2` : name
-                    })
 
-                    Project.save()
+                    const project: any = req.body.project
+                    const existingProject = await ProjectModel.findOne({user: user._id, name: name}).exec();
+
+                    if (existingProject && rename){
+                        if (req.body.newName)
+                            existingProject.name = req.body.newName 
+
+                        existingProject.sequencer = project.sequencer                        
+                        existingProject.track = project.track;
+
+                        existingProject.save()
                         .then(_ => { res.status(200).send({message: messages.PROJECT_SAVED})})
-                        .catch(e => {res.send({ error: e })})
+                        .catch(e => { res.send({ error: e })})
+                    } else {
+
+                        const Project = new ProjectModel({
+                            user: user._id, 
+                            sequencer: project.sequencer, 
+                            track: project.track, 
+                            name: existingProject ? `${name}_2` : name === 'newInstrument' ? req.body.newName : name
+                        })
+                        
+                        Project.save()
+                            .then(_ => { res.status(200).send({message: messages.PROJECT_SAVED})})
+                            .catch(e => { res.send({ error: e })})
+    
+                    }
+                    
     
                 } else if (modelType === modelTypes.INSTRUMENT){
     
-                    const options: any = req.body.options
-                    const instrumentType = req.body.type;
-                    const existName = await InstrumentModel.find({user: user._id, name: name}).exec();
-                    const Instrument = new InstrumentModel({
-                        user: user._id, 
-                        options: options,
-                        name: existName ? `${name}_2` : name,
-                        type: instrumentType,
-                    })
-                    Instrument.save()
+                    const existingInstrument = await InstrumentModel.findOne({name: name, type: req.body.type, user: user._id}).exec();
+
+                    if (existingInstrument && (rename || req.body.options)){
+
+                        if (req.body.newName)
+                            existingInstrument.name = req.body.newName;
+
+                        if (req.body.options)
+                            existingInstrument.options = req.body.options
+
+                        existingInstrument.save()
                         .then(_ => { res.status(200).send({message: messages.INSTRUMENT_SAVED})})
-                        .catch(e => {res.send({ error: e })})
+                        .catch(e => { res.send({ error: e })})
+                    } else {
+                        
+                        const Instrument = new InstrumentModel({
+                            user: user._id, 
+                            options: req.body.options,
+                            name: req.body.newName,
+                            type: req.body.type,
+                        })
+                        Instrument.save()
+                            .then(_ => { res.status(200).send({message: messages.INSTRUMENT_SAVED})})
+                            .catch(e => { res.send({ error: e })})
+
+                    }
+
     
                 } else if (modelType === modelTypes.EFFECT) {
     
-                    const options: any = req.body.options
-                    const effectType = req.body.type;
-                    const existName = await EffectModel.find({user: user._id, name: name}).exec();
-                    const Effect = new EffectModel({
-                        user: user._id, 
-                        options: options,
-                        name: existName ? `${name}_2` : name,
-                        type: effectType,
-                    })
-                    Effect.save()
-                        .then(_ => { res.status(200).send({message: messages.EFFECT_SAVED})})
-                        .catch(e => {res.send({ error: e })})
+                    const existingEffect = await EffectModel.findOne({name: name, type: req.body.type, user: user._id}).exec();
+
+                    if (existingEffect && (rename || req.body.options)){
+
+                        if (req.body.newName)
+                            existingEffect.name = req.body.newName;
+
+                        if (req.body.options)
+                            existingEffect.options = req.body.options
+
+                        existingEffect.save()
+                        .then(_ => { res.status(200).send({message: messages.INSTRUMENT_SAVED})})
+                        .catch(e => { res.send({ error: e })})
+                    } else {
+                        
+
+                        const Effect = new EffectModel({
+                            user: user._id, 
+                            options: req.body.options,
+                            name: req.body.newName,
+                            type: req.body.type,
+                        })
+                        Effect.save()
+                            .then(_ => { res.status(200).send({message: messages.INSTRUMENT_SAVED})})
+                            .catch(e => { res.send({ error: e })})
+
+                    }
     
                 }
 
         } else {
             res.status(202).json({error: messages.UNKOWN_USER_PASS});
         }
-
-
     } catch(e) {
         res.status(402).send({error: e});
     }
@@ -152,6 +197,7 @@ export async function updateData(
 ) {
     try {
         const User: UserModelType | undefined | null = req.user;
+
         if (User){
             const updateValue: boolean = req.body.updateValue;
             const rename: boolean = req.body.rename
@@ -222,13 +268,13 @@ export async function deleteData(res: Response, req: Request){
 
             } else if (modelType === modelTypes.INSTRUMENT) {
 
-                InstrumentModel.findOneAndDelete({name: name, user: User._id})
+                InstrumentModel.findOneAndDelete({name: name, user: User._id, type: req.body.type})
                 .then(_ => {res.status(200).send({ message: messages.INSTRUMENT_DELETED })})
                 .catch(_ => {res.status(402).send({ message: messages.GENERAL_ERROR})})
 
             } else if (modelType === modelTypes.EFFECT) {
 
-                EffectModel.findOneAndDelete({name: name, user: User._id})
+                EffectModel.findOneAndDelete({name: name, user: User._id, type: req.body.type})
                 .then(_ => {res.status(200).send({ message: messages.EFFECT_DELETED })})
                 .catch(_ => {res.status(402).send({ message: messages.GENERAL_ERROR})})
             }

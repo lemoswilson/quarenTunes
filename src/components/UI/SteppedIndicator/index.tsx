@@ -67,7 +67,6 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
     // }, [ccMouseCalculationCallback]);
 
     const mouseMove = (e: MouseEvent) => {
-        console.log(`calling mouse move, internal value is ${internalValue}, e.movementY is ${e.movementY}, abs movy is ${Math.abs(e.movementY)}`)
         const x = 5 
 
         if (
@@ -123,7 +122,6 @@ const SteppedIndicator: React.FC<SteppedIndicator> = ({
         setDisplay(false);
     }
     const stopDrag = (e: MouseEvent) => {
-        // console.log('should be stopping drag');
         setMovement(false);
         setDisplay(true);
         shouldRemove = true;

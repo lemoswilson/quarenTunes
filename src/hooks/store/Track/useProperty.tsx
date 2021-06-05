@@ -23,8 +23,8 @@ export const useProperty = (
     let a = obj[t]
     useEffect(() => {
         if (a) {
+
             let v: any;
-            // console.log('updating property', t);
             if (isObject) {
                 v = {
                     [t]: onlyValues(a),
@@ -45,9 +45,7 @@ export const useProperties = (
 ) => {
     useProperty(instrumentRef, options, 'harmonicity');
     useProperty(instrumentRef, options, 'attack');
-    // useProperty(instrumentRef, options, 'attackNoise');
     useProperty(instrumentRef, options, 'curve');
-    // useProperty(instrumentRef, options, 'dampening');
     useProperty(instrumentRef, options, 'detune');
     useProperty(instrumentRef, options, 'envelope', true);
     useProperty(instrumentRef, options, 'modulation', true);
@@ -64,7 +62,6 @@ export const useProperties = (
 
 
 export const useDrumRackProperty = (
-    // ref: MutableRefObject<DrumRack>,
     ref: any,
     obj: { [key: string]: any },
     prop: keyof ReturnType<typeof DrumRackSlotInitials>,

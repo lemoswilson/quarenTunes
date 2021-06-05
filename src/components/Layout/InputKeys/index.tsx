@@ -52,7 +52,6 @@ const InputKeys: React.FC<InputKeys> = ({
     const callbacksDown = withRange(25, range * 12).map(noteNumber => {
         return () => {
             const noteName = numberToNote(noteNumber)
-            console.log('clicking note', noteName);
             noteCallback(noteName);
             setMouseNote((state) => {
                 return {

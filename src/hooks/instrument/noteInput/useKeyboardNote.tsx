@@ -1,9 +1,11 @@
-import { MutableRefObject, useCallback, useEffect } from 'react';
+import { MutableRefObject, useCallback, useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { noteDict, numberToNote } from '../../../store/MidiInput';
 import { midi } from '../../../store/Track';
 import { useKeyboardRangeSelector } from '../../store/Midi/useMidiSelectors';
 import { noteOn, noteOff } from '../../../store/MidiInput';
+import modalContext from '../../../context/modalContext';
+import useQuickRef from '../../lifecycle/useQuickRef';
 
 export const useKeyboardNote = (
     ref_index: MutableRefObject<number>,
@@ -20,6 +22,8 @@ export const useKeyboardNote = (
     const dispatch = useDispatch();
     const ref_keyboardRange = useKeyboardRangeSelector()
     const isKeyboard = midi.device === 'onboardKey' && midi.channel === 'all';
+    const saveModal = useContext(modalContext);
+    const ref_saveModal = useQuickRef(saveModal)
     // const isSelectedTrk = ref_index.current === ref_selectedTrkIdx.current
 
 
@@ -27,6 +31,7 @@ export const useKeyboardNote = (
     const instrumentKeyDown = useCallback(
         function keyDownCallback(this: Document, ev: KeyboardEvent) {
             if (ev.repeat) { return }
+            if (ref_saveModal.current) { return }
             const key = ev.key.toLowerCase()
             if (Object.keys(noteDict).includes(key)) {
                 const noteNumber = noteDict[key] + (ref_keyboardRange.current * 12)

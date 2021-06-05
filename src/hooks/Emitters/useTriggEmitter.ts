@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useContext, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { ToneObjectContextType } from '../../context/ToneObjectsContext';
 import triggEmitter, { triggEventTypes, ExtractTriggPayload } from '../../lib/Emitters/triggEmitter';
@@ -6,17 +6,13 @@ import * as Tone from 'tone';
 import { timeObjFromEvent } from '../../lib/utility';
 import { useEffectsLengthSelector, useTrkInfoSelector } from '../store/Track/useTrackSelector';
 import { counterSelector, patternsSelector } from '../../store/Sequencer/selectors';
-import { effectsLengthsSelector } from '../../store/Track/selectors';
 import useQuickRef from '../lifecycle/useQuickRef';
-import { triggs } from '../../context/ToneObjectsContext';
 import { useActivePatt } from '../store/Sequencer/useSequencerSelectors';
 
 const useTriggEmitter = (
     ref_toneObjects: ToneObjectContextType,
-    // ref_arrgTriggs: MutableRefObject<triggs[][] | null>,
 ) => {
-    // trackCount, fxLength, sequencer coutner, selectedTrk
-    // patterns 
+
     const { ref_trkCount } = useTrkInfoSelector()
     const { ref_effectsLengths } = useEffectsLengthSelector()
     const counter = useSelector(counterSelector)
@@ -26,15 +22,13 @@ const useTriggEmitter = (
     const { activePatt } = useActivePatt();
 
     const addPattern = (payload: ExtractTriggPayload<triggEventTypes.ADD_PATTERN>): void => {
-        console.log('the trigger is emitting');
         let patN = payload.pattern
-        // const trackCount = store.getState().track.present.trackCount
         const trackCount = ref_trkCount.current
+
         if (ref_toneObjects.current)
             ref_toneObjects.current.patterns[patN] = new Array(trackCount);
 
         [...Array(trackCount)].forEach((_, track, __) => {
-            // const effectsLength = store.getState().track.present.tracks[track].fx.length
             const effectsLength = ref_effectsLengths.current[track]
 
             if (ref_toneObjects.current) {
@@ -56,8 +50,6 @@ const useTriggEmitter = (
 
     const duplicatePattern = (payload: ExtractTriggPayload<triggEventTypes.DUPLICATE_PATTERN>): void => {
         let patN = payload.pattern
-        // let counter = store.getState().sequencer.present.counter;
-        // let trackCount = store.getState().track.present.trackCount;
         let counter = ref_counter.current;
         let trackCount = ref_trkCount.current;
 
@@ -67,8 +59,7 @@ const useTriggEmitter = (
                     ref_toneObjects.current.patterns[counter].push(
                         {instrument: new Tone.Part(), effects: []}
                     )
-                    // [track].instrument = new Tone.Part()
-                    // const fxLength = store.getState().track.present.tracks[track].fx.length
+
                     const fxLength = ref_effectsLengths.current[track]
                     let i = 0;
                     while (i < fxLength) {
@@ -76,7 +67,6 @@ const useTriggEmitter = (
                         i++
                     }
 
-                    // let events = store.getState().sequencer.present.patterns[patN].tracks[track].events
                     let events = ref_patterns.current[patN].tracks[track].events
                     events.forEach((e, idx, arr) => {
                         const time = timeObjFromEvent(idx, e)
@@ -94,26 +84,15 @@ const useTriggEmitter = (
     const addEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.ADD_EFFECT>): void => {
 
         let [trackIndex, index] = [payload.trackIndex, payload.fxIndex];
-        console.log(`adding fx trig, index is ${index}`)
 
         if (ref_toneObjects.current) {
             Object.keys(ref_toneObjects.current.patterns).forEach((pat) => {
-                console.log(`should be adding fx to pattern ${pat}`)
                 const p = Number(pat)
                 ref_toneObjects.current?.patterns[p][trackIndex].effects.splice(index, 0, new Tone.Part())
             });
 
             ref_toneObjects.current.patterns[activePatt][trackIndex].effects[index].start(0)
             ref_toneObjects.current.patterns[activePatt][trackIndex].effects[index].loopEnd = patterns[activePatt].tracks[trackIndex].length
-
-
-            // ref_toneObjects.current.arranger.forEach((_, idx, __) => {
-            //     console.log(`should be adding fx to arrg event idx ${idx}`)
-            //     if (ref_toneObjects.current)
-            //         ref_toneObjects.current.arranger[idx][trackIndex].effects.splice(index, 0, new Tone.Part())
-            // })
-
-            
 
             ref_toneObjects.current.flagObjects[trackIndex].effects.splice(index, 0, {callback: undefined, flag: false})
 
@@ -123,20 +102,12 @@ const useTriggEmitter = (
 
     const removeEffectTrigg = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_EFFECT>): void => {
         let [trackIndex, fxIndex] = [payload.trackIndex, payload.fxIndex];
-        // let patterns = Object.keys(store.getState().sequencer.present.patterns)
         let patterns = Object.keys(ref_patterns.current)
-        // let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
 
         patterns.forEach(pat => {
             ref_toneObjects.current?.patterns[Number(pat)][trackIndex].effects[fxIndex].dispose();
             ref_toneObjects.current?.patterns[Number(pat)][trackIndex].effects.splice(fxIndex, 1);
         })
-
-        // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-        //     ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIndex].dispose();
-        //     ref_toneObjects.current?.arranger[idx][trackIndex].effects.splice(fxIndex, 1);
-        // })
-
 
         if (ref_toneObjects.current)
             ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].flag = true
@@ -145,8 +116,6 @@ const useTriggEmitter = (
 
     const changeEffectIndexTrigg = (payload: ExtractTriggPayload<triggEventTypes.CHANGE_EFFECT_INDEX>): void => {
         let [trackIndex, from, to] = [payload.trackIndex, payload.from, payload.to];
-        // let patternCount = Object.keys(store.getState().sequencer.present.patterns).length;
-        // let patterns = Object.keys(store.getState().sequencer.present.patterns);
         let patterns = Object.keys(ref_patterns.current);
 
         Object.keys(patterns).forEach(pat => {
@@ -155,12 +124,6 @@ const useTriggEmitter = (
             [ref_toneObjects.current.patterns[p][trackIndex].effects[to], ref_toneObjects.current.patterns[p][trackIndex].effects[from]] =
                 [ref_toneObjects.current.patterns[p][trackIndex].effects[from], ref_toneObjects.current.patterns[p][trackIndex].effects[to]];
         });
-
-        // ref_toneObjects.current?.arranger.forEach((_, idx, __) => {
-        //     if (ref_toneObjects.current)
-        //     [ref_toneObjects.current.arranger[idx][trackIndex].effects[from], ref_toneObjects.current.arranger[idx][trackIndex].effects[to]] = 
-        //     [ref_toneObjects.current.arranger[idx][trackIndex].effects[to], ref_toneObjects.current.arranger[idx][trackIndex].effects[from]]
-        // })
 
         if (ref_toneObjects.current)
             [ ref_toneObjects.current.flagObjects[trackIndex].effects[from],  ref_toneObjects.current.flagObjects[trackIndex].effects[to]  ] = 
@@ -171,9 +134,8 @@ const useTriggEmitter = (
 
     const removePattern = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_PATTERN>): void => {
         const patN: number = payload.pattern;
-        // const trackCount = store.getState().track.present.trackCount
         const trackCount = ref_trkCount.current;
-        // const selectedTrack: number = store.getState().track.present.selectedTrack;
+
         if (ref_toneObjects.current){
             for (let i = 0; i < trackCount; i ++){
                 ref_toneObjects.current.patterns[patN][i].instrument.dispose()
@@ -206,13 +168,6 @@ const useTriggEmitter = (
             ref_toneObjects.current.patterns[activePatt][l-1].effects[0].loopEnd = {'16n': 16};
             ref_toneObjects.current.patterns[activePatt][l-1].effects[0].loop = true;
 
-            // for (let i = 0; i < ref_toneObjects.current.arranger.length ; i ++)
-            //     ref_toneObjects.current.arranger[i].push({
-            //         instrument: new Tone.Part(),
-            //         effects: [new Tone.Part()],
-            //     })
-
-
 
             ref_toneObjects.current.flagObjects.push({instrument: {callback: undefined, flag: false}, effects: [{callback: undefined, flag: false}]})
         }
@@ -222,7 +177,7 @@ const useTriggEmitter = (
 
     const removeTrack = (payload: ExtractTriggPayload<triggEventTypes.REMOVE_TRACK>): void => {
         let trackIndex: number = payload.trackIndex;
-        // const fxLen = store.getState().track.present.tracks[trackIndex].fx.length;
+
         const fxLen = ref_effectsLengths.current[trackIndex];
         if (ref_toneObjects.current) {
             // dispose of tracks and fx triggs in pattern obj as well as arranger obj
@@ -231,9 +186,8 @@ const useTriggEmitter = (
             Object.keys(ref_toneObjects.current.patterns).forEach(patt => {
                 if ( ref_toneObjects.current && trackIndex < ref_toneObjects.current?.patterns[parseInt(patt)].length) {
                     ref_toneObjects.current?.patterns[parseInt(patt)][trackIndex].instrument.dispose();
-                    // const fxSize = store.getState().track.present.tracks[trackIndex].fx.length
+
                     let i = 0;
-                    // while (i < fxSize) {
                     while (i < fxLen) {
                         ref_toneObjects.current?.patterns[parseInt(patt)][trackIndex].effects[i].dispose();
                         i++
@@ -242,47 +196,12 @@ const useTriggEmitter = (
                 }
             });
 
-
-            // ref_toneObjects.current.arranger.forEach((_, idx,__) => {
-            //     ref_toneObjects.current?.arranger[idx][trackIndex].instrument.dispose();
-            //     [...Array(fxLen).keys()].forEach((_, fxIdx, __) => {
-            //         ref_toneObjects.current?.arranger[idx][trackIndex].effects[fxIdx].dispose()
-
-            //     })
-            //     ref_toneObjects.current?.arranger[idx].splice(trackIndex, 1)
-            // })
-
             ref_toneObjects.current.flagObjects.splice(trackIndex, 1)
 
-            // ref_toneObjects.current.flagObjects[trackIndex].instrument.flag = true;
-            // [...Array(fxLen).keys()].forEach((_, idx, __) => {
-            //     if (ref_toneObjects.current)
-            //         ref_toneObjects.current.flagObjects[trackIndex].effects[idx].flag = true;
-            // })
         }
 
     };
 
-    // const newEvent = (payload: ExtractTriggPayload<triggEventTypes.NEW_EVENT>): void => {
-    //     // console.log(' new event, payload event index is:', payload.eventIndex);
-    //     // const trackCount = store.getState().track.present.tracks.length;
-    //     const trackCount = ref_trkCount.current;
-
-    //     [...Array(trackCount).keys()].forEach((_, idx, __) => {
-    //         // const fxCount = store.getState().track.present.tracks[idx].fx.length
-    //         const fxCount = ref_effectsLengths.current[idx];
-    //         if (ref_toneObjects.current) {
-    //             console.log('should be setting callbacks of new event')
-    //             ref_toneObjects.current.arranger[payload.eventIndex][idx].instrument.callback = ref_toneObjects.current.flagObjects[idx].instrument.callback;
-
-    //             [...Array(fxCount).keys()].forEach((_, fxIdx, __) => {
-    //                 if (ref_toneObjects.current)
-    //                     ref_toneObjects.current.arranger[payload.eventIndex][idx].effects[fxIdx].callback = ref_toneObjects.current.flagObjects[idx].effects[fxIdx].callback;
-    //             })
-    //         }
-    //     })
-
-    // }
 
     useEffect(() => {
         triggEmitter.on(triggEventTypes.ADD_PATTERN, addPattern);
@@ -293,7 +212,6 @@ const useTriggEmitter = (
         triggEmitter.on(triggEventTypes.ADD_EFFECT, addEffectTrigg);
         triggEmitter.on(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
         triggEmitter.on(triggEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndexTrigg);
-        // triggEmitter.on(triggEventTypes.NEW_EVENT, newEvent);
 
         return () => {
             triggEmitter.off(triggEventTypes.ADD_PATTERN, addPattern);
@@ -304,7 +222,6 @@ const useTriggEmitter = (
             triggEmitter.off(triggEventTypes.ADD_EFFECT, addEffectTrigg);
             triggEmitter.off(triggEventTypes.REMOVE_EFFECT, removeEffectTrigg);
             triggEmitter.off(triggEventTypes.CHANGE_EFFECT_INDEX, changeEffectIndexTrigg);
-            // triggEmitter.off(triggEventTypes.NEW_EVENT, newEvent);
         }
 
     }, [])
