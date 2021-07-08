@@ -3,6 +3,8 @@ import Div100vh from 'react-div-100vh';
 import GoogleLogin from 'react-google-login';
 import { Link, NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router'
+import { isMobile, isMobileOnly } from 'react-device-detect';
+import google from '../../../assets/google.svg';
 
 import { userProps } from '../../../App';
 
@@ -134,9 +136,9 @@ const SignUp: React.FC<userProps> = ({
         <Div100vh className={styles.home}>
             <nav className={styles.nav}>
                 <div className={styles.logo}>
-                    <Logo className={styles.xolombrisx} />
+                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
                 </div>
-                <div className={styles.links}>
+                <div style={isMobileOnly ? {display: 'none'} : {} } className={styles.links}>
                     <div className={styles.navBox}> 
                         <div className={`${ styles.text }`}>
                             <NavLink 
@@ -160,29 +162,46 @@ const SignUp: React.FC<userProps> = ({
             <main className={styles.signUp}>
                 <form className={styles.overlay}>
                     <div className={styles.join}> Join Xolombrisx </div>
-                    <div className={styles.cacc}> Create your account </div>
+                    {/* <div className={styles.cacc}> Create your account </div> */}
                     <div className={styles.field}>
                         <h3>Username</h3>
-                        <input ref={username} placeholder={'Username'} type={'text'}></input>
+                        <input ref={username} type={'text'}></input>
                     </div>
 
                     <div className={styles.field} style={{marginTop: '1.6rem'}}>
                         <h3>Email</h3>
-                        <input ref={email} autoComplete={'email'} placeholder={'Email'} type={'email'}></input>
+                        <input ref={email} autoComplete={'email'} type={'email'}></input>
                     </div>
 
                     <div className={styles.field} style={{marginTop: '1.6rem'}}>
                         <h3>Password</h3>
-                        <input ref={password} placeholder={'Password'} type={'password'}></input>
+                        <input ref={password} type={'password'}></input>
                     </div>
 
-                    <p className={styles.p}> Password must have between 6 and 16 characters </p>
+                    <p className={styles.forgot}> Password must have between 6 and 16 characters </p>
 
                     <button onClick={(e) => onSubmit(e)} className={styles.create}>Create Account</button>
 
-                    <div className={styles.division}></div>
+                    {/* <div className={styles.division}></div> */}
 
+                    <div className={styles.google}>
                     <p className={styles.or}> or authenticate with </p>
+
+                    <GoogleLogin
+                        clientId={'860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com'}
+                        buttonText='Google'
+                        render={renderProps => (
+                            <button disabled={renderProps.disabled} onClick={renderProps.onClick} className={styles.googlota}>
+                                <img src={google} width={'30rem'} height={'30rem'} />
+                            </button>
+                        )}
+                        onSuccess={responseGoogle}
+                        onFailure={() => {}}
+                    ></GoogleLogin>
+
+                </div>
+
+                    {/* <p className={styles.or}> or authenticate with </p>
 
 
 
@@ -191,7 +210,7 @@ const SignUp: React.FC<userProps> = ({
                         buttonText='Google'
                         onSuccess={responseGoogle}
                         onFailure={() => {}}
-                    ></GoogleLogin>
+                    ></GoogleLogin> */}
 
                     <div className={styles.errorMessage}>{ errorMessage && errorMessage.length > 0 ? errorMessage : ''}</div>
                     

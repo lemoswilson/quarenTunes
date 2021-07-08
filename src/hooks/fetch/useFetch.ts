@@ -3,12 +3,10 @@ import axios from 'axios';
 import { userData } from '../../App';
 import UserData from '../../context/userDataContext';
 import { useHistory, useLocation } from 'react-router-dom';
-import { returnInstrument } from '../../lib/Tone/initializers';
-import { getEffectsInitials, getInitials } from '../../containers/Track/defaults';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { effectNameSelector, trackNameSelector } from '../../store/Track/selectors';
-import { setName, setOptionsArray, updateEffectState, updateInstrumentState, xolombrisxInstruments } from '../../store/Track';
-import { extend, recursivelyDeleteId } from '../../lib/utility';
+import { resetDevice, setName, setOptionsArray, updateEffectState, updateInstrumentState, xolombrisxInstruments } from '../../store/Track';
+import { extend } from '../../lib/utility';
 import useQuickRef from '../lifecycle/useQuickRef';
 
 
@@ -149,23 +147,28 @@ export const useDeviceLoader = (
     }
 
     const fetchDevice = (key: string) => {
+        if (key === 'init') {
+            dispatch(resetDevice(trackIndex, fxIndex));
+            return
+        }
+
         if ( user.token && user.token.length > 0)
             if (
-                !(modelType === 'instrument' && name === 'newInstrument')
-                && !(modelType === 'effect' && name === 'newEffect')
+                !(modelType === 'instrument' && (key === 'newInstrument' || key === 'init'))
+                && !(modelType === 'effect' && (key === 'newEffect' || key === 'init'))
             )
-            axios.post(
-                process.env.REACT_APP_SERVER_URL + '/users/getData',
-                {modelType: modelType, type: deviceType, name: key},
-                {headers: {authorization: user.token}}
-            ).then(res => {
-                const v: any = res.data.options;
-                // delete v._id
-                batch(() => {
-                    dispatch( setName(key, modelType, trackIndex, fxIndex) )
-                    dispatch ( setOptionsArray(v, trackIndex, modelType, fxIndex))
-                })
-            }).catch()
+                axios.post(
+                    process.env.REACT_APP_SERVER_URL + '/users/getData',
+                    {modelType: modelType, type: deviceType, name: key},
+                    {headers: {authorization: user.token}}
+                ).then(res => {
+                    const v: any = res.data.options;
+                    // delete v._id
+                    batch(() => {
+                        dispatch( setName(key, modelType, trackIndex, fxIndex) )
+                        dispatch ( setOptionsArray(v, trackIndex, modelType, fxIndex))
+                    })
+                }).catch()
     }
 
     const removeDevice = () => {

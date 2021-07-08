@@ -1,7 +1,9 @@
 import React, { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { ActionCreators } from 'redux-undo';
 import { SequencerDispatchers } from '../store/Sequencer/useSequencerDispatchers';
 import { useKeyboardRangeSelector } from '../store/Midi/useMidiSelectors';
+import { isMacOs } from 'react-device-detect';
 
 import { event, cycleSteps, copyEvents, copyNotes, Pattern } from '../../store/Sequencer';
 import { xolombrisxInstruments } from '../../store/Track';
@@ -15,10 +17,14 @@ import DropdownEmitter, { dropdownEventTypes } from '../../lib/Emitters/dropdown
 import ModalContext from '../../context/modalContext';
 import useQuickRef from '../lifecycle/useQuickRef';
 
-
 interface copySteps {
     steps: event[], 
     instrument?: xolombrisxInstruments
+}
+
+function isModKey(isMacOs: boolean, e: KeyboardEvent){
+    if (isMacOs) return e.metaKey
+    else return e.ctrlKey
 }
 
 const useSequencerShortcuts = (
@@ -39,10 +45,8 @@ const useSequencerShortcuts = (
     // keyboard shortcuts event listeners
     // activate when finished testing keyboard
     const ref_keyboardRange = useKeyboardRangeSelector()
-
     const ref_copiedSteps = useRef<copySteps | null>(null)
     const dispatch = useDispatch();
-    
     const saveModal = useContext(ModalContext);
     const ref_saveModal = useQuickRef(saveModal);
 
@@ -86,19 +90,22 @@ const useSequencerShortcuts = (
     function shouldSelectStep(e: KeyboardEvent, char: string){
         // using isNan because keyDict[char] maps to 0
         return !e.shiftKey 
-            && !e.ctrlKey
+            // && !e.ctrlKey
+            && !isModKey(isMacOs, e)
             && !Number.isNaN(Number(keyDict[char]))
         
     }
 
     function shouldDecreaseOffset(e: KeyboardEvent, char: string): boolean {
-        return !e.ctrlKey
+        // return !e.ctrlKey
+        return !isModKey(isMacOs, e)
             && char === 'arrowleft' 
             && ref_selectedSteps.current.length >= 1
     }
 
     function shouldIncreaseOffset(e: KeyboardEvent, char: string): boolean {
-        return !e.ctrlKey
+        // return !e.ctrlKey
+        return !isModKey(isMacOs, e)
         && char === 'arrowright' 
         && ref_selectedSteps.current.length >= 1
     }
@@ -114,7 +121,8 @@ const useSequencerShortcuts = (
 
     function shouldPlayNote(e: KeyboardEvent, char: string): boolean | string {
         return !e.shiftKey 
-            && !e.ctrlKey
+            // && !e.ctrlKey
+            && !isModKey(isMacOs, e)
             && numberNoteDict[noteDict[char]]
     }
 
@@ -123,20 +131,24 @@ const useSequencerShortcuts = (
     }
 
     function shouldTogglePatternUI(e: KeyboardEvent, char: string): boolean {
-        return !e.shiftKey && !e.ctrlKey && char === '`'
+        // return !e.shiftKey && !e.ctrlKey && char === '`'
+        return !e.shiftKey && !isModKey(isMacOs, e) && char === '`'
     }
 
     function shouldEscape(e: KeyboardEvent, char: string): boolean {
-        return !e.shiftKey && !e.ctrlKey && char === 'escape'
+        // return !e.shiftKey && !e.ctrlKey && char === 'escape'
+        return !e.shiftKey && !isModKey(isMacOs, e) && char === 'escape'
     }
     
     function shouldCopy(e: KeyboardEvent, char: string): boolean {
-        return !e.shiftKey && e.ctrlKey &&  char === 'c'
+        // return !e.shiftKey && e.ctrlKey &&  char === 'c'
+        return !e.shiftKey && isModKey(isMacOs, e) &&  char === 'c'
     }
 
     function shouldPaste(e: KeyboardEvent, char: string): boolean | null {
         return !e.shiftKey 
-            && e.ctrlKey 
+            // && e.ctrlKey 
+            && isModKey(isMacOs, e) 
             && char === 'v' 
             && ref_copiedSteps.current 
             && ref_copiedSteps.current?.steps.length > 0
@@ -149,6 +161,16 @@ const useSequencerShortcuts = (
     function shouldSelectEvery(e: KeyboardEvent): number {
         const code = e.keyCode;
         return e.shiftKey && code <= 57 && code >= 49 ? code - 48 : 0
+    }
+
+    function shouldUndo(e: KeyboardEvent, char: string): boolean { 
+        // return e.ctrlKey && char === 'z' && !e.shiftKey
+        return isModKey(isMacOs, e) && char === 'z' && !e.shiftKey
+    }
+
+    function shouldRedo(e: KeyboardEvent, char: string): boolean {
+        // return e.ctrlKey && char === 'z' && e.shiftKey
+        return isModKey(isMacOs, e) && char === 'z' && e.shiftKey
     }
 
 
@@ -192,9 +214,11 @@ const useSequencerShortcuts = (
 
         // delete events with backspace and delete 
         if (shouldDelete(e, char)) {
-            if (e.shiftKey && !e.ctrlKey)
+            // if (e.shiftKey && !e.ctrlKey)
+            if (e.shiftKey && !isModKey(isMacOs, e))
                 sequencerDispatchers._deleteNotes()
-            else if (e.ctrlKey && !e.shiftKey)
+            // else if (e.ctrlKey && !e.shiftKey)
+            else if (isModKey(isMacOs, e) && !e.shiftKey)
                 sequencerDispatchers._deleteLocks()
             else 
                 sequencerDispatchers._deleteEvents()
@@ -296,11 +320,21 @@ const useSequencerShortcuts = (
                 sequencerDispatchers._selectStep(start + i * num)
             return
         }
+
+        // undo and redo stuff
+        if (shouldUndo(e, char)){
+            console.log('should be undoing');
+            dispatch(ActionCreators.undo())
+            return
+        }
+
+        if(shouldRedo(e, char)){
+            console.log('should be redoing');
+            dispatch(ActionCreators.redo())
+            return
+        }
+
     };
-
-
-
-
 
 };
 

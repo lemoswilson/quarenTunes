@@ -8,7 +8,6 @@ import { userProps } from '../../../App';
 import axios from 'axios';
 
 import styles from './style.module.scss';
-import optionListStyles from '../Instruments/Tabs/optionList.module.scss'
 
 import Logo from '../Logo';
 import { Track } from '../../../store/Track';
@@ -16,7 +15,6 @@ import { Sequencer } from '../../../store/Sequencer';
 
 import Plus from '../../UI/Plus';
 import TrashCan from '../../UI/TrashCan';
-import Dropdown from '../../UI/Dropdown';
 import { useVerify } from '../../../hooks/fetch/useFetch';
 
 const Projects: React.FC<userProps> = ({
@@ -32,11 +30,7 @@ const Projects: React.FC<userProps> = ({
     const [selected, setSelected] = useState<string>('');
     const [track, setTrack] = useState<Track | undefined>(undefined);
     const [sequencer, setSequencer] = useState<Sequencer | undefined>(undefined)
-
-    const [newProjectModal, setNewProjectModal] = useState(false);
-
     const ref_input = useRef<HTMLInputElement | null>(null);
-    const ref_newInput = useRef<HTMLInputElement | null>(null);
 
     const signOut = () => {
         localStorage.removeItem('xolombrisJWT')
@@ -58,6 +52,12 @@ const Projects: React.FC<userProps> = ({
 
     // fetch project names;
     useEffect(() => {
+        async function fetchData(){
+            axios.post(process.env.REACT_APP_SERVER_URL + '/users/userDataList', {modelType: 'project'}, {headers: {authorization: token}})        
+            .then(response => { setProjects(response.data.projects) })
+            .catch(response => { postError(response) })
+        }
+
         if (token)
             fetchData()
     }, [token])

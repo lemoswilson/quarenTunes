@@ -159,7 +159,7 @@ const useSequencerDispatchers = (
 
 
     
-    const mimicSelectedFromTo = (from: number, to: number) => {
+    const mimicSelectedFromTo = useCallback((from: number, to: number) => {
         if (from === to) return;
         
         const v: number[] = []
@@ -170,7 +170,7 @@ const useSequencerDispatchers = (
         v.forEach(value => {
             dispatch(selectStep(ref_activePatt.current, ref_selectedTrkIdx.current, to*16 + value))
         })
-    }
+    }, []);
 
     const pageClickHandler = useCallback((e: React.MouseEvent, pageIndex: number): void => {
         if (e.shiftKey) {
@@ -178,7 +178,7 @@ const useSequencerDispatchers = (
         } else {
             _changePage(pageIndex)
         }
-    }, [_changePage, ref_activePage])
+    }, [_changePage, ref_activePage, mimicSelectedFromTo])
 
     const _setOffset = (offset: number): void => {
         ref_selectedSteps.current.forEach(step => {
@@ -236,8 +236,6 @@ const useSequencerDispatchers = (
         });
     };
 
-
-
     const _deleteEvents = (): void => {
         if (ref_selectedSteps.current.length >= 1) {
             ref_selectedSteps.current.forEach(step => {
@@ -290,7 +288,6 @@ const useSequencerDispatchers = (
         });
     };
 
-
     const _setPattTrkVelocity = (velocity: number): void => {
         dispatch(
             setPatternTrackVelocity(
@@ -332,7 +329,6 @@ const useSequencerDispatchers = (
             selectedTrkIdx,
         )) 
     }
-
 
     const _incDecOffset = (amount: number): void => {
         ref_selectedSteps.current.forEach(step => {

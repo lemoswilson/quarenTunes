@@ -16,13 +16,9 @@ export function propertiesToArray(obj: any): string[] {
     return paths(obj);
 };
 
-let t = []
-
 export function deleteProperty(obj: any, property: string): void {
     const fields: string[] = property.split('.');
     let cur = obj,
-        pointer = NaN,
-        j = 0,
         last = fields.pop();
 
     fields.forEach((field, idx, arr) => {

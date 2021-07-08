@@ -4,6 +4,7 @@ import styles from './style.module.scss';
 import Div100vh from 'react-div-100vh';
 import Curves from './Curves';
 import Logo from '../Logo';
+import { isMobile, isTablet, isMobileOnly, MobileOnlyView } from 'react-device-detect';
 import { Link, NavLink } from 'react-router-dom';
 import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
 import { useVerify } from '../../../hooks/fetch/useFetch';
@@ -39,32 +40,16 @@ const HomePage: React.FC<userProps> = ({
 
     useVerify({errorMessage, isAuthenticated, token}, updateUser)
 
-    // useEffect(() => {
-    //     if (!br)
-    //         sorta();
-    // }, [br])
-
-    // useEffect(() => {
-    //     colorr()
-    // }, [])
-
-    // const colorr = () => {
-    //     setTimeout(() => {
-    //         setCol(v => v + 1)
-
-    //         colorr();
-    //     }, 400)
-    // }
-    
     const midStyle: React.CSSProperties = isAuthenticated ? {justifyContent: 'center'} : {};
+    const authStyle: React.CSSProperties = isAuthenticated ? {display: 'none'} : {};
 
     return (
         <Div100vh className={styles.home}>
-            <nav className={styles.nav}>
+            <nav  className={styles.nav}>
                 <div className={styles.logo}>
-                    <Logo className={styles.xolombrisx} />
+                    <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
                 </div>
-                <div className={styles.links}>
+                <div className={styles.links} style={isMobileOnly ? {display: 'none'} : {}}>
                     <div className={styles.navBox}> 
                         <div className={`${ styles.text }`}>
                         {
@@ -92,17 +77,21 @@ const HomePage: React.FC<userProps> = ({
                     </div>
                 </div>
             </nav>
-            <main onClick={() => setBreak(b => !b)} className={styles.curves}>
+            <main style={isMobileOnly ? {display: 'none'} : {}} onClick={() => setBreak(b => !b)} className={styles.curves}>
                 <Curves className={styles.joia} lineClass={styles.lineClass}/>
                 <h1 className={styles.title}>Find Your <br />Patterns</h1>
                 <div className={styles.buttons} style={midStyle}>
-                    <div className={styles.playRegister}>
-                        <div className={styles.text}>
-                            < Link
-                                to={'/app'} 
-                                style={{textDecoration: 'none', color: 'white'}} 
-                            > Play Now </Link></div>
-                    </div>
+                    {
+                        !isMobile
+                        ? <div className={styles.playRegister}>
+                            <div className={styles.text}>
+                                < Link
+                                    to={'/app'} 
+                                    style={{textDecoration: 'none', color: 'white'}} 
+                                > Make Music </Link></div>
+                        </div>
+                        : null
+                    }
                     { 
                         !isAuthenticated 
                         ? <div className={styles.playRegister}>
@@ -116,6 +105,18 @@ const HomePage: React.FC<userProps> = ({
                     }
                 </div>
             </main>
+            <MobileOnlyView>
+                <div className={styles.title}>
+                    Find Your <br/>Patterns
+                </div>
+                <Curves className={styles.joia} lineClass={styles.lineClass}/>
+                <div className={styles.links}>
+                    <div style={authStyle} className={styles.btt}><Link style={{textDecoration: 'none'}} to={'/signup'}>Register</Link></div>
+                    <div style={authStyle} className={styles.btt}><Link style={{textDecoration: 'none'}} to={'/login'}>Login</Link></div>
+                    <div className={styles.btt}><Link style={{textDecoration: 'none'}} to={'/app'}>Make Music</Link></div>
+                </div>
+            </MobileOnlyView>
+            
         </Div100vh>
     )
 }

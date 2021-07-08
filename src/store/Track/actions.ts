@@ -9,6 +9,19 @@ import {
 	Track,
 } from "./types";
 
+export function resetDevice(
+	trackIndex: number,
+	fxIndex?: number,
+): trackActionTypes {
+	return {
+		type: trackActions.RESET_DEVICE,
+		payload: {
+			trackIndex, 
+			fxIndex
+		}
+	}
+}
+
 export function setOptionsArray(
 	options: any,
 	trackIndex: number,

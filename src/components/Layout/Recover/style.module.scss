@@ -1,226 +1,350 @@
 @import '../../../style/variables';
 
-.home {
-    background-color: #FF9A8B;
-    background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+html {
 
-    background : radial-gradient(50% 50%, circle farthest-corner, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
-    filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
+    .home {
+        background-color: #FF9A8B;
+        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
 
-    display: flex;
-    flex-direction: column;
+        background : radial-gradient(50% 50%, circle farthest-corner, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
+        filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
 
-    .nav {
-        height: 7%;
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-end;
-
-        .logo {
-            width: 73%;
-            height: 110%;
-            
-            .xolombrisx {
-                width: 10%;
-                height: 40%;
-                margin-top: 1rem;
-            }
-        }
-
-        .links {
-            width: 27%;
-            height: 100%;
-
-            display: grid;
-            grid-template-columns: 50% 50%;
-
-
-            .navBox {
-                position: relative;
-                display: flex; 
-                @include center;
-                text-align: center;
-                vertical-align: middle;
-                line-height: 1.1rem;
-                font-family: $jost;
-                font-weight: 400;
-                font-size: 1.2rem;
-                color: white;
-
-                .text {
-                    display: flex;
-                    flex-direction: row;
-                    &:hover {
-                        cursor: pointer;
-                    }
-
-                    .ss {
-                        border-bottom: 0.5px solid white; 
-                    }
-
-                    .bs {
-                        color: #6d6d6d;
-                        border-bottom: 0.5px solid rgb(105, 105, 105);
-                    }
-                }
-
-                .polygon {
-                    width: 1.2rem;
-                    height: 1.2rem; 
-                    margin-left: 0.2rem;
-                    .polygonColor {
-                        fill: white;
-                    }
-                }
-
-                .active {
-                    transform: rotate(-90deg)
-                }
-
-                .activeLink {
-                    color: #6d6d6d;
-                    text-decoration: none;
-                    border-bottom: 0.5px solid rgb(105, 105, 105);
-
-
-                }
-            }
-        }
-    }
-
-    .signUp {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        height: 93%;
-        width: 100%;
 
-        .overlay {
-            margin-top: 8rem;
-            width: 30rem;
-            height: 37rem;
-            background-color: #FF9A8B;
-            background-image: linear-gradient(45deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
-            border-radius: 1rem;
-            box-shadow: 0.3rem 0.4rem 0.4rem rgba($color: #666666, $alpha: 1.0);
+        .nav {
+            height: 7%;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
 
+            .logo {
+                width: 73%;
+                height: 110%;
+                
+                .xolombrisx {
+                    width: 10%;
+                    height: 40%;
+                    margin-top: 1rem;
+                }
+            }
+
+            .links {
+                width: 27%;
+                height: 100%;
+
+                display: grid;
+                grid-template-columns: 50% 50%;
+
+
+                .navBox {
+                    position: relative;
+                    display: flex; 
+                    @include center;
+                    text-align: center;
+                    vertical-align: middle;
+                    line-height: 1.1rem;
+                    font-family: $jost;
+                    font-weight: 400;
+                    font-size: 1.2rem;
+                    color: white;
+
+                    .text {
+                        display: flex;
+                        flex-direction: row;
+                        &:hover {
+                            cursor: pointer;
+                        }
+
+                        .ss {
+                            border-bottom: 0.5px solid white; 
+                        }
+
+                        .bs {
+                            color: #6d6d6d;
+                            border-bottom: 0.5px solid rgb(105, 105, 105);
+                        }
+                    }
+
+                    .polygon {
+                        width: 1.2rem;
+                        height: 1.2rem; 
+                        margin-left: 0.2rem;
+                        .polygonColor {
+                            fill: white;
+                        }
+                    }
+
+                    .active {
+                        transform: rotate(-90deg)
+                    }
+
+                    .activeLink {
+                        color: #6d6d6d;
+                        text-decoration: none;
+                        border-bottom: 0.5px solid rgb(105, 105, 105);
+
+
+                    }
+                }
+            }
+        }
+
+        .signUp {
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             align-items: center;
+            justify-content: flex-start;
+            height: 93%;
+            width: 100%;
 
-            .join {
-                margin-top: 1rem;
-                font-family: $PTSans;
-                color: white;
-            }
+            .overlay {
+                margin-top: 8rem;
+                width: 30rem;
+                height: 37rem;
+                background-color: #FF9A8B;
+                background-image: linear-gradient(45deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+                border-radius: 1rem;
+                box-shadow: 0.3rem 0.4rem 0.4rem rgba($color: #666666, $alpha: 1.0);
 
-            .radio {
-                display: flex;
-                flex-direction: row;
-                width: 100%;
-                height: 3rem;
-                margin-top: 2rem;
-                margin-left: 6rem;
-
-                .email {
-                    margin-left: 1rem;
-                }
-            }
-
-            .cacc {
-                font-family: $jost;
-                font-size: 1.3rem;
-                color: #633939;
-            }
-
-            .field {
-                margin-left: 3rem;
-                align-self: flex-start;
                 display: flex;
                 flex-direction: column;
-                width: 27em;
-                height: 3rem;
+                justify-content: flex-start;
+                align-items: center;
+
                 
-                h3 {
-                    color: white;
-                    font-size: 1rem;
-                    font-family: $jost;
-                    margin: 0;
+                .radio {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    height: 3rem;
                     margin-top: 2rem;
-                }
-
-                input {
-                    width: 25rem;
-                    height: 1.7rem;
-                    font-size: 0.9rem;
-                    text-align: start;
+                    margin-left: 6rem;
+                    font: $jost;
+                    // color: #633939;
+                    color: $white;
+                    font-weight: 500;
                     font-family: $jost;
-                    border: 1px solid $light;
-                    background-color: #e6e6e6;
-                    border-radius: 0.4rem;
+                    color: #FFFFFF;
+                    text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+                    line-height: 1.2rem;
+                    
+                    .email {
+                        margin-left: 1rem;
+                    }
+                }
+
+                .join {
+                    margin-top: 1rem;
+                    // font-family: $PTSans;
+                    color: white;
+                    font-family: $jost;
+                    color: #FFFFFF;
+                    text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+                    font-size: 2rem;
+                }
+
+                .cacc {
+                    font-family: $jost;
+                    font-size: 1.3rem;
+                    color: #633939;
+                }
+
+                .field {
+                    margin-left: 3rem;
+                    align-self: flex-start;
+                    display: flex;
+                    flex-direction: column;
+                    width: 27em;
+                    height: 3rem;
+                    
+                    h3 {
+                        color: white;
+                        font-size: 1rem;
+                        margin: 0;
+                        margin-top: 2rem;
+                        // font-family: Jost-Medium;
+                        // font-size: 24px;
+                        // line-height: 71px;
+                        font-family: $jost;
+                        color: #FFFFFF;
+                        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+                    }
+
+                    input {
+                        width: 25rem;
+                        height: 1.7rem;
+                        font-size: 0.9rem;
+                        text-align: start;
+                        font-family: $jost;
+                        border: 1px solid $light;
+                        background-color: #e6e6e6;
+                        border-radius: 0.4rem;
+                        color:rgb(105, 105, 105);
+                        background: rgba(216,216,216,0.41);
+                        box-shadow: 0 2px 4px 0 rgba(146,136,136,0.50);
+                        border: none;
+                    }
 
                 }
 
+                .forgot {
+                    margin-top: 3rem;
+                    font: $jost;
+                    color: #633939;
+                    font-weight: 500;
+                }
+                    
+                .p {
+                    margin-top: 2.8rem;
+                    font-family: $jost;
+                    color: #633939;
+                }
+
+
+                .or {
+                    margin-top: 1rem;
+                    font-family: $jost;
+                    color: #633939;;
+                }
+
+                .login {
+                    background: none;
+                    color: inherit;
+                    border: none;
+                    padding: 0;
+                    font: inherit;
+                    cursor: pointer;
+                    outline: inherit;
+                    font-family: $jost;
+
+                    margin-top: 1.5rem;
+                    border-radius: 1rem;
+                    height: 1.5rem;
+                    width: 11rem;
+                    color: $white;
+
+                    background: rgba(253, 253, 253, 0.7);
+                    box-shadow: 0 2px 4px 0 rgba(173, 132, 132, 0.5);
+                    font-family: $jost;
+                    color: #868686;
+                    text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+                }
+
+                .division {
+                    margin-top: 2rem;
+                    width: 80%;
+                    height: 0;
+                    border: 1px solid black;
+                }
+
+                .google {
+                    border-radius: 0.7rem;
+                }
+
+                .errorMessage {
+                    margin-top: 1rem;
+                    font: $jost;
+                    color: $white;
+                }
+
             }
-
-            .forgot {
-                margin-top: 3rem;
-                font: $jost;
-                color: #633939;
-                font-weight: 500;
-            }
-                
-            .p {
-                margin-top: 2.8rem;
-                font-family: $jost;
-                color: #633939;
-            }
-
-
-            .or {
-                margin-top: 1rem;
-                font-family: $jost;
-                color: #633939;;
-            }
-
-            .login {
-                background: none;
-                color: inherit;
-                border: none;
-                padding: 0;
-                font: inherit;
-                cursor: pointer;
-                outline: inherit;
-                font-family: $jost;
-
-                margin-top: 1.5rem;
-                border-radius: 1rem;
-                background-color: rgb(239, 241, 239);
-                height: 1.5rem;
-                width: 10rem;
-                box-shadow: 0.2rem 0.2rem 0.2rem rgb(119, 118, 118);
-            }
-
-            .division {
-                margin-top: 2rem;
-                width: 80%;
-                height: 0;
-                border: 1px solid black;
-            }
-
-            .google {
-                border-radius: 0.7rem;
-            }
-
-            .errorMessage {
-                margin-top: 1rem;
-                font: $jost;
-                color: $white;
-            }
-
         }
     }
+
+    @media screen and (max-width: 420px) {
+
+        .home {
+
+            .nav {
+                height: 3vh;
+            }
+
+            .signUp {
+                .overlay {
+                    background: 'none';
+                    background-color: transparent;
+                    background-image: none;
+                    box-shadow: none;
+                    width: 100vw;
+                    height: 80vh;
+                    display: flex;
+
+                    .join {
+                        font-size: 7rem;
+                    }
+
+                    .radio {
+                        font-size: 16px;
+                        width: 70vw;
+                        height: 10rem;
+                        display: flex;
+                        @include center;
+                        // justify-content: space-between;
+                        margin: 0;
+
+                        .option {
+                            margin: auto;
+                        }
+                    }
+
+                    .field {
+                        margin: 0;
+                        margin-top: 4rem;
+                        width: 100vw;
+                        height: 10vh;
+                        display: flex; 
+                        flex-direction: column;
+                        @include center;
+
+                        h3 {
+                            font-size: 16px;
+                        }
+
+                        input {
+                            width: 65vw;
+                            height: 4vh;
+                            border-radius: 3rem;
+                            font-size: 16px;
+                            text-align: center;
+                        }
+
+                    }
+
+                    .errorMessage {
+                        font-size: 16px;
+                    }
+
+                    .forgot {
+                        font-size: 16px;
+                    }
+
+                    .login {
+                        width: 30vw;
+                        height: 4vh;
+                        font-size: 16px;
+                        border-radius: 3rem;
+                        
+                    }
+
+                    .google {
+
+                        .or {
+                            line-height: 8rem;
+                            font-size: 16px;
+                            margin-left: 9rem;
+                        }
+
+                        .googlota {
+                            margin-bottom: 3rem;
+                            margin-left: 0.5rem;
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+
 }

@@ -53,7 +53,6 @@ export const Instrument = <T extends xolombrisxInstruments>({
         activePatt, 
         ref_activePatt, 
         ref_selectedTrkIdx, 
-        // selectedInstrument
     } 
     = useTrkInfoSelector()
 

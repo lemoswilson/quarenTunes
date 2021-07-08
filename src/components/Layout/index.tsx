@@ -41,7 +41,6 @@ import { returnEffect, returnInstrument, reconnect } from '../../lib/Tone/initia
 import { trackSelector } from '../../store/Track/selectors';
 import { sequencerSelector } from '../../store/Sequencer/selectors';
 import { userData } from '../../App';
-import ButtonBackground from '../UI/ButtonBackground';
 import X from '../UI/X';
 import { serializeSequencer } from '../../lib/utility';
 
@@ -104,7 +103,6 @@ const Layout: React.FC <LayoutProps> = ({
     useEffect(() => {
         if (incomeName) {
             setName(incomeName);
-
         }
     }, [])
 

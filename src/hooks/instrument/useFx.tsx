@@ -1,4 +1,4 @@
-import { useEffect, useCallback, MutableRefObject, useRef } from 'react';
+import { useEffect, MutableRefObject, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
     propertiesToArray, 
@@ -29,7 +29,7 @@ export const useFx = (
     const { isPlay, prev_isPlay, ref_isPlay} = useIsPlaySelector();
     const fxCount = useSelector(fxCountSelector(trackIndex));
 
-    const effectCallback = (time: number, value: any) => {
+    const effectCallback = useCallback((time: number, value: any) => {
 
         const eventProperties = propertiesToArray(value).concat(propertiesToArray(ref_lockedParameters.current));
 
@@ -53,7 +53,7 @@ export const useFx = (
             }
         });
 
-    } 
+    }, []);
 
     useEffect(() => {
         if (ref_toneObjects.current){
@@ -62,7 +62,7 @@ export const useFx = (
             }
             ref_toneObjects.current.flagObjects[trackIndex].effects[fxIndex].callback = effectCallback;
         }
-    }, [fxCount, trackIndex])
+    }, [fxCount, trackIndex, effectCallback, fxIndex, ref_toneObjects])
 
     // reset locked property values after stopping playback
     useEffect(() => {

@@ -69,7 +69,6 @@ export default class DrumRack {
         const id = DrumRack.checkNote(note)
         if (id || id === 0) {
             const value = !Number.isNaN(Number(pitch)) ? Number(pitch) : 0;
-            // this.obj[id].triggerAttackRelease(numberToNote(60 + value), duration, time, velocity)
             this.obj[id].triggerAttackRelease('C3', duration, time, velocity)
         }
     };

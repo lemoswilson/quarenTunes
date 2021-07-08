@@ -7,6 +7,7 @@ import axios, { AxiosResponse } from 'axios';
 import styles from './style.module.scss';
 import Logo from '../Logo';
 import { Link, NavLink } from 'react-router-dom';
+import { isMobileOnly, isMobile } from 'react-device-detect';
 
 interface googleLogin {
     onClick: () => void,
@@ -80,9 +81,9 @@ const Recover: React.FC<userProps> = ({
         <Div100vh className={styles.home}>
             <nav className={styles.nav}>
                 <div className={styles.logo}>
-                    <Logo className={styles.xolombrisx} />
+                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
                 </div>
-                <div className={styles.links}>
+                <div style={isMobileOnly ? {display: 'none'} : {}} className={styles.links}>
                     <div className={styles.navBox}> 
                         <div className={`${ styles.text }`}>
                             <NavLink 
@@ -107,14 +108,20 @@ const Recover: React.FC<userProps> = ({
                 <form className={styles.overlay}>
                     <div className={styles.join}> Reset your password </div>
                     <div onClick={select} className={styles.radio}>
-                        <input onChange={() => {}} type={'radio'} id={'username'} name={'username'} value={'username'} checked={option === 'username'}/>
-                        <label htmlFor={'username'}>Username</label>
 
-                        <input onChange={() => {}} className={styles.email} type={'radio'} id={'email'} name={'email'} value={'email'} checked={option === 'email'}/>
-                        <label htmlFor={'email'}>Email</label>
+                        <div className={styles.option}>
+                            <input onChange={() => {}} type={'radio'} id={'username'} name={'username'} value={'username'} checked={option === 'username'}/>
+                            <label htmlFor={'username'}>Username</label>
+                        </div>
+
+                        <div className={styles.option}>
+                            <input onChange={() => {}} className={styles.email} type={'radio'} id={'email'} name={'email'} value={'email'} checked={option === 'email'}/>
+                            <label htmlFor={'email'}>Email</label>
+                        </div>
+
                     </div>
                     <div className={styles.field}>
-                        <input ref={field} placeholder={option === 'username' ? 'Username' : 'Email'} type={ option === 'username' ? 'text' : 'email'}/>
+                        <input ref={field} type={ option === 'username' ? 'text' : 'email'}/>
                     </div>
                     
                     <button onClick={(e) => onSubmit(e)} className={styles.login}>Recover Password</button>

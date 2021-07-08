@@ -207,6 +207,7 @@ export enum trackActions {
 	SELECT_INSTRUMENT = "SELECT_INSTRUMENT",
 	SELECT_MIDI_DEVICE = "SELECT_MIDI_DEVICE",
 	SELECT_MIDI_CHANNEL = "SELECT_MIDI_CHANNEL",
+	RESET_DEVICE = "RESET_DEVICE",
 	ADD_EFFECT = "INSERT_EFFECT",
 	DELETE_EFFECT = "DELETE_EFFECT",
 	CHANGE_EFFECT = "CHANGE_EFFECT",
@@ -222,6 +223,14 @@ export enum trackActions {
 	SET_OPTION_ARRAY = "SET_OPTION_ARRAY",
 	SET_TRACK = "SET_TRACK",
 	SET_NAME = "SET_NAME"
+}
+
+export interface resetDeviceAction {
+	type: trackActions.RESET_DEVICE,
+	payload: {
+		trackIndex: number,
+		fxIndex?: number,
+	}
 }
 
 export interface setOptionArrayAction {
@@ -336,6 +345,7 @@ export type generalEffectOptions = RecursivePartial<
 	PitchShiftOptions |
 	BitCrusherOptions |
 	DistortionOptions>
+
 
 export interface increaseDecreaseInstrumentPropertyAction {
 	type: trackActions.INC_DEC_INST_PROP,
@@ -461,4 +471,5 @@ export type trackActionTypes =
 	| setTrackAction
 	| setNameAction
 	| setOptionArrayAction
+	| resetDeviceAction
 	| changeEffectIndexAction;

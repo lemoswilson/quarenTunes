@@ -214,6 +214,15 @@ export function trackReducer(
 					draft.tracks[a.payload.trackIndex].fx[a.payload.fxIndex].options = a.payload.options;
 				}
 				break;
+			case trackActions.RESET_DEVICE:
+				if (!Number.isNaN(Number(a.payload.fxIndex))) {
+					draft.tracks[a.payload.trackIndex].fx[Number(a.payload.fxIndex)].options = getEffectsInitials(draft.tracks[a.payload.trackIndex].fx[Number(a.payload.fxIndex)].fx);
+					draft.tracks[a.payload.trackIndex].fx[Number(a.payload.fxIndex)].name = 'init';
+				} else {
+					draft.tracks[a.payload.trackIndex].options = getInitials(draft.tracks[a.payload.trackIndex].instrument);
+					draft.tracks[a.payload.trackIndex].name = 'init';
+				}
+				break;
 		}
 	});
 }

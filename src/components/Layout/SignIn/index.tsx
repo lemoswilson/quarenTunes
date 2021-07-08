@@ -2,13 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
 import Div100vh from 'react-div-100vh';
+import { isMobile, isMobileOnly } from 'react-device-detect';
 import { useHistory } from 'react-router'
 import { userProps } from '../../../App';
 import styles from './style.module.scss';
+import google from '../../../assets/google.svg';
 
 import axios from 'axios';
 
 import Logo from '../Logo';
+import { propertiesToArray } from '../../../lib/objectDecompose';
 
 const SignIn: React.FC<userProps> = ({
     errorMessage,
@@ -109,9 +112,9 @@ const SignIn: React.FC<userProps> = ({
         <Div100vh className={styles.home}>
         <nav className={styles.nav}>
             <div className={styles.logo}>
-                <Logo className={styles.xolombrisx} />
+                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
             </div>
-            <div className={styles.links}>
+            <div style={isMobileOnly ? {display: 'none'} : {}} className={styles.links}>
                 <div className={styles.navBox}> 
                     <div className={`${ styles.text }`}>
                          <NavLink 
@@ -136,31 +139,40 @@ const SignIn: React.FC<userProps> = ({
         <main className={styles.signUp}>
             <form className={styles.overlay}>
 
-                <div className={styles.join}> Log in  </div>
+                <div className={styles.join}> Sign in to Xolombrisx  </div>
 
                 <div className={styles.field}>
                     <h3>Username</h3>
-                    <input ref={username} autoComplete={'username'} placeholder={'Username'} type={'text'}></input>
+                    <input ref={username} autoComplete={'username'} type={'text'}></input>
                 </div>
 
                 <div className={styles.field} style={{marginTop: '1.6rem'}}>
                     <h3>Password</h3>
-                    <input ref={password} autoComplete={'current-password'} placeholder={'Password'} type={'password'}></input>
+                    <input ref={password} autoComplete={'current-password'} type={'password'}></input>
                 </div>
 
-                <p className={styles.forgot}> Forgot your password? reset it <Link onClick={() => { updateUser({errorMessage: '', isAuthenticated, token})}} to={'/recover'}>here</Link></p>
+                <p className={styles.forgot}> Forgot your password? reset it <Link onClick={() => { updateUser({errorMessage: '', isAuthenticated, token})}} to={'/recover'}><u>here</u></Link></p>
 
                 <button onClick={(e) => onSubmit(e)} className={styles.login}>Login</button>
-                <div className={styles.division}></div>
+                {/* <div className={styles.division}></div> */}
 
-                <p className={styles.or}> or authenticate with </p>
+                <div className={styles.google}>
+                    <p className={styles.or}> or authenticate with </p>
 
-                <GoogleLogin
-                    clientId={'860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com'}
-                    buttonText='Google'
-                    onSuccess={responseGoogle}
-                    onFailure={() => {}}
-                ></GoogleLogin>
+                    <GoogleLogin
+                        clientId={'860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com'}
+                        buttonText='Google'
+                        render={renderProps => (
+                            <button disabled={renderProps.disabled} onClick={renderProps.onClick} className={styles.googlota}>
+                                <img src={google} width={'30rem'} height={'30rem'} />
+                            </button>
+                        )}
+                        onSuccess={responseGoogle}
+                        onFailure={() => {}}
+                    ></GoogleLogin>
+
+                </div>
+
 
                 <div className={styles.errorMessage}>{ errorMessage && errorMessage.length > 0 ? errorMessage : ''}</div>
                 

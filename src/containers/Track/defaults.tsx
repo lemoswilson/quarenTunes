@@ -26,8 +26,6 @@ export enum curveTypes {
     LINEAR = 'linear',
 };
 
-
-
 const noiseTypeIndicator = indicators.STEPPED_KNOB;
 const attackNoiseIndicator = indicators.KNOB // exponential 
 const volumeIndicator = indicators.VERTICAL_SLIDER; // exponential 
@@ -47,8 +45,8 @@ export const portamentoUnit = 's';
 export const harmonicityUnit = '';
 export const envelopeUnit = 's';
 export const normalUnit = '';
-const audioRangeUnit = '';
 export const modulationUnit = '';
+const audioRangeUnit = '';
 const membraneSynthOctaveRangeUnit = '';
 const metalSynthOctaveRangeUnit = '';
 const dampeningUnit = 'hz';
@@ -77,15 +75,8 @@ const envelopeCurveOptions = [curveTypes.LINEAR, curveTypes.EXPONENTIAL];
 
 // data that will be used to generate the indicators/selectors
 // that will lay in the state of each track.
+
 // envelopes
-
-// const envelopeCreator = (time: number) => {
-//     return [time, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL]
-// }
-
-// const curveCreator = (type: 'exponential' | 'linear') => {
-//     return [, envelopeCurveOptions, envelopeCurveIndicator]
-// } 
 
 const envelope = {
     attack: [0.01, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],

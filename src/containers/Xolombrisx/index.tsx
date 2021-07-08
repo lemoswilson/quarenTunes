@@ -1,7 +1,7 @@
 import React, { useRef, MutableRefObject, useState, useEffect } from "react";
 import { Provider } from "react-redux";
 import { combineReducers, createStore, compose } from "redux";
-import undoable, { newHistory, includeAction } from 'redux-undo';
+import undoable, { newHistory, includeAction, excludeAction } from 'redux-undo';
 
 import { trackActions } from '../../store/Track'
 import { useLocation } from 'react-router-dom';
@@ -35,21 +35,29 @@ const transportHistory = newHistory([], TrsState, [])
 
 export const rootReducer = combineReducers({
     track: undoable(trackReducer, {
-        filter: includeAction([
+        filter: excludeAction([
             trackActions.SELECT_MIDI_CHANNEL,
             trackActions.SELECT_MIDI_DEVICE,
             trackActions.SELECT_INSTRUMENT,
             trackActions.ADD_INSTRUMENT,
+            trackActions.INC_DEC_EFFECT_PROP,
+            trackActions.INC_DEC_INST_PROP,
             trackActions.DELETE_EFFECT,
             trackActions.ADD_EFFECT,
             trackActions.REMOVE_INSTRUMENT,
         ])
     }),
     sequencer: undoable(sequencerReducer, {
-        filter: includeAction([
+        filter: excludeAction([
             sequencerActions.ADD_EFFECT_SEQUENCER,
             sequencerActions.ADD_INSTRUMENT_TO_SEQUENCER,
             sequencerActions.CHANGE_PAGE,
+            sequencerActions.SELECT_STEP,
+            sequencerActions.INC_DEC_OFFSET,
+            sequencerActions.INC_DEC_PAT_LENGTH,
+            sequencerActions.INC_DEC_PT_VELOCITY,
+            sequencerActions.INC_DEC_TRACK_LENGTH,
+            sequencerActions.INC_DEC_VELOCITY,
             sequencerActions.CHANGE_TRACK_LENGTH,
             sequencerActions.CHANGE_PATTERN_LENGTH,
             sequencerActions.REMOVE_EFFECT_SEQUENCER,
@@ -58,7 +66,7 @@ export const rootReducer = combineReducers({
         ])
     }),
     transport: undoable(transportReducer, {
-        filter: includeAction([transportActions.RECORD, transportActions.START, transportActions.STOP])
+        filter: excludeAction([transportActions.RECORD, transportActions.START, transportActions.STOP])
     }),
     midi: midiInputReducer,
 });
@@ -98,8 +106,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     const [firstRender, setRender] = useState(true);
     const [name, setName] = useState('');
 
-    const [saveModal, setSaveModal] = useState(false);
-    const saveInput = useRef<HTMLInputElement | null>(null);
+    // const [saveModal, setSaveModal] = useState(false);
+    // const saveInput = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         if (state?.incomeName)
