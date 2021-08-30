@@ -8,10 +8,6 @@ import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
 interface Dropdown {
     select: (key: string) => void;
     onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
-    // onChange?: (event: ChangeEvent) => void,
-    // textValue?: string,
-    // textValue?: MutableRefObject<string>,
-    // ref_temp?: MutableRefObject<string>,
     keyValue?: string[][];
     dontDrop?: boolean;
     selected: string;
@@ -84,9 +80,8 @@ const Dropdown: React.FC<Dropdown> = ({
     small,
     dropdownId
 }) => {
-    const [Open, toggleState] = useState(false);
+    const [Open, setState] = useState(false);
     const [off, setOff] = useState(false);
-    const [renderCount, increaseCounter] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null);
     const name = keyValue?.filter(([key, value], idx, _) => key === selected)[1];
     const ref_save = useQuickRef(save);
@@ -106,16 +101,12 @@ const Dropdown: React.FC<Dropdown> = ({
         : '';
 
     const openClose = () => {
-        if (renderCount === 0) {
-            increaseCounter(1);
-        }
-
         if (!Open) {
             if (save)
                 save.fetchList();
             
             dropdownEmitter.emit(dropdownEventTypes.ESCAPE, {})
-            dropdownEmitter.emit(dropdownEventTypes.OPEN, { id: dropdownId, openClose: () => { toggleState(state => !state) } })
+            dropdownEmitter.emit(dropdownEventTypes.OPEN, { id: dropdownId, openClose: () => { setState(state => !state) } })
         } else {
             setOff(true)
             setTimeout(() => {
@@ -124,7 +115,7 @@ const Dropdown: React.FC<Dropdown> = ({
             dropdownEmitter.emit(dropdownEventTypes.REMOVE, { id: dropdownId })
         }
 
-        toggleState(!Open)
+        setState(!Open)
 
     }
 

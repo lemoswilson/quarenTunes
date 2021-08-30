@@ -1,7 +1,5 @@
 import React, { useState, useEffect, WheelEvent, useContext, MutableRefObject, MouseEvent as ME, FormEvent, useRef } from 'react';
 import { curveTypes } from '../../../containers/Track/defaults';
-import { propertiesToArray } from '../../../lib/objectDecompose';
-// import styles from './knob.module.scss';
 import Knob from './Knob';
 import Slider from './Slider';
 import appContext from '../../../context/AppContext';
@@ -90,7 +88,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     const [isInputOpen, setInput] = useState(false)
     const [menuCoordinates, setCoordinates] = useState({left: 0, top:0})
     const menuContext = useContext(MenuContext);
-    const indicatorRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
     let shouldRemove = false;
 
     const toggleMenu = () => {
@@ -106,7 +103,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
     };
 
     const learn = () => {
-        // toggleMenu();
         MenuEmitter.emit(menuEmitterEventTypes.CLOSE, {})
         midiLearn();
     }
@@ -118,7 +114,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
             ccMap 
             ? `Unmap from CC ${ccMap.cc}` 
             : 'Map to CC', learn
-            // : 'Map to CC', learn
         ]
     ]
 
@@ -229,7 +224,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
 
     const wheelMove = (e: WheelEvent) => {
         e.persist();
-        // e.preventDefault();
         const k = {
             movementY: e.deltaY <= 7 && e.deltaY >= -7
                 ? e.deltaY
@@ -269,6 +263,7 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
                 : curve === curveTypes.LINEAR || !curve
                     ? rotate(140 * (value - (mid)) / mid)
                     : rotate(280 * ((Math.log(value / min) / Math.log(max / min)) - 0.5));
+
     const heightPercentage = value === "*" ? '40%' : `${(86 / (max - min)) * value + 3}%`
 
     const indicator = type === 'knob' 
@@ -278,8 +273,6 @@ const ContinuousIndicator: React.FC<continuousIndicator> = ({
         indicatorData={
             detail === 'detune'
                 ? rotate((Number(value) / max) * 140)
-                // ? rotate((Number(value) / 1200) * 140)
-                // ? rotate((Number(value) / 16) * 140)
                 : rotateBy}
         label={label}
         tabIndex={tabIndex}

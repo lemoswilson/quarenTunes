@@ -21,6 +21,8 @@ import { userProps } from '../../App';
 import Layout, { LayoutState } from '../../components/Layout';
 import { useVerify } from "../../hooks/fetch/useFetch";
 
+
+
 declare global {
     interface Window {
         __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
@@ -106,8 +108,7 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
     const [firstRender, setRender] = useState(true);
     const [name, setName] = useState('');
 
-    // const [saveModal, setSaveModal] = useState(false);
-    // const saveInput = useRef<HTMLInputElement | null>(null);
+    useVerify({errorMessage, isAuthenticated, token}, updateUser, undefined, false);
 
     useEffect(() => {
         if (state?.incomeName)
@@ -116,7 +117,9 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
         setRender(false)
     }, [])
 
-    useVerify({errorMessage, isAuthenticated, token}, updateUser);
+    // useVerify({errorMessage, isAuthenticated, token}, updateUser);
+
+     
 
     return (
         <React.Fragment>
@@ -128,6 +131,8 @@ const Xolombrisx: React.FC<XolombrisxProps> = ({
                                         <Provider store={store}>
                                         {  !firstRender
                                             ? <Layout
+                                                isAuthenticated={isAuthenticated}
+                                                token={token}
                                                 appRef={appRef}
                                                 sequencer={state?.sequencer}
                                                 track={state?.track}

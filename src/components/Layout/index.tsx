@@ -8,8 +8,10 @@ import React, {
     useLayoutEffect
 } from 'react';
 import { useSelector } from 'react-redux';
+import useSidebar, { pagesInfo } from '../../hooks/components/useSidebar';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import styles from './style.module.scss';
+import mobileStyles from './mobile.module.scss';
 
 import { Sequencer as SequencerType } from '../../store/Sequencer';
 import { Track as TrackType } from '../../store/Track';
@@ -22,6 +24,7 @@ import TrackComponent from '../../containers/Track';
 import SequencerComponent from '../../containers/Sequencer';
 import Transport from '../../containers/Transport';
 import Save from '../UI/Save';
+import Logo from './Logo';
 
 import * as Tone from 'tone';
 
@@ -43,6 +46,8 @@ import { sequencerSelector } from '../../store/Sequencer/selectors';
 import { userData } from '../../App';
 import X from '../UI/X';
 import { serializeSequencer } from '../../lib/utility';
+import Burger from '../UI/Burger';
+import { isChrome, isMobile, isMobileOnly, isTablet } from 'react-device-detect';
 
 type ToneType = typeof Tone;
 
@@ -66,6 +71,8 @@ export interface LayoutState {
     sequencer?: SequencerType,
     track?: TrackType,
     incomeName?: string,
+    isAuthenticated: boolean,
+    token: string | null,
     updateUser: (value: React.SetStateAction<userData>) => void,
     signOut: () => void,
 }
@@ -79,9 +86,11 @@ const Layout: React.FC <LayoutProps> = ({
     appRef,
     incomeName,
     sequencer,
+    track,
+    isAuthenticated,
+    token,
     updateUser,
     signOut,
-    track
 }) => {
     const [firstRender, setRender] = useState(true);
     const ref_toneObjects = useContext(ToneObjects);
@@ -255,12 +264,22 @@ const Layout: React.FC <LayoutProps> = ({
         }
     }, [])
 
-    return (
+    const { Sidebar, sidebarClass, toggleSidebar, closeSidebar} = useSidebar();
+
+    const pages: pagesInfo = {
+        home: {
+            text: 'Home',
+            path: '/'
+        }
+    }
+
+    const message = 'Your browser/device is not optimized for the application, please reopen the app on Chrome Desktop.';
+
+    const DesktopApp = (
         <Div100vh className={styles.app}>
-        <ModalContext.Provider value={saveModal}>
+            <ModalContext.Provider value={saveModal}>
             {
                 !firstRender
-                // ? <div onKeyDown={(e) => {if (e.key.toLocaleLowerCase() === 'escape') closeSave()}} onClick={closeSave} ref={appRef} className={styles.wrapson}>
                 ? <div ref={appRef} className={styles.wrapson}>
                     <div className={styles.content}>
                         <div className={styles.top}>
@@ -328,9 +347,76 @@ const Layout: React.FC <LayoutProps> = ({
                 </form>
                 : null
             }
-        </ModalContext.Provider>
-    </Div100vh>
+            </ModalContext.Provider>
+        </Div100vh>
     )
+    
+    const DesktopTabletNotCompatible = (
+        <Div100vh className={styles.app}>
+                 <div ref={appRef} className={styles.wrapson}>
+                    <div className={`${ styles.content } ${styles.ctHeight}`}>
+                        <div className={styles.top}>
+                            <div className=""></div>
+                            {/* <div className={styles.transport}> */}
+                            <div></div>
+                            <nav className={`${ styles.links } ${styles.lmar}`}>
+                                    <div className={styles.navBox}>
+                                        <div onClick={userData.isAuthenticated ? signOut : () => {}} className={styles.text}>
+                                            <span className={styles.ss}>{
+                                                !userData.isAuthenticated
+                                                ? <Link to={'login'}> Sign In</Link>
+                                                : 'Sign Out'
+                                            }</span>
+                                        </div>
+                                    </div>
+                                    <div style={userData.isAuthenticated ? {display: 'none'} : {}} className={styles.navBox}>
+                                        <div className={styles.text}>
+                                            <span className={styles.ss}>
+                                                 <Link to={'/signup'}> Sign Up</Link>
+                                            </span>
+                                        </div>
+                                    </div>
+                            </nav>
+                        </div>
+                        <div className={styles.gap}></div>
+                        <div className={styles.noApp}>
+                            <h1>{ message }</h1>
+                        </div>
+                    </div>
+                </div>
+        </Div100vh>
+    )
+
+
+    const Mobile = (
+        <Div100vh className={mobileStyles.home}>
+		<Sidebar openClose={toggleSidebar} pages={pages} className={sidebarClass} />            
+
+		<nav className={mobileStyles.nav}>
+			<div className={mobileStyles.logo}>
+				<Logo className={mobileStyles.xolombrisx} style={{width: '3vmax', height: '3vmax', marginTop: '1.5vmax', marginLeft: '1.5vmax'}} />
+			</div>
+
+			<Burger onClick={toggleSidebar}/>                
+
+		</nav>
+		<main className={mobileStyles.signUp}>
+            { message }
+		</main>
+	</Div100vh>
+
+    )
+
+    return (
+        !isMobile && isChrome      
+        ? DesktopApp
+        : (!isMobile && !isChrome) || isTablet
+        ? DesktopTabletNotCompatible
+        : isMobileOnly
+        ? Mobile
+        : null
+    )
+
 }
 
 export default Layout;

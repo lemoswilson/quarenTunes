@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, NavLink  } from 'react-router-dom';
+import useSidebar, { pagesInfo } from '../../../hooks/components/useSidebar';
 import Div100vh from 'react-div-100vh';
+import { isMobile, isMobileOnly, isSafari } from 'react-device-detect';
 
 import { useHistory } from 'react-router'
 import { userProps } from '../../../App';
@@ -8,6 +10,7 @@ import { userProps } from '../../../App';
 import styles from './reset.module.scss';
 import Logo from '../Logo';
 import axios from 'axios';
+
 
 const ResetPassword: React.FC<userProps> = ({
     errorMessage,
@@ -22,6 +25,7 @@ const ResetPassword: React.FC<userProps> = ({
     const confirmPassword = useRef<HTMLInputElement>(null);
     const [user, setUser] = useState<{[key: string]: string}>({})
     const [message, setMessage] = useState<string>('')
+    const { Sidebar, sidebarClass, toggleSidebar, closeSidebar} = useSidebar();
 
     useEffect(() => {
         if (isAuthenticated){
@@ -102,13 +106,35 @@ const ResetPassword: React.FC<userProps> = ({
         }
     }
 
+    const pages: pagesInfo = {
+        music: {
+            text: 'Make Music',
+            path: '/app',
+        },
+        signUp: {
+            text: 'Sign Up',
+            path: '/signup'
+        },
+        signIn: {
+            text: 'Sign In',
+            path: '/login'
+        },
+        home: {
+            text: 'Home',
+            path: '/'
+        }
+    }
+
     return (
         <Div100vh className={styles.home}>
+
+            <Sidebar openClose={toggleSidebar} pages={pages} className={sidebarClass} style={!isMobileOnly ? {display: 'none'} : {}} />            
+
             <nav className={styles.nav}>
                 <div className={styles.logo}>
-                    <Logo className={styles.xolombrisx} />
+                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '3vmax', height: '3vmax', marginTop: '1.5vmax', marginLeft: '1.5vmax'} : isMobile ? {width: '3rem', height: '3rem'} : isSafari ? {width: '2rem', height: '2rem', marginLeft: '1rem', marginTop: '1rem;'} : {}} />
                 </div>
-                <div className={styles.links}>
+                <div style={isMobileOnly ? {display: 'none'} : {}} className={styles.links}>
                     <div className={styles.navBox}> 
                         <div className={`${ styles.text }`}>
                             <NavLink 
@@ -137,17 +163,17 @@ const ResetPassword: React.FC<userProps> = ({
                 </div>
             </nav>
             <main className={styles.reset}>
-                <form className={styles.overlay}>
+                <form onClick={closeSidebar} className={styles.overlay}>
                     <div className={styles.join}> Reset your password </div>
 
                     <div className={`${ styles.field }`}>
                         <h3>Password</h3>
-                        <input ref={password} placeholder={'password'} type={'password'}/>
+                        <input ref={password} type={'password'}/>
                     </div>
 
                     <div className={`${ styles.field } ${styles.downer}`}>
                         <h3>Confirm Password</h3>
-                        <input ref={confirmPassword} placeholder={'confirm password'} type={'password'}/>
+                        <input ref={confirmPassword} type={'password'}/>
                     </div>
 
                     <button onClick={(e) => onSubmit(e)} className={styles.login}>Reset Password</button>

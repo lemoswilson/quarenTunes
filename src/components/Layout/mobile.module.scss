@@ -1,0 +1,171 @@
+@import '../../style/variables';
+
+html {
+
+    @media screen and (-webkit-min-device-pixel-ratio:0) { 
+        select:focus,
+        textarea:focus,
+        input:focus {
+          font-size: 16px;
+          background: #eee;
+        }
+    }
+
+    .home {
+        position: relative;
+        @include homeBackground;
+    
+        .nav {
+            @include navStyle;
+    
+            .logo {
+                @include logo;
+                
+                .xolombrisx {
+                    @include logoStyle;
+                }
+            }
+    
+            .links {
+                @include links;
+                grid-template-columns: 50% 50%;
+    
+    
+                .navBox {
+                    @include navBox;
+    
+                    .text {
+                        @include navText;
+                    }
+    
+                    .activeLink {
+                        @include activeLinkStyle;
+    
+                    }
+                }
+            }
+        }
+    
+        .signUp {
+            @include mainStyle;
+    
+            .overlay {
+                @include overlayStyle;
+    
+                .join {
+                    @include titleStyle;
+                }
+    
+                .field {
+                    @include fieldStyle;
+    
+                }
+    
+                .forgot {
+                    @include forgotStyle;
+                }
+                    
+                .google {
+                    @include googleStyle;
+                    border-radius: 0.7rem;    
+                }
+    
+    
+                .login {
+                    @include submitButton;
+                }
+    
+                .errorMessage {
+                    @include errorStyle;
+                }
+    
+            }
+        }
+    }
+
+
+    // @media screen and (min-width: 1366px) {
+    //     // iPad PRO, HD ready and FullHD 
+    //     // here things will be relative to width of the viewport 
+    //     // height is also gonna be relative to width of viewport 
+    //     font-size: 1vw;
+
+    // }
+
+    // // @media screen and (max-width: 1920px) and (min-width: 1724px){
+    // @media screen and (min-width: 1724px){
+    //     // here things are gonna be relative to em (fixed font-size to keep ratio)
+    //     font-size: 17.4737px ;
+    // }
+
+    // @media screen and (min-width: 1024px) and (max-width: 1365px) {
+    //     // most android tablets and ipads in landscape mode, older desktop/laptop monitors;
+    //     font-size: 1vw;
+
+    //     .content {
+    //         width: 98rem;
+    //         height: 53rem;
+    //         // border: 1px solid black;
+    //     }
+    // }
+
+    // @media screen and (min-width: 768px) and (max-width: 1023px) {
+    //     // most android tablets and iPads in portrait mode (if orientation portrait force landscape?
+    // }
+
+    // @media screen and (max-width: 420px) {
+    @media screen and (max-width: 767px) {
+    
+            .home {
+                height: auto;
+                overflow-x: hidden;
+    
+                .nav {
+                    height: 7vh;
+                    justify-content: space-between;
+    
+                    .burger {
+                        width: 10rem;
+                        height: 10rem;
+                        margin-bottom: 2rem;
+                        margin-right: 1rem;
+                    }
+                }
+    
+                .signUp {
+					margin-top: 30vh;
+					width: 95%;
+					display: flex;
+					@include center;
+					font-size: 4rem;
+					text-align: center;
+					font-family: $jost;
+					color: #FFFFFF;
+					text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+                }
+            }
+            
+        }
+
+    @media screen and (min-width: 421px) and (max-width: 767px) {
+        // most smartphones in landscape mode
+        .home {
+            height: auto;
+            overflow-x: hidden;
+
+            .nav {
+                height: 10vh;
+
+            }
+
+            .signUp {
+				width: 90%;
+				align-self: center;
+				font-size: 7rem;
+            }
+        } 
+    }
+
+
+}
+

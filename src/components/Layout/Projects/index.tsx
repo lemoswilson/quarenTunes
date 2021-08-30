@@ -41,7 +41,7 @@ const Projects: React.FC<userProps> = ({
         })
     }
 
-    useVerify({errorMessage, isAuthenticated, token}, updateUser)
+    useVerify({errorMessage, isAuthenticated, token}, updateUser, undefined, true)
 
     // if projct in state, send to app 
     useEffect(() => {

@@ -14,6 +14,7 @@ export const useVerify = (
     user: userData,
     updateUser: React.Dispatch<React.SetStateAction<userData>>,
     setProjects?: boolean,
+    pushHome?: boolean,
 ) => {
     
     const history = useHistory();
@@ -50,15 +51,29 @@ export const useVerify = (
 					isAuthenticated: false,
 					token: '',
 				})
-                history.push('/')
+                if (pushHome)
+                    history.push('/')
 			});
 
 
 		}
 	}, [])
-
-
 };
+
+export function useSignOut(
+    updateUser: React.Dispatch<React.SetStateAction<userData>>,
+){
+    function signOut(){
+        localStorage.removeItem('xolombrisJWT')
+        updateUser({
+            errorMessage: '',
+            isAuthenticated: false, 
+            token: '',
+        })
+    }
+
+    return signOut
+}
 
 const useFetchProjects = (
     token: string,

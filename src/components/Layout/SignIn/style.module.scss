@@ -12,86 +12,34 @@ html {
     }
 
     .home {
-        background-color: #FF9A8B;
-        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
-        background : radial-gradient(50% 50%, circle closest-side, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
-        filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
-    
-        display: flex;
-        flex-direction: column;
+        position: relative;
+        @include homeBackground;
     
         .nav {
-            height: 7%;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: flex-end;
+            @include navStyle;
     
             .logo {
-                width: 73%;
-                height: 110%;
+                @include logo;
                 
                 .xolombrisx {
-                    width: 10%;
-                    height: 40%;
-                    margin-top: 1rem;
+                    @include logoStyle;
                 }
             }
     
             .links {
-                width: 27%;
-                height: 100%;
-    
-                display: grid;
+                @include links;
                 grid-template-columns: 50% 50%;
     
     
                 .navBox {
-                    position: relative;
-                    display: flex; 
-                    @include center;
-                    text-align: center;
-                    vertical-align: middle;
-                    line-height: 1.1rem;
-                    font-family: $jost;
-                    font-weight: 400;
-                    font-size: 1.2rem;
-                    color: white;
+                    @include navBox;
     
                     .text {
-                        display: flex;
-                        flex-direction: row;
-                        &:hover {
-                            cursor: pointer;
-                        }
-    
-                        .ss {
-                            border-bottom: 0.5px solid white; 
-                        }
-    
-                        .bs {
-                            color: #6d6d6d;
-                            border-bottom: 0.5px solid rgb(105, 105, 105);
-                        }
-                    }
-    
-                    .polygon {
-                        width: 1.2rem;
-                        height: 1.2rem; 
-                        margin-left: 0.2rem;
-                        .polygonColor {
-                            fill: white;
-                        }
-                    }
-    
-                    .active {
-                        transform: rotate(-90deg)
+                        @include navText;
                     }
     
                     .activeLink {
-                        color: #6d6d6d;
-                        text-decoration: none;
-                        border-bottom: 0.5px solid rgb(105, 105, 105);
+                        @include activeLinkStyle;
     
                     }
                 }
@@ -99,161 +47,36 @@ html {
         }
     
         .signUp {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 93%;
-            width: 100%;
+            @include mainStyle;
     
             .overlay {
-                margin-top: 8rem;
-                width: 30rem;
-                height: 37rem;
-                background-color: #FF9A8B;
-                background-image: linear-gradient(45deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
-                border-radius: 1rem;
-                box-shadow: 0.2rem 0.2rem 0.2rem rgba($color: #6b6b6b, $alpha: 1.0);
-    
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: center;
-    
+                @include overlayStyle;
     
                 .join {
-                    margin-top: 1rem;
-                    // font-family: $PTSans;
-                    color: white;
-                    font-family: $jost;
-                    color: #FFFFFF;
-                    text-shadow: 0 2px 4px rgba(105,105,105,0.50);
-                    font-size: 2rem;
-                }
-    
-                .cacc {
-                    font-family: $jost;
-                    font-size: 1.3rem;
-                    color: #633939;
+                    @include titleStyle;
                 }
     
                 .field {
-                    margin-left: 3rem;
-                    align-self: flex-start;
-                    display: flex;
-                    flex-direction: column;
-                    width: 27em;
-                    height: 3rem;
-                    
-                    h3 {
-                        color: white;
-                        font-size: 1rem;
-                        margin: 0;
-                        margin-top: 2rem;
-                        // font-family: Jost-Medium;
-                        // font-size: 24px;
-                        // line-height: 71px;
-                        font-family: $jost;
-                        color: #FFFFFF;
-                        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
-                    }
-    
-                    input {
-                        width: 25rem;
-                        height: 1.7rem;
-                        font-size: 0.9rem;
-                        text-align: start;
-                        font-family: $jost;
-                        border: 1px solid $light;
-                        background-color: #e6e6e6;
-                        border-radius: 0.4rem;
-                        color:rgb(105, 105, 105);
-                        background: rgba(216,216,216,0.41);
-                        box-shadow: 0 2px 4px 0 rgba(146,136,136,0.50);
-                        border: none;
-                    }
+                    @include fieldStyle;
     
                 }
     
                 .forgot {
-                    margin-top: 3rem;
-                    font: $jost;
-                    // color: #633939;
-                    color: $white;
-                    font-weight: 500;
-                    font-family: $jost;
-                    color: #FFFFFF;
-                    text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+                    @include forgotStyle;
                 }
                     
-                .p {
-                    margin-top: 2.8rem;
-                    font-family: $jost;
-                    color: #633939;
-                }
-    
                 .google {
-                    margin-top: 4rem;
-                    display: flex;
-                    flex-direction: row;
-    
-                    .googlota {
-                        margin-left: 0.6rem;
-                        display: flex;
-                        @include center;
-                        border: none;
-                        background: none;
-                        cursor: pointer;
-                    }
-    
-                    .or {
-                        margin-top: 1rem;
-                        font-family: $jost;
-                        color: #FFFFFF;
-                        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
-                    }
-    
+                    @include googleStyle;
+                    border-radius: 0.7rem;    
                 }
     
     
                 .login {
-                    background: none;
-                    color: inherit;
-                    border: none;
-                    padding: 0;
-                    font: inherit;
-                    cursor: pointer;
-                    outline: inherit;
-                    font-family: $jost;
-    
-                    margin-top: 1.5rem;
-                    border-radius: 1rem;
-                    height: 1.5rem;
-                    width: 7rem;
-                    color: $white;
-    
-                    background: rgba(253, 253, 253, 0.7);
-                    box-shadow: 0 2px 4px 0 rgba(173, 132, 132, 0.5);
-                    font-family: $jost;
-                    color: #868686;
-                    text-shadow: 0 2px 4px rgba(105,105,105,0.50);
-                }
-    
-                .division {
-                    margin-top: 2rem;
-                    width: 80%;
-                    height: 0;
-                    border: 1px solid rgb(105, 68, 68);
-                }
-    
-                .google {
-                    border-radius: 0.7rem;
+                    @include submitButton;
                 }
     
                 .errorMessage {
-                    margin-top: 1rem;
-                    font: $jost;
-                    color: $white;
+                    @include errorStyle;
                 }
     
             }
@@ -291,87 +114,164 @@ html {
     //     // most android tablets and iPads in portrait mode (if orientation portrait force landscape?
     // }
 
+    // @media screen and (max-width: 420px) {
+    @media screen and (max-width: 767px) {
+    
+            .home {
+                height: auto;
+                overflow-x: hidden;
+    
+                .nav {
+                    height: 7vh;
+                    justify-content: space-between;
+    
+                    .burger {
+                        width: 10rem;
+                        height: 10rem;
+                        margin-bottom: 2rem;
+                        margin-right: 1rem;
+                    }
+                }
+    
+                .signUp {
+                    .overlay {
+                        background: 'none';
+                        background-color: transparent;
+                        background-image: none;
+                        box-shadow: none;
+                        width: 100vw;
+                        height: 80vh;
+    
+                        .join {
+                            font-size: 4vmax;
+                        }
+    
+                        .field {
+                            margin: 0;
+                            margin-top: 10rem;
+                            width: 100vw;
+                            height: 10vh;
+                            display: flex; 
+                            flex-direction: column;
+                            @include center;
+    
+                            h3 {
+                                font-size: 16px;
+                            }
+    
+                            input {
+                                width: 65vw;
+                                height: 4vh;
+                                border-radius: 3rem;
+                                font-size: 16px;
+                                text-align: center;
+                            }
+    
+                        }
+    
+                        .forgot {
+                            font-size: 16px;
+                        }
+    
+                        .login {
+                            width: 30vw;
+                            height: 30px;
+                            font-size: 16px;
+                            border-radius: 3rem;
+                            
+                        }
+    
+                        .google {
+    
+                            .or {
+                                line-height: 8rem;
+                                font-size: 16px;
+                                margin-left: 9rem;
+                            }
+    
+                            .googlota {
+                                margin-bottom: 3rem;
+                                margin-left: 0.5rem;
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
+
     @media screen and (min-width: 421px) and (max-width: 767px) {
         // most smartphones in landscape mode
-    }
-
-    @media screen and (max-width: 420px) {
-
         .home {
+            height: auto;
+            overflow-x: hidden;
 
             .nav {
-                height: 3vh;
+                height: 10vh;
+
             }
 
             .signUp {
+                // border: 1px solid black;
                 .overlay {
-                    background: 'none';
-                    background-color: transparent;
-                    background-image: none;
-                    box-shadow: none;
-                    width: 100vw;
-                    height: 80vh;
+                    margin-top: 0;
+                    // border: 1px solid black;
 
                     .join {
-                        font-size: 7rem;
+                        margin-top: 0;
                     }
 
                     .field {
-                        margin: 0;
-                        margin-top: 10rem;
-                        width: 100vw;
-                        height: 10vh;
-                        display: flex; 
-                        flex-direction: column;
-                        @include center;
+                        // border: 1px solid black;
+                        height: 18vh;
+                        margin-top: 0;
 
                         h3 {
-                            // justify-self: center;
-                            // margin-left: 10rem;
-                            // font-size: 4rem;
-                            font-size: 16px;
                         }
 
                         input {
-                            width: 65vw;
-                            height: 4vh;
-                            border-radius: 3rem;
-                            // font-size: 4rem;
-                            font-size: 16px;
-                            text-align: center;
+                            width: 40vmax;
                         }
 
                     }
 
                     .forgot {
-                        font-size: 16px;
+                        margin-top: 2vh;
                     }
 
                     .login {
-                        width: 30vw;
-                        height: 5vh;
-                        font-size: 16px;
-                        border-radius: 3rem;
-                        
+                        display: flex; 
+                        @include center;
+                        width: 15vw;
+                        margin-top: 0;
+                        height: 30px;
                     }
 
                     .google {
+                        margin-top: 5vh;
+                        margin-right: 0;
+                        // border: 1px solid red;
+                        text-align: center;;
+                        display: flex;
+                        height: 7vw;
+                        @include center;
 
                         .or {
-                            line-height: 8rem;
-                            font-size: 16px;
-                            margin-left: 9rem;
+                            margin-top: 0;
+                            margin-left: 0;
                         }
 
                         .googlota {
-                            margin-bottom: 3rem;
-                            margin-left: 0.5rem;
+                            // border: 1px solid black;
+                            margin-bottom: 7rem;
+                            // margin-top: 2rem;
                         }
                     }
                 }
             }
-        }
-        
+        } 
     }
+
+
 }
 

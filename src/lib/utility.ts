@@ -47,8 +47,6 @@ export function bisect(sortedList: number[], el: number){
     let rbound = sortedList.length - 1;
     return bisect(lbound, rbound);
   
-  // note that this function depends on closure over lbound and rbound
-  // to work correctly
     function bisect(lb: number, rb: number): number{
       if(rb - lb == 1){
         if(sortedList[lb] < el && sortedList[rb] >= el){

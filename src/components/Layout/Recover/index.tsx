@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import useSidebar, { pagesInfo } from '../../../hooks/components/useSidebar';
 import Div100vh from 'react-div-100vh';
 import { useHistory } from 'react-router'
 import { userProps } from '../../../App';
@@ -7,13 +8,8 @@ import axios, { AxiosResponse } from 'axios';
 import styles from './style.module.scss';
 import Logo from '../Logo';
 import { Link, NavLink } from 'react-router-dom';
-import { isMobileOnly, isMobile } from 'react-device-detect';
-
-interface googleLogin {
-    onClick: () => void,
-    disabled?: boolean,
-}
-
+import { isMobileOnly, isMobile, isSafari } from 'react-device-detect';
+import Burger from '../../UI/Burger';
 
 const Recover: React.FC<userProps> = ({
     errorMessage,
@@ -24,6 +20,7 @@ const Recover: React.FC<userProps> = ({
 
     const history = useHistory()
     const field = useRef<HTMLInputElement>(null);
+    const { Sidebar, sidebarClass, toggleSidebar, closeSidebar} = useSidebar();
     const [option, setOption] = useState<'username' | 'email'>('username')
     const [message, setMessage] = useState<string>('')
 
@@ -77,12 +74,39 @@ const Recover: React.FC<userProps> = ({
         }
     }
 
+    const pages: pagesInfo = {
+        music: {
+            text: 'Make Music',
+            path: '/app',
+        },
+        signUp: {
+            text: 'Sign Up',
+            path: '/signup'
+        },
+        signIn: {
+            text: 'Sign In',
+            path: '/login'
+        },
+        home: {
+            text: 'Home',
+            path: '/'
+        }
+
+    }
+
     return (
         <Div100vh className={styles.home}>
+            <Sidebar openClose={toggleSidebar} pages={pages} className={sidebarClass} style={!isMobileOnly ? {display: 'none'} : {}} />            
+
             <nav className={styles.nav}>
                 <div className={styles.logo}>
-                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
+                    <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '3vmax', height: '3vmax', marginTop: '1.5vmax', marginLeft: '1.5vmax'} : isMobile ? {width: '3rem', height: '3rem'} : isSafari ? {width: '2rem', height: '2rem', marginLeft: '1rem', marginTop: '1rem;'} : {}} />
                 </div>
+
+                {/* <img src={menu} alt='menu' style={!isMobileOnly ? {display: 'none'} : {}}/> */}
+                <Burger onClick={toggleSidebar} style={!isMobileOnly ? {display: 'none'} : {}} />                
+
+
                 <div style={isMobileOnly ? {display: 'none'} : {}} className={styles.links}>
                     <div className={styles.navBox}> 
                         <div className={`${ styles.text }`}>
@@ -102,10 +126,17 @@ const Recover: React.FC<userProps> = ({
                                 }</span> 
                             </div>
                     </div>
+                    <div className={styles.navBox}>
+                            <div className={styles.text}>
+                                <span className={styles.ss}>{
+                                    <Link to={'/signup'}>Sign In</Link>
+                                }</span> 
+                            </div>
+                    </div>
                 </div>
             </nav>
             <main className={styles.signUp}>
-                <form className={styles.overlay}>
+                <form onClick={closeSidebar} className={styles.overlay}>
                     <div className={styles.join}> Reset your password </div>
                     <div onClick={select} className={styles.radio}>
 

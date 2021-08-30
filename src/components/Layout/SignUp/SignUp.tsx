@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Div100vh from 'react-div-100vh';
-import GoogleLogin from 'react-google-login';
 import { Link, NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router'
-import { isMobile, isMobileOnly } from 'react-device-detect';
+import useSidebar, { pagesInfo } from '../../../hooks/components/useSidebar';
+import Div100vh from 'react-div-100vh';
+import GoogleLogin from 'react-google-login';
+import Burger from '../../UI/Burger';
 import google from '../../../assets/google.svg';
+
+import { isMobile, isMobileOnly, isSafari } from 'react-device-detect';
 
 import { userProps } from '../../../App';
 
@@ -29,6 +32,7 @@ const SignUp: React.FC<userProps> = ({
     const username = useRef<HTMLInputElement>(null);
     const email = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
+    const { Sidebar, sidebarClass, toggleSidebar, closeSidebar} = useSidebar();
 
     useEffect(() => {
         if (isAuthenticated){
@@ -132,12 +136,33 @@ const SignUp: React.FC<userProps> = ({
         }
     }
 
+    const pages: pagesInfo = {
+        music: {
+            text: 'Make Music',
+            path: '/app',
+        },
+        signUp: {
+            text: 'Sign In',
+            path: '/login'
+        },
+        home: {
+            text: 'Home',
+            path: '/'
+        }
+    }
+
     return (
         <Div100vh className={styles.home}>
+            <Sidebar openClose={toggleSidebar} pages={pages} className={sidebarClass} style={!isMobileOnly ? {display: 'none'} : {}} />            
+
             <nav className={styles.nav}>
+
                 <div className={styles.logo}>
-                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
+                    <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '3vmax', height: '3vmax', marginTop: '1.5vmax', marginLeft: '1.5vmax'} : isMobile ? {width: '3rem', height: '3rem'} : isSafari ? {width: '2rem', height: '2rem', marginLeft: '1rem', marginTop: '1rem;'} : {}} />
                 </div>
+
+                <Burger onClick={toggleSidebar} style={!isMobileOnly ? {display: 'none'} : {}}/>                
+
                 <div style={isMobileOnly ? {display: 'none'} : {} } className={styles.links}>
                     <div className={styles.navBox}> 
                         <div className={`${ styles.text }`}>
@@ -162,7 +187,6 @@ const SignUp: React.FC<userProps> = ({
             <main className={styles.signUp}>
                 <form className={styles.overlay}>
                     <div className={styles.join}> Join Xolombrisx </div>
-                    {/* <div className={styles.cacc}> Create your account </div> */}
                     <div className={styles.field}>
                         <h3>Username</h3>
                         <input ref={username} type={'text'}></input>
@@ -182,7 +206,6 @@ const SignUp: React.FC<userProps> = ({
 
                     <button onClick={(e) => onSubmit(e)} className={styles.create}>Create Account</button>
 
-                    {/* <div className={styles.division}></div> */}
 
                     <div className={styles.google}>
                     <p className={styles.or}> or authenticate with </p>

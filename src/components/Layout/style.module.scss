@@ -95,10 +95,17 @@ html {
         width: 100vw;
         display: flex;
         @include center;
-        background-color: #FF9A8B;
-        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
-        background : radial-gradient(50% 50%, circle closest-side, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
-        filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
+        // background-color: #FF9A8B;
+        // background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+        // background : radial-gradient(50% 50%, circle closest-side, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
+        // filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
+        // background-color: rgb(189, 189, 189);
+        // background-color: rgb(238, 228, 228);
+        background-color: #a8a8a8;
+        // background-color: #FF9A8B;
+        // background-image: linear-gradient(90deg, #686868 0%, #c9c9c9 55%, #686868 100%);
+        // background : radial-gradient(50% 50%, circle closest-side, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
+        // filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
 
     }
 
@@ -188,6 +195,13 @@ html {
 
                 }
             }
+
+            .noApp {
+                margin-top: 30vh;
+                font-family: $jost;
+                color: #FFFFFF;
+                text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+            }
     
             .mid {
                 display: flex;
@@ -217,45 +231,74 @@ html {
             }
         }
     }
-    
 
-    // @media screen and (min-width: 1366px) {
-    //     // iPad PRO, HD ready and FullHD 
+    @media screen and (min-width: 1024px) and (max-width: 1365px) {
+        // most android tablets and ipads in landscape mode, older desktop/laptop monitors;
+        // font-size: 1.2vw;
 
-    //     // here things will be relative to width of the viewport 
-    //     // height is also gonna be relative to width of viewport 
-    //     font-size: 1vw;
+        .app {
+            .wrapson {
 
-    // }
+                .ctHeight {
+                    height: 88vh;
+                    // border: 1px solid black;
 
-    // // @media screen and (max-width: 1920px) and (min-width: 1724px){
-    // @media screen and (min-width: 1724px){
-    //     // here things are gonna be relative to em (fixed font-size to keep ratio)
-    //     font-size: 17.4737px ;
-    // }
+                    .top {
+                        .lmar {
+                           margin-right: 3.5rem; 
+                           width: 17vw;
+                        }
+                    }
 
-    // @media screen and (min-width: 1024px) and (max-width: 1365px) {
-    //     // most android tablets and ipads in landscape mode, older desktop/laptop monitors;
-    //     font-size: 1vw;
+                    .gap {
 
-    //     .content {
-    //         width: 98rem;
-    //         height: 53rem;
-    //         // border: 1px solid black;
-    //     }
-    // }
+                    }
+
+                    .noApp {
+                        // border: 1px solid black;
+                        h1 {
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 
     // @media screen and (min-width: 768px) and (max-width: 1023px) {
-    //     // most android tablets and iPads in portrait mode (if orientation portrait force landscape?
-    // }
+    @media screen and (max-width: 1023px) {
+        // most android tablets and iPads in portrait mode (if orientation portrait force landscape?
+        // font-size: 1vw;
+        
+        .app {
+            .wrapson {
 
-    // @media screen and (min-width: 421px) and (max-width: 767px) {
-    //     // most smartphones in landscape mode
-    // }
+                .ctHeight {
+                    height: 89.5vh;
+                    // border: 1px solid black;
 
-    // @media screen and (max-width: 420px) {
-    //     // smartphones in portrait mode;
-    // }
+                    .top {
+                        .lmar {
+                           margin-right: 2rem; 
+                        }
+                    }
+
+                    .gap {
+
+                    }
+
+                    .noApp {
+                        // border: 1px solid black;
+                        h1 {
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 }
 

@@ -1,0 +1,23 @@
+@import '../../../style/variables';
+
+html {
+	
+
+	.burger {
+		width: 10rem;
+		height: 10rem;
+		margin-bottom: 2rem;
+		margin-right: 1rem;
+
+	}
+
+	@media screen and (min-width: 421px) and (max-width: 767px) {
+		.burger {
+			margin-bottom: 0;
+			width: 7vh;
+			height: 7vh;
+		}
+
+	}
+
+}

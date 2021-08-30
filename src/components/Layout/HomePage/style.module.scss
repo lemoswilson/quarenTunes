@@ -3,87 +3,33 @@
 html {
 
     .home {
-        background-color: #FF9A8B;
-        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
-    
-        background : radial-gradient(50% 50%, circle farthest-corner, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
-        filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
-    
-        display: flex;
-        flex-direction: column;
+        @include homeBackground;
     
         .nav {
-            height: 7%;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: flex-end;
+            @include navStyle;
     
             .logo {
-                width: 73%;
-                height: 110%;
+                @include logo;
                 
                 .xolombrisx {
-                    width: 10%;
-                    height: 40%;
-                    margin-top: 1rem;
+                    @include logoStyle;
                 }
             }
     
             .links {
-                width: 27%;
-                height: 100%;
-    
-                display: grid;
+                @include links;
                 grid-template-columns: 50% 50%;
     
     
                 .navBox {
-                    position: relative;
-                    display: flex; 
-                    @include center;
-                    text-align: center;
-                    vertical-align: middle;
-                    line-height: 1.1rem;
-                    font-family: $jost;
-                    font-weight: 400;
-                    font-size: 1.2rem;
-                    color: white;
+                    @include navBox;
     
                     .text {
-                        display: flex;
-                        flex-direction: row;
-                        &:hover {
-                            cursor: pointer;
-                        }
-    
-                        .ss {
-                            border-bottom: 0.5px solid white; 
-                        }
-    
-                        .bs {
-                            color: #6d6d6d;
-                            border-bottom: 0.5px solid rgb(105, 105, 105);
-                        }
-                    }
-    
-                    .polygon {
-                        width: 1.2rem;
-                        height: 1.2rem; 
-                        margin-left: 0.2rem;
-                        .polygonColor {
-                            fill: white;
-                        }
-                    }
-    
-                    .active {
-                        transform: rotate(-90deg)
+                        @include navText;
                     }
     
                     .activeLink {
-                        color: #6d6d6d;
-                        text-decoration: none;
-                        border-bottom: 0.5px solid rgb(105, 105, 105);
+                        @include activeLinkStyle;
                     }
 
                 }
@@ -111,7 +57,6 @@ html {
             }
     
             .title {
-    
                 position: absolute;
                 text-align: center;
                 vertical-align: middle;
@@ -192,14 +137,34 @@ html {
 
     @media screen and (min-width: 1024px) and (max-width: 1365px) {
         // most android tablets and ipads in landscape mode, older desktop/laptop monitors;
-        font-size: 1.2vw;
+        // font-size: 1.2vw;
 
         .home {
-            .title {
-                font-size: 8rem;
+
+            .nav {
+                .logo {
+                    height: 7vh;
+                    // width: 10rem;
+
+                    .xolombrisx {
+                        width: auto; 
+                        height: 4.26vh;
+                        margin-left: 0.5rem;
+                        // margin-left: 1rem;
+                        // margin-top: 
+                        // border: 1px solid black;
+                    }
+                }
             }
 
+
+            
             .curves {
+
+                .title {
+                    font-size: 8rem;
+                }
+
                 .buttons {
                     display: flex;
                     align-items: center;
@@ -207,6 +172,14 @@ html {
                     // @include center;
 
                     .playRegister {
+                        height: 2.5rem;
+                        width: 13vw;
+
+                        .text {
+                            font-size: 1.6rem;
+                            width: 90%;
+                        }
+
                         &:only-child {
                             margin: 0 auto;
                         }
@@ -224,12 +197,35 @@ html {
         font-size: 1.5vw;
 
         .home {
+
+            .nav {
+                // border: 1px solid black;
+                .logo {
+                    // border: 1px solid black;
+                    height: 6rem;
+
+                    .xolombrisx {
+                        height: 52%;
+                        width: 2rem;
+                        // border: 1px solid black;
+                        margin-top: 0.9rem;
+                        margin-left: 0.5rem;
+                    }
+
+                }
+            }
+
             .curves {
                 .buttons {
                     // width: auto;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+                    width: 50%;
+                    // border: 1px solid black;
+                    position: relative;
+                    top: 0;
+                    left: 0;
 
                     .playRegister {
                         width: 10rem;
@@ -238,96 +234,192 @@ html {
                         }
                     }
                 }
+
+                .title {
+                    position: relative;
+                    // font-size: 4rem;
+                    top: 0;
+                    left: 0;
+                }
             }
         }
     }
 
-    @media screen and (min-width: 421px) and (max-width: 767px) {
-        // most smartphones in landscape mode
-        font-size: 1.7vw;
+
+
+    // @media screen and (max-width: 420px) {
+    @media screen and (max-width: 767px) {
+        font-size: 1vw;
 
         .home {
-            .curves {
-                .buttons {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
+            .nav {
 
-                    .playRegister {
-                        width: 12rem;
+                .logo {
+                    .xolombrisx {
+                        margin-top: 2rem;
+                    }
+                }
+
+                .links {
+                    .navBox{
                         .text {
-                            font-size: 1.4rem;
-                        }
-                        &:only-child {
-                            margin: 0 auto;
+                            font-size: 2.2rem;
                         }
                     }
-                    // @include center;
+                }
+            }
 
+            .curves {
+                justify-content: flex-start;
+
+                .title {
+                    position: relative;
+                    left: 0;
+                    top: 0;
+                    margin: 0;
+                    margin-top: 320px;
+                    font-size: 8rem;
+                }
+
+                .buttons {
+                    position: relative;
+                    left: 0;
+                    top: 0;
+                    margin: 0;
+                    border: 1px solid black;
+                    margin-top: 30px;
+                    width: 40%;
+
+                    .playRegister {
+                        height: 80%;
+                        width: 13rem;
+                        // width: fit-content;
+
+                        .text {
+                            font-size: 2rem;
+                            width: 90%;
+                        }
+                    }
+                    
+                    // height: 10vh;
                 }
             }
         }
 
+        // .home {
+        //     display: flex;
 
-    }
+        //     .nav {
+                
+        //         .logo {
+    
+        //             .xolombrisx {
+        //                 // width: 6rem; 
+        //                 // height: 6rem; 
+        //                 width: 5rem; 
+        //                 height: 5rem; 
+        //                 margin-top: 2.4rem; 
+        //                 margin-left: 2.3rem;
+        //             }
+        //         }
+        //     }
 
-    @media screen and (max-width: 420px) {
-        font-size: 1vw;
-        .home {
-            display: flex;
             
-            .title {
-                margin-top: 3rem;
-                width: 100vw;
-                height: 22vh;
-                align-self: center;
-                // justify-self: center;
-                text-align: center;
-                vertical-align: middle;
-                line-height: 19rem;
-                font-family: $jost;
-                // width: 40%;
-                font-weight: 400;
-                font-size: 16rem;
-                color: #e9e9e9;
-                text-shadow: 1rem 1rem 1rem rgba($color: (#696969), $alpha: 1.0);
-            }
+        //     .title {
+        //         margin-top: 3rem;
+        //         width: 100vw;
+        //         height: 22vh;
+        //         align-self: center;
+        //         text-align: center;
+        //         vertical-align: middle;
+        //         line-height: 17rem;
+        //         font-family: $jost;
+        //         font-weight: 400;
+        //         font-size: 16rem;
+        //         color: #e9e9e9;
+        //         text-shadow: 1rem 1rem 1rem rgba($color: (#696969), $alpha: 1.0);
+        //     }
 
-            .links {
-                margin-top: 14rem;
-                width: 100vw;
-                height: 39vh;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: space-between;
-                position: relative;
-                z-index: 10;
-                // justify-content: center;
-            }
+        //     .links {
+        //         margin-top: 9rem;
+        //         width: 100vw;
+        //         height: 39vh;
+        //         display: flex;
+        //         flex-direction: column;
+        //         align-items: center;
+        //         justify-content: space-between;
+        //         // position: relative;
+        //         z-index: 10;
+        //     }
 
-            .joia {
-                position: absolute;
-                z-index: 5;
-                left: 2.4rem;
-            }
+        //     .joia {
+        //         position: absolute;
+        //         z-index: 5;
+        //         left: 2.4rem;
+        //         top: 25vh;
+        //     }
 
-            .btt {
-                background-color: rgba(67, 17, 17, 0.41);
-                border-radius: 3rem;
-                width: 45vw;
-                height: 8vh;
+        //     .btt {
+        //         background-color: rgba(67, 17, 17, 0.41);
+        //         border-radius: 3rem;
+        //         width: 45vw;
+        //         height: 8vh;
 
-                font-size: 5rem;
-                color: white;
-                text-shadow: 0.2rem 0.2rem 0.2rem rgba($color: (#696969), $alpha: 1.0);
-                font-family: $jost;
-                display: flex;
-                @include center;
-            }
-        }
-        // smartphones in portrait mode;
+        //         font-size: 5rem;
+        //         color: white;
+        //         text-shadow: 0.2rem 0.2rem 0.2rem rgba($color: (#696969), $alpha: 1.0);
+        //         font-family: $jost;
+        //         display: flex;
+        //         @include center;
+        //     }
+        // }
     }
+
+    // @media screen and (min-width: 421px) and (max-width: 767px) {
+    //     // most smartphones in landscape mode
+    //     font-size: 0.8vh;
+
+    //     .home {
+
+    //         .nav {
+    //             height: 9vh;
+
+    //             .logo { 
+
+    //                 .xolombrisx {
+    //                     width: 7rem ;
+    //                     height: 7rem ;
+    //                     margin-top: 3.4rem;
+    //                     margin-left: 3.4rem;
+
+    //                 }
+    //             }
+    //         }
+
+    //         .title {
+    //             position: relative;
+    //             font-size: 13rem;
+    //             line-height: 13vh;
+    //             margin-top: 0;
+    //             top: 0;
+    //             left: 0;
+    //         }
+
+    //         .joia {
+    //             width: auto;
+    //             height: 60vh;
+    //         }
+
+    //         .links {
+    //             position: relative;
+
+    //             .btt {
+    //                 width: 30%;
+    //             }
+    //         }
+    //     }
+
+    // }
 
 }
 

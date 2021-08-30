@@ -24,22 +24,228 @@ $boxWidth: 1.8rem;
 // }
 
 $blue: #bebfbe;
-// $light: #ededed;
+// $blue: rgb(238, 237, 234);
+// $blue: rgb(219, 219, 219);
+// $blue: rgb(219, 219, 219);
+// $blue: rgb(238, 228, 228);
 $light: #bebfbe;
+// $light: rgb(219, 219, 219);
+// $light: rgb(238, 228, 228);
 $dark: #909190;
 $textColor: #9b9b9b;
 $textColorTitle: #9b9b9b;
 $textShadow: rgba(220, 223, 224, 0.75);
-// $textColorTitle: rgb(194, 194, 194);
 $white: rgba(255, 255, 255, 1);
+$highlightedBackgroundColor: rgba(255, 255, 255, 1);
+// $textColorTitle: rgb(194, 194, 194);
 // @mixin shadow($x, $y, $b) {
 //         box-shadow: $x $y $b rgba(204,204,204,0.5);
 // }
 
+@mixin homeBackground {
+        // background-color: #FF9A8B;
+        // background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+        // background : radial-gradient(50% 50%, circle closest-side, rgba(255, 255, 255, 1) 0%, rgba(199, 199, 199, 1) 13.78%, rgba(210, 212, 212, 1) 100%);
+        // filter: progid:DXImageTransform.Microsoft.Alpha(Stlye=2);
+        background-color: rgb(189, 189, 189);
+        display: flex;
+        flex-direction: column;
+}
+
+@mixin navStyle {
+        height: 7%;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+}
+
+@mixin logo {
+        width: 73%;
+        height: 110%;
+}
+
+@mixin logoStyle {
+        width: 10%;
+        height: 40%;
+        margin-top: 1rem;
+}
+
+@mixin links {
+        width: 27%;
+        height: 100%;
+        display: grid;
+}
+
+@mixin navBox {
+        position: relative;
+        display: flex; 
+        @include center;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.1rem;
+        font-family: $jost;
+        font-weight: 400;
+        font-size: 1.2rem;
+        color: white;
+}
+
+@mixin navText {
+        display: flex;
+        flex-direction: row;
+        &:hover {
+            cursor: pointer;
+        }
+
+        .ss {
+            border-bottom: 0.5px solid white; 
+        }
+
+        .bs {
+            color: #6d6d6d;
+            border-bottom: 0.5px solid rgb(105, 105, 105);
+        }
+}
+
+@mixin activeLinkStyle {
+        color: #6d6d6d;
+        text-decoration: none;
+        border-bottom: 0.5px solid rgb(105, 105, 105);
+}
+
+@mixin mainStyle {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 93%;
+        width: 100%;
+}
+
+@mixin overlayStyle {
+        margin-top: 8rem;
+        width: 30rem;
+        height: 37rem;
+        // background-color: #FF9A8B;
+        // background-image: linear-gradient(45deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+        // background-color: rgba($color: #c5bfbf, $alpha: 1.0);
+        background-color: transparent;
+        border-radius: 1rem;
+        box-shadow: 0.2rem 0.2rem 0.2rem rgba($color: #6b6b6b, $alpha: 1.0);
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+}
+
+@mixin fieldStyle {
+        margin-left: 3rem;
+        align-self: flex-start;
+        display: flex;
+        flex-direction: column;
+        width: 27em;
+        height: 3rem;
+        
+        h3 {
+            color: white;
+            font-size: 1rem;
+            margin: 0;
+            margin-top: 2rem;
+            font-family: $jost;
+            color: #FFFFFF;
+            text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+        }
+
+        input {
+            width: 25rem;
+            height: 1.7rem;
+            font-size: 0.9rem;
+            text-align: start;
+            font-family: $jost;
+            border: 1px solid $light;
+            background-color: #e6e6e6;
+            border-radius: 0.4rem;
+            color:rgb(105, 105, 105);
+            background: rgba(216,216,216,0.41);
+            box-shadow: 0 2px 4px 0 rgba(146,136,136,0.50);
+            border: none;
+        }
+}
+
+@mixin submitButton {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+        font-family: $jost;
+
+        margin-top: 1.5rem;
+        border-radius: 1rem;
+        height: 1.5rem;
+        width: 7rem;
+
+        background: rgba(253, 253, 253, 0.7);
+        box-shadow: 0 2px 4px 0 rgba(173, 132, 132, 0.5);
+        color: #868686;
+        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+}
+
+@mixin googleStyle {
+        margin-top: 4rem;
+        display: flex;
+        flex-direction: row;
+
+        .googlota {
+            margin-left: 0.6rem;
+            cursor: pointer;
+            display: flex;
+            @include center;
+            border: none;
+            background: none;
+        }
+
+        .or {
+            margin-top: 1rem;
+            font-family: $jost;
+            color: #FFFFFF;
+            text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+        }
+
+}
+
+@mixin errorStyle {
+        margin-top: 1rem;
+        font: $jost;
+        color: $white;
+        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+        text-align: center;
+}
+
+@mixin titleStyle {
+        margin-top: 1rem;
+        font-family: $jost;
+        color: $white;
+        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+        font-size: 2rem;
+}
+
+@mixin forgotStyle {
+        margin-top: 3rem;
+        font: $jost;
+        color: $white;
+        font-weight: 500;
+        font-family: $jost;
+        text-shadow: 0 2px 4px rgba(105,105,105,0.50);
+}
 
 @mixin shadow($x, $y, $b) {
-        box-shadow: $x $y $b rgba(110, 110, 110, 0.5);
+        // box-shadow: $x $y $b rgba(110, 110, 110, 0.5);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
 }
+
 
 $red: #ea8686;
 $shadow: #cccccc;

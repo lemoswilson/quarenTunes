@@ -1,17 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
-import Div100vh from 'react-div-100vh';
-import { isMobile, isMobileOnly } from 'react-device-detect';
+import Div100vh, { use100vh } from 'react-div-100vh';
+import { isMobile, isMobileOnly, isSafari } from 'react-device-detect';
 import { useHistory } from 'react-router'
 import { userProps } from '../../../App';
+import useSidebar, { pagesInfo } from '../../../hooks/components/useSidebar';
 import styles from './style.module.scss';
 import google from '../../../assets/google.svg';
 
 import axios from 'axios';
 
 import Logo from '../Logo';
-import { propertiesToArray } from '../../../lib/objectDecompose';
+import Burger from '../../UI/Burger';
 
 const SignIn: React.FC<userProps> = ({
     errorMessage,
@@ -21,6 +22,7 @@ const SignIn: React.FC<userProps> = ({
 }) => {
 
     const history = useHistory()
+    const { Sidebar, sidebarClass, toggleSidebar, closeSidebar} = useSidebar();
     const username = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
 
@@ -108,78 +110,97 @@ const SignIn: React.FC<userProps> = ({
         }
     }
 
+    const pages: pagesInfo = {
+        music: {
+            text: 'Make Music',
+            path: '/app',
+        },
+        signUp: {
+            text: 'Sign Up',
+            path: '/signup'
+        },
+        home: {
+            text: 'Home',
+            path: '/'
+        }
+    }
+
     return (
         <Div100vh className={styles.home}>
-        <nav className={styles.nav}>
-            <div className={styles.logo}>
-                <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '6rem', height: '6rem', marginTop: '3rem', marginLeft: '3rem'} : isMobile ? {width: '3rem', height: '3rem'} : {}} />
-            </div>
-            <div style={isMobileOnly ? {display: 'none'} : {}} className={styles.links}>
-                <div className={styles.navBox}> 
-                    <div className={`${ styles.text }`}>
-                         <NavLink 
-                         onClick={() => {updateUser({errorMessage: '', isAuthenticated, token})}}
-                            className={styles.ss}  
-                            activeStyle={{
-                                textDecoration: 'none', 
-                                color: '#ffffff', 
-                                borderBottom: '0.5px solid white'
-                            }} to={'/'}> Home </NavLink>
+            <Sidebar openClose={toggleSidebar} pages={pages} className={sidebarClass} style={!isMobileOnly ? {display: 'none'} : {}} />            
+
+            <nav className={styles.nav}>
+                <div className={styles.logo}>
+                    <Logo className={styles.xolombrisx} style={isMobileOnly ? {width: '3vmax', height: '3vmax', marginTop: '1.5vmax', marginLeft: '1.5vmax'} : isMobile ? {width: '3rem', height: '3rem'} : isSafari ? {width: '2rem', height: '2rem', marginLeft: '1rem', marginTop: '1rem;'} : {}} />
+                </div>
+
+                <Burger onClick={toggleSidebar} style={!isMobileOnly ? {display: 'none'} : {}}/>                
+
+                <div style={isMobileOnly ? {display: 'none'} : {}} className={styles.links}>
+                    <div className={styles.navBox}> 
+                        <div className={`${ styles.text }`}>
+                            <NavLink 
+                            onClick={() => {updateUser({errorMessage: '', isAuthenticated, token})}}
+                                className={styles.ss}  
+                                activeStyle={{
+                                    textDecoration: 'none', 
+                                    color: '#ffffff', 
+                                    borderBottom: '0.5px solid white'
+                                }} to={'/'}> Home </NavLink>
+                        </div>
+                    </div>
+                    <div className={styles.navBox}>
+                            <div className={styles.text}>
+                                <span className={styles.ss}>{
+                                    <Link onClick={() => { updateUser({errorMessage: '', isAuthenticated, token})}} to={'/signup'}>Sign Up</Link>
+                                }</span> 
+                            </div>
                     </div>
                 </div>
-                <div className={styles.navBox}>
-                        <div className={styles.text}>
-                            <span className={styles.ss}>{
-                                <Link onClick={() => { updateUser({errorMessage: '', isAuthenticated, token})}} to={'/signup'}>Sign Up</Link>
-                            }</span> 
-                        </div>
-                </div>
-            </div>
-        </nav>
-        <main className={styles.signUp}>
-            <form className={styles.overlay}>
+            </nav>
+            <main className={styles.signUp}>
+                <form onClick={closeSidebar} className={styles.overlay}>
 
-                <div className={styles.join}> Sign in to Xolombrisx  </div>
+                    <div className={styles.join}> Sign in to Xolombrisx  </div>
 
-                <div className={styles.field}>
-                    <h3>Username</h3>
-                    <input ref={username} autoComplete={'username'} type={'text'}></input>
-                </div>
+                    <div className={styles.field}>
+                        <h3>Username</h3>
+                        <input ref={username} autoComplete={'username'} type={'text'}></input>
+                    </div>
 
-                <div className={styles.field} style={{marginTop: '1.6rem'}}>
-                    <h3>Password</h3>
-                    <input ref={password} autoComplete={'current-password'} type={'password'}></input>
-                </div>
+                    <div className={styles.field} style={{marginTop: '1.6rem'}}>
+                        <h3>Password</h3>
+                        <input ref={password} autoComplete={'current-password'} type={'password'}></input>
+                    </div>
 
-                <p className={styles.forgot}> Forgot your password? reset it <Link onClick={() => { updateUser({errorMessage: '', isAuthenticated, token})}} to={'/recover'}><u>here</u></Link></p>
+                    <p className={styles.forgot}> Forgot your password? reset it <Link onClick={() => { updateUser({errorMessage: '', isAuthenticated, token})}} to={'/recover'}><u>here</u></Link></p>
 
-                <button onClick={(e) => onSubmit(e)} className={styles.login}>Login</button>
-                {/* <div className={styles.division}></div> */}
+                    <button onClick={(e) => onSubmit(e)} className={styles.login}>Login</button>
 
-                <div className={styles.google}>
-                    <p className={styles.or}> or authenticate with </p>
+                    <div className={styles.google}>
+                        <p className={styles.or}> or authenticate with </p>
 
-                    <GoogleLogin
-                        clientId={'860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com'}
-                        buttonText='Google'
-                        render={renderProps => (
-                            <button disabled={renderProps.disabled} onClick={renderProps.onClick} className={styles.googlota}>
-                                <img src={google} width={'30rem'} height={'30rem'} />
-                            </button>
-                        )}
-                        onSuccess={responseGoogle}
-                        onFailure={() => {}}
-                    ></GoogleLogin>
+                        <GoogleLogin
+                            clientId={'860801707225-igbgn7p48ffqqu6mgfds39o4q7md2rvr.apps.googleusercontent.com'}
+                            buttonText='Google'
+                            render={renderProps => (
+                                <button disabled={renderProps.disabled} onClick={renderProps.onClick} className={styles.googlota}>
+                                    <img src={google} width={'30rem'} height={'30rem'} />
+                                </button>
+                            )}
+                            onSuccess={responseGoogle}
+                            onFailure={() => {}}
+                        ></GoogleLogin>
 
-                </div>
+                    </div>
 
 
-                <div className={styles.errorMessage}>{ errorMessage && errorMessage.length > 0 ? errorMessage : ''}</div>
-                
+                    <div className={styles.errorMessage}>{ errorMessage && errorMessage.length > 0 ? errorMessage : ''}</div>
+                    
 
-            </form>
-        </main>
-    </Div100vh>
+                </form>
+            </main>
+        </Div100vh>
     )
 }
 
