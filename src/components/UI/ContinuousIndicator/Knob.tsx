@@ -21,26 +21,19 @@ const Knob: React.FC<indicatorProps> = ({
     value, 
     setDisplay,
     contextMenu,
-    toggleInput,
-    valueUpdateCallback,
     menuOptions,
     onContextMenu,
     onKeyDown,
-    max, 
-    min,
     input,
     MenuPosisiton,
 }) => {
-    // const Knob: React.FC<indicatorProps> = ({ captureStart, label, indicatorData, className, unit, display, value, setDisplay }) => {
     const c = `${styles.wrapper} ${className}`
-    // const valueDisplay = value === -Infinity ? '-&infin;' : value;
     const divRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
     const trueValue = keyFunction ? keyFunction(value) : value
 
 
     const displayComponent = (
         <div onPointerDown={setDisplay} className={styles.title}>
-            {/* {display ? label : `${value} ${unit}`} */}
             {display ? label : `${trueValue} ${unit}`}
         </div>
     )
@@ -62,11 +55,9 @@ const Knob: React.FC<indicatorProps> = ({
     
     useEffect(() => {
         const div = divRef.current
-        // divRef.current?.addEventListener('keydown', onKeyDown)
         div?.addEventListener('keydown', onKeyDown)
 
         return () => {
-            // divRef.current?.removeEventListener('keydown', onKeyDown)
             div?.removeEventListener('keydown', onKeyDown)
         }
     }, [onKeyDown])

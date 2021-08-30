@@ -4,7 +4,6 @@
 XolombrisX is a full-stack web application that allows the user to create simple beats by sequencing a few digital instruments in the browser. The user can save his beats by first creating an account. As of August 2021, the application is for desktop chrome only.
 
 ## Layout
-![Layout](https://i.imgur.com/xoKD2ZU.png)
 
 <img src="https://i.imgur.com/xoKD2ZU.png" width="80%" height="80%">
 
