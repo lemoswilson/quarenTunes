@@ -31,10 +31,6 @@ const Sequencer: React.FC = () => {
     const MenuContext = useContext(menuContext);
     const DropdownContext = useContext(dropdownContext);
     const ref_toneObjects = useContext(ToneObjectsContext);
-    
-    // const arrangerMode = useSelector(arrgModeSelector);
-    // const activeSongPattern = useSelector(activeSongPattSelector);
-    // const isFollow = useSelector(isFollowSelector);
     const isPlay = useSelector(isPlaySelector);
     const patterns = useSelector(patternsSelector);
     const activeStep = useSelector(activeStepSelector);
@@ -68,7 +64,6 @@ const Sequencer: React.FC = () => {
         ref_trkCount,
         ref_selectedTrkIdx,
         effectsLength,
-        // arrangerMode,
         patterns,
         activePatt,
         ref_activePatt,
@@ -85,8 +80,6 @@ const Sequencer: React.FC = () => {
         ref_activePatt,
         ref_selectedSteps,
         ref_activePage,
-        // arrangerMode,
-        // isFollow,
         selectedTrkIdx,
         ref_selectedTrkIdx,
         ref_trkCount,
@@ -144,8 +137,8 @@ const Sequencer: React.FC = () => {
                 ref_toneObjects.current?.tracks[selectedTrkIdx]
                 .instrument?.triggerAttackRelease(
                     noteName, 
-                    // activePattTrkNoteLen, 
-                    '1m', 
+                    activePattTrkNoteLen, 
+                    // '1m', 
                     undefined, 
                     activePattObj.tracks[selectedTrkIdx].velocity/127
                 )
@@ -182,7 +175,6 @@ const Sequencer: React.FC = () => {
                                 isPlay={isPlay}
                                 selectStep={sequencerDispatchers._selectStep}
                                 changePage={sequencerDispatchers.pageClickHandler}
-                                // activeSongPattern={activeSongPattern}
                                 activePatt={activePatt}
                                 events={events}
                                 length={activePattTrkLen}
@@ -190,7 +182,6 @@ const Sequencer: React.FC = () => {
                                 selected={selectedSteps}
                                 selectedTrkIdx={selectedTrkIdx}
                                 activeStep={activeStep}
-                                // arrgMode={arrangerMode}
                             ></StepSequencer>
                         </div>
                         <div className={styles.keyInput}>

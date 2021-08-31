@@ -25,7 +25,6 @@ import { useNoteCallbackData } from '../../../hooks/store/Sequencer/useSequencer
 import { useInstrumentDispatchers } from '../../../hooks/store/Track/useInstrumentDispatchers';
 import { useMidiLearn } from '../../../hooks/midiCC/useMidiLearn';
 import { useInstrument } from '../../../hooks/instrument/useInstrument';
-import { useSelector } from 'react-redux';
 import { useDeviceLoader } from '../../../hooks/fetch/useFetch';
 
 
@@ -42,7 +41,7 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_options = useQuickRef(options)
     const ref_index = useQuickRef(index);
     const ref_toneObjects = useContext(ToneObjectsContext);
-    const { prev: prev_voice, ref: ref_voice} = usePrevAndRef(voice);
+    const {ref: ref_voice} = usePrevAndRef(voice);
     const instProps: string[] = useMemo(() => propertiesToArray(getInitials(voice)) , [voice]);
     
     useProperties(ref_toneObjects.current?.tracks[index].instrument, options);

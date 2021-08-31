@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, MutableRefObject } from 'react';
 import dropdownEmitter, { ExtractDropdownPayload, dropdownEventTypes} from '../../lib/Emitters/dropdownEmitter';
 

@@ -29,10 +29,10 @@ import Logo from './Logo';
 import * as Tone from 'tone';
 
 import useWebMidi from '../../hooks/store/Midi/useWebMidi';
-import useTrackEmitter from '../../hooks/emitters/useTrackEmitter';
-import useTriggEmitter from '../../hooks/emitters/useTriggEmitter';
-import useMenuEmitter from '../../hooks/emitters/useMenuEmitter';
-import useDropdownEmitter from '../../hooks/emitters/useDropdownEmitter';
+import useTrackEmitter from '../../hooks/Emitters/useTrackEmitter';
+import useTriggEmitter from '../../hooks/Emitters/useTriggEmitter';
+import useMenuEmitter from '../../hooks/Emitters/useMenuEmitter';
+import useDropdownEmitter from '../../hooks/Emitters/useDropdownEmitter';
 
 import MenuContext from '../../context/MenuContext';
 import DropdownContext from '../../context/DropdownContext';
@@ -98,7 +98,6 @@ const Layout: React.FC <LayoutProps> = ({
     const ref_dropdowns = useContext(DropdownContext);
     const Track = useSelector(trackSelector)
     const Sequencer = useSelector(sequencerSelector);
-    const ref_tempName = useRef('');
     
     const history = useHistory();
     
@@ -222,9 +221,6 @@ const Layout: React.FC <LayoutProps> = ({
             initializeFlags()
             initializeTracks()
             setRender(false)
-            if (sequencer && track){
-                // set state to be like sequencer and track
-            }
         }
 
 
@@ -273,7 +269,7 @@ const Layout: React.FC <LayoutProps> = ({
         }
     }
 
-    const message = 'Your browser/device is not optimized for the application, please reopen the app on Chrome Desktop.';
+    const message = 'Your browser/device is not supported at the moment, please reopen the app on Chrome Desktop.';
 
     const DesktopApp = (
         <Div100vh className={styles.app}>
