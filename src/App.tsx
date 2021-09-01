@@ -1,20 +1,19 @@
-import React, { useState, Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom'
+import React, { useState, Suspense, lazy } from "react";
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import HomePage from './components/Layout/HomePage/HomePage';
 import SignUp from './components/Layout/SignUp/SignUp';
 import SignIn from './components/Layout/SignIn';
 import Recover from './components/Layout/Recover';
 import ResetPassword from './components/Layout/Recover/ResetPassword';
+import Loading from './components/Loading';
 
-import axios from 'axios';
 
 import './App.scss';
 import Projects from "./components/Layout/Projects";
-import { useVerify } from "./hooks/fetch/useFetch";
 
 const Xolombrisx = lazy(() => import('./containers/Xolombrisx'))
-const SuspenseFallback: React.FC = () => <div>Fallback</div>
+const SuspenseFallback = <Loading/>;
 
 export interface userData {
 	isAuthenticated: boolean,
@@ -48,7 +47,7 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 	return (
 		<React.Fragment>
 			<BrowserRouter>
-				<Suspense fallback={<SuspenseFallback />}>
+				<Suspense fallback={SuspenseFallback}>
 					<Switch>
 						<Route path={'/app'} render={( ) => <Xolombrisx {...user} updateUser={updateUser} signOut={signOut} />}></Route>
 						<Route path={'/login'} render={() => <SignIn {...user} updateUser={updateUser} signOut={signOut} />}></Route>

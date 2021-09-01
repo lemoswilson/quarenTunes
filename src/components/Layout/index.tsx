@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { useSelector } from 'react-redux';
 import useSidebar, { pagesInfo } from '../../hooks/components/useSidebar';
+import useQuickRef from '../../hooks/lifecycle/useQuickRef';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import styles from './style.module.scss';
 import mobileStyles from './mobile.module.scss';
@@ -155,10 +156,12 @@ const Layout: React.FC <LayoutProps> = ({
 
 
     const getNewPatternObject = useCallback<() => triggs[]>(() => {
-        return newPatternObject(Tone, track)
+        return newPatternObject(Tone, track ? track : Track)
     }, [])
 
     const initializeTracks = () => {
+        console.log('track in layout is', Track)
+        console.log('sequencer in layout is', Sequencer);
         const t = sequencer && track ? track : Track
         
         t.tracks.forEach((track, trackIndex, _) => {
@@ -270,6 +273,7 @@ const Layout: React.FC <LayoutProps> = ({
     }
 
     const message = 'Your browser/device is not supported at the moment, please reopen the app on Chrome Desktop.';
+
 
     const DesktopApp = (
         <Div100vh className={styles.app}>

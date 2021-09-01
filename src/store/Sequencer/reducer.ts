@@ -18,6 +18,7 @@ const initialTrack = {
 	velocity: 60,
 	fxCount: 1,
 }
+
 export const initialState: Sequencer = {
 	activePattern: 0,
 	counter: 1,
@@ -32,6 +33,7 @@ export const initialState: Sequencer = {
 	// quantizeRecording: false,
 	step: 0,
 };
+
 
 export function sequencerReducer(
 	s: Sequencer = initialState,

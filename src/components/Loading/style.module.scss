@@ -1,0 +1,28 @@
+@import '../../style/variables';
+
+html {
+	.loading {
+		height: 100vh;
+		width: 100vw;	
+		display: flex;
+		@include center;
+
+		.image {
+			animation-name: rotate;
+			animation-duration: 1s;
+			animation-iteration-count: infinite;
+			animation-timing-function: ease-out;
+			width: 100px;
+			height: auto;
+		}
+	}
+
+	@keyframes rotate {
+		0%{
+			transform: rotate(0)
+		}100%{
+			transform: rotate(360deg)
+		}
+	}
+
+}

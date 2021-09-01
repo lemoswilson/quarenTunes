@@ -26,6 +26,9 @@ import { useInstrumentDispatchers } from '../../../hooks/store/Track/useInstrume
 import { useMidiLearn } from '../../../hooks/midiCC/useMidiLearn';
 import { useInstrument } from '../../../hooks/instrument/useInstrument';
 import { useDeviceLoader } from '../../../hooks/fetch/useFetch';
+import { useSelector } from 'react-redux';
+import { trackSelector } from '../../../store/Track/selectors';
+import { sequencerSelector } from '../../../store/Sequencer/selectors';
 
 
 export const Instrument = <T extends xolombrisxInstruments>({ 
@@ -43,6 +46,12 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const ref_toneObjects = useContext(ToneObjectsContext);
     const {ref: ref_voice} = usePrevAndRef(voice);
     const instProps: string[] = useMemo(() => propertiesToArray(getInitials(voice)) , [voice]);
+
+    const track = useSelector(trackSelector);
+    const sequencer = useSelector(sequencerSelector);
+    const track_ref = useQuickRef(track);
+    const seq_ref = useQuickRef(sequencer);
+
     
     useProperties(ref_toneObjects.current?.tracks[index].instrument, options);
     useDrumRackProperties(ref_toneObjects.current?.tracks[index].instrument, options, voice)
@@ -109,10 +118,15 @@ export const Instrument = <T extends xolombrisxInstruments>({
                         selected={selectedSteps}
                     />
 
-
+                    
+    function logState(){
+        console.log('track', JSON.stringify( track_ref.current ))
+        console.log('sequencer', JSON.stringify( seq_ref.current ));
+    }
 
     return (
         <div
+            onClick={logState}
             className={styles.border}
             style={{ display: !selected ? 'none' : 'flex' }}>
             <div className={styles.deviceManager}>
