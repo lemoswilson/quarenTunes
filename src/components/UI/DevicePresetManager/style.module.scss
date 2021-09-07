@@ -2,20 +2,22 @@
 
 .box {
     background-color: $light;
-    width: 37%;
+    // width: 37%;
+    width: fit-content;
     height: 2.6rem;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     flex-direction: row;
     border-radius: 1rem;
+    padding-inline: 3%;
 
     .dropdown {
-        margin-top: 0.25rem;
+        margin-top: 0.33rem;
     }
 
     .buttons {
-        margin-top: 0.35rem;
+        margin-top: 0.33rem;
         margin-left: 0.3rem;
     }
 }

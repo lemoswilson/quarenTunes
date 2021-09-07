@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import { useSelector } from 'react-redux';
 import useSidebar, { pagesInfo } from '../../hooks/components/useSidebar';
-import useQuickRef from '../../hooks/lifecycle/useQuickRef';
 import { NavLink, Link, useHistory } from 'react-router-dom';
 import styles from './style.module.scss';
 import mobileStyles from './mobile.module.scss';
@@ -116,7 +115,7 @@ const Layout: React.FC <LayoutProps> = ({
     }, [])
 
     const help = () => {
-
+        
     }
 
     useLayoutEffect(() => {
@@ -316,7 +315,7 @@ const Layout: React.FC <LayoutProps> = ({
                                     <div className={styles.navBox}>
                                         <div onClick={help} className={styles.text}>
                                             <span className={styles.ss}>{
-                                                'Help'
+                                                <Link to={'/help.png'} target={'_blank'}>Help</Link>
                                             }</span>
                                         </div>
                                     </div>

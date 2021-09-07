@@ -164,16 +164,6 @@ export function getInitialsValue(type: xolombrisxInstruments) {
     return onlyValues(getInitials(type))
 }
 
-// export const DrumRackSlotInitials = {
-//     volume: volume,
-//     attack: [0, samplerEnvelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.LINEAR],
-//     baseUrl: [" "],
-//     curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
-//     release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-//     urls: {},
-//     pitch: 0,
-// }
-
 export const DrumRackSlotInitials = (sample?: samples) => (
     {
         volume: volume,
@@ -181,7 +171,6 @@ export const DrumRackSlotInitials = (sample?: samples) => (
         baseUrl: " ",
         curve: [curveTypes.EXPONENTIAL, envelopeCurveOptions, undefined, envelopeCurveIndicator],
         release: [0.1, envelopeTimeRange, envelopeUnit, envelopeTimeIndicator, curveTypes.EXPONENTIAL],
-        // urls: sample ? {C3: getSample(sample)} : {},
         urls: sample ? {C3: sample} : {},
         pitch: 0,
     }
@@ -206,7 +195,6 @@ export function getInitials(type: xolombrisxInstruments) {
                 modulation: modulation, // modulation.type
                 modulationEnvelope: modulationEnvelope, // modulationEnvelope.attack, decay, sustain
             }
-        // return AMSynthInitials
         case xolombrisxInstruments.FMSYNTH:
             return {
                 volume: volume,
@@ -219,7 +207,6 @@ export function getInitials(type: xolombrisxInstruments) {
                 modulationEnvelope: modulationEnvelope, // modulationEnvelope.attack, decay, sustain...
                 modulationIndex: modSynthModulationIndex
             }
-        // return FMSynthInitials
         case xolombrisxInstruments.MEMBRANESYNTH:
             return {
                 volume: volume,
@@ -230,7 +217,6 @@ export function getInitials(type: xolombrisxInstruments) {
                 octaves: membraneSynthOctaves,
                 pitchDecay: membraneSynthPitchDecay,
             }
-        // return MembraneSynthInitials
         case xolombrisxInstruments.METALSYNTH:
             return {
                 volume: volume,
@@ -242,40 +228,15 @@ export function getInitials(type: xolombrisxInstruments) {
                 octaves: metalSynthOctaves,
                 resonance: metalSynthResonance
             }
-        // return MetalSynthInitials
         case xolombrisxInstruments.NOISESYNTH:
             return {
                 volume: volume,
                 envelope: envelope, // envelope.attack, decay, sustain, release, and curves
                 noise: noise, //noise.fadeIn, fadeOut, playbackRate, type
             }
-        // return NoiseSynthInitials
-        // case xolombrisxInstruments.PLUCKSYNTH:
-        //     return {
-        //         volume: volume,
-        //         attackNoise: attackNoise,
-        //         dampening: dampening,
-        //         resonance: pluckResonance,
-        //         release: pluckRelease,
-        //         // envelope: undefined,
-        //     }
-        // return PluckSynthInitials
-        case xolombrisxInstruments.SAMPLER:
-            return {
-                volume: volume,
-                attack: samplerAttack,
-                baseUrl: "",
-                curve: curve,
-                release: samplerRelase,
-                urls: {},
-            }
         case xolombrisxInstruments.DRUMRACK:
-            // const DrumRack: { [key: number]: typeof DrumRackSlotInitials } = {};
-            // [...Array(4).keys()].forEach(i => { DrumRack[i] = DrumRackSlotInitials })
             console.log('return initials with drumrackslot will be', DrumRackSlotInitials(kick1));
             return {
-                // drumRack: DrumRack
-                // drumRack: {
                 'PAD_0': DrumRackSlotInitials(samples.KICK_2),
                 'PAD_1': DrumRackSlotInitials(samples.CLAP_HIP_HOP),
                 'PAD_2': DrumRackSlotInitials(samples.HI_HAT_1),

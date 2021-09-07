@@ -4,13 +4,6 @@ import { removePropertyLock, parameterLock, parameterLockIncreaseDecrease, setNo
 import { updateInstrumentState, xolombrisxInstruments, increaseDecreaseInstrumentProperty } from '../../../store/Track';
 import { setNestedValue, getNested, propertiesToArray, copyPropertyFromTo, deleteProperty } from '../../../lib/objectDecompose';
 import { indicators } from '../../../containers/Track/defaults';
-import { initials, eventOptions } from '../../../containers/Track/Instruments';
-import { ToneObjectContextType } from '../../../context/ToneObjectsContext';
-import { returnInstrument } from '../../../lib/Tone/initializers';
-import { useIsPlaySelector } from '../Transport/useTransportSelectors';
-import * as Tone from 'tone';
-import { pattsNoteLenSelector } from '../../../store/Sequencer/selectors';
-import useQuickRef from '../../lifecycle/useQuickRef';
 
 export const useInstrumentDispatchers = (
     instProps: string[],
@@ -51,21 +44,22 @@ export const useInstrumentDispatchers = (
         let callArray = instProps.map((property) => {
             return (value: any) => {
 
-                // parameter lock logic 
                 let temp = setNestedValue(property, value)
-                if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
-                    ref_selectedSteps.current.forEach(s => {
-                        dispatch(parameterLock(
-                            ref_activePatt.current,
-                            ref_index.current,
-                            s,
-                            temp,
-                            property
-                        ))
-                    })
-                } else {
-                    dispatch(updateInstrumentState(ref_index.current, temp));
-                };
+                // parameter lock logic 
+                // if (ref_selectedSteps.current && ref_selectedSteps.current.length > 0) {
+                //     ref_selectedSteps.current.forEach(s => {
+                //         dispatch(parameterLock(
+                //             ref_activePatt.current,
+                //             ref_index.current,
+                //             s,
+                //             temp,
+                //             property
+                //         ))
+                //     })
+                // } else {
+                //     dispatch(updateInstrumentState(ref_index.current, temp));
+                // };
+                dispatch(updateInstrumentState(ref_index.current, temp));
             }
         });
         callArray.forEach((call, idx, arr) => {
@@ -91,29 +85,37 @@ export const useInstrumentDispatchers = (
                     || indicatorType === indicators.VERTICAL_SLIDER
                 const cc = e.controller && e.controller.number
 
-                if ( ref_selectedSteps.current && ref_selectedSteps.current.length >= 1) {
+                // if ( ref_selectedSteps.current && ref_selectedSteps.current.length >= 1) {
 
-                    ref_selectedSteps.current.forEach(step => {
-                        dispatch(parameterLockIncreaseDecrease(
-                            ref_activePatt.current,
-                            ref_index.current,
-                            step,
-                            cc ? e.value : e.movementY,
-                            property,
-                            getNested(ref_options.current, property),
-                            cc,
-                            isContinuous,
-                        ))
-                    })
-                } else {
-                    dispatch(increaseDecreaseInstrumentProperty(
-                        ref_index.current,
-                        property,
-                        cc ? e.value : e.movementY,
-                        cc,
-                        isContinuous
-                    ))
-                }
+                //     ref_selectedSteps.current.forEach(step => {
+                //         dispatch(parameterLockIncreaseDecrease(
+                //             ref_activePatt.current,
+                //             ref_index.current,
+                //             step,
+                //             cc ? e.value : e.movementY,
+                //             property,
+                //             getNested(ref_options.current, property),
+                //             cc,
+                //             isContinuous,
+                //         ))
+                //     })
+                // } else {
+                //     dispatch(increaseDecreaseInstrumentProperty(
+                //         ref_index.current,
+                //         property,
+                //         cc ? e.value : e.movementY,
+                //         cc,
+                //         isContinuous
+                //     ))
+                // }
+
+                dispatch(increaseDecreaseInstrumentProperty(
+                    ref_index.current,
+                    property,
+                    cc ? e.value : e.movementY,
+                    cc,
+                    isContinuous
+                ))
             }
         })
         let o = {};

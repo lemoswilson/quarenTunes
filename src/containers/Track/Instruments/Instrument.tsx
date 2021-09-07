@@ -47,12 +47,6 @@ export const Instrument = <T extends xolombrisxInstruments>({
     const {ref: ref_voice} = usePrevAndRef(voice);
     const instProps: string[] = useMemo(() => propertiesToArray(getInitials(voice)) , [voice]);
 
-    const track = useSelector(trackSelector);
-    const sequencer = useSelector(sequencerSelector);
-    const track_ref = useQuickRef(track);
-    const seq_ref = useQuickRef(sequencer);
-
-    
     useProperties(ref_toneObjects.current?.tracks[index].instrument, options);
     useDrumRackProperties(ref_toneObjects.current?.tracks[index].instrument, options, voice)
     useSampleSelector(ref_toneObjects.current?.tracks[index].instrument, options, voice)
@@ -119,14 +113,9 @@ export const Instrument = <T extends xolombrisxInstruments>({
                     />
 
                     
-    function logState(){
-        console.log('track', JSON.stringify( track_ref.current ))
-        console.log('sequencer', JSON.stringify( seq_ref.current ));
-    }
 
     return (
         <div
-            onClick={logState}
             className={styles.border}
             style={{ display: !selected ? 'none' : 'flex' }}>
             <div className={styles.deviceManager}>

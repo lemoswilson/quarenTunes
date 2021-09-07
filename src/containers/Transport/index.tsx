@@ -6,7 +6,7 @@ import {
 	toggleMetronome,
 	increaseDecreaseBPM,
 } from "../../store/Transport";
-import React, { useEffect, FunctionComponent, useRef, MutableRefObject } from "react";
+import React, { useEffect, FunctionComponent, useRef, MutableRefObject, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import * as Tone from "tone";
@@ -20,11 +20,13 @@ import BPMSelector from '../../components/UI/BPMSelector';
 import Metronome from '../../components/UI/Metronome';
 import { sixteenthFromBBSOG } from "../../lib/utility"
 import { Sampler } from "tone";
+import UserDataContext from "../../context/userDataContext";
 import strong from '../../assets/strong.mp3'
 import weak from '../../assets/weak.mp3'
 
 const Transport: React.FC<{name?: string, saveProject: () => void }> = ({saveProject}) => {
 	const dispatch = useDispatch();
+	const User = useContext(UserDataContext);
 
 	const isPlay = useSelector(
 		(state: RootState) => state.transport.present.isPlaying
@@ -130,7 +132,8 @@ const Transport: React.FC<{name?: string, saveProject: () => void }> = ({savePro
 	return (
 			<div className={styles.overlay}>
 				<div className={styles.grouper}>
-					<Save onClick={saveProject} small={true}/>
+					{ User.isAuthenticated ? <Save onClick={saveProject} small={true}/> : null }
+					{/* <Save onClick={saveProject} small={true}/> */}
 					<BPMSelector bpm={bpm} increaseDecrease={_increaseDecreaseBPM} disabled={false} onSubmit={submitBPM}/>
 					<Play onClick={_start}/>
 					<Stop onClick={_stop}/>

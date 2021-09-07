@@ -13,7 +13,6 @@ interface DevicePresetManager {
     remove: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
     fetchList: () => void,
     onChange: (e: ChangeEvent) => void,
-    // textValue: string,
     textValue: MutableRefObject<string>,
     className?: string,
     keyValue: string[][],
@@ -42,7 +41,6 @@ const DevicePresetManager: React.FC<DevicePresetManager> = ({
     const ref_temp: MutableRefObject<string> = useRef('');
     
     const onClick = () => {
-        console.log('clicking');
         ref_temp.current = textValue.current;
         DropdownEmitter.emit(dropdownEventTypes.SAVE_DEVICE, {fxIndex, trackIndex})
     }

@@ -44,8 +44,8 @@ export const useProperties = (
     options: any,
 ) => {
     useProperty(instrumentRef, options, 'harmonicity');
-    useProperty(instrumentRef, options, 'attack');
-    useProperty(instrumentRef, options, 'curve');
+    // useProperty(instrumentRef, options, 'attack');
+    // useProperty(instrumentRef, options, 'curve');
     useProperty(instrumentRef, options, 'detune');
     useProperty(instrumentRef, options, 'envelope', true);
     useProperty(instrumentRef, options, 'modulation', true);

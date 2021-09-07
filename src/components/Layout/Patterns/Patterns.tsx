@@ -238,7 +238,9 @@ const Patterns: React.FC<Patterns> = ({
                     />
                 </div>
                 <div className={styles.bottom}>
-                    <NumberEditor
+                    {
+                    !note 
+                    ? <NumberEditor
                         value={offsetOrLengthData()}
                         disabled={(note && selected.length === 0) || !note && isPlay}
                         decrease={() => {incDecOffPat(-1)}}
@@ -246,6 +248,8 @@ const Patterns: React.FC<Patterns> = ({
                         label={ note ? "Offset" : 'Pattern'}
                         onSubmit={OffPatSubmit}
                     />
+                    : null
+                    }
                 </div>
             </div>
         </div>

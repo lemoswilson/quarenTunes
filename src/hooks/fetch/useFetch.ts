@@ -127,27 +127,30 @@ export const useDeviceLoader = (
     }
 
     const save = (input: HTMLInputElement) => {
-        if (
-            (input.value === 'newInstrument' && modelType === 'instrument' ) 
-            || input.value === 'init'
-            || (input.value === 'newEffect' && modelType === 'effect')
-        ){
-            input.value = name;
-            input.blur()
-            alert(`the name ${input.value} is not a valid preset name, please rename the instrument and try again`)
-            return;
+        if (user.isAuthenticated && user.token){
+            if (
+                (input.value === 'newInstrument' && modelType === 'instrument' ) 
+                || input.value === 'init'
+                || (input.value === 'newEffect' && modelType === 'effect')
+                || input.value === ""
+            ){
+                input.value = name;
+                input.blur()
+                alert(`the name ${input.value} is not a valid preset name, please rename the instrument and try again`)
+                return;
+            }
+    
+            const opt = extend(options);
+            opt.name = input.value;
+    
+            axios.post(
+                process.env.REACT_APP_SERVER_URL + '/users/saveData',
+                {rename: true, type: deviceType, modelType: modelType, name: name, newName: input.value, options: opt},
+                {headers: {authorization: user.token}}
+            ).then(res => {
+                dispatch(setName(input.value, modelType, trackIndex, fxIndex))
+            }).catch()
         }
-
-        const opt = extend(options);
-        opt.name = input.value;
-
-        axios.post(
-            process.env.REACT_APP_SERVER_URL + '/users/saveData',
-            {rename: true, type: deviceType, modelType: modelType, name: name, newName: input.value, options: opt},
-            {headers: {authorization: user.token}}
-        ).then(res => {
-            dispatch(setName(input.value, modelType, trackIndex, fxIndex))
-        }).catch()
     }
 
     const newDevice = () => {
