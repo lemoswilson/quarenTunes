@@ -6,7 +6,14 @@ XolombrisX is a full-stack web application that allows users to create simple be
 
 ## Layout
 
-<img src="https://i.imgur.com/xoKD2ZU.png" width="80%" height="80%">
+<p float="left">
+	<img src="https://i.imgur.com/xoKD2ZU.png" width="47%" height="47%">
+	<img src="https://i.imgur.com/aV0xRmE.png" width="47%" height="47%">
+</p>
+
+<p float="center">
+	<img src="https://i.imgur.com/V6Iv18h.png" width="47%" height="47%">
+</p>
 
 
 ## Tech Stack
