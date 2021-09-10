@@ -39,7 +39,7 @@ XolombrisX is a full-stack web application that allows users to create simple be
 ### Backend
 ```
 # clone repo
-git clone https://github.com/lemoswilson/quarenTunes
+git clone https://github.com/lemoswilson/quarentunesBackend
 
 # change dir to backend
 cd backend
@@ -64,6 +64,9 @@ node dist/src/index.js
 
 ### Frontend
 ```
+# clone repo
+git clone https://github.com/lemoswilson/quarenTunes
+
 # cd to the folder where you cloned the repo
 cd 'path/to/repo'
 
