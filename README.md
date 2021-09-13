@@ -1,8 +1,12 @@
 # XolombrisX
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/lemoswilson/quarenTunes/blob/typescript-redux/LICENSE.md) 
 
+
+
 ## About
 XolombrisX is a full-stack web application that allows users to create simple beats by sequencing a few digital instruments in the browser. The users can save their beats by first creating an account. As of August 2021, the application is for desktop chrome only.
+
+[Live version!](https://xolombrisx.vercel.app/)
 
 ## Layout
 
