@@ -4,7 +4,7 @@ import styles from './style.module.scss';
 import Div100vh from 'react-div-100vh';
 import Curves from './Curves';
 import Logo from '../Logo';
-import { isMobile, isTablet, isMobileOnly, MobileOnlyView, BrowserView, isSafari, isChrome } from 'react-device-detect';
+import { isMobile, isTablet, isMobileOnly, MobileOnlyView, BrowserView, isSafari, isChrome, CustomView, isDesktop } from 'react-device-detect';
 import { Link, NavLink } from 'react-router-dom';
 import useQuickRef from '../../../hooks/lifecycle/useQuickRef';
 import { useSignOut, useVerify } from '../../../hooks/fetch/useFetch';
@@ -129,12 +129,15 @@ const HomePage: React.FC<userProps> = ({
 
     return (
         <React.Fragment>
-            <BrowserView>
+            {/* <BrowserView>
                 { DesktopComponent }
-            </BrowserView>
+            </BrowserView> */}
             <MobileOnlyView>
                 { MobileComponent }
             </MobileOnlyView>
+            <CustomView condition={(  isMobile && !isMobileOnly ) || isDesktop}>
+                { DesktopComponent }
+            </CustomView>
         </React.Fragment>
     )
 

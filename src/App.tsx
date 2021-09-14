@@ -56,6 +56,7 @@ const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
 						<Route path={'/reset'} render={() => <ResetPassword {...user} updateUser={updateUser} signOut={signOut} />}></Route>
 						<Route path={'/projects'} render={() => <Projects {...user} updateUser={updateUser} signOut={signOut} />}></Route>
 						<Route path={'/'} render={() => <HomePage {...user} updateUser={updateUser} signOut={signOut} />}></Route>
+						{/* <Route path={'/'} render={() => <div>que treta jao</div>}></Route> */}
 					</Switch>
 				</Suspense>
 			</BrowserRouter>
